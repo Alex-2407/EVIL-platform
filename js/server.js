@@ -49,13 +49,36 @@ const { logger, auditLog, httpLogger } = require('../middleware/logger');
 const app = express();
 
 // ==================== SERVE STATIC FILES FIRST ====================
-// CRITICO: Questi DEVONO essere PRIMA di QUALSIASI altro middleware per evitare conflitti
-const baseDir = path.resolve(__dirname, '..');
-app.use(express.static(path.join(baseDir, 'css')));
-app.use(express.static(path.join(baseDir, 'js')));
-app.use(express.static(path.join(baseDir, 'assets')));
-app.use(express.static(path.join(baseDir, 'public')));
-app.use(express.static(path.join(baseDir, 'html'))); // Aggiungo anche html per completezza
+// CRITICO: questi middleware devono essere registrati **prima** di qualunque
+// altro routing o security headers, così Express può rispondere con i file
+// statici invece di cadere in un handler 404 generico.
+const root = path.resolve(__dirname, '..');
+
+// helper di debugging: avvisa se una directory statica non esiste
+function checkStaticExists(dir) {
+  try {
+    if (!fs.existsSync(dir)) {
+      console.warn(`⚠️ directory statica mancante: ${dir}`);
+    }
+  } catch (e) {
+    console.warn(`⚠️ errore controllo statico: ${e.message}`);
+  }
+}
+
+// controlli solo in sviluppo, possono essere rimossi in produzione
+if (process.env.NODE_ENV !== 'production') {
+  checkStaticExists(path.join(root, 'css'));
+  checkStaticExists(path.join(root, 'js'));
+  checkStaticExists(path.join(root, 'assets'));
+  checkStaticExists(path.join(root, 'public'));
+  checkStaticExists(path.join(root, 'html'));
+}
+
+app.use('/css', express.static(path.join(root, 'css')));
+app.use('/js', express.static(path.join(root, 'js')));
+app.use('/assets', express.static(path.join(root, 'assets')));
+app.use('/public', express.static(path.join(root, 'public')));
+app.use('/html', express.static(path.join(root, 'html'))); // solo se serve html direttamente
 
 // ==================== APPLY SECURITY HEADERS ====================
 securityHeaders(app);
@@ -68,6 +91,32 @@ app.use(httpLogger);
 
 // ==================== CORS SICURO - DEPLOYMENT AWARE ====================
 const isDev = process.env.NODE_ENV !== 'production';
+
+// route di debugging: mostra l'albero dei file dall'interno del container
+// utile su Render per verificare quali asset sono stati effettivamente copiati
+if (isDev) {
+  app.get('/__debug/files', (req, res) => {
+    try {
+      const walk = (dir) => {
+        let results = [];
+        const list = fs.readdirSync(dir);
+        list.forEach(file => {
+          const full = path.join(dir, file);
+          const stat = fs.statSync(full);
+          if (stat.isDirectory()) {
+            results = results.concat(walk(full));
+          } else {
+            results.push(path.relative(root, full));
+          }
+        });
+        return results;
+      };
+      res.json({ cwd: process.cwd(), root, files: walk(root) });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+}
 
 const corsOptions = {
   origin: function (origin, callback) {
