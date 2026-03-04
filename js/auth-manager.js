@@ -2,7 +2,8 @@
 // Tokens are now managed by server-side httpOnly cookies for XSS protection
 // Client only stores user metadata in localStorage
 
-const AUTH_API_URL = 'http://localhost:5000/api';
+// Usa l'URL dinamico per funzionare sia in localhost che su Render
+const AUTH_API_URL = window.location.origin + '/api';
 const AUTH_TIMEOUT = 5000; // 5 secondi timeout
 
 // ==================== TOKEN & USER STORAGE ====================
