@@ -84,7 +84,18 @@ app.use('/html', express.static(path.join(root, 'html'))); // solo se serve html
 securityHeaders(app);
 
 // ==================== APPLY RATE LIMITING ====================
-app.use(globalLimiter);
+// Rate limit NON si applica alle page HTML, solo alle API
+app.use((req, res, next) => {
+  const path = req.path;
+  // skip rate limit per pagine HTML e file statici
+  if (path === '/' || path.endsWith('.html') || 
+      path.startsWith('/css') || path.startsWith('/js') || 
+      path.startsWith('/assets') || path.startsWith('/public')) {
+    return next(); // bypass rate limit
+  }
+  // applica rate limit solo alle API
+  globalLimiter(req, res, next);
+});
 
 // ==================== APPLY LOGGING MIDDLEWARE ====================
 app.use(httpLogger);
