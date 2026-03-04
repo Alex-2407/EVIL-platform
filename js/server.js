@@ -144,7 +144,7 @@ app.use(express.json());
 
 // Route per la homepage (root)
 app.get('/', (req, res) => {
-  const filePath = path.join(baseDir, 'html', 'home.html');
+  const filePath = path.join(root, 'html', 'home.html');
   if (fs.existsSync(filePath)) {
     let htmlContent = fs.readFileSync(filePath, 'utf8');
     if (htmlContent.includes('</head>')) {
@@ -159,7 +159,7 @@ app.get('/', (req, res) => {
 
 // Route personalizzata per i file HTML - inietta lo script di caricamento header
 app.get('*.html', (req, res, next) => {
-  const filePath = path.join(baseDir, 'html', req.path);
+  const filePath = path.join(root, 'html', req.path);
   
   if (fs.existsSync(filePath) && filePath.endsWith('.html')) {
     let htmlContent = fs.readFileSync(filePath, 'utf8');
@@ -208,11 +208,11 @@ const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
 // See: middleware/upload.js for MIME whitelist, UUID generation, user isolation
 
 // Database utenti (salvataggio file)
-const usersFile = path.join(baseDir, 'users.json');
+const usersFile = path.join(root, 'users.json');
 let users = [];
 
 // Cache file per persistenza incidenti fra riavvii
-const cacheFile = path.join(baseDir, '.incidents-cache.json');
+const cacheFile = path.join(root, '.incidents-cache.json');
 
 // Carica cache dal disco se esiste
 function loadIncidentsCacheFromDisk() {
