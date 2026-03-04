@@ -94,7 +94,7 @@ if (document.readyState === 'loading') {
   loadHeaderComponent();
 }
 
-// Carica il disclaimer manager
-const disclaimerScript = document.createElement('script');
-disclaimerScript.src = './disclaimer-manager.js';
-document.head.appendChild(disclaimerScript);
+// DISABILITATO: Carica il disclaimer manager (potrebbe causare redirect infinito)
+// const disclaimerScript = document.createElement('script');
+// disclaimerScript.src = './disclaimer-manager.js';
+// document.head.appendChild(disclaimerScript);
