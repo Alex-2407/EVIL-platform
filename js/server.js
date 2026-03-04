@@ -159,7 +159,7 @@ app.get('/', (req, res) => {
   if (fs.existsSync(filePath)) {
     let htmlContent = fs.readFileSync(filePath, 'utf8');
     if (htmlContent.includes('</head>')) {
-      const injectedScript = '<script src="./load-header.js"></script>';
+      const injectedScript = '<script src="/js/load-header.js"></script>';
       htmlContent = htmlContent.replace('</head>', `${injectedScript}\n</head>`);
     }
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -177,7 +177,7 @@ app.get('*.html', (req, res, next) => {
     
     // Inietta lo script di caricamento header prima del closing </head> tag
     if (htmlContent.includes('</head>')) {
-      const injectedScript = '<script src="./load-header.js"></script>';
+      const injectedScript = '<script src="/js/load-header.js"></script>';
       htmlContent = htmlContent.replace('</head>', `${injectedScript}\n</head>`);
     }
     

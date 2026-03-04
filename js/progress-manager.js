@@ -1,7 +1,7 @@
 // Progress Manager - Gestisce progressi, trofei e statistiche utente
 // Versione ottimizzata con caching e error handling robusto
 
-const PROGRESS_API_URL = 'http://localhost:5000/api';
+const PROGRESS_API_URL = window.location.origin + '/api';
 const API_TIMEOUT = 8000; // 8 secondi timeout
 const CACHE_DURATION = 60000; // 1 minuto cache
 
