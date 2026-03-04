@@ -7,14 +7,26 @@ const jwt = require('jsonwebtoken');
 
 class TokenManager {
   constructor() {
-    try {
-      this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-      this.redis.on('error', (err) => {
-        console.warn('⚠️ Redis connection warning:', err.message);
-      });
-      this.connected = true;
-    } catch (err) {
-      console.warn('⚠️ Redis not available, using memory-based token storage');
+    const redisUrl = process.env.REDIS_URL && process.env.REDIS_URL.trim();
+    if (redisUrl) {
+      try {
+        this.redis = new Redis(redisUrl);
+        // log only the first error to avoid spam
+        let logged = false;
+        this.redis.on('error', (err) => {
+          if (!logged) {
+            console.warn('⚠️ Redis connection warning:', err.message);
+            logged = true;
+          }
+        });
+        this.connected = true;
+      } catch (err) {
+        console.warn('⚠️ Redis initialization failed, using memory-based token storage');
+        this.memoryStore = {};
+        this.connected = false;
+      }
+    } else {
+      console.info('ℹ️ Redis URL not provided, operating in-memory only');
       this.memoryStore = {};
       this.connected = false;
     }

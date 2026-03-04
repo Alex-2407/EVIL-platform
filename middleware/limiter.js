@@ -6,16 +6,28 @@ const Redis = require('ioredis');
 
 // Initialize Redis client for rate limiting
 let redis = null;
+const redisUrl = process.env.REDIS_URL && process.env.REDIS_URL.trim();
 
-try {
-  redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
-  redis.on('error', (err) => {
-    console.warn('⚠️ Redis connection warning:', err.message);
-    // Fall back to memory-based limiting if Redis unavailable
-  });
-} catch (err) {
-  console.warn('⚠️ Redis not available, using memory-based rate limiting');
+if (redisUrl) {
+  try {
+    redis = new Redis(redisUrl);
+    // log only first connection error to reduce log spam
+    let redisLogged = false;
+    redis.on('error', (err) => {
+      if (!redisLogged) {
+        console.warn('⚠️ Redis connection warning:', err.message);
+        redisLogged = true;
+      }
+      // fallback to memory-based limiting automatically happens
+    });
+  } catch (err) {
+    console.warn('⚠️ Redis initialization failed, using memory-based rate limiting');
+    redis = null;
+  }
+} else {
+  console.info('ℹ️ Redis disabled for rate limiting (no REDIS_URL)');
 }
+
 
 /**
  * Custom store for Redis-backed rate limiting
