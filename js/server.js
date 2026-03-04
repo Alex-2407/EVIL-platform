@@ -106,7 +106,7 @@ const baseDir = path.resolve(__dirname, '..');
 
 // ==================== SERVE STATIC FILES FIRST ====================
 // Questi devono essere PRIMA delle route personalizzate per non essere intercettati
-app.use(express.static(path.join(baseDir, 'html')));
+// NOTA: Non serviamo la cartella 'html' con express.static perché viene gestita dalle route personalizzate
 app.use(express.static(path.join(baseDir, 'css')));
 app.use(express.static(path.join(baseDir, 'js')));
 app.use(express.static(path.join(baseDir, 'assets')));
