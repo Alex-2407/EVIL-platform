@@ -48,7 +48,16 @@ const { logger, auditLog, httpLogger } = require('../middleware/logger');
 
 const app = express();
 
-// ==================== APPLY SECURITY HEADERS FIRST ====================
+// ==================== SERVE STATIC FILES FIRST ====================
+// CRITICO: Questi DEVONO essere PRIMA di QUALSIASI altro middleware per evitare conflitti
+const baseDir = path.resolve(__dirname, '..');
+app.use(express.static(path.join(baseDir, 'css')));
+app.use(express.static(path.join(baseDir, 'js')));
+app.use(express.static(path.join(baseDir, 'assets')));
+app.use(express.static(path.join(baseDir, 'public')));
+app.use(express.static(path.join(baseDir, 'html'))); // Aggiungo anche html per completezza
+
+// ==================== APPLY SECURITY HEADERS ====================
 securityHeaders(app);
 
 // ==================== APPLY RATE LIMITING ====================
@@ -81,36 +90,6 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
-
-// Helper HTTP con retry esponenziale + jitter per resistere a rate limit temporanei
-async function fetchWithRetries(url, axiosConfig = {}, retries = 3, baseBackoff = 500) {
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      return await axios.get(url, axiosConfig);
-    } catch (err) {
-      const status = err.response?.status;
-      // Non ritentare per errori 4xx diversi da 429 (Too Many Requests)
-      if (status && status >= 400 && status < 500 && status !== 429) {
-        throw err;
-      }
-      if (attempt === retries) throw err;
-      const wait = baseBackoff * Math.pow(2, attempt) + Math.floor(Math.random() * 200);
-      console.warn(`Retry ${attempt + 1}/${retries} for ${url} after ${wait}ms due to: ${err.message}`);
-      await new Promise(res => setTimeout(res, wait));
-    }
-  }
-}
-
-// Serve i file statici - calcola il percorso corretto indipendentemente dalla directory di lancio
-const baseDir = path.resolve(__dirname, '..');
-
-// ==================== SERVE STATIC FILES FIRST ====================
-// Questi devono essere PRIMA delle route personalizzate per non essere intercettati
-// NOTA: Non serviamo la cartella 'html' con express.static perché viene gestita dalle route personalizzate
-app.use(express.static(path.join(baseDir, 'css')));
-app.use(express.static(path.join(baseDir, 'js')));
-app.use(express.static(path.join(baseDir, 'assets')));
-app.use(express.static(path.join(baseDir, 'public')));
 
 // ==================== HTML INJECTION MIDDLEWARE ====================
 
