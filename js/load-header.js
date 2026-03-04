@@ -5,8 +5,8 @@
 async function loadHeaderComponent() {
   try {
     // I file HTML della cartella 'html' sono serviti direttamente dalla root
-    // quindi components/header.html è accessibile a /components/header.html
-    const headerPath = '/components/header.html';
+    // quindi components/header.html è accessibile a /html/components/header.html
+    const headerPath = '/html/components/header.html';
     
     // Fetch il file header
     const response = await fetch(headerPath);

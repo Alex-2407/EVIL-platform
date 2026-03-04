@@ -50,8 +50,8 @@ class HealthMonitor {
    */
   async checkAPI() {
     const endpoints = [
-      'http://localhost:5000/api/achievements',
-      'http://localhost:5000/api/progress/load'
+      window.location.origin + '/api/achievements',
+      window.location.origin + '/api/progress/load'
     ];
 
     const results = await Promise.all(
