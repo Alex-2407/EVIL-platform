@@ -10,6 +10,9 @@ const AUTH_TIMEOUT = 5000; // 5 secondi timeout
 // NOTE: Access/Refresh tokens are now stored in httpOnly cookies by the server
 // This protects against XSS attacks that could steal tokens from localStorage
 
+// Flag per evitare logout ricorsivo infinito
+let logoutInProgress = false;
+
 const AUTH_STORAGE = {
   setUser(user) {
     // Only store user metadata (id, name, email) - NOT sensitive tokens
@@ -38,17 +41,13 @@ const AUTH_STORAGE = {
 
 /**
  * Controlla se l'utente è autenticato
- * Verifica facendo una richiesta al server (il browser invia automaticamente i cookie)
- * @returns {Promise<boolean>} True se autenticato
+ * @returns {boolean} True se autenticato
  */
-async function isAuthenticated() {
+function isAuthenticated() {
   try {
     const user = AUTH_STORAGE.getUser();
-    if (!user) return false;
-    
-    // Opzionale: verify con server
-    // Per semplicità, consideriamo autenticato se user in localStorage
-    return true;
+    // Autenticato solo se user esiste E ha i campi richiesti
+    return !!(user && user.id && user.name && user.email);
   } catch (err) {
     console.warn('Auth check error:', err);
     return false;
@@ -129,6 +128,13 @@ async function fetchAuthenticated(url, options = {}) {
  * Esegui logout sicuro
  */
 async function logout() {
+  // Previeni logout ricorsivo infinito
+  if (logoutInProgress) {
+    console.warn('Logout già in corso, salto per evitare loop');
+    return;
+  }
+  logoutInProgress = true;
+
   try {
     // Notifica il server (i cookie vengono inviati automaticamente)
     try {
@@ -145,12 +151,12 @@ async function logout() {
     // Cancella dati locali
     AUTH_STORAGE.clear();
     
-    // Reindirizza al login
-    window.location.href = 'login.html';
+    // Reindirizza al login (usa replace per evitare history back loop)
+    window.location.replace('login.html');
   } catch (err) {
     console.error('Logout error:', err);
     AUTH_STORAGE.clear();
-    window.location.href = 'login.html';
+    window.location.replace('login.html');
   }
 }
 
@@ -166,8 +172,12 @@ function initAuthHeader() {
     if (isAuthenticated()) {
       const user = getCurrentUser();
       if (!user) {
-        // Token exists but user non valido - logout
-        logout();
+        // Token invalido: NON chiamare logout (causa loop), mostra semplicemente login/signup
+        console.warn('User invalido ma isAuthenticated true - mostro bottoni guest');
+        authButtons.innerHTML = `
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        `;
         return;
       }
       
