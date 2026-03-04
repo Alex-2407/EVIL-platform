@@ -104,6 +104,14 @@ async function fetchWithRetries(url, axiosConfig = {}, retries = 3, baseBackoff 
 // Serve i file statici - calcola il percorso corretto indipendentemente dalla directory di lancio
 const baseDir = path.resolve(__dirname, '..');
 
+// ==================== SERVE STATIC FILES FIRST ====================
+// Questi devono essere PRIMA delle route personalizzate per non essere intercettati
+app.use(express.static(path.join(baseDir, 'html')));
+app.use(express.static(path.join(baseDir, 'css')));
+app.use(express.static(path.join(baseDir, 'js')));
+app.use(express.static(path.join(baseDir, 'assets')));
+app.use(express.static(path.join(baseDir, 'public')));
+
 // ==================== HTML INJECTION MIDDLEWARE ====================
 
 // Route per la homepage (root)
@@ -140,13 +148,6 @@ app.get('*.html', (req, res, next) => {
   
   next();
 });
-
-// Serve i file statici
-app.use(express.static(path.join(baseDir, 'html')));
-app.use(express.static(path.join(baseDir, 'css')));
-app.use(express.static(path.join(baseDir, 'js')));
-app.use(express.static(path.join(baseDir, 'assets')));
-app.use(express.static(path.join(baseDir, 'public')));
 
 const PORT = process.env.PORT || 5000;
 

@@ -4,10 +4,9 @@
  */
 async function loadHeaderComponent() {
   try {
-    // Determina il percorso del file header in base alla posizione del file HTML
-    const pathname = window.location.pathname;
-    const isInHtmlFolder = pathname.includes('/html/');
-    const headerPath = isInHtmlFolder ? './components/header.html' : './html/components/header.html';
+    // I file HTML della cartella 'html' sono serviti direttamente dalla root
+    // quindi components/header.html è accessibile a /components/header.html
+    const headerPath = '/components/header.html';
     
     // Fetch il file header
     const response = await fetch(headerPath);
