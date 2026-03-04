@@ -1,0 +1,124 @@
+{
+  "achievements": [
+    {
+      "id": "first_scan",
+      "name": "Primo Scan",
+      "description": "Completa il tuo primo scan di sicurezza",
+      "icon": "🔍",
+      "category": "tools",
+      "difficulty": "easy"
+    },
+    {
+      "id": "malware_expert",
+      "name": "Esperto di Malware",
+      "description": "Identifica correttamente 5 tipi di malware",
+      "icon": "🦠",
+      "category": "database",
+      "difficulty": "medium"
+    },
+    {
+      "id": "phishing_defender",
+      "name": "Difensore da Phishing",
+      "description": "Completa il quiz di phishing con 100% di precisione",
+      "icon": "🎣",
+      "category": "education",
+      "difficulty": "hard"
+    },
+    {
+      "id": "social_engineer",
+      "name": "Social Engineer",
+      "description": "Completa una simulazione di social engineering",
+      "icon": "🎭",
+      "category": "education",
+      "difficulty": "medium"
+    },
+    {
+      "id": "dns_master",
+      "name": "Master DNS",
+      "description": "Esegui 10 enumeration DNS",
+      "icon": "🌐",
+      "category": "tools",
+      "difficulty": "medium"
+    },
+    {
+      "id": "vuln_finder",
+      "name": "Cacciatore di Vulnerabilità",
+      "description": "Trova 5 vulnerabilità con il scanner",
+      "icon": "🔴",
+      "category": "tools",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ssl_analyst",
+      "name": "Analista SSL",
+      "description": "Analizza 5 certificati SSL",
+      "icon": "🔒",
+      "category": "tools",
+      "difficulty": "easy"
+    },
+    {
+      "id": "osint_pro",
+      "name": "OSINT Pro",
+      "description": "Raccogli informazioni pubbliche su 3 target",
+      "icon": "🔎",
+      "category": "osint",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ethical_hacker",
+      "name": "Ethical Hacker",
+      "description": "Completa il tutorial di ethical hacking",
+      "icon": "⚔️",
+      "category": "education",
+      "difficulty": "hard"
+    },
+    {
+      "id": "lab_master",
+      "name": "Lab Master",
+      "description": "Completa il laboratorio virtuale",
+      "icon": "🧪",
+      "category": "education",
+      "difficulty": "hard"
+    },
+    {
+      "id": "attack_monitor",
+      "name": "Monitore di Attacchi",
+      "description": "Visualizza la mappa attacchi in tempo reale",
+      "icon": "🗺️",
+      "category": "attacks",
+      "difficulty": "easy"
+    },
+    {
+      "id": "report_generator",
+      "name": "Generatore di Report",
+      "description": "Genera 3 report di sicurezza",
+      "icon": "📋",
+      "category": "tools",
+      "difficulty": "medium"
+    },
+    {
+      "id": "ten_scans",
+      "name": "Scansionista Seriale",
+      "description": "Completa 10 scansioni di sicurezza",
+      "icon": "📊",
+      "category": "tools",
+      "difficulty": "medium"
+    },
+    {
+      "id": "master_collector",
+      "name": "Collezionista Supremo",
+      "description": "Sblocca 10 trofei",
+      "icon": "👑",
+      "category": "special",
+      "difficulty": "legendary"
+    },
+    {
+      "id": "all_sections",
+      "name": "Esploratore Totale",
+      "description": "Visita tutte le sezioni della piattaforma",
+      "icon": "🌟",
+      "category": "special",
+      "difficulty": "hard"
+    }
+  ]
+}

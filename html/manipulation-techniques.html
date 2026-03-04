@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tecniche di Persistenza - EVIL Cybersecurity</title>
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <style>
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .hero-section h1 {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      color: #00ff9c;
+      text-shadow: 0 0 20px rgba(0, 255, 156, 0.3);
+      font-weight: 900;
+    }
+
+    .hero-section p {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.8;
+      max-width: 900px;
+      margin: 0 auto 20px;
+    }
+
+    .info-box {
+      background: rgba(0, 255, 156, 0.1);
+      border-left: 4px solid #00ff9c;
+      padding: 20px;
+      margin: 30px 0;
+      border-radius: 4px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.95rem;
+      line-height: 1.8;
+    }
+
+    .info-box strong {
+      color: #00ff9c;
+    }
+
+    .info-box a {
+      color: #7cffcc;
+      text-decoration: underline;
+    }
+
+    .techniques-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin: 50px 0;
+    }
+
+    .technique-card {
+      background: rgba(0, 20, 40, 0.6);
+      border: 1px solid rgba(124, 255, 204, 0.2);
+      border-radius: 8px;
+      padding: 25px;
+      transition: all 0.3s ease;
+    }
+
+    .technique-card:hover {
+      border-color: #00ff9c;
+      box-shadow: 0 0 15px rgba(0, 255, 156, 0.2);
+      background: rgba(0, 20, 40, 0.8);
+    }
+
+    .technique-card h3 {
+      color: #00ff9c;
+      font-size: 1.3rem;
+      margin: 0 0 10px 0;
+      font-family: 'Courier New', monospace;
+    }
+
+    .technique-card .mitre {
+      color: #7cffcc;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .technique-card .description {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    .section-label {
+      color: #00ff9c;
+      font-weight: 700;
+      margin: 12px 0 8px 0;
+      display: block;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .indicators, .mitigation {
+      background: rgba(0, 255, 156, 0.05);
+      border-left: 2px solid #00ff9c;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 3px;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.6;
+    }
+
+    .indicators strong, .mitigation strong {
+      color: #00ff9c;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .comparison-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(124, 255, 204, 0.15);
+      border-radius: 12px;
+      padding: 40px;
+      margin: 60px 0;
+    }
+
+    .comparison-section h2 {
+      color: #00ff9c;
+      font-size: 1.8rem;
+      margin-top: 0;
+      margin-bottom: 30px;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      border-bottom: 2px solid rgba(124, 255, 204, 0.3);
+    }
+
+    th {
+      text-align: left;
+      padding: 15px;
+      color: #00ff9c;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 15px;
+      color: rgba(255, 255, 255, 0.8);
+      border-bottom: 1px solid rgba(124, 255, 204, 0.1);
+      font-size: 0.9rem;
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 255, 156, 0.05);
+    }
+
+    .level-high { color: #ff6b6b; font-weight: 600; }
+    .level-medium { color: #ffd93d; font-weight: 600; }
+    .level-low { color: #00ff9c; font-weight: 600; }
+
+    .cta-section {
+      background: linear-gradient(135deg, rgba(0, 255, 156, 0.1), rgba(77, 171, 247, 0.1));
+      border: 1px solid rgba(124, 255, 204, 0.2);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin: 60px auto;
+      max-width: 1000px;
+    }
+
+    .cta-section h3 {
+      color: #00ff9c;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .cta-section p {
+      color: rgba(255, 255, 255, 0.75);
+      margin: 15px 0;
+      line-height: 1.8;
+    }
+
+    .cta-section a {
+      color: #7cffcc;
+      text-decoration: underline;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1024px) {
+      .techniques-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      table {
+        font-size: 0.85rem;
+      }
+
+      th, td {
+        padding: 10px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-section h1 {
+        font-size: 1.8rem;
+      }
+
+      .techniques-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="generated-image.png" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ▾</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ▾</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ▾</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔒 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <h1>🔐 Tecniche di Persistenza & Evasione Malware</h1>
+      <p>Una guida completa alle tecniche di post-compromise utilizzate dai malware per mantenere l'accesso ai sistemi, rimanere invisibili dalle difese, e eludere le contromisure.</p>
+      <p>Scopri come funzionano, quali sono gli indicatori di compromissione (IOCs), e come mitigarle efficacemente.</p>
+    </section>
+
+    <!-- INFO BOX -->
+    <div class="info-box">
+      <strong>ℹ️ Come usare questa sezione:</strong> Se cerchi informazioni su un malware SPECIFICO (es: "Emotet"), visita il <a href="malware-db.html">Database Malware</a>. Se cerchi la tassonomia generale delle categorie malware, vai a <a href="malware-classification.html">Classificazione Malware</a>. Se cerchi attacchi storici e analisi forense, consulta <a href="historic-attacks.html">Attacchi Storici</a>. Qui imparerai le TECNICHE SPECIFICHE di persistenza secondo MITRE ATT&CK framework.
+    </div>
+
+    <!-- TECHNIQUES GRID -->
+    <section class="techniques-grid">
+      
+      <!-- TECHNIQUE 1: Registry Run Keys -->
+      <div class="technique-card">
+        <h3>🔧 Registry Run Keys</h3>
+        <div class="mitre">T1547.001 - Boot or Logon Autostart Execution</div>
+        <p class="description">Il malware modifica le chiavi di registro (HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run) per eseguire automaticamente il payload ad ogni avvio del sistema.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Nuove voci in Run/RunOnce non autorizzate<br/>
+          • File eseguibili nella cartella Startup anomali<br/>
+          • Modifiche timestamps nel registro recenti<br/>
+          • Percorsi eseguibili sospetti (AppData, Temp, System32)
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          • Monitorare modifiche al registro via auditing<br/>
+          • Disabilitare autorun in GPO per utenti normali<br/>
+          • Implementare Endpoint Detection & Response (EDR)<br/>
+          • Enumerare regolarmente con Autoruns (SysInternals)
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 2: Scheduled Tasks -->
+      <div class="technique-card">
+        <h3>⚙️ Scheduled Tasks (Attività Pianificate)</h3>
+        <div class="mitre">T1053.005 - Scheduled Task/Job</div>
+        <p class="description">Sfrutta la Pianificazione Attività di Windows per eseguire comandi o script malicosi a intervalli specifici, in modo discreto e persistente.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Task con nomi generici (Windows Update, System Cleanup, Maintenance)<br/>
+          • Task disabilitati ma abilitati da processi malicosi<br/>
+          • Task con trigger nascosti (on idle, on logon, on boot)<br/>
+          • File di esecuzione con estensioni sospette (.bat, .ps1, .vbs)
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Monitorare CreationTime dei task via Event Log ID 4698<br/>
+          � Audit Scheduled Tasks changes (Event ID 4702)<br/>
+          � Disabilitare accesso a schtasks.exe per utenti non-admin<br/>
+          � Configurare AppLocker per script execution
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 3: WMI Event Subscriptions -->
+      <div class="technique-card">
+        <h3>🔧 WMI Event Subscriptions</h3>
+        <div class="mitre">T1546.003 - Windows Management Instrumentation Event Subscription</div>
+        <p class="description">Crea sottoscrizioni WMI permanenti che eseguono azioni in risposta a eventi di sistema, rimanendo invisibile ai tradizionali audit e antivirus.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Sottoscrizioni WMI non documentate (Get-WmiObject __EventFilter)<br/>
+          • Event Filter con payload PowerShell o VBScript<br/>
+          • EventNamespace anomali o inusuali<br/>
+          • Consumer bindings a processi sospetti
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Enumerare WMI subscriptions: Get-WmiObject __EventFilter<br/>
+          � Disabilitare WMI in ambienti dove non � necessario<br/>
+          � Monitorare WMI Repository: C:\Windows\System32\wbem\Repository<br/>
+          � Audit WMI access via Sysmon Event ID 19-21
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 4: Rootkit & Kernel Persistence -->
+      <div class="technique-card">
+        <h3>⚠️ Rootkit & Kernel Persistence</h3>
+        <div class="mitre">T1547.008 - Kernel Modules and Extensions</div>
+        <p class="description">Installa driver kernel malicosi che operano a livello di sistema operativo, garantendo privilegi SYSTEM e invisibilità agli strumenti user-mode.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Driver non firmati digitalmente o con certificati revocati<br/>
+          • Module load anomali nel kernel debugger (windbg)<br/>
+          • Discrepanze tra tasklist (user-mode) e procmon (kernel)<br/>
+          • File di driver nascosti (alternate data streams)
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Abilitare Code Integrity Guard (Secure Boot, UEFI)<br/>
+          � Monitorare driver caricati via Autoruns o Sysmon<br/>
+          � Usare kernel debugger per deep inspection avanzata<br/>
+          � Eseguire Driver Verifier per validazione driver
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 5: Browser Hijacking & Extensions -->
+      <div class="technique-card">
+        <h3>🌐 Browser Hijacking & Extensions</h3>
+        <div class="mitre">T1547.010 - Port Monitors</div>
+        <p class="description">Installa estensioni malevole nei browser o modifica la home page, catturando traffico, rubando credenziali e iniettando pubblicità o payload.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Estensioni non autenticate in Chrome/Firefox non autorizzate<br/>
+          • Modifiche proxy settings o HTTPS inspection rules<br/>
+          • DLL browser hook inaspettate (user32.dll, urlmon.dll)<br/>
+          • Home page modificata, ricerca engine alterata
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Disabilitare installazione estensioni da fonti non ufficiali<br/>
+          � Monitorare cartella User Data/Extensions e Preferences<br/>
+          � Implementare policies per amministrazione estensioni<br/>
+          � Eseguire browser in modalit� sandbox/container
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 6: Service Installation -->
+      <div class="technique-card">
+        <h3>⚙️ Service Installation (Servizi Windows)</h3>
+        <div class="mitre">T1543.003 - Windows Service</div>
+        <p class="description">Crea un servizio Windows malevolo che si esegue con privilegi SYSTEM, fornendo accesso persistente difficile da rimuovere e raramente rilevato.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Servizi con nomi offuscati (svchost_2, ntmsvc, service_temp)<br/>
+          • Display Name vuoto, generico, o criptato<br/>
+          • Percorso servizio punti a directory sospette (AppData, Temp)<br/>
+          • Start type: Auto o Demand (piuttosto che Disabled)
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Monitorare creazione servizi via Event ID 7045 (System)<br/>
+          � Audit Service Control Manager (SCM) changes (Event ID 7045-7048)<br/>
+          � Enumerare servizi regolarmente con Autoruns o sc.exe<br/>
+          � Implementare policy per servizi non autorizzati
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 7: COM Hijacking -->
+      <div class="technique-card">
+        <h3>🔗 COM Hijacking (Component Object Model)</h3>
+        <div class="mitre">T1546.015 - Component Object Model Hijacking</div>
+        <p class="description">Hijacking di componenti COM per eseguire codice malicioso quando applicazioni legittime caricano i componenti durante il startup del sistema.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • Voci anomale in HKCU/HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths<br/>
+          • InprocServer32 o LocalServer32 che puntano a DLL sospette<br/>
+          • Registro COM modificato recentemente<br/>
+          • CLSID non documentati o sospetti
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Monitorare modifiche al registro COM in tempo reale<br/>
+          � Utilizare Process Monitor per tracciare COM access<br/>
+          � Whitelist COM objects nel registro (GPO)<br/>
+          � Implementare application whitelisting stricto
+        </div>
+      </div>
+
+      <!-- TECHNIQUE 8: Startup Folder Persistence -->
+      <div class="technique-card">
+        <h3>📁 Startup Folder Persistence</h3>
+        <div class="mitre">T1547.001 - Boot or Logon Autostart Execution (Startup Folder)</div>
+        <p class="description">Il malware inserisce shortcut (.lnk) o eseguibili nella cartella Startup per eseguirsi automaticamente all'accesso dell'utente.</p>
+        <span class="section-label">📊 Indicatori di Compromissione</span>
+        <div class="indicators">
+          • File nella cartella: C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup<br/>
+          • o C:\Users\[UserName]\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup<br/>
+          • Shortcut (.lnk) con percorso sospetto o offuscato<br/>
+          • File eseguibile diretto nella cartella Startup
+        </div>
+        <span class="section-label">🛡️ Mitigazione</span>
+        <div class="mitigation">
+          � Monitorare file creati nella cartella Startup via Sysmon<br/>
+          � Controllare regolarmente Startup folder per file anomali<br/>
+          � Disabilitare accesso in scrittura alla Startup folder per utenti normali<br/>
+          � Implementare file integrity monitoring (FIM)
+        </div>
+      </div>
+
+    </section>
+
+    <!-- COMPARISON SECTION -->
+    <section class="comparison-section">
+      <h2>📊 Confronto Tecniche di Persistenza</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Tecnica</th>
+              <th>Livello Stealth</th>
+              <th>Prevalenza</th>
+              <th>Difficolt� Rilevamento</th>
+              <th>Mitigazione Principale</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Registry Run Keys</strong></td>
+              <td><span class="level-medium">Media</span></td>
+              <td><span class="level-high">Molto Alta</span></td>
+              <td><span class="level-low">Bassa</span></td>
+              <td>Registry monitoring, EDR behavioral</td>
+            </tr>
+            <tr>
+              <td><strong>Scheduled Tasks</strong></td>
+              <td><span class="level-medium">Media</span></td>
+              <td><span class="level-high">Alta</span></td>
+              <td><span class="level-low">Bassa</span></td>
+              <td>Event Log audit ID 4698-4702</td>
+            </tr>
+            <tr>
+              <td><strong>WMI Event Subscriptions</strong></td>
+              <td><span class="level-high">Alta</span></td>
+              <td><span class="level-medium">Media</span></td>
+              <td><span class="level-high">Molto Alta</span></td>
+              <td>WMI auditing, Sysmon monitoring</td>
+            </tr>
+            <tr>
+              <td><strong>Rootkit Kernel</strong></td>
+              <td><span class="level-high">Molto Alta</span></td>
+              <td><span class="level-low">Bassa-Media</span></td>
+              <td><span class="level-high">Molto Alta</span></td>
+              <td>Secure Boot, kernel debugger, UEFI</td>
+            </tr>
+            <tr>
+              <td><strong>Browser Hijacking</strong></td>
+              <td><span class="level-medium">Media</span></td>
+              <td><span class="level-high">Alta</span></td>
+              <td><span class="level-low">Bassa-Media</span></td>
+              <td>Browser profile monitoring, extension policy</td>
+            </tr>
+            <tr>
+              <td><strong>Windows Service</strong></td>
+              <td><span class="level-medium">Media-Alta</span></td>
+              <td><span class="level-high">Alta</span></td>
+              <td><span class="level-low">Bassa-Media</span></td>
+              <td>Service creation auditing, Services.msc review</td>
+            </tr>
+            <tr>
+              <td><strong>COM Hijacking</strong></td>
+              <td><span class="level-high">Alta</span></td>
+              <td><span class="level-medium">Bassa-Media</span></td>
+              <td><span class="level-high">Alta</span></td>
+              <td>COM registry auditing, Process Monitor</td>
+            </tr>
+            <tr>
+              <td><strong>Startup Folder</strong></td>
+              <td><span class="level-low">Bassa</span></td>
+              <td><span class="level-high">Molto Alta</span></td>
+              <td><span class="level-low">Bassa</span></td>
+              <td>Folder monitoring, file integrity checking</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+      <h3>🔗 Approfondimenti Correlati</h3>
+      <p><strong>Vuoi apprendere come malware specifici utilizzano queste tecniche?</strong></p>
+      <p>Visita il <a href="malware-db.html">Database Malware</a> per analizzare 50+ esemplari reali e le loro tecniche di persistenza.</p>
+      <p><strong>Interessato agli attacchi storici?</strong></p>
+      <p>Consulta <a href="historic-attacks.html">Attacchi Storici</a> per case studies di incidenti reali e come sono stati analizzati forensicamente.</p>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">Tecniche Manipolazione</div>
+        <div class="footer-text">Catalogo delle tecniche di persistenza malware: registry, scheduled tasks, WMI, rootkit, browser hijacking secondo framework MITRE ATT&CK.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Defensive Intelligence</div>
+        <div class="footer-text">Per ogni tecnica: indicatori di compromissione (IOCs), mitigazioni pratiche e strategie di detection mediante log, EDR e behavioral analysis.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">� 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>
+
+

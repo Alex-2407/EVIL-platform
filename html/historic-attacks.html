@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Attacchi Storici - EVIL Cybersecurity</title>
+  <link rel="stylesheet" href="../css/style.css">
+  
+  <style>
+    main {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 60px;
+      border-bottom: 2px solid rgba(255, 107, 107, 0.3);
+      padding-bottom: 40px;
+    }
+
+    .hero-section h1 {
+      font-size: 3.2rem;
+      color: #ff6b6b;
+      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .hero-section p {
+      font-size: 1.05rem;
+      color: #b0b0b0;
+      max-width: 900px;
+      margin: 10px auto;
+      line-height: 1.7;
+    }
+
+    .info-box {
+      background: rgba(255, 107, 107, 0.05);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      border-radius: 6px;
+      padding: 25px;
+      margin: 30px 0 50px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+
+    .info-box a {
+      color: #ff9999;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 10px 15px;
+      border: 1px solid #ff6b6b;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+      display: block;
+      text-align: center;
+    }
+
+    .info-box a:hover {
+      background: rgba(255, 107, 107, 0.15);
+      border-color: #ff9999;
+      transform: translateY(-2px);
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-family: 'Courier New', monospace;
+      color: #ff6b6b;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .attacks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 25px;
+      margin-bottom: 60px;
+    }
+
+    .attack-card {
+      background: rgba(20, 30, 50, 0.7);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      border-radius: 6px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .attack-card:hover {
+      border-color: #ff6b6b;
+      box-shadow: 0 0 20px rgba(255, 107, 107, 0.15);
+      transform: translateY(-3px);
+    }
+
+    .attack-year {
+      font-size: 0.85rem;
+      font-family: 'Courier New', monospace;
+      color: #ff9999;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 1px;
+    }
+
+    .attack-title {
+      font-size: 1.6rem;
+      color: #ff6b6b;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .attack-detail {
+      font-size: 0.95rem;
+      color: #c0c0c0;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+
+    .attack-detail strong {
+      color: #ff9999;
+      font-weight: 700;
+    }
+
+    .attack-impact,
+    .attack-techniques,
+    .attack-lessons {
+      margin: 15px 0;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .attack-impact {
+      background: rgba(255, 107, 107, 0.1);
+      border-left: 3px solid #ff6b6b;
+      color: #b0b0b0;
+    }
+
+    .attack-impact strong {
+      color: #ff6b6b;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .attack-techniques {
+      background: rgba(0, 255, 156, 0.08);
+      border-left: 3px solid #00ff9c;
+      color: #b0b0b0;
+    }
+
+    .attack-techniques strong {
+      color: #00ff9c;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .attack-lessons {
+      background: rgba(255, 200, 0, 0.08);
+      border-left: 3px solid #ffc800;
+      color: #b0b0b0;
+    }
+
+    .attack-lessons strong {
+      color: #ffc800;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 60px;
+      background: rgba(20, 30, 50, 0.5);
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .comparison-table thead {
+      background: rgba(255, 107, 107, 0.1);
+      border-bottom: 2px solid #ff6b6b;
+    }
+
+    .comparison-table th {
+      padding: 12px;
+      text-align: left;
+      color: #ff6b6b;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .comparison-table td {
+      padding: 12px;
+      color: #c0c0c0;
+      border-bottom: 1px solid rgba(255, 107, 107, 0.1);
+      font-size: 0.9rem;
+    }
+
+    .comparison-table tbody tr:hover {
+      background: rgba(255, 107, 107, 0.05);
+    }
+
+    .cta-section {
+      background: linear-gradient(135deg, rgba(255, 107, 107, 0.08), rgba(0, 255, 156, 0.04));
+      border: 1px solid rgba(255, 107, 107, 0.2);
+      border-radius: 6px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .cta-section h2 {
+      font-size: 2rem;
+      color: #ff6b6b;
+      margin-bottom: 15px;
+    }
+
+    .cta-section p {
+      color: #b0b0b0;
+      margin-bottom: 20px;
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .cta-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0 25px;
+      display: inline-block;
+      text-align: left;
+    }
+
+    .cta-section li {
+      color: #b0b0b0;
+      margin: 8px 0;
+      font-size: 0.95rem;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 12px 28px;
+      background: #ff6b6b;
+      color: #000;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      text-decoration: none;
+    }
+
+    .cta-button:hover {
+      background: #ff9999;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .hero-section h1 {
+        font-size: 2.2rem;
+      }
+
+      .attacks-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .info-box {
+        grid-template-columns: 1fr;
+      }
+
+      .comparison-table {
+        font-size: 0.85rem;
+      }
+
+      .comparison-table th,
+      .comparison-table td {
+        padding: 8px;
+      }
+
+      .cta-section {
+        padding: 25px;
+      }
+
+      .cta-section h2 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="generated-image.png" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ▾</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ▾</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ▾</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔒 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <h1>Attacchi Storici</h1>
+      <p>Cronologia dei pi� impattanti attacchi cibernetici della storia moderna. Analizza le tecniche, l'impatto globale e le lezioni di sicurezza applicate.</p>
+    </section>
+
+    <!-- INFO BOX -->
+    <div class="info-box">
+      <a href="malware-db.html">Database Malware</a>
+      <a href="malware-classification.html">Classificazione Malware</a>
+      <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+      <a href="malware-card-template.html">Template Scheda</a>
+    </div>
+
+    <span class="section-label">📋 Attacchi Documentati</span>
+
+    <!-- ATTACKS GRID -->
+    <div class="attacks-grid">
+      
+      <!-- ATTACK 1: WannaCry -->
+      <div class="attack-card">
+        <div class="attack-year">May 12, 2017</div>
+        <div class="attack-title">WannaCry Ransomware</div>
+        <p class="attack-detail"><strong>Malware:</strong> WannaCry (WannaCrypt0r 2.0)</p>
+        <p class="attack-detail"><strong>Vettore:</strong> EternalBlue exploit via SMB (CVE-2017-0144)</p>
+        <p class="attack-detail"><strong>Scope:</strong> 150+ paesi, 200k+ infected in 24 ore</p>
+        <div class="attack-impact">
+          <strong>Impatto Globale:</strong>
+          � $1B+ danni stimati<br/>
+          � NHS UK servizi offline<br/>
+          � Paralisi industrie manifatturiere
+        </div>
+        <div class="attack-techniques">
+          <strong>Tecniche:</strong>
+          � EternalBlue exploit (T1190)<br/>
+          � Worm auto-propagante SMB<br/>
+          � AES/RSA encryption
+        </div>
+        <div class="attack-lessons">
+          <strong>Lezioni:</strong>
+          � Patch management critico<br/>
+          � Segmentazione di rete riduce spread<br/>
+          � Backup offline essenziale
+        </div>
+      </div>
+
+      <!-- ATTACK 2: Stuxnet -->
+      <div class="attack-card">
+        <div class="attack-year">2010</div>
+        <div class="attack-title">Stuxnet - Cyber-Weapon</div>
+        <p class="attack-detail"><strong>Malware:</strong> Stuxnet (worm Windows)</p>
+        <p class="attack-detail"><strong>Target:</strong> Impianti nucleari iraniani (Natanz)</p>
+        <p class="attack-detail"><strong>Scope:</strong> Primo attacco cyber-warfare documentato</p>
+        <div class="attack-impact">
+          <strong>Impatto Strategico:</strong>
+          � Distruzione centrifughe uranio<br/>
+          � Programma nucleare iraniano rallentato<br/>
+          � Infrastrutture critiche come target cyber
+        </div>
+        <div class="attack-techniques">
+          <strong>Tecniche:</strong>
+          � 4 zero-day contemporanei<br/>
+          � Certificati digitali stolen<br/>
+          � Air-gap jumping USB Autorun
+        </div>
+        <div class="attack-lessons">
+          <strong>Lezioni:</strong>
+          � Infrastrutture critiche sono target<br/>
+          � Air-gapping fisico necessario<br/>
+          � Supply chain firmware critico
+        </div>
+      </div>
+
+      <!-- ATTACK 3: Mirai Botnet -->
+      <div class="attack-card">
+        <div class="attack-year">September 2016</div>
+        <div class="attack-title">Mirai DDoS Botnet</div>
+        <p class="attack-detail"><strong>Malware:</strong> Mirai (IoT botnet)</p>
+        <p class="attack-detail"><strong>Vettore:</strong> Default password IoT (telecamere, router)</p>
+        <p class="attack-detail"><strong>Scope:</strong> 600k+ dispositivi compromessi</p>
+        <div class="attack-impact">
+          <strong>Impatto Internet:</strong>
+          � DDoS Dyn DNS 45-100 Gbps<br/>
+          � Costa Est USA internet outage<br/>
+          � Primo mega-DDoS da IoT
+        </div>
+        <div class="attack-techniques">
+          <strong>Tecniche:</strong>
+          � Brute-force default credentials<br/>
+          � Botnet C&C UDP flood<br/>
+          � Auto-propagazione scanning
+        </div>
+        <div class="attack-lessons">
+          <strong>Lezioni:</strong>
+          � IoT default password critico<br/>
+          � Segmentazione rete IoT essenziale<br/>
+          � Monitoring traffico anomalo
+        </div>
+      </div>
+
+      <!-- ATTACK 4: Conficker -->
+      <div class="attack-card">
+        <div class="attack-year">November 2008</div>
+        <div class="attack-title">Conficker Worm</div>
+        <p class="attack-detail"><strong>Malware:</strong> Conficker (worm Windows)</p>
+        <p class="attack-detail"><strong>Vettore:</strong> SMB RCE exploit + USB vulnerabilit�</p>
+        <p class="attack-detail"><strong>Scope:</strong> 10+ milioni infected</p>
+        <div class="attack-impact">
+          <strong>Impatto Globale:</strong>
+          � CENTCOM rete USA compromessa<br/>
+          � Banche europee offline<br/>
+          � Worm pi� esteso della storia
+        </div>
+        <div class="attack-techniques">
+          <strong>Tecniche:</strong>
+          � SMB exploitation (MS08-067)<br/>
+          � Domain Generation Algorithm<br/>
+          � Protezione antivirus bypass
+        </div>
+        <div class="attack-lessons">
+          <strong>Lezioni:</strong>
+          � DGA rende takedown difficile<br/>
+          � USB autoruns GPO disable<br/>
+          � Coordinated response efficace
+        </div>
+      </div>
+
+      <!-- ATTACK 5: ILOVEYOU Virus -->
+      <div class="attack-card">
+        <div class="attack-year">May 4, 2000</div>
+        <div class="attack-title">ILOVEYOU - Email Worm</div>
+        <p class="attack-detail"><strong>Malware:</strong> ILOVEYOU (VBS worm)</p>
+        <p class="attack-detail"><strong>Vettore:</strong> Email phishing + VBS attachment</p>
+        <p class="attack-detail"><strong>Scope:</strong> Primo worm globale pre-broadband</p>
+        <div class="attack-impact">
+          <strong>Impatto Storico:</strong>
+          � 45M infected in 10 days<br/>
+          � $5.5-8.7B danni<br/>
+          � Email server crash globali
+        </div>
+        <div class="attack-techniques">
+          <strong>Tecniche:</strong>
+          � Social engineering emotivo<br/>
+          � VBS auto-replica<br/>
+          � Media file overwrite
+        </div>
+        <div class="attack-lessons">
+          <strong>Lezioni:</strong>
+          � Email vettore primario<br/>
+          � Script execution pericoloso<br/>
+          � Backup offline critico
+        </div>
+      </div>
+
+      <!-- ATTACK 6: NotPetya -->
+      <div class="attack-card">
+        <div class="attack-year">June 27, 2017</div>
+        <div class="attack-title">NotPetya - Supply Chain</div>
+        <p class="attack-detail"><strong>Malware:</strong> NotPetya (ransomware-worm)</p>
+        <p class="attack-detail"><strong>Vettore:</strong> Supply chain (M.E.Doc compromessa)</p>
+        <p class="attack-detail"><strong>Scope:</strong> 64 paesi, Ucraina target</p>
+        <div class="attack-impact">
+          <strong>Impatto Globale:</strong>
+          � $10B danni (> WannaCry)<br/>
+          � Maersk shipping paralizzata<br/>
+          � Primo ransomware stato-attribuito
+        </div>
+        <div class="attack-techniques">
+          <strong>Tecniche:</strong>
+          � Supply chain tampering<br/>
+          � EternalBlue lateral movement<br/>
+          � PsExec privilege escalation
+        </div>
+        <div class="attack-lessons">
+          <strong>Lezioni:</strong>
+          � Supply chain security critica<br/>
+          � Ransomware-worm combo pericoloso<br/>
+          � Cyberwarfare conseguenze globali
+        </div>
+      </div>
+
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <span class="section-label">📊 Tabella Comparativa</span>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Attacco</th>
+          <th>Anno</th>
+          <th>Tipo / Malware</th>
+          <th>Impatto Globale</th>
+          <th>Lezione Chiave</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>WannaCry</strong></td>
+          <td>2017</td>
+          <td>Ransomware Worm</td>
+          <td>200k+ infected, $1B+ danni</td>
+          <td>Patch management critico</td>
+        </tr>
+        <tr>
+          <td><strong>Stuxnet</strong></td>
+          <td>2010</td>
+          <td>Cyber-Weapon di Stato</td>
+          <td>Infrastrutture critiche target</td>
+          <td>Air-gapping fisico essenziale</td>
+        </tr>
+        <tr>
+          <td><strong>Mirai</strong></td>
+          <td>2016</td>
+          <td>IoT Botnet DDoS</td>
+          <td>45-100 Gbps DDoS attack</td>
+          <td>Segmentazione IoT obbligatoria</td>
+        </tr>
+        <tr>
+          <td><strong>Conficker</strong></td>
+          <td>2008</td>
+          <td>Windows Worm</td>
+          <td>10M+ infected worldwide</td>
+          <td>DGA rende takedown difficile</td>
+        </tr>
+        <tr>
+          <td><strong>ILOVEYOU</strong></td>
+          <td>2000</td>
+          <td>VBS Email Worm</td>
+          <td>45M in 10 days, $8.7B danni</td>
+          <td>Email � vettore primario</td>
+        </tr>
+        <tr>
+          <td><strong>NotPetya</strong></td>
+          <td>2017</td>
+          <td>Supply Chain Attack</td>
+          <td>$10B danni, cyberwarfare</td>
+          <td>Supply chain security critica</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+      <h2>Lezioni dall'Historia</h2>
+      <p>Gli attacchi storici rivelano un'evoluzione costante delle minacce cyber: da criminalit� semplice ad attacchi di stato-nazione, da singole macchine a worm auto-propaganti, da distruzione dati al controllo infrastrutture critiche.</p>
+      <ul>
+        <li>📈 Dalla criminalità agli attacchi di stato-nazione</li>
+        <li>🔄 Dalla singola macchina ai worm globali auto-propaganti</li>
+        <li>⚡ Dalla distruzione dati al controllo infrastrutture critiche</li>
+        <li>🌐 Dalla email al supply chain e IoT</li>
+        <li>👁️ Dal "fire-and-forget" al persistent access e espionage</li>
+      </ul>
+      <p><strong>Il futuro della sicurezza dipende da imparare questi attacchi. Esplora le tecniche utilizzate e come proteggersene.</strong></p>
+      <a href="manipulation-techniques.html" class="cta-button">Tecniche di Manipolazione ?</a>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">Attacchi Storici</div>
+        <div class="footer-text">Raccolta di attacchi informatici storici dal 2000 ad oggi: tecniche, impatto globale e lezioni di sicurezza applicate.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Contesto Storico</div>
+        <div class="footer-text">Analisi tecnica e storica di incidenti reali: WannaCry, Mirai, Conficker, ILOVEYOU, NotPetya e altri. Per comprensione dell'evoluzione degli attacchi.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">� 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>
+
+

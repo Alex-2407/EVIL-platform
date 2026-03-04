@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account - EVIL Cybersecurity Platform</title>
+  
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="generated-image.png" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ▾</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ▾</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ▾</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔒 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="account-container">
+      <div class="account-info">
+        <h2>Perché Registrarsi?</h2>
+        <p>Ottieni accesso completo a tutti gli strumenti EVIL.</p>
+        <ul>
+          <li>🔐 Account sicuro e protetto</li>
+          <li>📊 Salva i tuoi report</li>
+          <li>📈 Accesso ai log di ricerca</li>
+          <li>🎯 Analisi avanzate personalizzate</li>
+          <li>⚡ Priorità nelle scansioni</li>
+        </ul>
+      </div>
+
+      <div class="account-form">
+        <h1>📝 Crea un Account</h1>
+        <form id="registerForm">
+          <div class="form-group">
+            <label for="name">Nome Completo:</label>
+            <input type="text" id="name" name="name" placeholder="Mario Rossi" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="your@email.com" required>
+          </div>
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="••••••" minlength="6" required>
+            <small style="color: rgba(255, 255, 255, 0.6); display: block; margin-top: 5px;">Minimo 6 caratteri</small>
+          </div>
+          <div class="form-group">
+            <label for="confirm-password">Conferma Password:</label>
+            <input type="password" id="confirm-password" name="confirm-password" placeholder="••••••" minlength="6" required>
+          </div>
+          <div id="registerError" class="error-message" style="display: none;"></div>
+          <div id="registerSuccess" class="success-message" style="display: none;"></div>
+          <button type="submit" class="btn-register">Registrati</button>
+        </form>
+        <div class="login-link">
+          Hai già un account? <a href="login.html">Accedi qui</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <style>
+    .account-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+
+    .account-form {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      padding: 40px;
+      border-radius: 8px;
+    }
+
+    .account-form h1 {
+      color: #00ff9c;
+      margin-top: 0;
+      font-size: 1.8rem;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #00ff9c;
+      box-shadow: 0 0 10px rgba(0, 255, 156, 0.3);
+    }
+
+    .form-group small {
+      font-size: 0.8rem;
+    }
+
+    .btn-register {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #00ff9c, #00cc77);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-register:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(0, 255, 156, 0.5);
+    }
+
+    .error-message {
+      background: rgba(255, 71, 87, 0.2);
+      border: 1px solid #ff4757;
+      color: #ff4757;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+
+    .success-message {
+      background: rgba(76, 175, 80, 0.2);
+      border: 1px solid #4caf50;
+      color: #4caf50;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .login-link a {
+      color: #00ff9c;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .account-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .account-info h2 {
+      color: #00ff9c;
+      font-size: 2rem;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .account-info p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .account-info ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .account-info li {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+      font-size: 1.05rem;
+    }
+
+    @media (max-width: 768px) {
+      .account-container {
+        grid-template-columns: 1fr;
+        margin: 40px auto;
+      }
+
+      .account-info {
+        display: none;
+      }
+    }
+  </style>
+
+  <script>
+    const API_URL = 'http://localhost:5000/api';
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const errorDiv = document.getElementById('registerError');
+      const successDiv = document.getElementById('registerSuccess');
+
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, confirmPassword })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorDiv.textContent = data.error || 'Errore di registrazione';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        successDiv.textContent = '✓ Registrazione completata! Reindirizzamento...';
+        successDiv.style.display = 'block';
+
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 2000);
+      } catch (err) {
+        errorDiv.textContent = 'Errore di connessione: ' + err.message;
+        errorDiv.style.display = 'block';
+      }
+    });
+  </script>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  <script src="../js/auth-manager.js"></script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>
+
+

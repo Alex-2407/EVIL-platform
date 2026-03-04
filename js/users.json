@@ -1,0 +1,31 @@
+[
+  {
+    "id": 1769160394854,
+    "name": "ale",
+    "email": "alex.branca@icloud.com",
+    "password": "Alex-2007",
+    "createdAt": "2026-01-23T09:26:34.854Z",
+    "loginHistory": [
+      {
+        "timestamp": "2026-01-23T09:26:50.455Z",
+        "ip": "::1"
+      }
+    ],
+    "progress": {
+      "totalScans": 0,
+      "totalActivities": 1,
+      "unlockedAchievements": [
+        "phishing_defender"
+      ],
+      "activityLog": [
+        {
+          "name": "phishing_quiz_completed",
+          "timestamp": "2026-01-23T09:27:17.463Z",
+          "accuracy": 100
+        }
+      ],
+      "lastUnlockedAchievement": "phishing_defender"
+    },
+    "progressUpdatedAt": "2026-01-23T09:27:17.469Z"
+  }
+]

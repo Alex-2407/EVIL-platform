@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tutorial Ethical Hacking - EVIL</title>
+  
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="generated-image.png" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ▾</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ▾</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ▾</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="tutorial-main">
+    <section class="tutorial-header">
+      <h1>🎓 Tutorial Ethical Hacking</h1>
+      <p>Impara le basi e tecniche avanzate dell'ethical hacking. Sviluppa competenze in modo etico e responsabile.</p>
+    </section>
+    <div id="modulesGrid" class="tutorial-grid">
+      <div class="tutorial-card">
+        <div class="tutorial-card-icon">🔓</div>
+        <h3>Penetration Testing</h3>
+        <p>OWASP, NIST, metodologie strutturate di security testing.</p>
+        <button onclick="showModule('pt')" class="tutorial-btn">Scopri di più</button>
+      </div>
+      <div class="tutorial-card">
+        <div class="tutorial-card-icon">🔐</div>
+        <h3>Crittografia</h3>
+        <p>RSA, AES, Hash, PKI, SSL/TLS - concetti fondamentali.</p>
+        <button onclick="showModule('crypto')" class="tutorial-btn">Scopri di più</button>
+      </div>
+      <div class="tutorial-card">
+        <div class="tutorial-card-icon">🛡️</div>
+        <h3>Difesa & Hardening</h3>
+        <p>Firewall, IDS, WAF, patch management, security policies.</p>
+        <button onclick="showModule('defense')" class="tutorial-btn">Scopri di più</button>
+      </div>
+      <div class="tutorial-card">
+        <div class="tutorial-card-icon">📊</div>
+        <h3>Forensica Digitale</h3>
+        <p>Raccolta prove, timeline reconstruction, chain of custody.</p>
+        <button onclick="showModule('forensics')" class="tutorial-btn">Scopri di più</button>
+      </div>
+      <div class="tutorial-card">
+        <div class="tutorial-card-icon">⚖️</div>
+        <h3>Etica & Compliance</h3>
+        <p>GDPR, responsabilità civile, Rules of Engagement, certifications.</p>
+        <button onclick="showModule('ethics')" class="tutorial-btn">Scopri di più</button>
+      </div>
+      <div class="tutorial-card">
+        <div class="tutorial-card-icon">🎯</div>
+        <h3>Esercizi Pratici</h3>
+        <p>CTF challenges, virtual machines, scenari realistici controllati.</p>
+        <button onclick="showModule('practice')" class="tutorial-btn">Scopri di più</button>
+      </div>
+    </div>
+    <div id="moduleDetail" class="module-detail"></div>
+    <script>
+      const modules = {
+        pt: {
+          title: "🔓 Penetration Testing",
+          sections: [
+            {title: "1. Concetti Fondamentali", content: "Il Penetration Testing (PT) è il processo di test autorizzato dove i professionisti di sicurezza tentano di identificare vulnerabilità in un sistema, applicazione o infrastruttura. A differenza degli hacker malintenzionati, il PT viene condotto SOLO con autorizzazione scritta e all'interno di un scope definito. È fondamentale documentare tutto."},
+            {title: "2. Metodologie OWASP PTES (Penetration Testing Execution Standard)", content: "OWASP e PTES definiscono 7 fasi:<br>• Reconnaissance: ricerca passiva (OSINT)<br>• Scanning: identificazione attiva di host/servizi<br>• Enumeration: raccolta dettagli di servizi<br>• Vulnerability Assessment: ricerca vulnerabilità<br>• Exploitation: test autorizzato di exploit<br>• Post-Exploitation: valutazione impact<br>• Reporting: documentazione scoperte"},
+            {title: "3. Strumenti Professionali", content: "• Nmap: scan di rete e service discovery<br>• Metasploit: framework di exploitation<br>• Burp Suite: proxy e testing applicazioni web<br>• Wireshark: analisi traffico di rete<br>• OpenVAS: vulnerability scanning<br>• Hydra: password attack testing<br>Tutti utilizzabili SOLO in ambienti autorizzati."},
+            {title: "4. Scope & Rules of Engagement", content: "SEMPRE prima di iniziare:<br>✓ Autorizzazione scritta del cliente<br>✓ Scope definito (indirizzi IP, Domini, sistemi)<br>✓ Date e orari concordati<br>✓ Tecniche consentite e vietate<br>✓ Contatti per emergenze<br>✓ NDA (Non-Disclosure Agreement)<br>Violare queste regole è ILLEGALE."},
+            {title: "5. Reporting Professionale", content: "Un report PT deve includere:<br>• Executive Summary (per management)<br>• Vulnerabilità trovate con CVSS score<br>• Proof of Concept (come riprodurre)<br>• Impatto e rischio<br>• Raccomandazioni di remediation<br>• Timeline e documenti di autorizzazione<br>• Disclaimer di confidenzialità"}
+          ]
+        },
+        crypto: {
+          title: "🔐 Crittografia e Sicurezza",
+          sections: [
+            {title: "1. Crittografia Simmetrica (AES)", content: "AES (Advanced Encryption Standard) è lo standard globale per crittografia simmetrica (128, 192, 256 bit). Stessa chiave per cifrare e decifrare. Veloce, sicuro, usato in:<br>• Encryption dischi (FileVault, BitLocker)<br>• Comunicazioni secure (SSL/TLS)<br>• VPN e trusted messengers<br>Nota: la forza dipende dalla lunghezza della chiave e dalla gestione."},
+            {title: "2. Crittografia Asimmetrica (RSA)", content: "RSA usa coppia di chiavi: pubblica (condivisa) e privata (segreta). La chiave pubblica cifra, solo la chiave privata decifra. Fondamentale per:<br>• Digital signatures (autenticazione)<br>• SSL/TLS certificates<br>• Email encryption (PGP)<br>• Key exchange su canali non sicuri<br>Più lento di AES ma essenziale per autenticazione."},
+            {title: "3. Hashing Crittografico", content: "Hash produce output a lunghezza fissa da input variabile. Una via: impossibile risalire dall'hash al testo originale (non è encryption).<br>Algoritmi moderni: SHA-256, SHA-3<br>Usi corretti:<br>• Verificare integrità file (checksum)<br>• Memorizzare password (bcrypt, Argon2)<br>• Firma digitale<br>MAI: plain text password, MD5/SHA1 per password"},
+            {title: "4. Public Key Infrastructure (PKI)", content: "Sistema per gestire certificati digitali:<br>• Certificate Authority (CA): emette certificati verificati<br>• Digital Certificates: provano identità e possiedono chiavi pubbliche<br>• Revocation (CRL): lista certificati revocati<br>Usi:<br>• HTTPS (SSL/TLS) sui siti web<br>• Email secure<br>• Firma documenti digitale<br>• Autenticazione dipendenti"},
+            {title: "5. SSL/TLS - Secure Communications", content: "TLS è il protocollo che cripta comunicazioni HTTPS.<br>Processo:<br>1. Client richiede connection<br>2. Server presenta certificato (provato da CA)<br>3. Handshake con key exchange<br>4. Comunicazione cifrata (AES) con chiave di sessione<br>Importante: certificato valido = padlock nel browser<br>Certificati scaduti/falsi = PERICOLO"}
+          ]
+        },
+        defense: {
+          title: "🛡️ Difesa & Hardening",
+          sections: [
+            {title: "1. Principi di Defense-in-Depth", content: "Sicurezza basata su STRATI multipli, non un singolo prodotto:<br>• Perimetro: Firewall, WAF<br>• Rete: IDS/IPS, segmentazione<br>• Host: Antivirus, endpoint detection<br>• Applicazione: Input validation, secure coding<br>• Dati: Encryption, backup<br>• Persone: Training, MFA<br>Se un livello fallisce, gli altri proteggono ancora."},
+            {title: "2. Firewall e Network Security", content: "Firewall regola traffico in base a regole:<br>• Statefull firewalls: traccia connessioni (meglio)<br>• Stateless: esamina singoli pacchetti<br>Configurazione corretta:<br>✓ Deny by default, allow specifico<br>✓ Segmentazione VLAN<br>✓ Logging e monitoring<br>✓ Review regolare delle regole<br>✓ Multi-layered (hardware + software)"},
+            {title: "3. IDS/IPS - Intrusion Detection/Prevention", content: "IDS legge traffico e avvisa su attacchi, IPS può bloccare:<br>• Signature-based: conosce attacchi noti<br>• Anomaly-based: rileva comportamenti anomali<br>• Strumenti: Suricata, Snort, Zeek<br>Falsi positivi sono comuni. Require:<br>• Tuning periodico<br>• Review e escalation rapida<br>• Correlazione con altri eventi"},
+            {title: "4. Endpoint Security & EDR", content: "Proteggere singoli computer/server:<br>• Antivirus tradizionale (signature matching)<br>• EDR (Endpoint Detection Response): monitora comportamenti sospetti in tempo reale<br>• HIPS (Host IPS): blocca exploit a livello host<br>Best practices:<br>✓ Aggiornamenti automatici<br>✓ Minimizzare privilegi utente<br>✓ Disabilita servizi non necessari<br>✓ Audit logging abilitato"},
+            {title: "5. Patch Management & Vulnerabilities", content: "Applicare patch tempestivamente è essenziale:<br>• Zero-day: vulnerabilità non ancora patchata<br>• 0-day exploit: valore altissimo<br>Processi corretti:<br>✓ Inventario software<br>✓ Test patch in ambiente di test<br>✓ Rollout pianificato<br>✓ Monitoring per problemi<br>✓ Documentazione<br>Equilibrio: velocità vs stabilità del sistema"}
+          ]
+        },
+        forensics: {
+          title: "📊 Forensica Digitale",
+          sections: [
+            {title: "1. Principi Fondamentali della Forensica", content: "La Forensica Digitale è la ricerca, recupero e analisi di dati digitali per scopi investigativi LEGALI.<br>Principi cardine:<br>✓ Preservazione dell'integrità (no alterazione dati)<br>✓ Chain of Custody (documentazione trasferimenti)<br>✓ Admissibilità legale (seguire procedure)<br>✓ Repro-ducibilità (altri possono ottenere stesso risultato)<br>Violazioni = prove inammissibili in tribunale"},
+            {title: "2. Evidence Collection (Raccolta Prove)", content: "Procedura corretta:<br>1. Fotografia scena (device acceso/spento?)<br>2. Documentazione hardware e connessioni<br>3. Write blocker (impedisce alterazione)<br>4. Hash (MD5/SHA-256) del drive PRIMA di qualunque analisi<br>5. Copia forense bit-by-bit (FTK Imager, Encase)<br>6. Hash della copia (deve corrispondere)<br>7. Analisi sulla COPIA, mai original"},
+            {title: "3. Analisi Disco e File Recovery", content: "Tecniche comuni:<br>• File carving: cerca file signature (magic numbers)<br>• Unallocated space: dati cancellati non sovrascritti<br>• File system timeline: timeline di creazione/modifica/accesso<br>Strumenti: Autopsy, The Sleuth Kit (TSK), EnCase<br>Caso d'uso:<br>• Recupero email cancellate<br>• Documenti modificati<br>• URL visitate (browser history, cache)"},
+            {title: "4. Memory Forensics", content: "Analizzare RAM catturata al momento dell'incidente:<br>• Processi in memoria (malware resistente a reboot)<br>• Credenziali in memoria<br>• Key logging buffers<br>• Connessioni network attive<br>Strumenti: Volatility, WinDbg<br>Perchè importante: malware avanzato usa RAM per evitare tracce su disco"},
+            {title: "5. Log Analysis e Timeline Reconstruction", content: "Ricostruire sequenza cronologica di eventi:<br>• Windows Event Logs: authentication, system events<br>• Syslog Linux: sistema operativo<br>• Application logs: errori, accessi app<br>• Firewall/proxy logs: traffico di rete<br>Timeline di attacco tipico:<br>1. Initial compromise (quando)<br>2. Lateral movement (dove)<br>3. Data exfiltration (cosa)<br>4. Persistence mechanism (come permanente)<br>Tool: plaso, TimelineExplorer"}
+          ]
+        },
+        ethics: {
+          title: "⚖️ Etica & Compliance",
+          sections: [
+            {title: "1. Responsible Disclosure (Divulgazione Responsabile)", content: "Se scopri vulnerabilità: NON pubblicarla subito.<br>Processo corretto:<br>1. Contatta vendor/organizzazione in privato<br>2. Dai tempo ragionevole (90 giorni è standard)<br>3. Mantieni confidenzialità<br>4. Verifica patch applicata<br>5. Puoi divulgare pubblicamente DOPO patch<br>Nota legale: divulgazione irresponsabile = possibili conseguenze legali anche se avevi intenzioni buone."},
+            {title: "2. Rules of Engagement & Autorizzazione Legale", content: "SEMPRE ottenere autorizzazione scritta:<br>• Definisci scope (IP, domini, sistemi)<br>• Date e orari esatti<br>• Attività consentite e VIETATE<br>• Limite di tempo (es. 2 settimane)<br>• Contatto d'emergenza client<br>• Accordo NDA<br>Penetration Testing SENZA autorizzazione = reato di unauthorized access."},
+            {title: "3. GDPR e Privacy", content: "Regolamento Europeo su dati personali:<br>• Consent: utente deve consentire raccolta dati<br>• Data minimization: raccogli SOLO necessario<br>• Purpose limitation: usa dati per scopo indicato<br>• Retention: cancella dopo periodo definito<br>• Security: protezione adeguata<br>• Breach notification: avverti utenti entro 72h<br>Multa: fino a 4% ricavi globali aziendali."},
+            {title: "4. Hacking Legale vs Illegale", content: "LEGALE se:<br>✓ Autorizzato per iscritto<br>✓ Scope definito<br>✓ Seguire leggi applicabili<br>✓ Non causare danno > necessario per test<br>ILLEGALE se:<br>✗ Senza autorizzazione<br>✗ Estrapolazione da scope<br>✗ Furto dati/distruzione<br>✗ Uso per scopi non autorizzati<br>Conseguenze: carcere, multe, responsabilità civile"},
+            {title: "5. Certificazioni e Standard Professionali", content: "Per lavoro legittimo:<br>• CEH (Certified Ethical Hacker): riconosce competenze<br>• OSCP (Offensive Security Certified Professional): pratico<br>• CompTIA Security+: fondamenti<br>• GIAC GPEN: penetration testing avanzato<br>Benefici:<br>✓ Credibilità professionale<br>✓ Conoscenza legale e etica<br>✓ Migliori opportunità di carriera<br>✓ Accesso a risorse professionali"}
+          ]
+        },
+        practice: {
+          title: "🎯 Esercizi Pratici",
+          sections: [
+            {title: "1. CTF Challenges (Capture The Flag)", content: "Competizioni di hacking legali:<br>• Web: SQL injection, XSS, CSRF<br>• Reversing: analizzare binario per trovar flag<br>• Forensics: recuperare dati da immagine disco<br>• Cryptography: rompere cipher<br>• Pwning: exploit locale per privilege escalation<br>Piattaforme:<br>• HackTheBox (online, persistente)<br>• TryHackMe (guided, beginner-friendly)<br>• PicoCTF (educativo)<br>• CtfTime: calendario competizioni"},
+            {title: "2. Virtual Lab Environments", content: "Ambienti isolati per practice:<br>• VirtualBox/VMware: runi VM locali<br>• DVWA (Damn Vulnerable Web App): vulnerabilità intenzionali<br>• WebGoat: OWASP teaching platform<br>• Metasploitable: Linux intenzionalmente vulnerabile<br>• Windows Sandbox: Windows vulnerabile<br>Setup tipico:<br>1. Attacker VM (Kali Linux)<br>2. Target VM (DVWA)<br>3. Network isolato (non connesso Internet)"},
+            {title: "3. Real-World Scenarios", content: "Simulazioni di incidenti reali (autorizzate):<br>• Security incident: 'Abbiamo breach, investigate'<br>• Malware analysis: 'Analizza questo binario'<br>• Network compromise: 'Qualcuno è entrato, dove?'<br>• Insider threat: 'Dipendente sospetto'<br>• APT simulation: 'Attacco avanzato persistente'<br>Imparano:<br>✓ Procedure di risposta<br>✓ Collaboration con team<br>✓ Reporting sotto pressione"},
+            {title: "4. Red Team Exercises", content: "Simulazioni di attacco full-scale autorizzate:<br>• Spesso multi-settimane<br>• Scenario realistico vs difese azienda<br>• Documentazione completa<br>• Debrief con blue team (difesa)<br>• Rapporto finale per management<br>Benefici:<br>✓ Rivela gap reali vs teoria<br>✓ Testa risposta incidenti<br>✓ Valuta awareness personale<br>✓ Stime cost di breach"},
+            {title: "5. Bug Bounty Programs", content: "Aziende pagano per trovare vulnerabilità:<br>Piattaforme:<br>• HackerOne (150k+ bounty hunter)<br>• Bugcrowd (multinazionali)<br>• Intigriti (EU-focused)<br>Processo:<br>1. Seleziona programma<br>2. Leggi policy e scope<br>3. Fai test autorizzato<br>4. Scrivi report dettagliato<br>5. Ricevi pagamento (da $100 a $100k+)<br>Pro: legale, pagato, CV builder<br>Con: competizione alta, payment dipende azienda"}
+          ]
+        }
+      };
+      
+      function showModule(moduleId) {
+        const module = modules[moduleId];
+        let html = `<div style="background: rgba(0, 255, 156, 0.05); border: 2px solid rgba(0, 255, 156, 0.3); border-radius: 8px; padding: 40px;">
+          <button onclick="closeModule()" style="background: rgba(0, 255, 156, 0.2); border: 1px solid #00ff9c; color: #00ff9c; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; margin-bottom: 20px;">← Chiudi Modulo</button>
+          <h2 style="color: #00ff9c; font-size: 2rem; margin-bottom: 30px;">${module.title}</h2>
+          <div style="display: grid; gap: 20px;">`;
+        
+        module.sections.forEach(section => {
+          html += `<div style="background: rgba(0, 255, 156, 0.1); border-left: 3px solid #00ff9c; padding: 20px; border-radius: 4px;">
+            <h3 style="color: #00ff9c; margin-bottom: 12px;">${section.title}</h3>
+            <p style="color: #d1d5db; line-height: 1.8;">${section.content}</p>
+          </div>`;
+        });
+        
+        html += `</div></div>`;
+        document.getElementById('moduleDetail').innerHTML = html;
+        document.getElementById('moduleDetail').style.display = 'block';
+        document.getElementById('modulesGrid').style.display = 'none';
+        document.getElementById('moduleDetail').scrollIntoView({behavior: 'smooth'});
+      }
+      
+      function closeModule() {
+        document.getElementById('moduleDetail').style.display = 'none';
+        document.getElementById('modulesGrid').style.display = 'grid';
+        document.getElementById('modulesGrid').scrollIntoView({behavior: 'smooth'});
+      }
+    </script>
+  </main>
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Footer visibility on scroll
+    const footer = document.querySelector('footer');
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          footer.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    footerObserver.observe(footer);
+  </script>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>
+
+

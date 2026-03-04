@@ -1,0 +1,431 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EVIL - Cybersecurity Platform</title>
+
+  <!-- Link al foglio di stile esterno -->
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="evil-theme splash-type-1">
+  <!-- Splash Screen - Animazione di apertura (tipo 1 o tipo 2) -->
+  <div id="splash-screen">
+    <!-- Contenuto dinamico - inserito via JavaScript -->
+  </div>
+
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="generated-image.png" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ▾</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ▾</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ▾</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">EVIL Cybersecurity Platform</h1>
+        <p class="hero-subtitle">Piattaforma integrata per monitoraggio di minacce, simulazioni di attacchi e analisi di vulnerabilità. Strumenti per ricerca, formazione e valutazione della sicurezza informatica.</p>
+        
+        <div class="hero-ctas">
+          <button class="cta-btn primary" onclick="window.location.href='attacks-map.html';">🗺️ Monitoraggio Attacchi</button>
+          <button class="cta-btn secondary" onclick="window.location.href='web-simulator.html';">⚔️ Simulazione Attacchi</button>
+          <button class="cta-btn tertiary" onclick="window.location.href='security-check.html';">🔍 Strumenti Analisi</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CYBER STATUS OVERVIEW ===== -->
+    <section class="status-overview">
+      <h2>Cyber Status Globale</h2>
+      <div class="status-metrics">
+        <div class="metric-card">
+          <div class="metric-icon">🔴</div>
+          <div class="metric-value">847</div>
+          <div class="metric-label">Attacchi Pubblici Monitorati</div>
+          <div class="metric-source">Dati pubblici aggregati</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">🦠</div>
+          <div class="metric-value">12,340</div>
+          <div class="metric-label">Malware Catalogati</div>
+          <div class="metric-source">Database pubblici</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">⚠️</div>
+          <div class="metric-value">3,298</div>
+          <div class="metric-label">Vulnerabilità Note (CVE)</div>
+          <div class="metric-source">NIST NVD ufficiale</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon">✅</div>
+          <div class="metric-value">ONLINE</div>
+          <div class="metric-label">Stato Piattaforma EVIL</div>
+          <div class="metric-source">Aggiornato in tempo reale</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SEZIONI PRINCIPALI (CARD GRID) ===== -->
+    <section class="main-sections">
+      <h2>Esplora le Sezioni</h2>
+      
+      <div class="card-grid">
+        <!-- Card Attacchi -->
+        <div class="nav-card">
+          <div class="card-header">
+            <span class="card-icon">🎯</span>
+            <h3>Attacchi</h3>
+          </div>
+          <p class="card-description">Monitora attacchi in tempo reale, simulazioni web e timeline di sistemi compromessi. Dati storici e contemporanei.</p>
+          <ul class="card-links">
+            <li>• Mappa Attacchi in Tempo Reale</li>
+            <li>• Simulatore Attacchi Web</li>
+            <li>• Timeline Sistema Hackerato</li>
+          </ul>
+          <button class="nav-btn" onclick="document.querySelector('nav li:nth-child(2) .dropdown').style.display='block'; document.querySelector('nav li:nth-child(2)').classList.add('active');">Scopri →</button>
+        </div>
+
+        <!-- Card Database -->
+        <div class="nav-card">
+          <div class="card-header">
+            <span class="card-icon">🗄️</span>
+            <h3>Database</h3>
+          </div>
+          <p class="card-description">Accedi a database di malware, tecniche di manipolazione e attacchi storici. Conoscenza consolidata nel settore.</p>
+          <ul class="card-links">
+            <li>• Database Malware</li>
+            <li>• Tecniche di Manipolazione</li>
+            <li>• Attacchi Storici</li>
+          </ul>
+          <button class="nav-btn" onclick="window.location.href='malware-db.html';">Scopri →</button>
+        </div>
+
+        <!-- Card Strumenti -->
+        <div class="nav-card">
+          <div class="card-header">
+            <span class="card-icon">🔧</span>
+            <h3>Strumenti</h3>
+          </div>
+          <p class="card-description">Scanner di vulnerabilità, analisi di URL, DNS enumerator, SSL analyzer e generazione report professionali.</p>
+          <ul class="card-links">
+            <li>• Security Check URL</li>
+            <li>• Scanner Vulnerabilità</li>
+            <li>• DNS Records Enumerator</li>
+            <li>• Subdomain Finder</li>
+            <li>• SSL Certificate Analyzer</li>
+          </ul>
+          <button class="nav-btn" onclick="window.location.href='security-check.html';">Scopri →</button>
+        </div>
+
+        <!-- Card Educazione -->
+        <div class="nav-card">
+          <div class="card-header">
+            <span class="card-icon">📖</span>
+            <h3>Educazione</h3>
+          </div>
+          <p class="card-description">Impara l'ethical hacking, esplora laboratori virtuali, test phishing e simulazioni di social engineering.</p>
+          <ul class="card-links">
+            <li>• Tutorial Ethical Hacking</li>
+            <li>• Lab Virtuale</li>
+            <li>• Quiz Phishing</li>
+            <li>• Simulatore Social Engineering</li>
+          </ul>
+          <button class="nav-btn" onclick="window.location.href='ethical-hacking.html';">Scopri →</button>
+        </div>
+
+        <!-- Card OSINT -->
+        <div class="nav-card">
+          <div class="card-header">
+            <span class="card-icon">🔎</span>
+            <h3>OSINT</h3>
+          </div>
+          <p class="card-description">Open Source Intelligence: profilazione da social media e raccolta di informazioni pubbliche per consapevolezza.</p>
+          <ul class="card-links">
+            <li>• Profilazione da Social</li>
+            <li>• Raccolta Info Pubbliche</li>
+          </ul>
+          <button class="nav-btn" onclick="window.location.href='social-profiling.html';">Scopri →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ROADMAP ===== -->
+    <section class="roadmap">
+      <h2>Roadmap - Prossimi Sviluppi</h2>
+      <div class="roadmap-items">
+        <div class="roadmap-item phase-1">
+          <div class="phase-badge">FASE 1</div>
+          <h3>Fondamenta Stabili</h3>
+          <ul>
+            <li>✓ Piattaforma core completa</li>
+            <li>✓ Database attacchi storici</li>
+            <li>✓ Scanner vulnerabilità</li>
+            <li>✓ Quiz educativi</li>
+          </ul>
+        </div>
+
+        <div class="roadmap-item phase-2">
+          <div class="phase-badge">FASE 2</div>
+          <h3>Espansione Intelligente</h3>
+          <ul>
+            <li>🔄 API pubbliche</li>
+            <li>🔄 Report automation</li>
+            <li>🔄 Dashboard real-time</li>
+            <li>🔄 Integrazione feed minacce</li>
+          </ul>
+        </div>
+
+        <div class="roadmap-item phase-3">
+          <div class="phase-badge">FASE 3</div>
+          <h3>Collaborazione Avanzata</h3>
+          <ul>
+            <li>🚀 Community features</li>
+            <li>🚀 Threat intelligence sharing</li>
+            <li>🚀 Certificazioni EVIL</li>
+            <li>🚀 Partnership con università</li>
+          </ul>
+        </div>
+
+        <div class="roadmap-item phase-4">
+          <div class="phase-badge">FASE 4</div>
+          <h3>Scala Globale</h3>
+          <ul>
+            <li>💡 Multi-language support</li>
+            <li>💡 Mobile app native</li>
+            <li>💡 Cloud infrastructure</li>
+            <li>💡 Enterprise solutions</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== SPLASH SCREEN ANIMATION =====
+    // Mostra l'animazione solo al primo accesso (o se richiesto via URL)
+    function initSplashScreen() {
+      const splashKey = 'evil-home-visited';
+      const splashScreen = document.getElementById('splash-screen');
+      const body = document.body;
+      
+      // Controlla parametri URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const shouldReset = urlParams.get('reset-splash') === 'true';
+      const splashType = urlParams.get('splash') || '1'; // Default: tipo 1
+      
+      if (shouldReset) {
+        localStorage.removeItem(splashKey);
+      }
+      
+      const hasVisited = localStorage.getItem(splashKey);
+      
+      if (hasVisited) {
+        splashScreen.style.display = 'none';
+        return;
+      }
+      
+      // Imposta la classe del tipo di splash
+      body.className = 'evil-theme splash-type-1';
+      localStorage.setItem(splashKey, 'true');
+      initSplashType1();
+    }
+    
+    // ANIMAZIONE 1: GLITCH MATRIX
+    function initSplashType1() {
+      const splashScreen = document.getElementById('splash-screen');
+      
+      splashScreen.innerHTML = `
+        <div class="splash-matrix" id="splash-matrix"></div>
+        <div class="scan-lines"></div>
+        <div id="splash-content">
+          <div class="glitch-text" id="glitch-title">EVIL</div>
+          <div class="splash-text" id="splash-status">Initializing System...</div>
+          <div class="splash-progress">
+            <div class="splash-progress-bar"></div>
+          </div>
+        </div>
+      `;
+      
+      createMatrixFall();
+      
+      const statusMessages = [
+        'Initializing System...',
+        'Loading Threat Database...',
+        'Connecting to Servers...',
+        'Verifying Credentials...',
+        'System Ready.',
+      ];
+      
+      const splashStatus = document.getElementById('splash-status');
+      let messageIndex = 0;
+      
+      const messageInterval = setInterval(() => {
+        if (messageIndex < statusMessages.length) {
+          splashStatus.textContent = statusMessages[messageIndex];
+          messageIndex++;
+        } else {
+          clearInterval(messageInterval);
+        }
+      }, 400);
+      
+      setTimeout(() => {
+        splashScreen.classList.add('hidden');
+        setTimeout(() => {
+          splashScreen.style.display = 'none';
+        }, 1000);
+      }, 2500);
+    }
+    
+    // Crea l'effetto di caratteri che cadono (solo per tipo 1)
+    function createMatrixFall() {
+      const container = document.getElementById('splash-matrix');
+      if (!container) return;
+      
+      const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+      
+      for (let i = 0; i < 50; i++) {
+        const char = chars.charAt(Math.floor(Math.random() * chars.length));
+        const span = document.createElement('div');
+        span.className = 'splash-matrix-char';
+        span.textContent = char;
+        
+        span.style.left = Math.random() * 100 + '%';
+        span.style.top = (Math.random() * 100 - 50) + '%';
+        span.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        span.style.animationDelay = Math.random() * 1.5 + 's';
+        span.style.opacity = Math.random() * 0.5 + 0.2;
+        
+        container.appendChild(span);
+      }
+    }
+    
+    // Avvia l'animazione quando il DOM è pronto
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSplashScreen);
+    } else {
+      initSplashScreen();
+    }
+    
+    // Footer visibility on scroll
+    const footer = document.querySelector('footer');
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          footer.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    footerObserver.observe(footer);
+  </script>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  <script src="../js/auth-manager.js"></script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>
+

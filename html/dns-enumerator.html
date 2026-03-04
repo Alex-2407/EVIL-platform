@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNS Records Enumerator - EVIL</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .scanner-section { background: linear-gradient(135deg, #1a1f3a 0%, #0f1629 100%); border: 1px solid #00d4ff; border-radius: 8px; padding: 40px; margin-bottom: 40px; }
+    .form-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    .form-group input { flex: 1; padding: 12px 15px; background: rgba(20, 30, 50, 0.8); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 4px; color: #fff; font-family: 'Courier New', monospace; }
+    .form-group input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 12px rgba(0, 212, 255, 0.2); }
+    .btn { padding: 12px 30px; background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%); border: none; border-radius: 4px; color: #0a0e27; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .btn:hover:not(:disabled) { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .results-section { background: linear-gradient(135deg, #1a1f3a 0%, #0f1629 100%); border: 1px solid #00d4ff; border-radius: 8px; padding: 30px; margin-top: 40px; display: none; }
+    .results-section.active { display: block; }
+    .record-type { margin-bottom: 30px; padding: 20px; background: rgba(0, 212, 255, 0.05); border-left: 3px solid #00d4ff; border-radius: 4px; }
+    .record-type h3 { color: #00d4ff; margin-bottom: 15px; font-size: 18px; }
+    .record-item { background: rgba(20, 30, 50, 0.6); padding: 12px 15px; margin-bottom: 10px; border-radius: 4px; border-left: 2px solid #00a8cc; word-break: break-all; color: #b0b0b0; font-size: 13px; }
+    .record-item.empty { color: #606060; font-style: italic; }
+    .loading { text-align: center; padding: 40px; display: none; }
+    .loading.active { display: block; }
+    .spinner { border: 3px solid rgba(0, 212, 255, 0.2); border-top: 3px solid #00d4ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .error { background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; padding: 20px; border-radius: 6px; color: #ff9999; margin-top: 20px; display: none; }
+    .error.active { display: block; }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="generated-image.png" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li>
+            <a href="#">Attacchi ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Database ▾</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Educazione ▾</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">OSINT ▾</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">🔍 DNS Records Enumerator</h1>
+        <p class="hero-subtitle">Enumera tutti i record DNS di un dominio (A, AAAA, MX, NS, TXT, CNAME, SOA). Perfetto per OSINT e riconoscimento dell'infrastruttura.</p>
+      </div>
+    </section>
+
+    <section class="container-section">
+      <div class="scanner-section">
+        <div class="form-group">
+          <input type="text" id="domain-input" placeholder="Inserisci un dominio (es: google.com)">
+          <button class="btn" id="scan-btn" onclick="performDnsScan()">Enumera</button>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Enumerazione record DNS in corso...</p>
+      </div>
+
+      <div class="error" id="error-msg"></div>
+
+      <div class="results-section" id="results">
+        <div id="dns-results"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const scanBtn = document.getElementById('scan-btn');
+    const domainInput = document.getElementById('domain-input');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    const errorMsg = document.getElementById('error-msg');
+
+    domainInput.addEventListener('input', () => {
+      scanBtn.disabled = !domainInput.value.trim();
+    });
+    scanBtn.disabled = true;
+
+    async function performDnsScan() {
+      const domain = domainInput.value.trim();
+      if (!domain) return;
+
+      loading.classList.add('active');
+      results.classList.remove('active');
+      errorMsg.classList.remove('active');
+
+      try {
+        const response = await fetch('http://localhost:5000/api/dns-enum', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain })
+        });
+
+        if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+        const data = await response.json();
+
+        loading.classList.remove('active');
+        displayResults(data);
+        results.classList.add('active');
+
+      } catch (err) {
+        loading.classList.remove('active');
+        showError(`Errore: ${err.message}<br>Assicurati che il server sia avviato`);
+      }
+    }
+
+    function displayResults(data) {
+      let html = `<h2 style="color: #00d4ff; margin-bottom: 30px;">📊 Record DNS per <code>${data.domain}</code></h2>`;
+
+      const recordTypes = [
+        { key: 'A', name: 'IPv4 Address', icon: '🔹' },
+        { key: 'AAAA', name: 'IPv6 Address', icon: '🔹' },
+        { key: 'MX', name: 'Mail Exchange', icon: '📧' },
+        { key: 'NS', name: 'Name Server', icon: '🖧' },
+        { key: 'TXT', name: 'Text Records', icon: '📝' },
+        { key: 'CNAME', name: 'Canonical Name', icon: '🔗' },
+        { key: 'SOA', name: 'Start of Authority', icon: '👑' }
+      ];
+
+      for (const type of recordTypes) {
+        const records = data.records[type.key];
+        html += `<div class="record-type"><h3>${type.icon} ${type.name} (${type.key})</h3>`;
+
+        if (records && (Array.isArray(records) ? records.length : records)) {
+          if (Array.isArray(records)) {
+            records.forEach(record => {
+              html += `<div class="record-item">${typeof record === 'object' ? JSON.stringify(record) : record}</div>`;
+            });
+          } else {
+            html += `<div class="record-item">${JSON.stringify(records)}</div>`;
+          }
+        } else {
+          html += `<div class="record-item empty">❌ Nessun record trovato</div>`;
+        }
+
+        html += `</div>`;
+      }
+
+      document.getElementById('dns-results').innerHTML = html;
+    }
+
+    function showError(message) {
+      errorMsg.innerHTML = `<strong>🚨 Errore</strong><p style="margin-top: 10px;">${message}</p>`;
+      errorMsg.classList.add('active');
+    }
+
+    domainInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !scanBtn.disabled) performDnsScan();
+    });
+  </script>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>

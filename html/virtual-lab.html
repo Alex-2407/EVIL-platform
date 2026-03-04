@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lab Virtuale - EVIL</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    .lab-card { background: rgba(0, 0, 0, 0.2); border-left: 3px solid #4dabe7; padding: 25px; border-radius: 4px; cursor: pointer; }
+    .lab-card:hover { background: rgba(77, 171, 247, 0.1); transform: translateX(5px); }
+    .lab-card h3 { color: #4dabe7; margin-bottom: 12px; font-size: 1.1rem; }
+    .step-item { background: rgba(0, 0, 0, 0.2); border-left: 3px solid #4dabe7; padding: 15px; margin: 10px 0; border-radius: 4px; }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  
+  <header role="banner">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn"><img src="generated-image.png" alt="Logo EVIL"></button>
+        <div class="logo">EVIL</div>
+      </div>
+      <nav role="navigation">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="#">Attacchi ▾</a><div class="dropdown"><a href="attacks-map.html">Mappa Attacchi</a><a href="web-simulator.html">Simulatore Attacchi Web</a><a href="hacked-timeline.html">Timeline</a></div></li>
+          <li><a href="#">Database ▾</a><div class="dropdown"><a href="malware-db.html">Database Malware</a><a href="malware-classification.html">Classificazione</a><a href="manipulation-techniques.html">Tecniche</a><a href="historic-attacks.html">Attacchi Storici</a></div></li>
+          <li><a href="#">Strumenti ▾</a><div class="dropdown"><a href="security-check.html">Security Check</a><a href="vulnerability-scanner.html">Vulnerability Scanner</a><a href="dns-enumerator.html">DNS Enumerator</a><a href="file-analysis.html">Analisi File</a><a href="report-generator.html">Report</a></div></li>
+          <li><a href="#">Educazione ▾</a><div class="dropdown"><a href="ethical-hacking.html">Ethical Hacking</a><a href="virtual-lab.html">Lab Virtuale</a><a href="phishing-quiz.html">Quiz Phishing</a><a href="social-engineering.html">Social Engineering</a></div></li>
+          <li><a href="#">OSINT ▾</a><div class="dropdown"><a href="social-profiling.html">Profilazione</a><a href="public-info.html">Info Pubbliche</a></div></li>
+        </ul>
+      </nav>
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <button class="cta" onclick="location.href='security-check.html'">🔍 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="location.href='login.html'">Log</button>
+          <button class="auth-btn account" onclick="location.href='account.html'">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <main style="max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
+    <section style="text-align: center; margin-bottom: 60px; border-bottom: 2px solid rgba(77, 171, 247, 0.3); padding-bottom: 40px;">
+      <h1 style="font-size: 2.5rem; color: #4dabe7; margin-bottom: 15px;">🧪 Lab Virtuale</h1>
+      <p style="color: #b0b0b0; max-width: 900px; margin: 0 auto; line-height: 1.7;">Ambienti di apprendimento pratico isolati. Esercitati su tecniche di sicurezza reali.</p>
+    </section>
+    
+    <div id="labGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+      <div class="lab-card" onclick="openLab('lab1')">
+        <h3>🔍 Network Reconnaissance</h3>
+        <p style="color: #888; font-size: 0.9rem;">Principiante | 2-3 ore</p>
+        <p style="color: #ddd;">Scopri come mappare una rete usando nmap, ping e traceroute.</p>
+        <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab1')">Avvia Lab →</button>
+      </div>
+      <div class="lab-card" onclick="openLab('lab2')">
+        <h3>🎯 Vulnerability Scanning</h3>
+        <p style="color: #888; font-size: 0.9rem;">Intermedio | 3-4 ore</p>
+        <p style="color: #ddd;">Usa OpenVAS e Nessus per identificare vulnerabilità.</p>
+        <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab2')">Avvia Lab →</button>
+      </div>
+      <div class="lab-card" onclick="openLab('lab3')">
+        <h3>💻 Web Application Testing</h3>
+        <p style="color: #888; font-size: 0.9rem;">Intermedio | 4-5 ore</p>
+        <p style="color: #ddd;">Testa per SQL injection, XSS e CSRF con Burp Suite.</p>
+        <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab3')">Avvia Lab →</button>
+      </div>
+      <div class="lab-card" onclick="openLab('lab4')">
+        <h3>🔑 Password Attack & Cracking</h3>
+        <p style="color: #888; font-size: 0.9rem;">Intermedio-Avanzato | 3-4 ore</p>
+        <p style="color: #ddd;">Dictionary attacks, brute force, hash cracking.</p>
+        <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab4')">Avvia Lab →</button>
+      </div>
+      <div class="lab-card" onclick="openLab('lab5')">
+        <h3>🔓 Privilege Escalation</h3>
+        <p style="color: #888; font-size: 0.9rem;">Avanzato | 4-6 ore</p>
+        <p style="color: #ddd;">Escalare privilegi da utente a root.</p>
+        <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab5')">Avvia Lab →</button>
+      </div>
+      <div class="lab-card" onclick="openLab('lab6')">
+        <h3>🎖️ Full Penetration Test</h3>
+        <p style="color: #888; font-size: 0.9rem;">Esperto | 8-10 ore</p>
+        <p style="color: #ddd;">Ciclo completo: recon, scanning, exploitation.</p>
+        <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab6')">Avvia Lab →</button>
+      </div>
+    </div>
+    
+    <div id="labDetail" style="display: none; margin-top: 60px;"></div>
+  </main>
+  
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="../js/matrixrain.js"></script>
+  <script src="../js/js.js"></script>
+  
+  <script>
+  const labs = {
+    lab1: { title: "Network Reconnaissance", steps: ["Setup: Kali + Target VM", "nmap -sn 192.168.1.0/24", "nmap -sV -p- [IP]", "nmap -O [IP]", "traceroute [IP]", "nslookup [domain]", "nmap -A -T4 [IP]"], output: "IP attivi, porte, servizi, versioni, OS" },
+    lab2: { title: "Vulnerability Scanning", steps: ["apt install openvas", "https://127.0.0.1:9392", "Targets → New", "Tasks → New", "Esegui scan", "Reports → Analizza", "Filtra CVSS"], output: "Vulnerabilità con CVSS scores" },
+    lab3: { title: "Web Application Testing", steps: ["Burp Suite", "Proxy 127.0.0.1:8080", "Certificato Burp", "Intercetta request", "admin' OR '1'='1", "XSS test", "CSRF form"], output: "SQLi, XSS, CSRF PoC" },
+    lab4: { title: "Password Cracking", steps: ["gunzip rockyou.txt.gz", "hydra -l admin -P rockyou.txt ssh://target", "Web form brute", "samdump2 SYSTEM SAM", "john --format=md5", "hashcat -m 0 hashes.txt rockyou.txt", "Rainbow tables"], output: "Cracked passwords con tempo" },
+    lab5: { title: "Privilege Escalation", steps: ["id && whoami && sudo -l", "searchsploit linux", "gcc -o exploit exploit.c", "sudo /usr/bin/find . -exec /bin/sh", "find / -perm -4000", "Library hijacking", "Backdoor /etc/passwd"], output: "root@target:/# id" },
+    lab6: { title: "Full Penetration Test", steps: ["Planning & Scope", "OSINT recon", "nmap -A scan", "enum4linux, snmpwalk", "Burp + Metasploit", "Exploitation", "Post-exploitation", "Report generazione"], output: "20-50 page PT report" }
+  };
+  
+  function openLab(id) {
+    const lab = labs[id];
+    let h = '<button onclick="closeLab()" style="background:rgba(165,55,247,0.2);border:1px solid #a855f7;color:#a855f7;padding:8px 15px;cursor:pointer;margin-bottom:20px;">← Chiudi</button>';
+    h += '<div style="background:rgba(77,171,247,0.05);border:2px solid rgba(77,171,247,0.3);padding:30px;border-radius:4px;">';
+    h += '<h2 style="color:#4dabe7;font-size:1.8rem;margin-bottom:20px;">🧪 ' + lab.title + '</h2>';
+    h += '<h3 style="color:#00ff9c;">Step-by-Step</h3>';
+    lab.steps.forEach((s, i) => h += '<div class="step-item"><strong style="color:#00ff9c;">Step ' + (i+1) + ':</strong> ' + s + '</div>');
+    h += '<h3 style="color:#00ff9c;margin-top:25px;">Output Atteso</h3>';
+    h += '<div style="background:rgba(0,255,156,0.1);border:1px solid rgba(0,255,156,0.3);padding:15px;border-radius:4px;color:#00ff9c;font-family:monospace;">' + lab.output + '</div>';
+    h += '</div>';
+    document.getElementById('labDetail').innerHTML = h;
+    document.getElementById('labDetail').style.display = 'block';
+    document.getElementById('labGrid').style.display = 'none';
+  }
+  
+  function closeLab() {
+    document.getElementById('labDetail').style.display = 'none';
+    document.getElementById('labGrid').style.display = 'grid';
+  }
+  </script>
+  <script src="../js/progress-manager.js"></script>
+</body>
+</html>
