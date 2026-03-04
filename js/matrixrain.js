@@ -72,9 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
         frame++;
         if (frame < 120) {
           requestAnimationFrame(draw);
-        } else {
-          window.location.href = redirectURL;
-        }
+        } 
+        // DISABILITATO: questa linea causava un loop infinito di redirect
+        // else {
+        //   window.location.href = redirectURL;
+        // }
       }
   
       draw();
