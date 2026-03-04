@@ -105,6 +105,22 @@ async function fetchWithRetries(url, axiosConfig = {}, retries = 3, baseBackoff 
 const baseDir = path.resolve(__dirname, '..');
 
 // ==================== HTML INJECTION MIDDLEWARE ====================
+
+// Route per la homepage (root)
+app.get('/', (req, res) => {
+  const filePath = path.join(baseDir, 'html', 'home.html');
+  if (fs.existsSync(filePath)) {
+    let htmlContent = fs.readFileSync(filePath, 'utf8');
+    if (htmlContent.includes('</head>')) {
+      const injectedScript = '<script src="./load-header.js"></script>';
+      htmlContent = htmlContent.replace('</head>', `${injectedScript}\n</head>`);
+    }
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.send(htmlContent);
+  }
+  res.status(404).send('Home page not found');
+});
+
 // Route personalizzata per i file HTML - inietta lo script di caricamento header
 app.get('*.html', (req, res, next) => {
   const filePath = path.join(baseDir, 'html', req.path);
