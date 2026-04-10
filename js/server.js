@@ -23,6 +23,7 @@ const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
+
 const execFileAsync = promisify(execFile);
 
 // Import middleware e services
@@ -34,6 +35,21 @@ const {
   verifyPassword,
   validatePasswordStrength
 } = require('../middleware/auth');
+
+const { 
+  validateSchema,
+  scanSchema,
+  osintSearchSchema,
+  dnsEnumSchema,
+  registerSchema,
+  loginSchema
+} = require('../middleware/validation-schemas');
+
+const {
+  setTokenCookies,
+  clearAuthCookies,
+  generateCSRFToken
+} = require('../utils/token-utils');
 
 const { upload: multerUpload, handleUploadError } = require('../middleware/upload');
 const { 
@@ -48,11 +64,30 @@ const {
 const tokenManager = require('../services/token-manager');
 const securityHeaders = require('../middleware/security-headers');
 const { logger, auditLog, httpLogger } = require('../middleware/logger');
-const { validateSchema, scanSchema, osintSearchSchema, dnsEnumSchema, subdomainFinderSchema, sslAnalyzerSchema, vulnerabilityScanSchema, socialProfileSchema, registerSchema, loginSchema } = require('../middleware/validation-schemas');
 
 const app = express();
 
-// ==================== SERVE STATIC FILES FIRST ====================
+// ==================== HTTPS REDIRECT (RENDER-SAFE) ====================
+// Redirect HTTP to HTTPS in production
+// On Render: x-forwarded-proto header indicates original protocol
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    // Render proxies requests, check x-forwarded-proto header
+    const proto = req.headers['x-forwarded-proto'] || req.protocol;
+    
+    // Skip redirect for health checks and specific paths
+    if (req.path === '/health' || req.path === '/__debug/files') {
+      return next();
+    }
+    
+    // Redirect only if NOT already HTTPS
+    if (proto !== 'https') {
+      return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
+    }
+    
+    next();
+  });
+}
 // CRITICO: questi middleware devono essere registrati **prima** di qualunque
 // altro routing o security headers, così Express può rispondere con i file
 // statici invece di cadere in un handler 404 generico.
@@ -86,23 +121,6 @@ app.use('/html', express.static(path.join(root, 'html'))); // solo se serve html
 
 // ==================== APPLY SECURITY HEADERS ====================
 securityHeaders(app);
-
-// ==================== FORCE HTTPS IN PRODUCTION ====================
-// Middleware per forzare HTTPS in produzione
-app.use((req, res, next) => {
-  if (process.env.NODE_ENV === 'production') {
-    // Controlla X-Forwarded-Proto (per proxy/reverse proxy come Nginx, Render)
-    const forwarded = req.get('x-forwarded-proto');
-    if (forwarded && forwarded !== 'https') {
-      return res.redirect(301, `https://${req.get('host')}${req.url}`);
-    }
-    // Controlla anche req.protocol (per connessioni dirette)
-    if (req.protocol !== 'https') {
-      return res.redirect(301, `https://${req.get('host')}${req.url}`);
-    }
-  }
-  next();
-});
 
 // ==================== APPLY RATE LIMITING ====================
 // Rate limit NON si applica ai file statici e HTML, solo alle API /api/*
@@ -448,9 +466,20 @@ function checkThreat(domain) {
 app.post('/api/scan', 
   authenticateToken,
   scanLimiter,
-  validateSchema(scanSchema),
+  body('url')
+    .trim()
+    .notEmpty().withMessage('URL required')
+    .isURL().withMessage('Invalid URL format'),
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      auditLog.security('SCAN_VALIDATION_FAILED', { userId: req.user.id, errors: errors.array() }, 'WARN');
+      return res.status(400).json({ error: 'Invalid URL format' });
+    }
+    next();
+  },
   async (req, res) => {
-    const { url } = req.validatedData;
+    const { url } = req.body;
 
     let fullUrl = url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -1504,15 +1533,18 @@ app.post('/api/osint-search', async (req, res) => {
       // Analisi dominio approfondita
       const domain = target.replace('http://', '').replace('https://', '').split('/')[0];
       
-      // WHOIS info - ✅ FIXED: Use execFile instead of exec (prevents command injection)
+      // WHOIS info - FIXED: Use execFile with separate arguments (prevents injection)
       try {
-        try {
-          const { stdout } = await execFileAsync('whois', [domain], { timeout: 10000 });
-          const lines = stdout.split('\n').slice(0, 20);
-          result.data.whois = { info: lines.join(' ') };
-        } catch (error) {
-          result.data.whois = { error: 'WHOIS not available', details: error.message };
-        }
+        result.data.whois = await new Promise((resolve) => {
+          execFileAsync('whois', [domain], { timeout: 10000 })
+            .then(({ stdout }) => {
+              const lines = stdout.split('\n').slice(0, 20);
+              resolve({ info: lines.join(' ') });
+            })
+            .catch((error) => {
+              resolve({ error: 'WHOIS not available' });
+            });
+        });
       } catch (err) {
         result.data.whois = { error: 'WHOIS lookup failed' };
       }
@@ -1545,26 +1577,19 @@ app.post('/api/osint-search', async (req, res) => {
         result.data.headers = { error: 'Headers lookup failed' };
       }
 
-      // Subdomain enumeration con certs.sh - ✅ FIXED: Use axios instead of shell exec
+      // Subdomain enumeration con certs.sh - FIXED: Use axios instead of shell pipes
       try {
-        const certsResponse = await axios.get(`https://certs.sh?q=%.${domain}`, {
-          timeout: 10000,
-          headers: { 'User-Agent': 'EVIL-Scanner/1.0' },
-          validateStatus: () => true
+        const response = await axios.get(`https://certs.sh?q=%.${domain}`, {
+          timeout: 10000
         });
-        
-        if (certsResponse.status === 200 && certsResponse.data) {
-          // Parse JSON response to extract CN values
-          const matches = certsResponse.data.match(/"cn":"([^"]+)"/g) || [];
-          const subdomains = matches
-            .map(m => m.replace(/"cn":"/, '').replace(/"$/, ''))
-            .slice(0, 10);
-          result.data.subdomains = subdomains.length > 0 ? subdomains : 'None found';
-        } else {
-          result.data.subdomains = 'Enumeration failed';
-        }
+        // Parse JSON response and extract CN fields
+        const matches = (response.data || '').match(/"cn":"([^"]*)"/g) || [];
+        const subdomains = matches
+          .map(m => m.replace(/"cn":"|"$/g, ''))
+          .slice(0, 10);
+        result.data.subdomains = subdomains.length > 0 ? subdomains : 'None found';
       } catch (err) {
-        result.data.subdomains = { error: 'Subdomain enumeration failed', details: err.message };
+        result.data.subdomains = 'Enumeration failed';
       }
     } 
     else if (type === 'person') {

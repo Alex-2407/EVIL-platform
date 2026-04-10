@@ -1,154 +1,211 @@
 // ==================== TOKEN UTILITIES ====================
-// Secure token generation, management, and rotation
-// Implements access + refresh token pattern with httpOnly cookies
+// Secure token generation and management
+// Features: httpOnly cookies, CSRF protection, refresh token rotation
 
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-const JWT_SECRET = process.env.JWT_SECRET;
-const JWT_SECRET_REFRESH = process.env.JWT_SECRET_REFRESH;
-const ACCESS_TOKEN_EXPIRY = process.env.JWT_ACCESS_EXPIRY || '15m';
-const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
-
-if (!JWT_SECRET || !JWT_SECRET_REFRESH) {
-  console.error('❌ CRITICAL: JWT secrets not configured');
-  process.exit(1);
-}
+// ==================== TOKEN GENERATION ====================
 
 /**
- * ✅ Generate Access Token (short-lived, 15 minutes)
- * Stored in Memory - NOT exposed to XSS attacks
+ * Generate Access Token (15 minutes)
+ * Used for API authentication
  */
 function generateAccessToken(userId, email) {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET not configured');
+  }
+
   return jwt.sign(
-    { 
-      userId, 
-      email,
+    {
+      id: userId,
+      email: email,
       type: 'access'
     },
-    JWT_SECRET,
-    { expiresIn: ACCESS_TOKEN_EXPIRY }
+    process.env.JWT_SECRET,
+    {
+      expiresIn: '15m',
+      issuer: 'evil-platform',
+      audience: 'api'
+    }
   );
 }
 
 /**
- * ✅ Generate Refresh Token (long-lived, 7 days)
- * Stored in httpOnly Cookie - Protected from XSS
+ * Generate Refresh Token (7 days)
+ * Used to obtain new access tokens
  */
-function generateRefreshToken(userId) {
+function generateRefreshToken(userId, email) {
+  if (!process.env.JWT_SECRET_REFRESH) {
+    throw new Error('JWT_SECRET_REFRESH not configured');
+  }
+
   return jwt.sign(
-    { 
-      userId,
+    {
+      id: userId,
+      email: email,
       type: 'refresh'
     },
-    JWT_SECRET_REFRESH,
-    { expiresIn: REFRESH_TOKEN_EXPIRY }
+    process.env.JWT_SECRET_REFRESH,
+    {
+      expiresIn: '7d',
+      issuer: 'evil-platform',
+      audience: 'refresh'
+    }
   );
 }
 
 /**
- * ✅ Verify Access Token
+ * Set both access and refresh tokens in httpOnly cookies
+ * CRITICAL: Both cookies are httpOnly, Secure, SameSite:Strict
+ * Only accessible to server, not JavaScript
  */
-function verifyAccessToken(token) {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.type !== 'access') {
-      return { valid: false, error: 'Invalid token type' };
-    }
-    return { valid: true, decoded };
-  } catch (err) {
-    return { valid: false, error: err.message };
-  }
-}
+function setTokenCookies(res, userId, email) {
+  const accessToken = generateAccessToken(userId, email);
+  const refreshToken = generateRefreshToken(userId, email);
 
-/**
- * ✅ Verify Refresh Token
- */
-function verifyRefreshToken(token) {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET_REFRESH);
-    if (decoded.type !== 'refresh') {
-      return { valid: false, error: 'Invalid token type' };
-    }
-    return { valid: true, decoded };
-  } catch (err) {
-    return { valid: false, error: err.message };
-  }
-}
-
-/**
- * ✅ Set Token Cookies (httpOnly, Secure, SameSite)
- */
-function setTokenCookies(res, accessToken, refreshToken) {
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  // Access Token (15 minutes) - In-memory recommended, but can send if needed
+  // Access Token Cookie (15 minutes, httpOnly, Secure, SameSite)
   res.cookie('accessToken', accessToken, {
-    httpOnly: true,        // 🔒 Not accessible via JavaScript (prevents XSS token theft)
-    secure: isProduction,  // HTTPS only in production
-    sameSite: 'strict',    // CSRF protection
-    maxAge: 15 * 60 * 1000, // 15 minutes
+    httpOnly: true,              // NOT accessible to JavaScript
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
+    sameSite: 'strict',          // CSRF protection: only same-site requests
+    maxAge: 15 * 60 * 1000,      // 15 minutes in milliseconds
     path: '/',
-    domain: process.env.COOKIE_DOMAIN || undefined
+    domain: undefined            // current domain only
   });
 
-  // Refresh Token (7 days) - httpOnly + Secure
+  // Refresh Token Cookie (7 days, httpOnly, Secure, SameSite)
   res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,        // 🔒 Protected from JavaScript access
-    secure: isProduction,  // HTTPS only in production
-    sameSite: 'strict',    // CSRF protection
+    httpOnly: true,              // NOT accessible to JavaScript
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    path: '/api/auth/refresh', // Only sent to refresh endpoint
-    domain: process.env.COOKIE_DOMAIN || undefined
+    path: '/api/auth/refresh',   // only sent to refresh endpoint (further CSRF protection)
+    domain: undefined
   });
+
+  return { accessToken, refreshToken };
 }
 
 /**
- * ✅ Clear Token Cookies (Logout)
+ * Extract access token from httpOnly cookie in request
+ * Used instead of Authorization header
  */
-function clearTokenCookies(res) {
+function getAccessTokenFromCookie(req) {
+  return req.cookies?.accessToken || null;
+}
+
+/**
+ * Extract refresh token from httpOnly cookie in request
+ */
+function getRefreshTokenFromCookie(req) {
+  return req.cookies?.refreshToken || null;
+}
+
+/**
+ * Clear both authentication cookies
+ * Used for logout
+ */
+function clearAuthCookies(res) {
   res.clearCookie('accessToken', { path: '/' });
   res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
 }
 
+// ==================== CSRF TOKEN MANAGEMENT ====================
+
 /**
- * ✅ Generate CSRF Token (for form submissions)
+ * Generate CSRF token for forms
+ * Random 32-byte token, hex encoded
  */
 function generateCSRFToken() {
   return crypto.randomBytes(32).toString('hex');
 }
 
 /**
- * ✅ Verify CSRF Token
+ * Verify CSRF token with timing-safe comparison
+ * Prevents timing-based attacks
  */
-function verifyCSRFToken(token, sessionToken) {
+function verifyCSRFToken(providedToken, sessionToken) {
+  if (!providedToken || !sessionToken) {
+    return false;
+  }
+  // Timing-safe comparison: prevents timing attacks
   return crypto.timingSafeEqual(
-    Buffer.from(token),
+    Buffer.from(providedToken),
     Buffer.from(sessionToken)
   );
 }
 
+// ==================== REFRESH TOKEN ROTATION ====================
+
 /**
- * ✅ Set CSRF Cookie
+ * Rotate tokens: issue new access + refresh token pair
+ * Used when access token expires or on sensitive operations
  */
-function setCSRFCookie(res, token) {
-  res.cookie('X-CSRF-Token', token, {
-    httpOnly: false,       // Readable by JavaScript (for form submissions)
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 60 * 60 * 1000, // 1 hour
-    path: '/'
-  });
+function rotateTokens(res, userId, email) {
+  // Clear old tokens
+  clearAuthCookies(res);
+  // Set new tokens
+  return setTokenCookies(res, userId, email);
 }
 
+// ==================== MIDDLEWARE ====================
+
+/**
+ * Middleware to extract token from httpOnly cookie
+ * Attach to req.token for downstream middleware
+ */
+function extractTokenFromCookie(req, res, next) {
+  req.token = getAccessTokenFromCookie(req);
+  next();
+}
+
+/**
+ * Middleware to verify CSRF token from request
+ * Used on POST/PUT/DELETE endpoints
+ */
+function verifyCRSFFromRequest(req, res, next) {
+  const csrfTokenFromRequest = req.headers['x-csrf-token'] || req.body?._csrf;
+  const csrfTokenFromSession = req.session?.csrfToken;
+
+  if (!csrfTokenFromRequest || !csrfTokenFromSession) {
+    return res.status(403).json({
+      error: 'CSRF token missing or invalid',
+      code: 'CSRF_TOKEN_MISSING'
+    });
+  }
+
+  try {
+    if (verifyCSRFToken(csrfTokenFromRequest, csrfTokenFromSession)) {
+      next();
+    } else {
+      res.status(403).json({
+        error: 'CSRF token mismatch',
+        code: 'CSRF_TOKEN_INVALID'
+      });
+    }
+  } catch (err) {
+    res.status(403).json({
+      error: 'CSRF verification failed',
+      code: 'CSRF_VERIFICATION_FAILED'
+    });
+  }
+}
+
+// ==================== EXPORTS ====================
 module.exports = {
+  // Token Generation
   generateAccessToken,
   generateRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
   setTokenCookies,
-  clearTokenCookies,
+  rotateTokens,
+  // Token Extraction
+  getAccessTokenFromCookie,
+  getRefreshTokenFromCookie,
+  clearAuthCookies,
+  extractTokenFromCookie,
+  // CSRF Management
   generateCSRFToken,
   verifyCSRFToken,
-  setCSRFCookie
+  verifyCRSFFromRequest
 };

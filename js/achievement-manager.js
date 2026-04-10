@@ -19,7 +19,7 @@ class AchievementManager {
       
       this.achievements = await response.json();
       this.isLoaded = true;
-      console.log(`[Achievements] ✓ Loaded ${this.achievements.length} achievements`);
+      // Loaded achievements
       return this.achievements;
     } catch (error) {
       console.error('[Achievements] ✗ Error loading:', error);
@@ -34,7 +34,7 @@ class AchievementManager {
     try {
       const headers = getAuthHeaders();
       if (!headers.Authorization) {
-        console.log('[Achievements] User not authenticated');
+        // User not authenticated
         return [];
       }
 
@@ -43,7 +43,7 @@ class AchievementManager {
       
       const user = await response.json();
       this.userAchievements = user.progress?.unlockedAchievements || [];
-      console.log(`[Achievements] ✓ User has ${this.userAchievements.length} achievements`);
+      // User achievements loaded
       return this.userAchievements;
     } catch (error) {
       console.error('[Achievements] ✗ Error loading user achievements:', error);

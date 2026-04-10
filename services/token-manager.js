@@ -258,7 +258,7 @@ class TokenManager {
       try {
         await this.redis.quit();
         this.connected = false;
-        console.log('✅ Redis disconnected');
+        // Redis disconnected
       } catch (err) {
         console.error('Error disconnecting Redis:', err);
       }

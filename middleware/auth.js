@@ -8,14 +8,6 @@ const bcrypt = require('bcryptjs');
 // Password strength validation regex
 const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
 
-// ✅ SECURITY: Require JWT_SECRET - no fallback to weak defaults
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  console.error('❌ CRITICAL: JWT_SECRET not configured in .env');
-  console.error('Run: node scripts/generate-secrets.js');
-  process.exit(1);
-}
-
 /**
  * Middleware: Verify JWT Access Token
  * Returns 401 if token missing/invalid/expired
@@ -31,7 +23,13 @@ const authenticateToken = (req, res, next) => {
     });
   }
 
-  jwt.verify(token, JWT_SECRET, (err, user) => {
+  // CRITICAL: JWT_SECRET is mandatory - no fallback to weak defaults
+  if (!process.env.JWT_SECRET) {
+    console.error('❌ CRITICAL: JWT_SECRET environment variable not configured');
+    process.exit(1);
+  }
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       if (err.name === 'TokenExpiredError') {
         return res.status(401).json({ 
