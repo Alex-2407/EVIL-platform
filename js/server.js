@@ -21,6 +21,9 @@ const PDFDocument = require('pdfkit');
 const helmet = require('helmet');
 const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
+const { execFile } = require('child_process');
+const { promisify } = require('util');
+const execFileAsync = promisify(execFile);
 
 // Import middleware e services
 const { 
@@ -45,6 +48,7 @@ const {
 const tokenManager = require('../services/token-manager');
 const securityHeaders = require('../middleware/security-headers');
 const { logger, auditLog, httpLogger } = require('../middleware/logger');
+const { validateSchema, scanSchema, osintSearchSchema, dnsEnumSchema, subdomainFinderSchema, sslAnalyzerSchema, vulnerabilityScanSchema, socialProfileSchema, registerSchema, loginSchema } = require('../middleware/validation-schemas');
 
 const app = express();
 
@@ -427,20 +431,9 @@ function checkThreat(domain) {
 app.post('/api/scan', 
   authenticateToken,
   scanLimiter,
-  body('url')
-    .trim()
-    .notEmpty().withMessage('URL required')
-    .isURL().withMessage('Invalid URL format'),
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      auditLog.security('SCAN_VALIDATION_FAILED', { userId: req.user.id, errors: errors.array() }, 'WARN');
-      return res.status(400).json({ error: 'Invalid URL format' });
-    }
-    next();
-  },
+  validateSchema(scanSchema),
   async (req, res) => {
-    const { url } = req.body;
+    const { url } = req.validatedData;
 
     let fullUrl = url;
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -1494,18 +1487,15 @@ app.post('/api/osint-search', async (req, res) => {
       // Analisi dominio approfondita
       const domain = target.replace('http://', '').replace('https://', '').split('/')[0];
       
-      // WHOIS info
+      // WHOIS info - ✅ FIXED: Use execFile instead of exec (prevents command injection)
       try {
-        result.data.whois = await new Promise((resolve) => {
-          require('child_process').exec(`whois ${domain}`, { timeout: 10000 }, (error, stdout) => {
-            if (error) {
-              resolve({ error: 'WHOIS not available' });
-            } else {
-              const lines = stdout.split('\n').slice(0, 20);
-              resolve({ info: lines.join(' ') });
-            }
-          });
-        });
+        try {
+          const { stdout } = await execFileAsync('whois', [domain], { timeout: 10000 });
+          const lines = stdout.split('\n').slice(0, 20);
+          result.data.whois = { info: lines.join(' ') };
+        } catch (error) {
+          result.data.whois = { error: 'WHOIS not available', details: error.message };
+        }
       } catch (err) {
         result.data.whois = { error: 'WHOIS lookup failed' };
       }
@@ -1538,23 +1528,26 @@ app.post('/api/osint-search', async (req, res) => {
         result.data.headers = { error: 'Headers lookup failed' };
       }
 
-      // Subdomain enumeration con certs.sh
+      // Subdomain enumeration con certs.sh - ✅ FIXED: Use axios instead of shell exec
       try {
-        const subdomains = await new Promise((resolve) => {
-          require('child_process').exec(`curl -s "https://certs.sh?q=%.${domain}" | grep -oP '(?<="cn":")[^"]*' | head -10`, 
-            { timeout: 10000 }, 
-            (error, stdout) => {
-              if (error) {
-                resolve([]);
-              } else {
-                resolve(stdout.split('\n').filter(s => s.length > 0).slice(0, 10));
-              }
-            }
-          );
+        const certsResponse = await axios.get(`https://certs.sh?q=%.${domain}`, {
+          timeout: 10000,
+          headers: { 'User-Agent': 'EVIL-Scanner/1.0' },
+          validateStatus: () => true
         });
-        result.data.subdomains = subdomains.length > 0 ? subdomains : 'None found';
+        
+        if (certsResponse.status === 200 && certsResponse.data) {
+          // Parse JSON response to extract CN values
+          const matches = certsResponse.data.match(/"cn":"([^"]+)"/g) || [];
+          const subdomains = matches
+            .map(m => m.replace(/"cn":"/, '').replace(/"$/, ''))
+            .slice(0, 10);
+          result.data.subdomains = subdomains.length > 0 ? subdomains : 'None found';
+        } else {
+          result.data.subdomains = 'Enumeration failed';
+        }
       } catch (err) {
-        result.data.subdomains = 'Enumeration failed';
+        result.data.subdomains = { error: 'Subdomain enumeration failed', details: err.message };
       }
     } 
     else if (type === 'person') {
