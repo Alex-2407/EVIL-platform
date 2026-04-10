@@ -87,6 +87,23 @@ app.use('/html', express.static(path.join(root, 'html'))); // solo se serve html
 // ==================== APPLY SECURITY HEADERS ====================
 securityHeaders(app);
 
+// ==================== FORCE HTTPS IN PRODUCTION ====================
+// Middleware per forzare HTTPS in produzione
+app.use((req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    // Controlla X-Forwarded-Proto (per proxy/reverse proxy come Nginx, Render)
+    const forwarded = req.get('x-forwarded-proto');
+    if (forwarded && forwarded !== 'https') {
+      return res.redirect(301, `https://${req.get('host')}${req.url}`);
+    }
+    // Controlla anche req.protocol (per connessioni dirette)
+    if (req.protocol !== 'https') {
+      return res.redirect(301, `https://${req.get('host')}${req.url}`);
+    }
+  }
+  next();
+});
+
 // ==================== APPLY RATE LIMITING ====================
 // Rate limit NON si applica ai file statici e HTML, solo alle API /api/*
 app.use((req, res, next) => {
