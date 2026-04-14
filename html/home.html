@@ -3,7 +3,37 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EVIL - Cybersecurity Platform</title>
+  <title>EVIL - Cybersecurity Learning Platform | URL Scanner & Security Tools</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Piattaforma educativa per cybersecurity con scanner URL, analisi vulnerabilità, simulatore attacchi web e database malware. Impara sicurezza informatica eticamente.">
+  <meta name="keywords" content="cybersecurity, URL scanner, vulnerability analysis, ethical hacking, security tools, malware database, penetration testing">
+  <meta name="author" content="EVIL Platform">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="EVIL - Cybersecurity Learning Platform">
+  <meta property="og:description" content="Impara cybersecurity con strumenti avanzati per analisi di sicurezza URL e simulazione attacchi etici.">
+  <meta property="og:url" content="https://www.projectevil.it/">
+  <meta property="og:image" content="https://www.projectevil.it/assets/evil-logo.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="EVIL - Cybersecurity Learning Platform">
+  <meta name="twitter:description" content="Piattaforma educativa per imparare cybersecurity con scanner URL e strumenti di sicurezza.">
+  <meta name="twitter:image" content="https://www.projectevil.it/assets/evil-logo.png">
+
+  <!-- Mobile & PWA -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+  <!-- Canonical URL -->
+  <link rel="canonical" href="https://www.projectevil.it/">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico">
 
   <!-- Link al foglio di stile esterno -->
   <link rel="stylesheet" href="/css/style.css">
@@ -22,29 +52,29 @@
     <div class="header-container">
       <!-- LOGO E BOTTONE MATRIX -->
       <div class="logo-section">
-        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva/disattiva effetto Matrix">
+          <img src="generated-image.png" alt="Logo EVIL Cybersecurity Platform - Scudo con scritta EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
 
       <!-- MENU -->
-      <nav role="navigation" aria-label="Menu principale">
+      <nav role="navigation" aria-label="Menu principale di navigazione">
         <ul>
-          <li><a href="home.html">Home</a></li>
+          <li><a href="home.html" aria-current="page">Home</a></li>
 
-          <li>
-            <a href="#">Attacchi ▾</a>
-            <div class="dropdown">
+          <li aria-haspopup="true">
+            <a href="#" aria-expanded="false" aria-controls="attacks-menu">Attacchi ▾</a>
+            <div class="dropdown" id="attacks-menu" aria-hidden="true">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
               <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
             </div>
           </li>
 
-          <li>
-            <a href="#">Database ▾</a>
-            <div class="dropdown">
+          <li aria-haspopup="true">
+            <a href="#" aria-expanded="false" aria-controls="database-menu">Database ▾</a>
+            <div class="dropdown" id="database-menu" aria-hidden="true">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
               <a href="malware-card-template.html">Template Scheda</a>
@@ -155,7 +185,7 @@
             <h3>Attacchi</h3>
           </div>
           <p class="card-description">Monitora attacchi in tempo reale, simulazioni web e timeline di sistemi compromessi. Dati storici e contemporanei.</p>
-          <ul class="card-links">
+          <ul class="card-links" role="list">
             <li>• Mappa Attacchi in Tempo Reale</li>
             <li>• Simulatore Attacchi Web</li>
             <li>• Timeline Sistema Hackerato</li>
@@ -170,7 +200,7 @@
             <h3>Database</h3>
           </div>
           <p class="card-description">Accedi a database di malware, tecniche di manipolazione e attacchi storici. Conoscenza consolidata nel settore.</p>
-          <ul class="card-links">
+          <ul class="card-links" role="list">
             <li>• Database Malware</li>
             <li>• Tecniche di Manipolazione</li>
             <li>• Attacchi Storici</li>
@@ -185,7 +215,7 @@
             <h3>Strumenti</h3>
           </div>
           <p class="card-description">Scanner di vulnerabilità, analisi di URL, DNS enumerator, SSL analyzer e generazione report professionali.</p>
-          <ul class="card-links">
+          <ul class="card-links" role="list">
             <li>• Security Check URL</li>
             <li>• Scanner Vulnerabilità</li>
             <li>• DNS Records Enumerator</li>
@@ -202,7 +232,7 @@
             <h3>Educazione</h3>
           </div>
           <p class="card-description">Impara l'ethical hacking, esplora laboratori virtuali, test phishing e simulazioni di social engineering.</p>
-          <ul class="card-links">
+          <ul class="card-links" role="list">
             <li>• Tutorial Ethical Hacking</li>
             <li>• Lab Virtuale</li>
             <li>• Quiz Phishing</li>
@@ -218,7 +248,7 @@
             <h3>OSINT</h3>
           </div>
           <p class="card-description">Open Source Intelligence: profilazione da social media e raccolta di informazioni pubbliche per consapevolezza.</p>
-          <ul class="card-links">
+          <ul class="card-links" role="list">
             <li>• Profilazione da Social</li>
             <li>• Raccolta Info Pubbliche</li>
           </ul>
