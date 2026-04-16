@@ -6,7 +6,11 @@
   "scripts": {
     "start": "node js/server.js",
     "dev": "node js/server.js",
-    "test": "node js/verify-services.js"
+    "test": "node js/verify-services.js",
+    "build": "webpack --mode=production",
+    "build:css": "webpack --mode=production --entry ./css/style.css --output-path ./public/dist --output-filename style.min.css",
+    "build:js": "webpack --mode=production",
+    "postinstall": "npm run build"
   },
   "engines": {
     "node": "18.x",
@@ -40,9 +44,23 @@
     "multer": "^2.1.1",
     "pdfkit": "0.13.0",
     "uuid": "9.0.1",
+    "winston": "^3.19.0",
     "ws": "^8.19.0"
   },
   "overrides": {
     "path-to-regexp": "0.1.13"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "babel-loader": "^10.1.1",
+    "compression": "^1.8.1",
+    "css-loader": "^7.1.4",
+    "cssnano": "^7.1.5",
+    "mini-css-extract-plugin": "^2.10.2",
+    "postcss-loader": "^8.2.1",
+    "terser": "^5.46.1",
+    "webpack": "^5.106.1",
+    "webpack-cli": "^7.0.2"
   }
 }

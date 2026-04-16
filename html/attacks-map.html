@@ -524,7 +524,7 @@
 
     async function updateMapWithRealTimeData() {
       try {
-        const endpoints = ['/api/realtime-incidents', 'http://localhost:5000/api/realtime-incidents'];
+        const endpoints = ['/api/realtime-incidents'];
         const data = await tryFetchEndpoints(endpoints);
 
         // Aggiorna timestamp ultimo aggiornamento (mostrato in header della pagina)
@@ -755,7 +755,7 @@
     
     async function updateIncidentsTimeline() {
       try {
-        const endpoints = ['/api/realtime-incidents', 'http://localhost:5000/api/realtime-incidents'];
+        const endpoints = ['/api/realtime-incidents'];
         const data = await tryFetchEndpoints(endpoints);
 
         // Aggiorna anche qui il timestamp di ultimo aggiornamento

@@ -1,223 +1,195 @@
-// ==================== LOGGING & AUDIT MIDDLEWARE ====================
-// Centralized logging for security events and errors
+// ==================== LOGGING SYSTEM ====================
+// Structured logging with Winston for better debugging and monitoring
 
-const fs = require('fs');
+const winston = require('winston');
 const path = require('path');
 
-const LOG_DIR = process.env.LOG_DIR || './logs';
-const AUDIT_LOG_FILE = path.join(LOG_DIR, 'audit.log');
-const ERROR_LOG_FILE = path.join(LOG_DIR, 'error.log');
-
-// Ensure logs directory exists
-if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR, { recursive: true });
+// Create logs directory if it doesn't exist
+const fs = require('fs');
+const logsDir = path.join(__dirname, '..', 'logs');
+if (!fs.existsSync(logsDir)) {
+  fs.mkdirSync(logsDir, { recursive: true });
 }
 
-/**
- * Log levels
- */
-const LOG_LEVELS = {
-  ERROR: 'ERROR',
-  WARN: 'WARN',
-  INFO: 'INFO',
-  DEBUG: 'DEBUG',
-  AUDIT: 'AUDIT'
+// Define log levels
+const levels = {
+  error: 0,
+  warn: 1,
+  info: 2,
+  http: 3,
+  debug: 4
 };
 
-/**
- * Format timestamp for logs
- */
-const getTimestamp = () => {
-  return new Date().toISOString();
+// Define colors for console output
+const colors = {
+  error: 'red',
+  warn: 'yellow',
+  info: 'green',
+  http: 'magenta',
+  debug: 'blue'
 };
 
-/**
- * General logger
- */
-const logger = {
-  error: (message, meta = {}) => {
-    const logEntry = {
-      timestamp: getTimestamp(),
-      level: LOG_LEVELS.ERROR,
-      message,
-      ...meta
-    };
-    
-    console.error(`[ERROR] ${message}`, meta);
-    
-    // Write to error log file
-    fs.appendFileSync(ERROR_LOG_FILE, JSON.stringify(logEntry) + '\n');
-  },
+winston.addColors(colors);
 
-  warn: (message, meta = {}) => {
-    const logEntry = {
-      timestamp: getTimestamp(),
-      level: LOG_LEVELS.WARN,
-      message,
-      ...meta
-    };
-    
-    console.warn(`[WARN] ${message}`, meta);
-  },
+// Create the logger
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  levels,
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  defaultMeta: { service: 'evil-platform' },
+  transports: [
+    // Error log file
+    new winston.transports.File({
+      filename: path.join(logsDir, 'error.log'),
+      level: 'error',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.errors({ stack: true }),
+        winston.format.json()
+      )
+    }),
 
-  info: (message, meta = {}) => {
-    if (process.env.LOG_LEVEL !== 'ERROR') {
-      const logEntry = {
-        timestamp: getTimestamp(),
-        level: LOG_LEVELS.INFO,
-        message,
-        ...meta
-      };
-      
-      console.log(`[INFO] ${message}`, meta);
-    }
-  },
+    // Combined log file
+    new winston.transports.File({
+      filename: path.join(logsDir, 'combined.log'),
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      )
+    }),
 
-  debug: (message, meta = {}) => {
-    if (process.env.LOG_LEVEL === 'DEBUG') {
-      const logEntry = {
-        timestamp: getTimestamp(),
-        level: LOG_LEVELS.DEBUG,
-        message,
-        ...meta
-      };
-      
-      console.debug(`[DEBUG] ${message}`, meta);
-    }
-  }
+    // Audit log for security events
+    new winston.transports.File({
+      filename: path.join(logsDir, 'audit.log'),
+      level: 'info',
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json()
+      )
+    })
+  ]
+});
+
+// Console transport for development
+if (process.env.NODE_ENV !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.colorize({ all: true }),
+      winston.format.timestamp({ format: 'HH:mm:ss' }),
+      winston.format.printf(({ timestamp, level, message, service, ...meta }) => {
+        const metaStr = Object.keys(meta).length ? JSON.stringify(meta, null, 2) : '';
+        return `${timestamp} [${service}] ${level}: ${message} ${metaStr}`;
+      })
+    )
+  }));
+}
+
+// HTTP request logger middleware
+const httpLogger = (req, res, next) => {
+  const start = Date.now();
+
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    logger.http('HTTP Request', {
+      method: req.method,
+      url: req.url,
+      status: res.statusCode,
+      duration: `${duration}ms`,
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+  });
+
+  next();
 };
 
-/**
- * Audit logger - for security-relevant events
- */
+// Audit logging for security events
 const auditLog = {
   /**
    * Log successful login
    */
-  loginSuccess: (userId, email, ip) => {
-    const entry = {
-      timestamp: getTimestamp(),
+  loginSuccess: (userId, email, ip, userAgent) => {
+    logger.info('AUDIT: Login successful', {
       event: 'LOGIN_SUCCESS',
       userId,
       email,
       ip,
-      userAgent: process.env._USER_AGENT || 'N/A'
-    };
-    fs.appendFileSync(AUDIT_LOG_FILE, JSON.stringify(entry) + '\n');
-    logger.info('Login successful', { userId, email, ip });
+      userAgent
+    });
   },
 
   /**
    * Log failed login attempt
    */
-  loginFailed: (email, ip, reason = 'Invalid credentials') => {
-    const entry = {
-      timestamp: getTimestamp(),
+  loginFailed: (email, ip, reason = 'Invalid credentials', userAgent) => {
+    logger.warn('AUDIT: Login failed', {
       event: 'LOGIN_FAILED',
       email,
       ip,
       reason,
-      userAgent: process.env._USER_AGENT || 'N/A'
-    };
-    fs.appendFileSync(AUDIT_LOG_FILE, JSON.stringify(entry) + '\n');
-    logger.warn('Login failed', { email, ip, reason });
+      userAgent
+    });
   },
 
   /**
    * Log account lockout
    */
-  accountLocked: (userId, email, ip, reason = 'Too many failed attempts') => {
-    const entry = {
-      timestamp: getTimestamp(),
+  accountLocked: (userId, email, ip, reason = 'Too many failed attempts', userAgent) => {
+    logger.warn('AUDIT: Account locked', {
       event: 'ACCOUNT_LOCKED',
       userId,
       email,
       ip,
       reason,
-      userAgent: process.env._USER_AGENT || 'N/A'
-    };
-    fs.appendFileSync(AUDIT_LOG_FILE, JSON.stringify(entry) + '\n');
-    logger.warn('Account locked', { userId, email, reason });
+      userAgent
+    });
   },
 
   /**
    * Log file upload
    */
   fileUpload: (userId, filename, size, mimetype, ip) => {
-    const entry = {
-      timestamp: getTimestamp(),
+    logger.info('AUDIT: File uploaded', {
       event: 'FILE_UPLOAD',
       userId,
       filename,
       size,
       mimetype,
       ip
-    };
-    fs.appendFileSync(AUDIT_LOG_FILE, JSON.stringify(entry) + '\n');
-    logger.info('File uploaded', { userId, filename, size });
+    });
   },
 
   /**
    * Log rate limit breach
    */
   rateLimitBreach: (section, key, limit, ip) => {
-    const entry = {
-      timestamp: getTimestamp(),
+    logger.warn('AUDIT: Rate limit exceeded', {
       event: 'RATE_LIMIT_EXCEEDED',
       section,
       key,
       limit,
       ip
-    };
-    fs.appendFileSync(AUDIT_LOG_FILE, JSON.stringify(entry) + '\n');
-    logger.warn('Rate limit exceeded', { section, key, limit });
+    });
   },
 
   /**
    * Log security event
    */
   security: (event, details, severity = 'INFO') => {
-    const entry = {
-      timestamp: getTimestamp(),
+    logger.warn(`AUDIT: Security event - ${event}`, {
       event,
       details,
       severity
-    };
-    fs.appendFileSync(AUDIT_LOG_FILE, JSON.stringify(entry) + '\n');
-    logger.warn(`Security: ${event}`, details);
+    });
   }
-};
-
-/**
- * Middleware: Log HTTP requests (optional)
- */
-const httpLogger = (req, res, next) => {
-  const start = Date.now();
-  
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    const logData = {
-      timestamp: getTimestamp(),
-      method: req.method,
-      path: req.path,
-      status: res.statusCode,
-      duration: `${duration}ms`,
-      ip: req.ip,
-      userAgent: req.get('user-agent')
-    };
-    
-    // Log 4xx and 5xx status codes
-    if (res.statusCode >= 400) {
-      fs.appendFileSync(ERROR_LOG_FILE, JSON.stringify(logData) + '\n');
-    }
-  });
-  
-  next();
 };
 
 module.exports = {
   logger,
   auditLog,
-  httpLogger,
-  LOG_LEVELS
+  httpLogger
 };

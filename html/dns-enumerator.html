@@ -169,7 +169,7 @@
       errorMsg.classList.remove('active');
 
       try {
-        const response = await fetch('http://localhost:5000/api/dns-enum', {
+        const response = await fetch('/api/dns-enum', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ domain })

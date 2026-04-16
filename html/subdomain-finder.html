@@ -178,7 +178,7 @@
       scanBtn.disabled = true;
 
       try {
-        const response = await fetch('http://localhost:5000/api/subdomain-finder', {
+        const response = await fetch('/api/subdomain-finder', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ domain })

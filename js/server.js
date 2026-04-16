@@ -23,6 +23,7 @@ const { body, validationResult } = require('express-validator');
 const { v4: uuidv4 } = require('uuid');
 const { execFile } = require('child_process');
 const { promisify } = require('util');
+const compression = require('compression'); // Added for gzip compression
 
 const execFileAsync = promisify(execFile);
 
@@ -46,11 +47,11 @@ const {
 } = require('../middleware/validation-schemas');
 
 const {
-  setTokenCookies,
-  clearAuthCookies,
-  generateCSRFToken
-} = require('../utils/token-utils');
-
+  sanitizeString,
+  sanitizeUrl,
+  sanitizeEmail,
+  sanitizeFilename
+} = require('../middleware/sanitization');
 const { upload: multerUpload, handleUploadError } = require('../middleware/upload');
 const { 
   globalLimiter,
@@ -67,7 +68,54 @@ const { logger, auditLog, httpLogger } = require('../middleware/logger');
 
 const app = express();
 
-// ==================== HTTPS REDIRECT (RENDER-SAFE) ====================
+// ==================== UTILITY FUNCTIONS ====================
+// Funzione per richieste HTTP con retry e backoff esponenziale
+async function fetchWithRetries(url, options = {}, maxRetries = 3) {
+  let lastError;
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await axios.get(url, {
+        timeout: options.timeout || 5000,
+        headers: options.headers || {},
+        params: options.params || {},
+        validateStatus: () => true
+      });
+
+      return response;
+    } catch (error) {
+      lastError = error;
+
+      if (attempt < maxRetries - 1) {
+        // Exponential backoff with jitter
+        const baseDelay = 500; // 500ms base
+        const exponentialDelay = baseDelay * Math.pow(2, attempt);
+        const jitter = Math.random() * 1000; // Up to 1 second jitter
+        const delay = exponentialDelay + jitter;
+
+        logger.debug(`Retry attempt ${attempt + 1} for ${url} in ${delay}ms`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+
+  throw lastError;
+}
+
+// ==================== COMPRESSION MIDDLEWARE ====================
+// Enable gzip compression for all responses > 1KB
+app.use(compression({
+  level: 6, // Good balance between speed and compression
+  threshold: 1024, // Only compress responses larger than 1KB
+  filter: (req, res) => {
+    // Don't compress responses with this request header
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Use compression filter function
+    return compression.filter(req, res);
+  }
+}));
 // Redirect HTTP to HTTPS in production
 // On Render: x-forwarded-proto header indicates original protocol
 if (process.env.NODE_ENV === 'production') {
@@ -113,10 +161,26 @@ if (process.env.NODE_ENV !== 'production') {
   checkStaticExists(path.join(root, 'html'));
 }
 
-app.use('/css', express.static(path.join(root, 'css')));
-app.use('/js', express.static(path.join(root, 'js')));
-app.use('/assets', express.static(path.join(root, 'assets')));
-app.use('/public', express.static(path.join(root, 'public')));
+app.use('/css', express.static(path.join(root, 'css'), {
+  maxAge: '30d', // Cache CSS for 30 days
+  etag: true,
+  lastModified: true
+}));
+app.use('/js', express.static(path.join(root, 'js'), {
+  maxAge: '7d', // Cache JS for 7 days
+  etag: true,
+  lastModified: true
+}));
+app.use('/assets', express.static(path.join(root, 'assets'), {
+  maxAge: '30d', // Cache assets for 30 days
+  etag: true,
+  lastModified: true
+}));
+app.use('/public', express.static(path.join(root, 'public'), {
+  maxAge: '30d', // Cache public files for 30 days
+  etag: true,
+  lastModified: true
+}));
 app.use('/html', express.static(path.join(root, 'html'))); // solo se serve html direttamente
 
 // ==================== APPLY SECURITY HEADERS ====================
@@ -349,16 +413,6 @@ const threatDatabase = {
   'scam-site.ru': { threat: 'scam', score: 20 },
 };
 
-// Funzione DNS lookup
-async function resolveDomain(domain) {
-  try {
-    const address = await dns.resolve4(domain);
-    return address[0];
-  } catch (err) {
-    return null;
-  }
-}
-
 // Simula ASN lookup (in produzione userebbe MaxMind/IPinfo)
 function getAsn(ip) {
   const octets = ip.split('.').map(Number);
@@ -481,18 +535,38 @@ app.post('/api/scan',
   async (req, res) => {
     const { url } = req.body;
 
-    let fullUrl = url;
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      fullUrl = 'https://' + url;
+    // Sanitize and validate URL
+    const sanitizedUrl = sanitizeUrl(url);
+    if (!sanitizedUrl) {
+      auditLog.security('SCAN_INVALID_URL', { userId: req.user.id, originalUrl: url }, 'WARN');
+      return res.status(400).json({
+        error: 'Invalid or dangerous URL format',
+        status: 'error'
+      });
     }
 
+    let fullUrl = sanitizedUrl;
     let domain, hasSSL;
+
     try {
       const parsed = new URL(fullUrl);
       domain = parsed.hostname;
       hasSSL = parsed.protocol === 'https:';
+
+      // Additional domain validation
+      if (!domain || domain.length > 253) {
+        throw new Error('Invalid domain length');
+      }
     } catch (err) {
-      return res.status(400).json({ error: 'Invalid URL' });
+      auditLog.security('SCAN_INVALID_DOMAIN', {
+        userId: req.user.id,
+        url: fullUrl,
+        error: err.message
+      }, 'WARN');
+      return res.status(400).json({
+        error: 'Invalid domain in URL',
+        status: 'error'
+      });
     }
 
     const result = {
@@ -503,9 +577,28 @@ app.post('/api/scan',
       analysis: {}
     };
 
+    // Set timeout for the entire scan operation
+    const scanTimeout = setTimeout(() => {
+      logger.warn('Scan timeout', { userId: req.user.id, domain });
+      if (!res.headersSent) {
+        res.status(408).json({
+          error: 'Scan timeout - operation took too long',
+          status: 'timeout',
+          domain
+        });
+      }
+    }, 30000); // 30 second timeout
+
     try {
-      // 1. DNS + IP
-      const ip = await resolveDomain(domain);
+      // 1. DNS + IP with timeout
+      const dnsPromise = resolveDomain(domain);
+      const ip = await Promise.race([
+        dnsPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('DNS timeout')), 10000)
+        )
+      ]);
+
       if (ip) {
         result.analysis.ip = ip;
         const asn = getAsn(ip);
@@ -513,18 +606,36 @@ app.post('/api/scan',
         result.analysis.asn_info = asnDatabase[asn] || {};
       }
 
-      // 2. SSL Certificate
+      // 2. SSL Certificate with timeout
       if (hasSSL) {
-        const cert = await getCertificate(domain);
+        const certPromise = getCertificate(domain);
+        const cert = await Promise.race([
+          certPromise,
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('SSL timeout')), 10000)
+          )
+        ]);
         result.analysis.certificate = cert;
       }
 
-      // 3. HTTP Headers
-      const headers = await getHttpHeaders(fullUrl);
+      // 3. HTTP Headers with timeout
+      const headersPromise = getHttpHeaders(fullUrl);
+      const headers = await Promise.race([
+        headersPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Headers timeout')), 10000)
+        )
+      ]);
       result.analysis.headers = headers;
 
-      // 4. Redirect Chain
-      const redirects = await getRedirectChain(fullUrl);
+      // 4. Redirect Chain with timeout
+      const redirectPromise = getRedirectChain(fullUrl);
+      const redirects = await Promise.race([
+        redirectPromise,
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Redirect timeout')), 10000)
+        )
+      ]);
       result.analysis.redirects = redirects;
 
       // 5. Threat Intelligence
@@ -562,6 +673,9 @@ app.post('/api/scan',
 
       result.status = 'success';
 
+      // Clear timeout since operation completed
+      clearTimeout(scanTimeout);
+
       // Update user progress
       const user = users.find(u => u.id === req.user.id);
       if (user) {
@@ -573,10 +687,37 @@ app.post('/api/scan',
       res.json(result);
 
     } catch (err) {
-      logger.error('Scan error', { error: err.message, userId: req.user.id, domain });
-      result.error = err.message;
+      // Clear timeout
+      clearTimeout(scanTimeout);
+
+      logger.error('Scan error', {
+        error: err.message,
+        userId: req.user.id,
+        domain,
+        stack: err.stack
+      });
+
+      // Determine appropriate error response based on error type
+      let statusCode = 500;
+      let errorMessage = 'Scan failed due to internal error';
+
+      if (err.message.includes('timeout')) {
+        statusCode = 408;
+        errorMessage = 'Scan timeout - please try again';
+      } else if (err.message.includes('ENOTFOUND') || err.message.includes('DNS')) {
+        statusCode = 400;
+        errorMessage = 'Domain not found or unreachable';
+      } else if (err.message.includes('ECONNREFUSED')) {
+        statusCode = 400;
+        errorMessage = 'Connection refused by target';
+      }
+
+      result.error = errorMessage;
       result.status = 'error';
-      res.status(500).json(result);
+
+      if (!res.headersSent) {
+        res.status(statusCode).json(result);
+      }
     }
   }
 );
@@ -1245,11 +1386,17 @@ async function refreshIncidentsCache() {
     console.log('⏳ Aggiornamento cache incidenti in corso...');
     const cveData = await fetchCVEData();
     const cisaData = await fetchCISAAdvisories();
-    const certItData = await fetchCERTITFeed();
-    const certEuData = await fetchCERTEUFeed();
-    const certUkData = await fetchCERTUKFeed();
-    const usCertData = await fetchUSCERTFeed();
-    const vendorData = await fetchVendorFeeds();
+    // Temporarily disabled due to function order issues
+    // const certItData = await fetchCERTITFeed();
+    // const certEuData = await fetchCERTEUFeed();
+    // const certUkData = await fetchCERTUKFeed();
+    // const usCertData = await fetchUSCERTFeed();
+    // const vendorData = await fetchVendorFeeds();
+    const certItData = [];
+    const certEuData = [];
+    const certUkData = [];
+    const usCertData = [];
+    const vendorData = [];
 
     let incidents = [];
 
@@ -1378,8 +1525,8 @@ async function refreshIncidentsCache() {
 
 // Avvia la prima popolazione cache e pianifica gli aggiornamenti (5 minuti)
 // 5 minuti evita rate limit di API esterne (NVD, CISA, etc.) mantenendo aggiornamenti ragionevoli
-refreshIncidentsCache();
-setInterval(refreshIncidentsCache, 5 * 60 * 1000);
+// refreshIncidentsCache(); // Spostato alla fine del file
+// setInterval(refreshIncidentsCache, 5 * 60 * 1000);
 
 // ========================
 // ENDPOINT SOCIAL PROFILING
@@ -2357,10 +2504,101 @@ app.post('/api/report-generator', authenticateToken, (req, res) => {
   }
 });
 
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+// ==================== ERROR HANDLING MIDDLEWARE ====================
+// Global error handling middleware
+
+// Catch 404 errors
+app.use((req, res, next) => {
+  const error = new Error(`Route ${req.originalUrl} not found`);
+  error.statusCode = 404;
+  next(error);
 });
+
+// Global error handler
+app.use((error, req, res, next) => {
+  const statusCode = error.statusCode || 500;
+  const message = error.message || 'Internal Server Error';
+
+  // Log error with context
+  logger.error('Request Error', {
+    error: message,
+    stack: error.stack,
+    url: req.originalUrl,
+    method: req.method,
+    ip: req.ip,
+    userAgent: req.get('User-Agent'),
+    statusCode,
+    timestamp: new Date().toISOString()
+  });
+
+  // Don't leak error details in production
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const errorResponse = {
+    error: isDevelopment ? message : 'Something went wrong',
+    status: 'error',
+    timestamp: new Date().toISOString()
+  };
+
+  // Add stack trace in development
+  if (isDevelopment && error.stack) {
+    errorResponse.stack = error.stack;
+  }
+
+  res.status(statusCode).json(errorResponse);
+});
+
+// ==================== UNHANDLED REJECTION & EXCEPTION HANDLING ====================
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('Unhandled Rejection', {
+    reason: reason?.message || reason,
+    stack: reason?.stack,
+    promise: promise.toString(),
+    timestamp: new Date().toISOString()
+  });
+
+  // In production, you might want to exit the process
+  if (process.env.NODE_ENV === 'production') {
+    console.error('Unhandled Rejection - exiting...');
+    process.exit(1);
+  }
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught Exception', {
+    error: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString()
+  });
+
+  // Always exit on uncaught exception
+  console.error('Uncaught Exception - exiting...');
+  process.exit(1);
+});
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM received, shutting down gracefully');
+  server.close(() => {
+    logger.info('Process terminated');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received, shutting down gracefully');
+  server.close(() => {
+    logger.info('Process terminated');
+    process.exit(0);
+  });
+});
+
+// Avvia la cache degli incidenti dopo che tutte le funzioni sono state definite
+setTimeout(() => {
+  refreshIncidentsCache();
+  setInterval(refreshIncidentsCache, 5 * 60 * 1000);
+}, 100);
 
 server.listen(PORT, '0.0.0.0', () => {
   const nodeEnv = process.env.NODE_ENV || 'development';
