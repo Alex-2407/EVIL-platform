@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -195,7 +195,7 @@
     }
 
     .defense-tips li:before {
-      content: "✓";
+      content: "?";
       position: absolute;
       left: -25px;
       color: #4caf50;
@@ -212,7 +212,7 @@
       <!-- LOGO E BOTTONE MATRIX -->
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -223,7 +223,7 @@
           <li><a href="home.html">Home</a></li>
 
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -232,7 +232,7 @@
           </li>
 
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -243,10 +243,10 @@
           </li>
 
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -256,7 +256,7 @@
           </li>
 
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -266,7 +266,7 @@
           </li>
 
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -277,7 +277,7 @@
 
       <!-- CTA E AUTH -->
       <div style="display: flex; gap: 16px; align-items: center;">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -287,7 +287,7 @@
   </header>
   <main>
     <div class="osint-hero">
-      <h1>🌐 Raccolta Informazioni Pubbliche (OSINT)</h1>
+      <h1>?? Raccolta Informazioni Pubbliche (OSINT)</h1>
       <p>Scopri quali dati pubblicamente disponibili possono essere raccolti su persone e organizzazioni e come gli attaccanti li utilizzano</p>
     </div>
 
@@ -302,25 +302,25 @@
             <option value="company">Azienda</option>
           </select>
           <input type="text" id="searchTarget" placeholder="Inserisci target..." class="search-input">
-          <button onclick="performOsintSearch()" class="search-btn">🔎 RICERCA</button>
+          <button onclick="performOsintSearch()" class="search-btn">?? RICERCA</button>
         </div>
       </div>
 
       <!-- RISULTATI PERSON -->
       <div id="personResults" class="osint-results" style="display: none;">
-        <h3>📊 Risultati Ricerca Persona</h3>
+        <h3>?? Risultati Ricerca Persona</h3>
         
         <div class="results-grid">
           <div class="result-card">
-            <h4>🏠 Dati Residenziali</h4>
+            <h4>?? Dati Residenziali</h4>
             <p><strong>Indirizzo:</strong> <span id="personAddress">123 Main St, City</span></p>
             <p><strong>Numero telefonico:</strong> <span id="personPhone">+1-555-0123</span></p>
             <p><strong>Storico indirizzi:</strong> <span id="personAddressHistory">3 precedenti indirizzi trovati</span></p>
-            <p><strong>Proprietà:</strong> <span id="personProperty">Casa valutata $450k</span></p>
+            <p><strong>Propriet�:</strong> <span id="personProperty">Casa valutata $450k</span></p>
           </div>
 
           <div class="result-card">
-            <h4>💼 Informazioni Professionali</h4>
+            <h4>?? Informazioni Professionali</h4>
             <p><strong>Occupazione attuale:</strong> <span id="personJob">Software Engineer</span></p>
             <p><strong>Storico lavorativo:</strong> <span id="personJobHistory">4 precedenti lavori</span></p>
             <p><strong>Azienda:</strong> <span id="personCompany">Tech Corp Inc</span></p>
@@ -328,15 +328,15 @@
           </div>
 
           <div class="result-card">
-            <h4>🎓 Dati Educativi</h4>
+            <h4>?? Dati Educativi</h4>
             <p><strong>Istituto superiore:</strong> <span id="personHighSchool">Central High School</span></p>
-            <p><strong>Università:</strong> <span id="personUniversity">State University</span></p>
+            <p><strong>Universit�:</strong> <span id="personUniversity">State University</span></p>
             <p><strong>Laurea:</strong> <span id="personDegree">Computer Science (2015)</span></p>
             <p><strong>Certificazioni:</strong> <span id="personCerts">AWS, Azure</span></p>
           </div>
 
           <div class="result-card">
-            <h4>💰 Informazioni Finanziarie</h4>
+            <h4>?? Informazioni Finanziarie</h4>
             <p><strong>Score creditizio:</strong> <span id="personCredit">760-780 (estimato)</span></p>
             <p><strong>Carte di credito:</strong> <span id="personCards">4 trovate</span></p>
             <p><strong>Conti bancari:</strong> <span id="personBanks">2 banche identificate</span></p>
@@ -344,7 +344,7 @@
           </div>
 
           <div class="result-card">
-            <h4>👥 Relazioni Familiari</h4>
+            <h4>?? Relazioni Familiari</h4>
             <p><strong>Familiari identificati:</strong> <span id="personFamily">6 persone</span></p>
             <p><strong>Partner/Coniuge:</strong> <span id="personPartner">Jane Doe (identificata)</span></p>
             <p><strong>Figli:</strong> <span id="personChildren">2 figli</span></p>
@@ -352,7 +352,7 @@
           </div>
 
           <div class="result-card">
-            <h4>📱 Account Online</h4>
+            <h4>?? Account Online</h4>
             <p><strong>Email trovate:</strong> <span id="personEmails">3 account email</span></p>
             <p><strong>Account social:</strong> <span id="personSocial">7 social media</span></p>
             <p><strong>Siti memberships:</strong> <span id="personMemberships">12 account</span></p>
@@ -363,11 +363,11 @@
 
       <!-- RISULTATI DOMAIN -->
       <div id="domainResults" class="osint-results" style="display: none;">
-        <h3>🌐 Risultati Ricerca Dominio</h3>
+        <h3>?? Risultati Ricerca Dominio</h3>
         
         <div class="results-grid">
           <div class="result-card">
-            <h4>🔗 Informazioni DNS</h4>
+            <h4>?? Informazioni DNS</h4>
             <p><strong>IP Server:</strong> <span id="domainIP">192.168.1.100</span></p>
             <p><strong>DNS Server:</strong> <span id="domainDNS">ns1.example.com, ns2.example.com</span></p>
             <p><strong>MX Record:</strong> <span id="domainMX">mail.example.com</span></p>
@@ -375,15 +375,15 @@
           </div>
 
           <div class="result-card">
-            <h4>🔐 Certificati SSL</h4>
+            <h4>?? Certificati SSL</h4>
             <p><strong>Certificato:</strong> <span id="domainCert">Let's Encrypt (valido)</span></p>
             <p><strong>Scadenza:</strong> <span id="domainCertExp">2025-06-15</span></p>
             <p><strong>Cipher:</strong> <span id="domainCipher">TLS 1.3</span></p>
-            <p><strong>Vulnerabilità note:</strong> <span id="domainVulns">Nessuna rilevata</span></p>
+            <p><strong>Vulnerabilit� note:</strong> <span id="domainVulns">Nessuna rilevata</span></p>
           </div>
 
           <div class="result-card">
-            <h4>📍 Geolocalizzazione</h4>
+            <h4>?? Geolocalizzazione</h4>
             <p><strong>Paese:</strong> <span id="domainCountry">United States</span></p>
             <p><strong>Data Center:</strong> <span id="domainDC">AWS US-East-1</span></p>
             <p><strong>ISP:</strong> <span id="domainISP">Amazon Web Services</span></p>
@@ -391,7 +391,7 @@
           </div>
 
           <div class="result-card">
-            <h4>🛠️ Tecnologie Utilizzate</h4>
+            <h4>??? Tecnologie Utilizzate</h4>
             <p><strong>Server Web:</strong> <span id="domainWebServer">Apache 2.4.41</span></p>
             <p><strong>CMS:</strong> <span id="domainCMS">WordPress 6.0</span></p>
             <p><strong>Framework:</strong> <span id="domainFramework">jQuery 3.6.0</span></p>
@@ -399,7 +399,7 @@
           </div>
 
           <div class="result-card">
-            <h4>🔍 Sottodomini Trovati</h4>
+            <h4>?? Sottodomini Trovati</h4>
             <p><strong>Subdomini attivi:</strong> <span id="domainSubdomains">12 trovati</span></p>
             <p><strong>Mail server:</strong> <span id="domainMail">mail.example.com</span></p>
             <p><strong>API Endpoints:</strong> <span id="domainAPI">api.example.com</span></p>
@@ -407,10 +407,10 @@
           </div>
 
           <div class="result-card">
-            <h4>⚠️ Vulnerabilità Pubbliche</h4>
-            <p><strong>CVE rilevate:</strong> <span id="domainCVE">3 vulnerabilità</span></p>
+            <h4>?? Vulnerabilit� Pubbliche</h4>
+            <p><strong>CVE rilevate:</strong> <span id="domainCVE">3 vulnerabilit�</span></p>
             <p><strong>WAF Status:</strong> <span id="domainWAF">CloudFlare (rilevato)</span></p>
-            <p><strong>Protezione bot:</strong> <span id="domainBot">Sì (rilevato)</span></p>
+            <p><strong>Protezione bot:</strong> <span id="domainBot">S� (rilevato)</span></p>
             <p><strong>Rate limiting:</strong> <span id="domainRateLimit">Non rilevato</span></p>
           </div>
         </div>
@@ -418,11 +418,11 @@
 
       <!-- RISULTATI COMPANY -->
       <div id="companyResults" class="osint-results" style="display: none;">
-        <h3>🏢 Risultati Ricerca Azienda</h3>
+        <h3>?? Risultati Ricerca Azienda</h3>
         
         <div class="results-grid">
           <div class="result-card">
-            <h4>🏷️ Informazioni Aziendali</h4>
+            <h4>??? Informazioni Aziendali</h4>
             <p><strong>Ragione sociale:</strong> <span id="companyName">Tech Corp Inc.</span></p>
             <p><strong>Settore:</strong> <span id="companySector">Software Development</span></p>
             <p><strong>Dipendenti:</strong> <span id="companyEmployees">500-1000</span></p>
@@ -430,7 +430,7 @@
           </div>
 
           <div class="result-card">
-            <h4>💼 Dati Pubblici</h4>
+            <h4>?? Dati Pubblici</h4>
             <p><strong>Sito web:</strong> <span id="companyWebsite">www.techcorp.com</span></p>
             <p><strong>Indirizzo HQ:</strong> <span id="companyAddress">123 Tech Avenue, San Francisco, CA</span></p>
             <p><strong>Numero telefono:</strong> <span id="companyPhone">+1-555-1000</span></p>
@@ -438,7 +438,7 @@
           </div>
 
           <div class="result-card">
-            <h4>👨‍💼 Dirigenti Identificati</h4>
+            <h4>????? Dirigenti Identificati</h4>
             <p><strong>CEO:</strong> <span id="companyCEO">John Executive</span></p>
             <p><strong>CTO:</strong> <span id="companyCTO">Alice Tech Officer</span></p>
             <p><strong>Responsabile HR:</strong> <span id="companyHR">Bob Resources</span></p>
@@ -446,7 +446,7 @@
           </div>
 
           <div class="result-card">
-            <h4>🏦 Finanziamenti</h4>
+            <h4>?? Finanziamenti</h4>
             <p><strong>Funding rounds:</strong> <span id="companyFunding">Series B ($25M)</span></p>
             <p><strong>Investor:</strong> <span id="companyInvestors">Sequoia Capital, Andreessen Horowitz</span></p>
             <p><strong>Valutazione:</strong> <span id="companyValuation">$250M stimata</span></p>
@@ -454,7 +454,7 @@
           </div>
 
           <div class="result-card">
-            <h4>📊 Prodotti & Servizi</h4>
+            <h4>?? Prodotti & Servizi</h4>
             <p><strong>Prodotto principale:</strong> <span id="companyProduct">Cloud Management Platform</span></p>
             <p><strong>Clienti noti:</strong> <span id="companyClients">Fortune 500 companies</span></p>
             <p><strong>Partnership:</strong> <span id="companyPartnership">AWS, Google Cloud</span></p>
@@ -462,7 +462,7 @@
           </div>
 
           <div class="result-card">
-            <h4>⚠️ Violazioni Registrate</h4>
+            <h4>?? Violazioni Registrate</h4>
             <p><strong>Data breach:</strong> <span id="companyBreach">1 registrata (2021)</span></p>
             <p><strong>Impatto:</strong> <span id="companyBreachImpact">50,000 record esposti</span></p>
             <p><strong>Processo GDPR:</strong> <span id="companyGDPR">Pagata multa $150k</span></p>
@@ -473,41 +473,41 @@
 
       <!-- GUIDA OSINT -->
       <div class="guide-section">
-        <h2>📚 Fonti Pubbliche Comuni per OSINT</h2>
+        <h2>?? Fonti Pubbliche Comuni per OSINT</h2>
         <div class="guide-cards">
           <div class="guide-card">
-            <h4>🌐 Motori di Ricerca</h4>
+            <h4>?? Motori di Ricerca</h4>
             <p>Google, Bing, DuckDuckGo per trovare informazioni indicizzate pubblicamente.</p>
           </div>
           <div class="guide-card">
-            <h4>📱 Social Media</h4>
+            <h4>?? Social Media</h4>
             <p>Facebook, Instagram, LinkedIn, Twitter per profili pubblici e informazioni condivise.</p>
           </div>
           <div class="guide-card">
-            <h4>🏠 Siti Immobiliari</h4>
-            <p>Zillow, Trulia, Rightmove per informazioni su proprietà e indirizzi residenziali.</p>
+            <h4>?? Siti Immobiliari</h4>
+            <p>Zillow, Trulia, Rightmove per informazioni su propriet� e indirizzi residenziali.</p>
           </div>
           <div class="guide-card">
-            <h4>🔗 WHOIS & DNS</h4>
+            <h4>?? WHOIS & DNS</h4>
             <p>Whois, DIG, NSLOOKUP per informazioni su registrazione e configurazione domini.</p>
           </div>
           <div class="guide-card">
-            <h4>📋 Registri Pubblici</h4>
+            <h4>?? Registri Pubblici</h4>
             <p>Brevetti, Corporazioni, Procedimenti legali - informazioni governative pubbliche.</p>
           </div>
           <div class="guide-card">
-            <h4>💾 Data Breach Database</h4>
-            <p>HaveIBeenPwned, Shodan per trovare esposizioni di dati e vulnerabilità.</p>
+            <h4>?? Data Breach Database</h4>
+            <p>HaveIBeenPwned, Shodan per trovare esposizioni di dati e vulnerabilit�.</p>
           </div>
         </div>
       </div>
 
       <!-- CONSIGLI DI DIFESA -->
       <div class="defense-section">
-        <h2>🛡️ Come Proteggere i Tuoi Dati Pubblici</h2>
+        <h2>??? Come Proteggere i Tuoi Dati Pubblici</h2>
         <ul class="defense-tips">
           <li>Monitora costantemente il tuo profilo online e le menzioni</li>
-          <li>Riduci la quantità di informazioni personali disponibili pubblicamente</li>
+          <li>Riduci la quantit� di informazioni personali disponibili pubblicamente</li>
           <li>Usa un'azienda di reputazione online per monitorare i dati esposti</li>
           <li>Per aziende: implementa una policy di trasparenza sui dati</li>
           <li>Registra domini simili per prevenire typosquatting</li>
@@ -528,7 +528,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">� 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
       </div>
     </div>
@@ -548,7 +548,7 @@
 
       // Mostra loading
       const resultsDiv = document.querySelector('.osint-results') || document.createElement('div');
-      resultsDiv.innerHTML = '<div style="color: #00ff9c; padding: 20px; text-align: center;">🔍 Ricerca OSINT in corso...</div>';
+      resultsDiv.innerHTML = '<div style="color: #00ff9c; padding: 20px; text-align: center;">?? Ricerca OSINT in corso...</div>';
       if (!document.querySelector('.osint-results')) {
         document.querySelector('.osint-container').appendChild(resultsDiv);
       }
@@ -565,14 +565,14 @@
       .then(res => res.json())
       .then(data => {
         if (data.status === 'error') {
-          resultsDiv.innerHTML = `<div style="color: #ff4757; padding: 20px;">❌ Errore: ${data.error}</div>`;
+          resultsDiv.innerHTML = `<div style="color: #ff4757; padding: 20px;">? Errore: ${data.error}</div>`;
           return;
         }
 
         displayOsintResults(searchType, searchTarget, data.data);
       })
       .catch(err => {
-        resultsDiv.innerHTML = `<div style="color: #ff4757; padding: 20px;">❌ Errore di connessione: ${err.message}</div>`;
+        resultsDiv.innerHTML = `<div style="color: #ff4757; padding: 20px;">? Errore di connessione: ${err.message}</div>`;
         console.error('API Error:', err);
       });
     }
@@ -596,7 +596,7 @@
       const resultsDiv = document.getElementById('domainResults');
       
       let html = `
-        <h3>🌐 Risultati Ricerca Dominio: <strong>${domain}</strong></h3>
+        <h3>?? Risultati Ricerca Dominio: <strong>${domain}</strong></h3>
         <div class="results-grid">
       `;
 
@@ -604,7 +604,7 @@
       if (data.dns) {
         html += `
           <div class="result-card">
-            <h4>🔗 Informazioni DNS</h4>
+            <h4>?? Informazioni DNS</h4>
             <p><strong>A Records:</strong> <span>${(data.dns.A || []).join(', ') || 'Non trovato'}</span></p>
             <p><strong>MX Records:</strong> <span>${data.dns.MX ? data.dns.MX.map(m => m.exchange).join(', ') : 'Non trovato'}</span></p>
             <p><strong>NS Records:</strong> <span>${(data.dns.NS || []).join(', ') || 'Non trovato'}</span></p>
@@ -617,7 +617,7 @@
       if (data.ssl && !data.ssl.error) {
         html += `
           <div class="result-card">
-            <h4>🔐 Certificato SSL</h4>
+            <h4>?? Certificato SSL</h4>
             <p><strong>Status:</strong> <span>${data.ssl.status}</span></p>
             <p><strong>Valido da:</strong> <span>${data.ssl.valid_from || 'Sconosciuto'}</span></p>
             <p><strong>Valido fino:</strong> <span>${data.ssl.valid_to || 'Sconosciuto'}</span></p>
@@ -630,7 +630,7 @@
       if (data.headers && !data.headers.error) {
         html += `
           <div class="result-card">
-            <h4>📋 HTTP Headers</h4>
+            <h4>?? HTTP Headers</h4>
             <p><strong>Server:</strong> <span>${data.headers.server || 'Sconosciuto'}</span></p>
             <p><strong>Content-Type:</strong> <span>${data.headers.contentType || 'Sconosciuto'}</span></p>
             <p><strong>CSP:</strong> <span>${data.headers.csp || 'Assente'}</span></p>
@@ -644,7 +644,7 @@
         const subdomainList = Array.isArray(data.subdomains) ? data.subdomains.join(', ') : data.subdomains;
         html += `
           <div class="result-card">
-            <h4>🔍 Sottodomini Trovati</h4>
+            <h4>?? Sottodomini Trovati</h4>
             <p><strong>Subdomini:</strong> <span>${subdomainList}</span></p>
           </div>
         `;
@@ -654,7 +654,7 @@
       if (data.whois && !data.whois.error) {
         html += `
           <div class="result-card">
-            <h4>📝 WHOIS Info</h4>
+            <h4>?? WHOIS Info</h4>
             <p><span style="font-size: 0.8rem; white-space: pre-wrap; max-height: 200px; overflow-y: auto; display: block; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 3px;">${data.whois.info || 'Informazioni non disponibili'}</span></p>
           </div>
         `;
@@ -670,7 +670,7 @@
       const resultsDiv = document.getElementById('personResults');
       
       let html = `
-        <h3>👤 Risultati Ricerca Persona: <strong>${person}</strong></h3>
+        <h3>?? Risultati Ricerca Persona: <strong>${person}</strong></h3>
         <div class="results-grid">
       `;
 
@@ -678,7 +678,7 @@
       if (data.google_dorks) {
         html += `
           <div class="result-card">
-            <h4>🔍 Google Dork Searches</h4>
+            <h4>?? Google Dork Searches</h4>
             ${data.google_dorks.map(dork => `<p><code style="font-size: 0.8rem; color: #00ff9c;">${dork}</code></p>`).join('')}
             <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); margin-top: 10px;">Copia e incolla questi termini in Google per ricerche avanzate</p>
           </div>
@@ -689,13 +689,13 @@
       if (data.person_search && data.person_search.length > 0) {
         html += `
           <div class="result-card">
-            <h4>🌐 Profili Trovati</h4>
+            <h4>?? Profili Trovati</h4>
         `;
         data.person_search.forEach(result => {
           if (result.url) {
-            html += `<p><strong>${result.source}:</strong> <a href="${result.url}" target="_blank" style="color: #00ff9c;">Visita →</a></p>`;
+            html += `<p><strong>${result.source}:</strong> <a href="${result.url}" target="_blank" style="color: #00ff9c;">Visita ?</a></p>`;
           } else {
-            html += `<p><strong>${result.source}:</strong> ${result.found ? '✓ Trovato' : '✗ Non trovato'}</p>`;
+            html += `<p><strong>${result.source}:</strong> ${result.found ? '? Trovato' : '? Non trovato'}</p>`;
           }
         });
         html += '</div>';
@@ -705,7 +705,7 @@
       if (data.possible_emails) {
         html += `
           <div class="result-card">
-            <h4>📧 Possibili Email</h4>
+            <h4>?? Possibili Email</h4>
             ${data.possible_emails.map(email => `<p><span style="color: #00ff9c; font-family: monospace;">${email}</span></p>`).join('')}
             <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6); margin-top: 10px;">Prova questi indirizzi per verificare se esposti in breach database</p>
           </div>
@@ -722,7 +722,7 @@
       const resultsDiv = document.getElementById('companyResults');
       
       let html = `
-        <h3>🏢 Risultati Ricerca Azienda: <strong>${company}</strong></h3>
+        <h3>?? Risultati Ricerca Azienda: <strong>${company}</strong></h3>
         <div class="results-grid">
       `;
 
@@ -730,10 +730,10 @@
       if (data.company_search) {
         html += `
           <div class="result-card">
-            <h4>🔍 Risorse Online</h4>
-            <p><strong><a href="${data.company_search.crunchbase}" target="_blank" style="color: #00ff9c;">Crunchbase →</a></strong></p>
-            <p><strong><a href="${data.company_search.google}" target="_blank" style="color: #00ff9c;">Google Search →</a></strong></p>
-            <p><strong><a href="${data.company_search.bloomberg}" target="_blank" style="color: #00ff9c;">Bloomberg →</a></strong></p>
+            <h4>?? Risorse Online</h4>
+            <p><strong><a href="${data.company_search.crunchbase}" target="_blank" style="color: #00ff9c;">Crunchbase ?</a></strong></p>
+            <p><strong><a href="${data.company_search.google}" target="_blank" style="color: #00ff9c;">Google Search ?</a></strong></p>
+            <p><strong><a href="${data.company_search.bloomberg}" target="_blank" style="color: #00ff9c;">Bloomberg ?</a></strong></p>
           </div>
         `;
       }
@@ -742,8 +742,8 @@
       if (data.linkedin) {
         html += `
           <div class="result-card">
-            <h4>💼 LinkedIn Aziendale</h4>
-            <p><a href="${data.linkedin}" target="_blank" style="color: #00ff9c;">Profilo LinkedIn Azienda →</a></p>
+            <h4>?? LinkedIn Aziendale</h4>
+            <p><a href="${data.linkedin}" target="_blank" style="color: #00ff9c;">Profilo LinkedIn Azienda ?</a></p>
           </div>
         `;
       }
@@ -752,8 +752,8 @@
       if (data.tech_search) {
         html += `
           <div class="result-card">
-            <h4>🛠️ Stack Tecnologico</h4>
-            <p><a href="${data.tech_search}" target="_blank" style="color: #00ff9c;">Analizza con BuiltWith →</a></p>
+            <h4>??? Stack Tecnologico</h4>
+            <p><a href="${data.tech_search}" target="_blank" style="color: #00ff9c;">Analizza con BuiltWith ?</a></p>
             <p style="font-size: 0.8rem; color: rgba(255, 255, 255, 0.6);">Scopri quali tecnologie usa l'azienda</p>
           </div>
         `;
@@ -763,7 +763,7 @@
       if (data.company_emails && data.company_emails.length > 0) {
         html += `
           <div class="result-card">
-            <h4>📧 Email Aziendali Trovate</h4>
+            <h4>?? Email Aziendali Trovate</h4>
             ${data.company_emails.slice(0, 5).map(email => `<p><span style="color: #00ff9c; font-family: monospace; font-size: 0.9rem;">${email}</span></p>`).join('')}
           </div>
         `;

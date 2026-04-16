@@ -362,6 +362,12 @@ function getProgressStats() {
  * Inizializza il progress manager
  */
 async function initProgressManager() {
+  // Verifica che auth-manager.js sia state caricato
+  if (typeof isAuthenticated !== 'function') {
+    console.debug('isAuthenticated not yet available, skipping progress init');
+    return;
+  }
+  
   if (!isAuthenticated()) return;
   
   try {

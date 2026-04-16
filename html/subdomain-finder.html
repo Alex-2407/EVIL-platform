@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -42,7 +42,7 @@
     <div class="header-container">
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -51,7 +51,7 @@
         <ul>
           <li><a href="home.html">Home</a></li>
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -59,7 +59,7 @@
             </div>
           </li>
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -69,10 +69,10 @@
             </div>
           </li>
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -81,7 +81,7 @@
             </div>
           </li>
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -90,7 +90,7 @@
             </div>
           </li>
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -100,7 +100,7 @@
       </nav>
 
       <div style="display: flex; gap: 16px; align-items: center;">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -112,7 +112,7 @@
   <main>
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">🌐 Subdomain Finder</h1>
+        <h1 class="hero-title">?? Subdomain Finder</h1>
         <p class="hero-subtitle">Scopri i sottodomini di un dominio tramite DNS resolution. Enumera sottodomini comuni e li risolve per identificare quelli attivi.</p>
       </div>
     </section>
@@ -150,7 +150,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">� 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
       </div>
     </div>
@@ -210,12 +210,12 @@
 
       if (data.found.length === 0) {
         document.getElementById('subdomains-container').innerHTML = `
-          <div class="empty-state"><p>❌ Nessun sottodominio trovato</p><p style="font-size: 12px; margin-top: 10px;">Il dominio non risolve i sottodomini comuni</p></div>
+          <div class="empty-state"><p>? Nessun sottodominio trovato</p><p style="font-size: 12px; margin-top: 10px;">Il dominio non risolve i sottodomini comuni</p></div>
         `;
         return;
       }
 
-      let html = `<div style="margin-bottom: 20px;"><strong style="color: #00d4ff;">🔗 Sottodomini Attivi</strong></div><div class="subdomains-grid">`;
+      let html = `<div style="margin-bottom: 20px;"><strong style="color: #00d4ff;">?? Sottodomini Attivi</strong></div><div class="subdomains-grid">`;
 
       data.found.forEach(sub => {
         html += `
@@ -231,7 +231,7 @@
     }
 
     function showError(message) {
-      errorMsg.innerHTML = `<strong>🚨 Errore</strong><p style="margin-top: 10px;">${message}</p>`;
+      errorMsg.innerHTML = `<strong>?? Errore</strong><p style="margin-top: 10px;">${message}</p>`;
       errorMsg.classList.add('active');
     }
 

@@ -54,13 +54,15 @@ const securityHeaders = (app) => {
   // ==================== CONTENT SECURITY POLICY (CSP) ====================
   if (process.env.CSP_ENABLED !== 'false') {
     app.use((req, res, next) => {
+      const isDev = process.env.NODE_ENV !== 'production';
+      
       const csp = [
         "default-src 'self'",
         "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
         "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
         "img-src 'self' data: https:",
-        "connect-src 'self' https:",
+        isDev ? "connect-src 'self' https: http://localhost:5000" : "connect-src 'self' https:",
         "frame-ancestors 'none'",
         "base-uri 'self'",
         "form-action 'self'"

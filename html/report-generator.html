@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -219,7 +219,7 @@
     }
 
     .report-list li:before {
-      content: "•";
+      content: "�";
       position: absolute;
       left: 0;
       color: #4dabe7;
@@ -264,7 +264,7 @@
       <!-- LOGO E BOTTONE MATRIX -->
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -275,7 +275,7 @@
           <li><a href="home.html">Home</a></li>
 
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -284,7 +284,7 @@
           </li>
 
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -295,10 +295,10 @@
           </li>
 
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -308,7 +308,7 @@
           </li>
 
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -318,7 +318,7 @@
           </li>
 
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -329,7 +329,7 @@
 
       <!-- CTA E AUTH -->
       <div style="display: flex; gap: 16px; align-items: center;">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -339,12 +339,12 @@
   </header>
   <main class="report-container">
     <section class="hero-section">
-      <h1>📊 Generazione Report</h1>
-      <p>Crea rapporti completi e personalizzati su attacchi, vulnerabilità e incidenti di sicurezza. Esporta in PDF o JSON per la comunicazione con stakeholder.</p>
+      <h1>?? Generazione Report</h1>
+      <p>Crea rapporti completi e personalizzati su attacchi, vulnerabilit� e incidenti di sicurezza. Esporta in PDF o JSON per la comunicazione con stakeholder.</p>
     </section>
 
     <section class="form-section">
-      <h2 style="color: #4dabe7; margin-bottom: 30px;">📝 Configurazione Report</h2>
+      <h2 style="color: #4dabe7; margin-bottom: 30px;">?? Configurazione Report</h2>
 
       <div class="form-group">
         <label for="reportTitle">Titolo Report</label>
@@ -357,12 +357,12 @@
           <input type="date" id="reportDate">
         </div>
         <div class="form-group">
-          <label for="reportSeverity">Severità</label>
+          <label for="reportSeverity">Severit�</label>
           <select id="reportSeverity">
-            <option value="critical">🔴 Critica</option>
-            <option value="high">🟠 Alta</option>
-            <option value="medium" selected>🟡 Media</option>
-            <option value="low">🟢 Bassa</option>
+            <option value="critical">?? Critica</option>
+            <option value="high">?? Alta</option>
+            <option value="medium" selected>?? Media</option>
+            <option value="low">?? Bassa</option>
           </select>
         </div>
       </div>
@@ -431,8 +431,8 @@
       </div>
 
       <div class="button-group">
-        <button class="btn btn-primary" onclick="generateReport()">🚀 Genera Report</button>
-        <button class="btn btn-secondary" onclick="resetForm()">🔄 Cancella Form</button>
+        <button class="btn btn-primary" onclick="generateReport()">?? Genera Report</button>
+        <button class="btn btn-secondary" onclick="resetForm()">?? Cancella Form</button>
       </div>
     </section>
 
@@ -446,40 +446,40 @@
       </div>
 
       <div class="report-section">
-        <h3>📋 Riepilogo Esecutivo</h3>
+        <h3>?? Riepilogo Esecutivo</h3>
         <div class="report-content" id="previewSummary"></div>
       </div>
 
       <div class="report-section">
-        <h3>🎯 Dettagli Incidente</h3>
+        <h3>?? Dettagli Incidente</h3>
         <div class="report-content">
           <strong>Organizzazione:</strong> <span id="previewOrg"></span><br>
           <strong>Data Incidente:</strong> <span id="previewIncidentDate"></span><br>
-          <strong>Severità:</strong> <span id="previewSeverityLabel"></span><br>
+          <strong>Severit�:</strong> <span id="previewSeverityLabel"></span><br>
           <strong>Sistemi Interessati:</strong> <span id="previewSystems"></span><br>
           <strong>Utenti Interessati:</strong> <span id="previewUsers"></span>
         </div>
       </div>
 
       <div class="report-section">
-        <h3>⚠️ Descrizione Minaccia</h3>
+        <h3>?? Descrizione Minaccia</h3>
         <div class="report-content" id="previewDescription"></div>
       </div>
 
       <div class="report-section">
-        <h3>📊 Impatto</h3>
+        <h3>?? Impatto</h3>
         <div class="report-content" id="previewImpact"></div>
       </div>
 
       <div class="report-section">
-        <h3>💡 Raccomandazioni</h3>
+        <h3>?? Raccomandazioni</h3>
         <ul class="report-list" id="previewRecommendations"></ul>
       </div>
 
       <div class="export-buttons">
-        <button class="btn-export" onclick="exportPDF()">📄 Scarica PDF</button>
-        <button class="btn-export" onclick="exportJSON()">📋 Scarica JSON</button>
-        <button class="btn-export" onclick="printReport()">🖨️ Stampa</button>
+        <button class="btn-export" onclick="exportPDF()">?? Scarica PDF</button>
+        <button class="btn-export" onclick="exportJSON()">?? Scarica JSON</button>
+        <button class="btn-export" onclick="printReport()">??? Stampa</button>
       </div>
     </section>
   </main>
@@ -494,7 +494,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">� 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
       </div>
     </div>
@@ -514,10 +514,10 @@
       const recommendations = document.getElementById('recommendations').value || 'Under investigation';
 
       const severityLabels = {
-        critical: '🔴 CRITICA',
-        high: '🟠 ALTA',
-        medium: '🟡 MEDIA',
-        low: '🟢 BASSA'
+        critical: '?? CRITICA',
+        high: '?? ALTA',
+        medium: '?? MEDIA',
+        low: '?? BASSA'
       };
 
       const checkedIncidents = Array.from(document.querySelectorAll('input[name="incident"]:checked'))
@@ -582,7 +582,7 @@
     }
 
     function exportPDF() {
-      alert('📄 Funzione PDF disponibile in versione premium. Puoi scaricare il JSON o stampare il report.');
+      alert('?? Funzione PDF disponibile in versione premium. Puoi scaricare il JSON o stampare il report.');
     }
 
     function printReport() {

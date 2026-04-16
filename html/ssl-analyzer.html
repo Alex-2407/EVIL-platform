@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -42,7 +42,7 @@
     <div class="header-container">
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -51,7 +51,7 @@
         <ul>
           <li><a href="home.html">Home</a></li>
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -59,7 +59,7 @@
             </div>
           </li>
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -69,10 +69,10 @@
             </div>
           </li>
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -81,7 +81,7 @@
             </div>
           </li>
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -90,7 +90,7 @@
             </div>
           </li>
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -100,7 +100,7 @@
       </nav>
 
       <div class="header-cta-section">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -112,8 +112,8 @@
   <main>
     <section class="hero-section">
       <div class="hero-content">
-        <h1 class="hero-title">🔐 SSL Certificate Analyzer</h1>
-        <p class="hero-subtitle">Analizza in dettaglio i certificati SSL/TLS di un dominio. Verifica validità, scadenza, algoritmo e catena di certificati.</p>
+        <h1 class="hero-title">?? SSL Certificate Analyzer</h1>
+        <p class="hero-subtitle">Analizza in dettaglio i certificati SSL/TLS di un dominio. Verifica validit�, scadenza, algoritmo e catena di certificati.</p>
       </div>
     </section>
 
@@ -149,7 +149,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">� 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
       </div>
     </div>
@@ -200,7 +200,7 @@
 
     function displayResults(data) {
       if (data.error) {
-        showError(`❌ Impossibile recuperare il certificato: ${data.error}`);
+        showError(`? Impossibile recuperare il certificato: ${data.error}`);
         return;
       }
 
@@ -212,40 +212,40 @@
 
       let html = `
         <span class="status-badge ${statusClass}">
-          ${analysis.isValid ? '✓ Certificato Valido' : '✗ Certificato Scaduto'}
-          ${analysis.warning ? '⚠ ' + analysis.warning : ''}
+          ${analysis.isValid ? '? Certificato Valido' : '? Certificato Scaduto'}
+          ${analysis.warning ? '? ' + analysis.warning : ''}
         </span>
 
         <div class="section-box">
-          <h3>📋 Informazioni Dominio</h3>
+          <h3>?? Informazioni Dominio</h3>
           <div class="detail-row"><div class="detail-label">Dominio</div><div class="detail-value">${data.domain}</div></div>
           <div class="detail-row"><div class="detail-label">Status</div><div class="detail-value">${cert.status}</div></div>
           <div class="detail-row"><div class="detail-label">Scansione</div><div class="detail-value">${new Date(data.timestamp).toLocaleString('it-IT')}</div></div>
         </div>
 
         <div class="section-box">
-          <h3>🎫 Soggetto del Certificato</h3>
+          <h3>?? Soggetto del Certificato</h3>
           <div class="detail-row"><div class="detail-label">CN</div><div class="detail-value">${cert.subject.CN || 'N/A'}</div></div>
           <div class="detail-row"><div class="detail-label">Organizzazione</div><div class="detail-value">${cert.subject.O || 'N/A'}</div></div>
           <div class="detail-row"><div class="detail-label">Paese</div><div class="detail-value">${cert.subject.C || 'N/A'}</div></div>
         </div>
 
         <div class="section-box">
-          <h3>🏛️ Emittente del Certificato</h3>
+          <h3>??? Emittente del Certificato</h3>
           <div class="detail-row"><div class="detail-label">CN</div><div class="detail-value">${cert.issuer.CN || 'N/A'}</div></div>
           <div class="detail-row"><div class="detail-label">Organizzazione</div><div class="detail-value">${cert.issuer.O || 'N/A'}</div></div>
           <div class="detail-row"><div class="detail-label">Paese</div><div class="detail-value">${cert.issuer.C || 'N/A'}</div></div>
         </div>
 
         <div class="section-box">
-          <h3>📅 Validità del Certificato</h3>
+          <h3>?? Validit� del Certificato</h3>
           <div class="detail-row"><div class="detail-label">Valido da</div><div class="detail-value">${new Date(cert.validFrom).toLocaleString('it-IT')}</div></div>
           <div class="detail-row"><div class="detail-label">Scade il</div><div class="detail-value">${new Date(cert.validTo).toLocaleString('it-IT')}</div></div>
           <div class="detail-row"><div class="detail-label">Giorni rimanenti</div><div class="detail-value"><strong style="color: ${analysis.daysUntilExpiry < 30 ? '#ffc800' : '#00ff9c'}">${analysis.daysUntilExpiry}</strong> giorni</div></div>
         </div>
 
         <div class="section-box">
-          <h3>🔒 Configurazione Crittografica</h3>
+          <h3>?? Configurazione Crittografica</h3>
           <div class="detail-row"><div class="detail-label">Algoritmo</div><div class="detail-value">${analysis.algorithm}</div></div>
           <div class="detail-row"><div class="detail-label">Dimensione Chiave</div><div class="detail-value">${analysis.keySize} bit</div></div>
           <div class="detail-row"><div class="detail-label">Fingerprint SHA-1</div><div class="detail-value" style="font-size: 11px;">${cert.fingerprint}</div></div>
@@ -253,14 +253,14 @@
       `;
 
       if (analysis.warning) {
-        html += `<div class="warning-box">⚠️ ${analysis.warning}</div>`;
+        html += `<div class="warning-box">?? ${analysis.warning}</div>`;
       }
 
       document.getElementById('ssl-results').innerHTML = html;
     }
 
     function showError(message) {
-      errorMsg.innerHTML = `<strong>🚨 Errore</strong><p style="margin-top: 10px;">${message}</p>`;
+      errorMsg.innerHTML = `<strong>?? Errore</strong><p style="margin-top: 10px;">${message}</p>`;
       errorMsg.classList.add('active');
     }
 

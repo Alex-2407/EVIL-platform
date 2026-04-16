@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -138,7 +138,7 @@
       <!-- LOGO E BOTTONE MATRIX -->
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -149,7 +149,7 @@
           <li><a href="home.html">Home</a></li>
 
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Incidenti in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -158,7 +158,7 @@
           </li>
 
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -169,10 +169,10 @@
           </li>
 
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -182,7 +182,7 @@
           </li>
 
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -192,7 +192,7 @@
           </li>
 
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -203,7 +203,7 @@
 
       <!-- CTA E AUTH -->
       <div class="header-cta-section">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔒 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -215,7 +215,7 @@
   <main>
     <!-- INTESTAZIONE -->
     <div class="section-header">
-      <h1>🌍 Incidenti di Sicurezza Documentati - Anno 2026</h1>
+      <h1>?? Incidenti di Sicurezza Documentati - Anno 2026</h1>
       <p class="section-description">
         Dashboard informativa che aggrega dati pubblici e verificati su incidenti di sicurezza nell'anno in corso. 
         I dati provengono da fonti OSINT, report di threat intelligence pubblici, CVE ufficiali e annunci di agenzie di cybersecurity governative.
@@ -225,20 +225,20 @@
     <!-- DISCLAIMER LEGALE -->
     <div class="disclaimer-banner">
       <div class="disclaimer-title">
-        ℹ️ DATI PUBBLICI, VERIFICATI E PER USO EDUCATIVO
+        ?? DATI PUBBLICI, VERIFICATI E PER USO EDUCATIVO
       </div>
       <div class="disclaimer-text">
         Questa piattaforma visualizza <strong>esclusivamente dati pubblici, aggregati e verificati da fonti ufficiali</strong> 
         (NIST NVD, CISA, agenzie governative di cybersecurity). <br><br>
         <strong>NON contiene:</strong> informazioni su attacchi a reti private, IP reali di vittime, log interni, dati sensibili, o informazioni non pubblicate.<br><br>
         <strong>Scopo:</strong> Educativo e informativo. I dati non rappresentano attacchi in tempo reale, 
-        ma incidenti già dichiarati pubblicamente e documentati ufficialmente.
+        ma incidenti gi� dichiarati pubblicamente e documentati ufficialmente.
       </div>
     </div>
 
     <!-- MAPPA INTERATTIVA -->
     <div class="map-container attacks-map-top">
-      <h2 class="section-title-center">🗺️ Distribuzione Geografica Incidenti Documentati 2026</h2>
+      <h2 class="section-title-center">??? Distribuzione Geografica Incidenti Documentati 2026</h2>
       <div id="map" class="interactive-map"></div>
       <p class="map-help">
         La mappa mostra la distribuzione geografica aggregata degli incidenti pubblicamente documentati. 
@@ -248,7 +248,7 @@
 
     <!-- STATISTICHE ANNUALI -->
     <div class="attacks-map-section">
-      <h2 class="section-title">📊 Statistiche Anno 2026 (Dati Pubblici Verificati)</h2>
+      <h2 class="section-title">?? Statistiche Anno 2026 (Dati Pubblici Verificati)</h2>
       <div class="stats-panel">
         <div class="stat-box">
           <div class="stat-number" id="total-incidents">4,287</div>
@@ -277,7 +277,7 @@
       </div>
     </div>
     <div class="attacks-map-section">
-      <h2 class="section-title">📈 Trend Mensile Incidenti 2026</h2>
+      <h2 class="section-title">?? Trend Mensile Incidenti 2026</h2>
       <div id="monthly-sparkline" style="width:100%;height:80px;margin-bottom:12px"></div>
       <div class="stats-panel attacks-stats-grid">
         <div class="stat-box attacks-stat-month">
@@ -332,7 +332,7 @@
     </div>
 
     <div class="incidents-timeline attacks-map-section">
-      <h2 class="section-title">🔴 Incidenti Pubblicamente Documentati 2026 (Selezione)</h2>
+      <h2 class="section-title">?? Incidenti Pubblicamente Documentati 2026 (Selezione)</h2>
       
       <div class="incident-card">
         <div class="incident-header">
@@ -401,7 +401,7 @@
           <div class="incident-date">Maggio 2026</div>
         </div>
         <div class="incident-description">
-          Dichiarato pubblicamente dalla società colpita e regolatori. Dati aggregati on file size, numero record. 
+          Dichiarato pubblicamente dalla societ� colpita e regolatori. Dati aggregati on file size, numero record. 
           Confermato da agenzie di regolamentazione. No dettagli su vittime specifiche.
         </div>
         <div class="incident-source">Fonte: GDPR Filing, SEC Disclosures, Press Release Pubblico</div>
@@ -428,7 +428,7 @@
       <div class="incident-card">
         <div class="incident-header">
           <div>
-            <div class="incident-title">Vulnerabilità Critica Linux Kernel Scoperta</div>
+            <div class="incident-title">Vulnerabilit� Critica Linux Kernel Scoperta</div>
             <div class="incident-types">
               <span class="incident-type">Linux Vulnerability</span>
               <span class="incident-type">CVSS 10.0</span>
@@ -451,10 +451,10 @@
         <span><strong>Ultimo aggiornamento dati:</strong> <span id="last-update">2026-01-14 14:35:22 UTC</span></span>
       </div>
       <div class="update-status attacks-status-green">
-        <span>📡 <strong>Fonte dati:</strong> Feed OSINT pubblici, NVD/CVE, Threat Intelligence Pubblici Ufficiali, Agenzie Cybersecurity Governative</span>
+        <span>?? <strong>Fonte dati:</strong> Feed OSINT pubblici, NVD/CVE, Threat Intelligence Pubblici Ufficiali, Agenzie Cybersecurity Governative</span>
       </div>
       <div class="update-status attacks-status-blue">
-        <span>🔄 <strong>Aggiornamento:</strong> Ogni minuto da fonti pubbliche verificate - USO EDUCATIVO</span>
+        <span>?? <strong>Aggiornamento:</strong> Ogni minuto da fonti pubbliche verificate - USO EDUCATIVO</span>
       </div>
     </div>
 
@@ -597,10 +597,10 @@
 
           popupContent += '<strong style="color: #38bdf8;">Tipologie di Attacco:</strong><br>';
           Object.entries(attackTypes).forEach(([type, count]) => {
-            popupContent += `• ${type}: ${count}<br>`;
+            popupContent += `� ${type}: ${count}<br>`;
           });
 
-          popupContent += `<br><strong style="color: #22c55e;">Severità massima:</strong> ${
+          popupContent += `<br><strong style="color: #22c55e;">Severit� massima:</strong> ${
             countryData.incidents.some(i => i.severity === 'critical') ? 'CRITICA' : 'ALTA'
           }<br>`;
 
@@ -639,7 +639,7 @@
         if (data.monthly_trends) updateMonthlyTrends(data.monthly_trends);
 
         // Log aggiornamento
-        console.log('✅ Mappa aggiornata -', new Date().toLocaleTimeString('it-IT'));
+        console.log('? Mappa aggiornata -', new Date().toLocaleTimeString('it-IT'));
 
       } catch (err) {
         console.error('Errore nell\'aggiornamento della mappa:', err.message);
@@ -784,17 +784,17 @@
 
         // Crea nuovi card
         const severityEmoji = {
-          'critical': '🔴',
-          'high': '🟠',
-          'medium': '🟡',
-          'low': '🟢'
+          'critical': '??',
+          'high': '??',
+          'medium': '??',
+          'low': '??'
         };
 
         topIncidents.forEach((incident, index) => {
           const card = document.createElement('div');
           card.className = 'incident-card';
 
-          const severityIcon = severityEmoji[incident.severity] || '🔴';
+          const severityIcon = severityEmoji[incident.severity] || '??';
           const typeBadge = incident.type || 'Incident';
           const countryInfo = incident.country ? ` - ${incident.country}` : '';
 
@@ -823,7 +823,7 @@
           timelineContainer.appendChild(card);
         });
 
-        console.log('✅ Timeline incidenti aggiornata -', topIncidents.length, 'incidenti visualizzati');
+        console.log('? Timeline incidenti aggiornata -', topIncidents.length, 'incidenti visualizzati');
 
       } catch (err) {
         console.error('Errore nell\'aggiornamento timeline:', err.message);
@@ -842,12 +842,12 @@
         const ws = new WebSocket('ws://localhost:5000/ws/incidents');
         
         ws.onopen = () => {
-          console.log('🔌 WebSocket connesso');
+          console.log('?? WebSocket connesso');
         };
 
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data);
-          console.log('📡 Aggiornamento WebSocket ricevuto:', data.total_incidents, 'incidenti');
+          console.log('?? Aggiornamento WebSocket ricevuto:', data.total_incidents, 'incidenti');
           // Aggiorna subito senza aspettare i 30 secondi
           updateMapWithRealTimeData();
         };

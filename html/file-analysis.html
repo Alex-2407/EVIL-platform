@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -242,7 +242,7 @@
       <!-- LOGO E BOTTONE MATRIX -->
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -253,7 +253,7 @@
           <li><a href="home.html">Home</a></li>
 
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -262,7 +262,7 @@
           </li>
 
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -273,10 +273,10 @@
           </li>
 
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -286,7 +286,7 @@
           </li>
 
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -296,7 +296,7 @@
           </li>
 
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -307,7 +307,7 @@
 
       <!-- CTA E AUTH -->
       <div style="display: flex; gap: 16px; align-items: center;">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -317,12 +317,12 @@
   </header>
   <main class="analysis-container">
     <section class="hero-section">
-      <h1>🔍 Analisi File Compromessi</h1>
+      <h1>?? Analisi File Compromessi</h1>
       <p>Analizza file potenzialmente infetti o compromessi. Ottieni rapporti dettagliati su hash, firma digitale, metadati e corrispondenze con database di malware noti.</p>
     </section>
 
     <section class="upload-section" onclick="document.getElementById('fileInput').click()">
-      <div class="upload-icon">📁</div>
+      <div class="upload-icon">??</div>
       <div class="upload-text">Trascina i file qui o clicca per selezionare</div>
       <div class="upload-subtext">Formati supportati: .exe, .dll, .zip, .pdf, .doc, .xls, e altri</div>
       <input type="file" id="fileInput" multiple onchange="handleFileUpload(event)">
@@ -333,7 +333,7 @@
     <section id="fileListSection" class="file-list" style="display: none;"></section>
 
     <section id="emptyState" class="empty-state">
-      <div class="empty-icon">📦</div>
+      <div class="empty-icon">??</div>
       <p>Nessun file caricato. Inizia caricando un file per l'analisi.</p>
     </section>
 
@@ -351,7 +351,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">� 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
       </div>
     </div>
@@ -419,9 +419,9 @@
             threatLevel: threatLevel,
             isKnown: isKnown,
             riskScore: Math.round(risk * 100),
-            recommendation: threatLevel === 'high' ? '🚨 Quarantine immediately' : 
-                          threatLevel === 'medium' ? '⚠️ Further investigation needed' : 
-                          '✓ Likely safe'
+            recommendation: threatLevel === 'high' ? '?? Quarantine immediately' : 
+                          threatLevel === 'medium' ? '?? Further investigation needed' : 
+                          '? Likely safe'
           };
 
           addLog(`Hash: ${hash}`, 'success');
@@ -462,7 +462,7 @@
 
       listSection.innerHTML = uploadedFiles.map((file, index) => `
         <div class="file-card">
-          <div class="file-name">📄 ${file.filename}</div>
+          <div class="file-name">?? ${file.filename}</div>
           <div class="file-info"><strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB</div>
           <div class="file-info"><strong>Hash:</strong> ${file.hash}</div>
           <div class="file-info"><strong>Risk Score:</strong> ${file.riskScore}%</div>
@@ -482,52 +482,52 @@
       const resultsSection = document.getElementById('analysisResults');
 
       resultsSection.innerHTML = `
-        <h2 style="color: #00ff9c; margin-bottom: 30px;">📊 Analisi Dettagliata: ${file.filename}</h2>
+        <h2 style="color: #00ff9c; margin-bottom: 30px;">?? Analisi Dettagliata: ${file.filename}</h2>
         
         <div class="result-item">
-          <div class="result-title">📝 Nome File</div>
+          <div class="result-title">?? Nome File</div>
           <div class="result-value">${file.filename}</div>
         </div>
 
         <div class="result-item">
-          <div class="result-title">🔢 Hash SHA256</div>
+          <div class="result-title">?? Hash SHA256</div>
           <div class="result-value">${file.hash}</div>
         </div>
 
         <div class="result-item">
-          <div class="result-title">📏 Dimensione</div>
+          <div class="result-title">?? Dimensione</div>
           <div class="result-value">${(file.size / 1024).toFixed(2)} KB (${file.size} bytes)</div>
         </div>
 
         <div class="result-item">
-          <div class="result-title">📅 Data Modifica</div>
+          <div class="result-title">?? Data Modifica</div>
           <div class="result-value">${file.modified}</div>
         </div>
 
         <div class="result-item">
-          <div class="result-title">🎯 Tipo MIME</div>
+          <div class="result-title">?? Tipo MIME</div>
           <div class="result-value">${file.type}</div>
         </div>
 
         <div class="result-item">
-          <div class="result-title">⚠️ Livello Minaccia</div>
+          <div class="result-title">?? Livello Minaccia</div>
           <div class="threat-level threat-${file.threatLevel}">${file.threatLevel.toUpperCase()}</div>
           <div class="result-value" style="margin-top: 10px;">Risk Score: ${file.riskScore}%</div>
         </div>
 
         ${file.isKnown ? `
           <div class="result-item" style="border-left-color: #ff6b6b;">
-            <div class="result-title" style="color: #ff6b6b;">🚨 Malware Noto</div>
+            <div class="result-title" style="color: #ff6b6b;">?? Malware Noto</div>
             <div class="result-value">${file.isKnown}</div>
           </div>
         ` : ''}
 
         <div class="result-item">
-          <div class="result-title">💡 Raccomandazione</div>
+          <div class="result-title">?? Raccomandazione</div>
           <div class="result-value">${file.recommendation}</div>
         </div>
 
-        <button class="btn btn-primary" onclick="displayFiles()" style="margin-top: 20px;">← Torna alla lista</button>
+        <button class="btn btn-primary" onclick="displayFiles()" style="margin-top: 20px;">? Torna alla lista</button>
       `;
     }
 

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -459,7 +459,7 @@
     <div class="header-container">
       <div class="logo-section">
         <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="generated-image.png" alt="Logo EVIL">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
         </button>
         <div class="logo">EVIL</div>
       </div>
@@ -469,7 +469,7 @@
           <li><a href="home.html">Home</a></li>
 
           <li>
-            <a href="#">Attacchi ▾</a>
+            <a href="#">Attacchi ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
@@ -478,7 +478,7 @@
           </li>
 
           <li>
-            <a href="#">Database ▾</a>
+            <a href="#">Database ?</a>
             <div class="dropdown">
               <a href="malware-db.html">Database Malware</a>
               <a href="malware-classification.html">Classificazione Malware</a>
@@ -489,10 +489,10 @@
           </li>
 
           <li>
-            <a href="#">Strumenti ▾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -502,7 +502,7 @@
           </li>
 
           <li>
-            <a href="#">Educazione ▾</a>
+            <a href="#">Educazione ?</a>
             <div class="dropdown">
               <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -512,7 +512,7 @@
           </li>
 
           <li>
-            <a href="#">OSINT ▾</a>
+            <a href="#">OSINT ?</a>
             <div class="dropdown">
               <a href="social-profiling.html">Profilazione da Social</a>
               <a href="public-info.html">Raccolta Info Pubbliche</a>
@@ -523,7 +523,7 @@
 
       <!-- CTA E AUTH -->
       <div class="header-cta-section">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -534,10 +534,10 @@
 
   <main class="container-wide section-padding">
     <section class="hero-section">
-      <h1>🔍 Advanced URL Scanner</h1>
+      <h1>?? Advanced URL Scanner</h1>
       <p>Analisi completa della sicurezza di siti web. Verifica certificati SSL, header HTTP, redirect chain, minacce note e molto altro ancora.</p>
       <div class="hero-cta">
-        <a href="profile.html" class="hero-cta-link">🏆 Visualizza i Tuoi Trofei</a>
+        <a href="profile.html" class="hero-cta-link">?? Visualizza i Tuoi Trofei</a>
       </div>
     </section>
 
@@ -548,7 +548,7 @@
 
       <div class="auth-checkbox">
         <input type="checkbox" id="authCheckbox">
-        <label for="authCheckbox">☑️ Confermo di avere diritto/autorizzazione a scansionare questo sito</label>
+        <label for="authCheckbox">?? Confermo di avere diritto/autorizzazione a scansionare questo sito</label>
       </div>
 
       <div class="button-group">
@@ -560,12 +560,12 @@
     </section>
 
     <div class="transparency-box">
-      <strong>🔒 Trasparenza Metodologica</strong>
+      <strong>?? Trasparenza Metodologica</strong>
       Analisi esclusivamente passiva (no exploit, no probing offensivo). Non effettuiamo: intrusioni, brute-force, enumeration aggressiva. Equivalente ai controlli di browser moderni.
     </div>
 
     <section class="scan-log" id="scanLog">
-      <div class="scan-log-title">📋 Real-time Scan Log</div>
+      <div class="scan-log-title">?? Real-time Scan Log</div>
       <div class="log-entries" id="logEntries"></div>
     </section>
 
@@ -583,7 +583,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">� 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
       </div>
     </div>
@@ -600,7 +600,7 @@
       const logEntries = document.getElementById('logEntries');
       const entry = document.createElement('div');
       entry.className = `log-entry ${type}`;
-      entry.innerHTML = `<span class="log-icon">${type === 'success' ? '✓' : type === 'error' ? '✗' : '•'}</span> ${msg}`;
+      entry.innerHTML = `<span class="log-icon">${type === 'success' ? '?' : type === 'error' ? '?' : '�'}</span> ${msg}`;
       logEntries.appendChild(entry);
       logEntries.scrollTop = logEntries.scrollHeight;
     }
@@ -665,12 +665,12 @@
       scanResults.classList.remove('active');
 
       const steps = [
-        { msg: '1️⃣ IP & ASN...', delay: 200 },
-        { msg: '2️⃣ Domain Tree...', delay: 400 },
-        { msg: '3️⃣ TLS Certificate...', delay: 600 },
-        { msg: '4️⃣ Security Headers...', delay: 800 },
-        { msg: '5️⃣ Redirect Chain...', delay: 1000 },
-        { msg: '🔟 Backend Server...', delay: 1200 },
+        { msg: '1?? IP & ASN...', delay: 200 },
+        { msg: '2?? Domain Tree...', delay: 400 },
+        { msg: '3?? TLS Certificate...', delay: 600 },
+        { msg: '4?? Security Headers...', delay: 800 },
+        { msg: '5?? Redirect Chain...', delay: 1000 },
+        { msg: '?? Backend Server...', delay: 1200 },
       ];
 
       for (const step of steps) {
@@ -690,10 +690,10 @@
         if (!response.ok) throw new Error('Backend error: ' + response.status);
         const analysisData = await response.json();
         displayResults(analysisData);
-        addLogEntry('✓ Completato', 'success');
+        addLogEntry('? Completato', 'success');
       } catch (err) {
-        addLogEntry('✗ Errore: ' + err.message, 'error');
-        scanResults.innerHTML = `<div style="background: rgba(255,107,107,0.1); border: 1px solid #ff6b6b; border-radius: 6px; padding: 20px; color: #b0b0b0;"><strong style="color: #ff6b6b;">🚨 Backend Non Disponibile</strong><p style="margin-top: 10px;">Errore: ${err.message}</p></div>`;
+        addLogEntry('? Errore: ' + err.message, 'error');
+        scanResults.innerHTML = `<div style="background: rgba(255,107,107,0.1); border: 1px solid #ff6b6b; border-radius: 6px; padding: 20px; color: #b0b0b0;"><strong style="color: #ff6b6b;">?? Backend Non Disponibile</strong><p style="margin-top: 10px;">Errore: ${err.message}</p></div>`;
       }
 
       scanBtn.disabled = false;
@@ -715,22 +715,22 @@
             <div class="score-label">Security Score</div>
           </div>
           <div class="results-info">
-            <div class="result-item"><div class="result-icon">🔗</div><div class="result-text"><div class="result-label">Dominio</div><div class="result-value">${domain}</div></div></div>
-            <div class="result-item"><div class="result-icon">🌐</div><div class="result-text"><div class="result-label">IP</div><div class="result-value">${analysis.ip || 'N/A'}</div></div></div>
-            <div class="result-item"><div class="result-icon">🕐</div><div class="result-text"><div class="result-label">Timestamp</div><div class="result-value">${data.timestamp}</div></div></div>
+            <div class="result-item"><div class="result-icon">??</div><div class="result-text"><div class="result-label">Dominio</div><div class="result-value">${domain}</div></div></div>
+            <div class="result-item"><div class="result-icon">??</div><div class="result-text"><div class="result-label">IP</div><div class="result-value">${analysis.ip || 'N/A'}</div></div></div>
+            <div class="result-item"><div class="result-icon">??</div><div class="result-text"><div class="result-label">Timestamp</div><div class="result-value">${data.timestamp}</div></div></div>
           </div>
         </div>
       `;
 
-      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>1️⃣</span> IP & ASN</div><span class="section-toggle">▼</span></div><div class="section-content"><table class="analysis-table"><tr><th>IP</th><th>ASN</th></tr><tr><td>${analysis.ip || 'N/A'}</td><td>${analysis.asn || 'N/A'}</td></tr></table></div></div>`;
+      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>1??</span> IP & ASN</div><span class="section-toggle">?</span></div><div class="section-content"><table class="analysis-table"><tr><th>IP</th><th>ASN</th></tr><tr><td>${analysis.ip || 'N/A'}</td><td>${analysis.asn || 'N/A'}</td></tr></table></div></div>`;
 
-      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>2️⃣</span> Certificates</div><span class="section-toggle">▼</span></div><div class="section-content">${analysis.certificate ? `<div class="cert-item">🔐 ${analysis.certificate.subject || 'N/A'}</div>` : '<div>⚠️ No certificate</div>'}</div></div>`;
+      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>2??</span> Certificates</div><span class="section-toggle">?</span></div><div class="section-content">${analysis.certificate ? `<div class="cert-item">?? ${analysis.certificate.subject || 'N/A'}</div>` : '<div>?? No certificate</div>'}</div></div>`;
 
-      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>3️⃣</span> Redirects</div><span class="section-toggle">▼</span></div><div class="section-content">${analysis.redirects ? analysis.redirects.map(r => `<div class="redirect-chain"><div class="redirect-step">${r.url}</div><span class="chain-status">${r.status}</span></div>`).join('') : 'Nessun redirect'}</div></div>`;
+      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>3??</span> Redirects</div><span class="section-toggle">?</span></div><div class="section-content">${analysis.redirects ? analysis.redirects.map(r => `<div class="redirect-chain"><div class="redirect-step">${r.url}</div><span class="chain-status">${r.status}</span></div>`).join('') : 'Nessun redirect'}</div></div>`;
 
-      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>4️⃣</span> Page Stats</div><span class="section-toggle">▼</span></div><div class="section-content"><div class="metrics-grid"><div class="metric-card"><div class="metric-value">${data.pageStats.httpRequests}</div><div class="metric-label">HTTP Req</div></div><div class="metric-card"><div class="metric-value">${data.pageStats.httpsPercentage}%</div><div class="metric-label">HTTPS</div></div><div class="metric-card"><div class="metric-value">${data.pageStats.uniqueIPs}</div><div class="metric-label">IP Unici</div></div></div></div></div>`;
+      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>4??</span> Page Stats</div><span class="section-toggle">?</span></div><div class="section-content"><div class="metrics-grid"><div class="metric-card"><div class="metric-value">${data.pageStats.httpRequests}</div><div class="metric-label">HTTP Req</div></div><div class="metric-card"><div class="metric-value">${data.pageStats.httpsPercentage}%</div><div class="metric-label">HTTPS</div></div><div class="metric-card"><div class="metric-value">${data.pageStats.uniqueIPs}</div><div class="metric-label">IP Unici</div></div></div></div></div>`;
 
-      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>5️⃣</span> Threat Intel</div><span class="section-toggle">▼</span></div><div class="section-content">${data.threatData ? `<div class="finding-card danger"><div class="finding-title">🚨 Minaccia: ${data.threatData.threat}</div></div>` : `<div class="finding-card safe"><div class="finding-title">✓ Reputazione Pulita</div></div>`}</div></div>`;
+      html += `<div class="analysis-section"><div class="section-header" onclick="toggleSection(this)"><div class="section-title"><span>5??</span> Threat Intel</div><span class="section-toggle">?</span></div><div class="section-content">${data.threatData ? `<div class="finding-card danger"><div class="finding-title">?? Minaccia: ${data.threatData.threat}</div></div>` : `<div class="finding-card safe"><div class="finding-title">? Reputazione Pulita</div></div>`}</div></div>`;
 
       scanResults.innerHTML = html;
     }
@@ -742,7 +742,7 @@
   <script src="/js/progress-manager.js"></script>
 
   <script>
-    // Log attività quando viene eseguita una scansione
+    // Log attivit� quando viene eseguita una scansione
     document.addEventListener('DOMContentLoaded', function() {
       const scanForm = document.getElementById('scanForm');
       if (scanForm) {
@@ -751,7 +751,7 @@
           // Esegui il codice originale
           if (originalHandler) await originalHandler.call(this, e);
           
-          // Log dell'attività dopo un breve delay
+          // Log dell'attivit� dopo un breve delay
           setTimeout(async () => {
             if (isAuthenticated()) {
               await logActivity('scan', { scanType: 'url_security_check' });
