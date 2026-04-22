@@ -118,24 +118,23 @@ app.use(compression({
 }));
 // Redirect HTTP to HTTPS in production
 // On Render: x-forwarded-proto header indicates original protocol
-if (process.env.NODE_ENV === 'production') {
-  app.use((req, res, next) => {
-    // Render proxies requests, check x-forwarded-proto header
-    const proto = req.headers['x-forwarded-proto'] || req.protocol;
-    
-    // Skip redirect for health checks and specific paths
-    if (req.path === '/health' || req.path === '/__debug/files') {
-      return next();
-    }
-    
-    // Redirect only if NOT already HTTPS
-    if (proto !== 'https') {
-      return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
-    }
-    
-    next();
-  });
-}
+// Force HTTPS redirect - Render provides SSL by default
+app.use((req, res, next) => {
+  // Render proxies requests, check x-forwarded-proto header
+  const proto = req.headers['x-forwarded-proto'] || req.protocol;
+  
+  // Skip redirect for health checks and specific paths
+  if (req.path === '/health' || req.path === '/__debug/files') {
+    return next();
+  }
+  
+  // Redirect only if NOT already HTTPS
+  if (proto !== 'https') {
+    return res.redirect(301, `https://${req.get('host')}${req.originalUrl}`);
+  }
+  
+  next();
+});
 // CRITICO: questi middleware devono essere registrati **prima** di qualunque
 // altro routing o security headers, così Express può rispondere con i file
 // statici invece di cadere in un handler 404 generico.
