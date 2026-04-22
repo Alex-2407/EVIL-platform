@@ -9,8 +9,7 @@
     "test": "node js/verify-services.js",
     "build": "webpack --mode=production",
     "build:css": "webpack --mode=production --entry ./css/style.css --output-path ./public/dist --output-filename style.min.css",
-    "build:js": "webpack --mode=production",
-    "postinstall": "npm run build"
+    "build:js": "webpack --mode=production"
   },
   "engines": {
     "node": "18.x",

@@ -100,7 +100,7 @@ const securityHeaders = (app) => {
     }
     
     // Additional privacy headers
-    res.setHeader('Referrer-Policy', 'strict-no-referrer');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
     
     next();
