@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profilazione da Social - EVIL</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .osint-hero {
+      background: linear-gradient(135deg, rgba(0, 255, 156, 0.1), rgba(255, 71, 87, 0.1));
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(0, 255, 156, 0.2);
+      margin-bottom: 40px;
+    }
+
+    .osint-hero h1 {
+      color: #00ff9c;
+      font-size: 2.2rem;
+      margin: 20px 0;
+    }
+
+    .osint-hero p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1rem;
+      max-width: 900px;
+      margin: 15px auto;
+    }
+
+    .osint-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px 40px;
+    }
+
+    .search-section {
+      background: rgba(0, 255, 156, 0.05);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+
+    .search-section h2 {
+      color: #00ff9c;
+      margin-top: 0;
+    }
+
+    .search-form {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      color: #fff;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-btn {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #00ff9c, #00cc77);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(0, 255, 156, 0.5);
+    }
+
+    .profile-results {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 40px;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(0, 255, 156, 0.2);
+    }
+
+    .profile-avatar {
+      font-size: 4rem;
+      margin-right: 20px;
+    }
+
+    .profile-info h3 {
+      margin: 0;
+      color: #00ff9c;
+      font-size: 1.5rem;
+    }
+
+    .profile-info p {
+      margin: 5px 0 0;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .profile-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(0, 255, 156, 0.2);
+    }
+
+    .tab-btn {
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      color: rgba(255, 255, 255, 0.6);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: 'Courier New', monospace;
+    }
+
+    .tab-btn.active {
+      color: #00ff9c;
+      border-bottom-color: #00ff9c;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .data-card {
+      background: rgba(0, 255, 156, 0.05);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .data-card h4 {
+      color: #00ff9c;
+      margin-top: 0;
+    }
+
+    .data-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(0, 255, 156, 0.1);
+    }
+
+    .data-item:last-child {
+      border-bottom: none;
+    }
+
+    .data-item .label {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: bold;
+    }
+
+    .data-item .value {
+      color: #00ff9c;
+      font-family: 'Courier New', monospace;
+    }
+
+    .social-networks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .social-network-card {
+      background: rgba(0, 255, 156, 0.05);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 6px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .social-network-card h4 {
+      color: #00ff9c;
+      margin-top: 0;
+    }
+
+    .social-network-card p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+
+    .risk-high {
+      background: rgba(255, 71, 87, 0.3);
+      color: #ff4757;
+    }
+
+    .risk-medium {
+      background: rgba(255, 193, 7, 0.3);
+      color: #ffc107;
+    }
+
+    .risk-low {
+      background: rgba(76, 175, 80, 0.3);
+      color: #4caf50;
+    }
+
+    .risks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .risk-item {
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 3px solid #ff4757;
+      padding: 15px;
+      border-radius: 4px;
+    }
+
+    .risk-item h4 {
+      margin-top: 0;
+      color: #ff4757;
+    }
+
+    .risk-item p {
+      margin: 8px 0;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .guide-section, .defense-section {
+      margin-bottom: 40px;
+    }
+
+    .guide-section h2, .defense-section h2 {
+      color: #00ff9c;
+      font-size: 1.5rem;
+      margin-top: 40px;
+      margin-bottom: 20px;
+    }
+
+    .guide-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .guide-card {
+      background: rgba(0, 255, 156, 0.05);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .guide-card h4 {
+      color: #00ff9c;
+      margin-top: 0;
+    }
+
+    .guide-card p {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.5;
+    }
+
+    .defense-tips {
+      background: rgba(76, 175, 80, 0.05);
+      border: 1px solid rgba(76, 175, 80, 0.2);
+      border-radius: 6px;
+      padding: 20px 20px 20px 40px;
+      list-style: none;
+    }
+
+    .defense-tips li {
+      margin-bottom: 12px;
+      position: relative;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .defense-tips li:before {
+      content: "?";
+      position: absolute;
+      left: -25px;
+      color: #4caf50;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ?</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ?</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ?</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ?</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ?</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main>
+    <div class="osint-hero">
+      <h1>?? Profilazione da Social Network</h1>
+      <p>Scopri come gli attaccanti estraggono e aggregano dati dai social network per creare profili dettagliati di vittime potenziali</p>
+    </div>
+
+    <div class="osint-container">
+      <!-- FORM DI RICERCA -->
+      <div class="search-section">
+        <h2>Inserisci il target</h2>
+        <div class="search-form">
+          <input type="text" id="targetUsername" placeholder="Nome utente o nickname (es: john_doe)" class="search-input">
+          <button onclick="profileTarget()" class="search-btn">?? PROFILA</button>
+        </div>
+      </div>
+
+      <!-- RISULTATI -->
+      <div id="profileResults" class="profile-results" style="display: none;">
+        <div class="profile-header">
+          <div class="profile-avatar">??</div>
+          <div class="profile-info">
+            <h3 id="profileName"></h3>
+            <p id="profileHandle"></p>
+          </div>
+        </div>
+
+        <div class="profile-tabs">
+          <button class="tab-btn active" onclick="switchProfileTab('overview')">Panoramica</button>
+          <button class="tab-btn" onclick="switchProfileTab('social')">Social Network</button>
+          <button class="tab-btn" onclick="switchProfileTab('risks')">Rischi Identificati</button>
+        </div>
+
+        <!-- TAB PANORAMICA -->
+        <div id="overview" class="tab-content active">
+          <div class="data-card">
+            <h4>Informazioni Base</h4>
+            <div class="data-item">
+              <span class="label">Nome completo:</span>
+              <span class="value" id="fullName">-</span>
+            </div>
+            <div class="data-item">
+              <span class="label">Email trovate:</span>
+              <span class="value" id="emailsFound">-</span>
+            </div>
+            <div class="data-item">
+              <span class="label">Numeri di telefono:</span>
+              <span class="value" id="phonesFound">-</span>
+            </div>
+            <div class="data-item">
+              <span class="label">Localizzazione:</span>
+              <span class="value" id="location">-</span>
+            </div>
+            <div class="data-item">
+              <span class="label">Occupazione:</span>
+              <span class="value" id="occupation">-</span>
+            </div>
+          </div>
+
+          <div class="data-card">
+            <h4>Attività Online</h4>
+            <div class="data-item">
+              <span class="label">Account attivi:</span>
+              <span class="value" id="activeAccounts">5-8</span>
+            </div>
+            <div class="data-item">
+              <span class="label">Frequenza di posting:</span>
+              <span class="value" id="postingFreq">Moderata (2-3 post/giorno)</span>
+            </div>
+            <div class="data-item">
+              <span class="label">Orari di attività:</span>
+              <span class="value" id="activityHours">Sera-Notte (19:00-23:00)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB SOCIAL NETWORK -->
+        <div id="social" class="tab-content">
+          <div id="socialNetworks" class="social-networks-grid"></div>
+        </div>
+
+        <!-- TAB RISCHI -->
+        <div id="risks" class="tab-content">
+          <div id="risksList" class="risks-list"></div>
+        </div>
+      </div>
+
+      <!-- GUIDA -->
+      <div class="guide-section">
+        <h2>?? Come gli Attaccanti Usano la Profilazione</h2>
+        <div class="guide-cards">
+          <div class="guide-card">
+            <h4>1. Raccolta Dati</h4>
+            <p>Estraggono informazioni pubbliche da profili social, forum, siti web.</p>
+          </div>
+          <div class="guide-card">
+            <h4>2. Aggregazione</h4>
+            <p>Connettono i dati da varie fonti per creare un profilo completo.</p>
+          </div>
+          <div class="guide-card">
+            <h4>3. Analisi Comportamentale</h4>
+            <p>Studiano abitudini, orari, interessi e relazioni per identificare vulnerabilità.</p>
+          </div>
+          <div class="guide-card">
+            <h4>4. Pianificazione Attacco</h4>
+            <p>Utilizzano i dati per personalizzare phishing, social engineering, etc.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONSIGLI DI DIFESA -->
+      <div class="defense-section">
+        <h2>??? Come Proteggere la Tua Privacy</h2>
+        <ul class="defense-tips">
+          <li>Riduci la visibilità dei tuoi profili social (privati)</li>
+          <li>Non condividere informazioni sensibili (numero telefono, indirizzo)</li>
+          <li>Usa username diversi su piattaforme diverse</li>
+          <li>Controlla regolarmente le impostazioni di privacy</li>
+          <li>Evita di taggare posizioni in tempo reale</li>
+          <li>Sii consapevole di cosa condividi nei post</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const API_URL = '/api';
+
+    function profileTarget() {
+      const targetUsername = document.getElementById('targetUsername').value.trim();
+      const resultsDiv = document.getElementById('profileResults');
+
+      if (!targetUsername) {
+        alert('Inserisci un username');
+        return;
+      }
+
+      // Mostra loading
+      resultsDiv.innerHTML = '<div style="color: #00ff9c; padding: 20px; text-align: center;">?? Ricerca in corso...</div>';
+      resultsDiv.style.display = 'block';
+
+      // Chiama l'API
+      fetch(`${API_URL}/social-profile`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: targetUsername })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'error') {
+          resultsDiv.innerHTML = `<div style="color: #ff4757; padding: 20px;">? Errore: ${data.error}</div>`;
+          return;
+        }
+
+        displayProfileResults(targetUsername, data.results);
+      })
+      .catch(err => {
+        resultsDiv.innerHTML = `<div style="color: #ff4757; padding: 20px;">? Errore di connessione: ${err.message}</div>`;
+        console.error('API Error:', err);
+      });
+    }
+
+    function displayProfileResults(username, results) {
+      const resultsDiv = document.getElementById('profileResults');
+      
+      // Header profilo
+      resultsDiv.innerHTML = `
+        <div class="profile-header">
+          <div class="profile-avatar">??</div>
+          <div class="profile-info">
+            <h3>${username}</h3>
+            <p>@${username}</p>
+          </div>
+        </div>
+
+        <div class="profile-tabs">
+          <button class="tab-btn active" onclick="switchProfileTab('overview')">Risultati Ricerca</button>
+          <button class="tab-btn" onclick="switchProfileTab('social')">Social Network</button>
+          <button class="tab-btn" onclick="switchProfileTab('risks')">Violazioni Dati</button>
+        </div>
+
+        <div id="overview" class="tab-content active">
+          <div id="searchResults"></div>
+        </div>
+
+        <div id="social" class="tab-content">
+          <div id="socialResults"></div>
+        </div>
+
+        <div id="risks" class="tab-content">
+          <div id="riskResults"></div>
+        </div>
+      `;
+
+      // Processa risultati
+      let socialNetworks = [];
+      let breaches = [];
+      let searchResults = [];
+
+      results.forEach(result => {
+        if (result.source === 'GitHub') {
+          socialNetworks.push(result.data);
+        } else if (result.source === 'Have I Been Pwned') {
+          breaches = result.breaches || [];
+        } else if (result.source.includes('Twitter') || result.source.includes('Instagram') || 
+                   result.source.includes('LinkedIn') || result.source.includes('Reddit') ||
+                   result.source.includes('YouTube') || result.source.includes('TikTok')) {
+          if (result.found) {
+            socialNetworks.push({
+              platform: result.source,
+              url: result.url,
+              status: 'Trovato'
+            });
+          }
+        } else if (result.source === 'Google Search') {
+          searchResults.push(result);
+        }
+      });
+
+      // Mostra risultati ricerca
+      let searchHTML = '';
+      searchResults.forEach(sr => {
+        searchHTML += `
+          <div class="data-card">
+            <h4>${sr.source}</h4>
+            <p>Risultati trovati: <strong>${sr.count}</strong></p>
+            <p style="font-size: 0.85rem; color: rgba(0, 255, 156, 0.7);">Campione: ${sr.data.slice(0, 2).join(', ')}</p>
+          </div>
+        `;
+      });
+      document.getElementById('searchResults').innerHTML = searchHTML || '<p style="color: rgba(255, 255, 255, 0.6);">Nessun risultato della ricerca Google.</p>';
+
+      // Mostra social network
+      let socialHTML = '';
+      socialNetworks.forEach(sn => {
+        socialHTML += `
+          <div class="social-network-card">
+            <h4>${sn.platform || sn.username || sn}</h4>
+            ${sn.url ? `<p><a href="${sn.url}" target="_blank" style="color: #00ff9c;">Visita profilo ?</a></p>` : ''}
+            <p style="font-size: 0.8rem; color: rgba(0, 255, 255, 0.6);">${sn.status || 'Trovato'}</p>
+          </div>
+        `;
+      });
+      document.getElementById('socialResults').innerHTML = socialHTML || '<p style="color: rgba(255, 255, 255, 0.6);">Nessun social network trovato.</p>';
+
+      // Mostra violazioni
+      let riskHTML = '';
+      if (breaches && breaches.length > 0) {
+        breaches.forEach(breach => {
+          riskHTML += `
+            <div class="risk-item">
+              <h4>${breach.name} <span class="risk-badge risk-high">BREACH</span></h4>
+              <p><strong>Data:</strong> ${breach.date || 'Data sconosciuta'}</p>
+              <p><strong>Dati esposti:</strong> ${breach.dataClasses ? breach.dataClasses.join(', ') : 'Sconosciuti'}</p>
+              <p style="font-size: 0.9rem; margin-top: 10px;">Questo account è stato trovato in un database di violazioni di sicurezza. Si consiglia di cambiare password.</p>
+            </div>
+          `;
+        });
+      } else {
+        riskHTML = '<p style="color: #4caf50; padding: 20px; background: rgba(76, 175, 80, 0.1); border-radius: 4px;">? Nessuna violazione di dati registrata per questo account</p>';
+      }
+      document.getElementById('riskResults').innerHTML = riskHTML;
+    }
+
+    function switchProfileTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabName).classList.add('active');
+      event.target.classList.add('active');
+    }
+
+    // Permetti di cercare con Enter
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('targetUsername');
+      if (input) {
+        input.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            profileTarget();
+          }
+        });
+      }
+    });
+  </script>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/progress-manager.js"></script>
+</body>
+</html>
+
+
+

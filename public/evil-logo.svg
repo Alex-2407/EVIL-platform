@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .evil-shield { fill: none; stroke: #ff6b6b; stroke-width: 3; }
+      .evil-text { font-family: Arial, sans-serif; font-size: 48px; font-weight: bold; fill: #00ff9c; text-anchor: middle; dominant-baseline: middle; }
+      .evil-border { fill: #0f1724; }
+    </style>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="200" height="200" class="evil-border"/>
+  
+  <!-- Shield shape -->
+  <path class="evil-shield" d="M 50 40 L 150 40 L 150 100 Q 100 160 100 160 Q 100 160 50 100 Z"/>
+  
+  <!-- EVIL text -->
+  <text x="100" y="95" class="evil-text">EVIL</text>
+</svg>

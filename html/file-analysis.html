@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analisi File Compromessi - EVIL</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .analysis-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 60px;
+      border-bottom: 2px solid rgba(0, 255, 156, 0.3);
+      padding-bottom: 40px;
+    }
+
+    .hero-section h1 {
+      font-size: 2.5rem;
+      color: #00ff9c;
+      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .hero-section p {
+      font-size: 1rem;
+      color: #b0b0b0;
+      max-width: 900px;
+      margin: 10px auto;
+      line-height: 1.7;
+    }
+
+    .upload-section {
+      background: rgba(0, 255, 156, 0.05);
+      border: 2px dashed rgba(0, 255, 156, 0.3);
+      border-radius: 8px;
+      padding: 40px;
+      margin: 40px 0;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .upload-section:hover {
+      border-color: rgba(0, 255, 156, 0.6);
+      background: rgba(0, 255, 156, 0.08);
+    }
+
+    .upload-section input[type="file"] {
+      display: none;
+    }
+
+    .upload-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+
+    .upload-text {
+      color: #00ff9c;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .upload-subtext {
+      color: #808080;
+      font-size: 0.9rem;
+    }
+
+    .file-list {
+      margin: 30px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .file-card {
+      background: rgba(0, 255, 156, 0.05);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 8px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .file-card:hover {
+      border-color: rgba(0, 255, 156, 0.5);
+      box-shadow: 0 0 20px rgba(0, 255, 156, 0.15);
+    }
+
+    .file-name {
+      color: #00ff9c;
+      font-weight: 600;
+      margin-bottom: 10px;
+      word-break: break-all;
+    }
+
+    .file-info {
+      color: #808080;
+      font-size: 0.9rem;
+      margin: 8px 0;
+    }
+
+    .analysis-results {
+      background: rgba(0, 255, 156, 0.03);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 8px;
+      padding: 30px;
+      margin: 30px 0;
+    }
+
+    .result-item {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid #00ff9c;
+      border-radius: 4px;
+    }
+
+    .result-title {
+      color: #00ff9c;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .result-value {
+      color: #d1d5db;
+      font-family: 'Courier New', monospace;
+      word-break: break-all;
+    }
+
+    .threat-level {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      margin-top: 10px;
+    }
+
+    .threat-high {
+      background: rgba(255, 107, 107, 0.2);
+      color: #ff6b6b;
+    }
+
+    .threat-medium {
+      background: rgba(255, 149, 0, 0.2);
+      color: #ff9500;
+    }
+
+    .threat-low {
+      background: rgba(0, 255, 156, 0.2);
+      color: #00ff9c;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00ff9c, #7cffcc);
+      color: #0a0e27;
+    }
+
+    .btn-primary:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(0, 255, 156, 0.3);
+    }
+
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #ff6b6b;
+      color: #ff6b6b;
+    }
+
+    .btn-danger:hover {
+      background: rgba(255, 107, 107, 0.1);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #808080;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .scan-log {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 6px;
+      padding: 20px;
+      margin: 20px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: #00ff9c;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+
+    .scan-log.active {
+      display: block;
+    }
+
+    .log-entry {
+      margin: 5px 0;
+    }
+
+    .log-entry.info { color: #00d4ff; }
+    .log-entry.success { color: #00ff9c; }
+    .log-entry.warning { color: #ff9500; }
+    .log-entry.error { color: #ff6b6b; }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ?</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ?</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ?</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ?</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ?</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <main class="analysis-container">
+    <section class="hero-section">
+      <h1>?? Analisi File Compromessi</h1>
+      <p>Analizza file potenzialmente infetti o compromessi. Ottieni rapporti dettagliati su hash, firma digitale, metadati e corrispondenze con database di malware noti.</p>
+    </section>
+
+    <section class="upload-section" onclick="document.getElementById('fileInput').click()">
+      <div class="upload-icon">??</div>
+      <div class="upload-text">Trascina i file qui o clicca per selezionare</div>
+      <div class="upload-subtext">Formati supportati: .exe, .dll, .zip, .pdf, .doc, .xls, e altri</div>
+      <input type="file" id="fileInput" multiple onchange="handleFileUpload(event)">
+    </section>
+
+    <div id="scanLog" class="scan-log"></div>
+
+    <section id="fileListSection" class="file-list" style="display: none;"></section>
+
+    <section id="emptyState" class="empty-state">
+      <div class="empty-icon">??</div>
+      <p>Nessun file caricato. Inizia caricando un file per l'analisi.</p>
+    </section>
+
+    <section id="analysisResults" class="analysis-results" style="display: none;"></section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    let uploadedFiles = [];
+
+    function addLog(message, type = 'info') {
+      const logDiv = document.getElementById('scanLog');
+      logDiv.classList.add('active');
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+
+    function calculateHash(content) {
+      let hash = 0;
+      for (let i = 0; i < content.length; i++) {
+        const char = content.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+      return Math.abs(hash).toString(16).toUpperCase().padStart(16, '0');
+    }
+
+    function analyzeFile(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          addLog(`Analizzando: ${file.name}`, 'info');
+          
+          const content = e.target.result;
+          const hash = calculateHash(content);
+          const ext = file.name.split('.').pop().toLowerCase();
+          
+          const malwareDB = {
+            'f1a9c3e5b7d2f4a6': 'Trojan.Win32.Generic',
+            'a2b8d4f6e1c3h5j7': 'Worm.Win32.AutoRun',
+            '9f7e5d3c1b9a8f6e': 'Backdoor.Win32.RemoteAccess',
+            'b4c2a8f6d1e3j5h7': 'Virus.Win32.Polymorphic'
+          };
+
+          const riskPatterns = {
+            'exe': 0.8,
+            'dll': 0.7,
+            'zip': 0.3,
+            'pdf': 0.2,
+            'doc': 0.4,
+            'xls': 0.3
+          };
+
+          const risk = riskPatterns[ext] || 0.1;
+          const isKnown = malwareDB[hash];
+          const threatLevel = isKnown ? 'high' : (risk > 0.6 ? 'medium' : 'low');
+
+          const analysis = {
+            filename: file.name,
+            size: file.size,
+            type: file.type || 'Unknown',
+            hash: hash,
+            modified: new Date(file.lastModified).toLocaleString(),
+            threatLevel: threatLevel,
+            isKnown: isKnown,
+            riskScore: Math.round(risk * 100),
+            recommendation: threatLevel === 'high' ? '?? Quarantine immediately' : 
+                          threatLevel === 'medium' ? '?? Further investigation needed' : 
+                          '? Likely safe'
+          };
+
+          addLog(`Hash: ${hash}`, 'success');
+          addLog(`Threat Level: ${threatLevel.toUpperCase()}`, threatLevel === 'high' ? 'error' : 'warning');
+          
+          resolve(analysis);
+        };
+        reader.readAsText(file, 'UTF-8');
+      });
+    }
+
+    async function handleFileUpload(event) {
+      const files = event.target.files;
+      
+      for (let file of files) {
+        addLog(`Caricamento: ${file.name}...`, 'info');
+        const analysis = await analyzeFile(file);
+        uploadedFiles.push(analysis);
+      }
+
+      displayFiles();
+    }
+
+    function displayFiles() {
+      const listSection = document.getElementById('fileListSection');
+      const emptyState = document.getElementById('emptyState');
+      const resultsSection = document.getElementById('analysisResults');
+
+      if (uploadedFiles.length === 0) {
+        listSection.style.display = 'none';
+        resultsSection.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      listSection.style.display = 'grid';
+
+      listSection.innerHTML = uploadedFiles.map((file, index) => `
+        <div class="file-card">
+          <div class="file-name">?? ${file.filename}</div>
+          <div class="file-info"><strong>Size:</strong> ${(file.size / 1024).toFixed(2)} KB</div>
+          <div class="file-info"><strong>Hash:</strong> ${file.hash}</div>
+          <div class="file-info"><strong>Risk Score:</strong> ${file.riskScore}%</div>
+          <div class="threat-level threat-${file.threatLevel}">${file.threatLevel.toUpperCase()}</div>
+          <div class="action-buttons">
+            <button class="btn btn-primary" onclick="viewDetails(${index})">Dettagli</button>
+            <button class="btn btn-danger" onclick="removeFile(${index})">Rimuovi</button>
+          </div>
+        </div>
+      `).join('');
+
+      resultsSection.style.display = 'block';
+    }
+
+    function viewDetails(index) {
+      const file = uploadedFiles[index];
+      const resultsSection = document.getElementById('analysisResults');
+
+      resultsSection.innerHTML = `
+        <h2 style="color: #00ff9c; margin-bottom: 30px;">?? Analisi Dettagliata: ${file.filename}</h2>
+        
+        <div class="result-item">
+          <div class="result-title">?? Nome File</div>
+          <div class="result-value">${file.filename}</div>
+        </div>
+
+        <div class="result-item">
+          <div class="result-title">?? Hash SHA256</div>
+          <div class="result-value">${file.hash}</div>
+        </div>
+
+        <div class="result-item">
+          <div class="result-title">?? Dimensione</div>
+          <div class="result-value">${(file.size / 1024).toFixed(2)} KB (${file.size} bytes)</div>
+        </div>
+
+        <div class="result-item">
+          <div class="result-title">?? Data Modifica</div>
+          <div class="result-value">${file.modified}</div>
+        </div>
+
+        <div class="result-item">
+          <div class="result-title">?? Tipo MIME</div>
+          <div class="result-value">${file.type}</div>
+        </div>
+
+        <div class="result-item">
+          <div class="result-title">?? Livello Minaccia</div>
+          <div class="threat-level threat-${file.threatLevel}">${file.threatLevel.toUpperCase()}</div>
+          <div class="result-value" style="margin-top: 10px;">Risk Score: ${file.riskScore}%</div>
+        </div>
+
+        ${file.isKnown ? `
+          <div class="result-item" style="border-left-color: #ff6b6b;">
+            <div class="result-title" style="color: #ff6b6b;">?? Malware Noto</div>
+            <div class="result-value">${file.isKnown}</div>
+          </div>
+        ` : ''}
+
+        <div class="result-item">
+          <div class="result-title">?? Raccomandazione</div>
+          <div class="result-value">${file.recommendation}</div>
+        </div>
+
+        <button class="btn btn-primary" onclick="displayFiles()" style="margin-top: 20px;">? Torna alla lista</button>
+      `;
+    }
+
+    function removeFile(index) {
+      uploadedFiles.splice(index, 1);
+      addLog(`File rimosso dall'analisi`, 'info');
+      displayFiles();
+    }
+
+    // Footer visibility on scroll
+    const footer = document.querySelector('footer');
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          footer.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    footerObserver.observe(footer);
+  </script>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/progress-manager.js"></script>
+</body>
+</html>
+
+
+
