@@ -634,6 +634,13 @@
     });
 
     async function startScan() {
+      // Check autenticazione
+      if (!isAuthenticated()) {
+        alert('Devi fare login prima di usare la scansione');
+        window.location.href = 'login.html';
+        return;
+      }
+
       const urlInput = document.getElementById('urlInput');
       const scanBtn = document.getElementById('scanBtn');
       const scanLog = document.getElementById('scanLog');
