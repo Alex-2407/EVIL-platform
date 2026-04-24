@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica Email - EVIL</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="evil-theme">
+  <main>
+    <div class="login-container verify-container">
+      <div class="verify-form">
+        <h1>🔐 Verifica Email</h1>
+        <p class="verify-subtitle">Abbiamo inviato un codice di verifica a <strong id="email-display"></strong></p>
+        
+        <form id="verifyForm">
+          <div class="form-group">
+            <label for="code">Codice di verifica:</label>
+            <input type="text" id="code" name="code" placeholder="Inserisci i 6 cifre ricevute" maxlength="6" pattern="[0-9]{6}" required>
+            <small>Controlla la tua inbox (e lo spam)</small>
+          </div>
+          <div id="verifyError" class="error-message"></div>
+          <div id="verifySuccess" class="success-message"></div>
+          <button type="submit" class="btn-login">Verifica Email</button>
+        </form>
+
+        <div class="resend-section">
+          <p>Non hai ricevuto il codice?</p>
+          <button type="button" id="resendBtn" class="btn-resend">Reinvia codice</button>
+          <div id="resendMessage"></div>
+        </div>
+      </div>
+
+      <div class="verify-info">
+        <h2>Proteggi il tuo account</h2>
+        <p>La verifica dell'email protegge il tuo account da accessi non autorizzati.</p>
+        <ul>
+          <li>✓ Conferma il possesso della email</li>
+          <li>✓ Previene furti di account</li>
+          <li>✓ Facilita il recupero della password</li>
+          <li>✓ Aumenta la sicurezza</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .verify-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      max-width: 1200px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+
+    .verify-form {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      padding: 40px;
+      border-radius: 8px;
+    }
+
+    .verify-form h1 {
+      color: #00ff9c;
+      margin-top: 0;
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+
+    .verify-subtitle {
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      color: #fff;
+      border-radius: 4px;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #00ff9c;
+      box-shadow: 0 0 10px rgba(0, 255, 156, 0.3);
+    }
+
+    .form-group small {
+      display: block;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 6px;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #00ff9c, #00cc77);
+      border: none;
+      color: #000;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(0, 255, 156, 0.5);
+    }
+
+    .error-message {
+      background: rgba(255, 71, 87, 0.2);
+      border: 1px solid #ff4757;
+      color: #ff4757;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .success-message {
+      background: rgba(76, 175, 80, 0.2);
+      border: 1px solid #4caf50;
+      color: #4caf50;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .resend-section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(0, 255, 156, 0.2);
+      text-align: center;
+    }
+
+    .resend-section p {
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 12px;
+    }
+
+    .btn-resend {
+      background: rgba(0, 255, 156, 0.1);
+      border: 1px solid rgba(0, 255, 156, 0.3);
+      color: #00ff9c;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .btn-resend:hover {
+      background: rgba(0, 255, 156, 0.2);
+      box-shadow: 0 0 10px rgba(0, 255, 156, 0.2);
+    }
+
+    .btn-resend:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    #resendMessage {
+      margin-top: 12px;
+      font-size: 0.9rem;
+      color: #9bf6ff;
+    }
+
+    .verify-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .verify-info h2 {
+      color: #00ff9c;
+      font-size: 2rem;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+
+    .verify-info p {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .verify-info ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .verify-info li {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 15px;
+      font-size: 1.05rem;
+    }
+
+    @media (max-width: 768px) {
+      .verify-container {
+        grid-template-columns: 1fr;
+        margin: 40px auto;
+      }
+
+      .verify-info {
+        display: none;
+      }
+    }
+  </style>
+
+  <script>
+    const API_URL = '/api';
+    const params = new URLSearchParams(window.location.search);
+    const userId = params.get('userId');
+    const email = params.get('email');
+
+    // Mostra l'email
+    if (email) {
+      document.getElementById('email-display').textContent = email;
+    }
+
+    // Timer per resend
+    let resendCooldown = 0;
+    const resendBtn = document.getElementById('resendBtn');
+
+    function updateResendButton() {
+      if (resendCooldown > 0) {
+        resendBtn.disabled = true;
+        resendBtn.textContent = `Reinvia tra ${resendCooldown}s`;
+        resendCooldown--;
+        setTimeout(updateResendButton, 1000);
+      } else {
+        resendBtn.disabled = false;
+        resendBtn.textContent = 'Reinvia codice';
+      }
+    }
+
+    // Verifica del codice
+    document.getElementById('verifyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const code = document.getElementById('code').value;
+      const errorDiv = document.getElementById('verifyError');
+      const successDiv = document.getElementById('verifySuccess');
+
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      if (!userId) {
+        errorDiv.textContent = 'Errore: ID utente mancante. Registrati di nuovo.';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/auth/verify-email-code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, code })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          errorDiv.textContent = data.error || 'Errore verifica codice';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        successDiv.textContent = '✅ Email verificata con successo! Accesso in corso...';
+        successDiv.style.display = 'block';
+
+        // Salva tokens e dati utente
+        if (data.accessToken) {
+          localStorage.setItem('accessToken', data.accessToken);
+        }
+        if (data.refreshToken) {
+          localStorage.setItem('refreshToken', data.refreshToken);
+        }
+        if (data.user) {
+          localStorage.setItem('user', JSON.stringify(data.user));
+        }
+
+        setTimeout(() => {
+          window.location.href = 'home.html';
+        }, 1500);
+      } catch (err) {
+        errorDiv.textContent = 'Errore di connessione: ' + err.message;
+        errorDiv.style.display = 'block';
+      }
+    });
+
+    // Reinvia codice
+    resendBtn.addEventListener('click', async () => {
+      if (!userId) {
+        alert('Errore: ID utente mancante');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/auth/resend-verification-code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert(data.error || 'Errore invio codice');
+          return;
+        }
+
+        const resendMsg = document.getElementById('resendMessage');
+        resendMsg.textContent = '✅ Codice reinviato! Controlla la tua email.';
+        resendMsg.style.color = '#4caf50';
+
+        resendCooldown = 60;
+        updateResendButton();
+      } catch (err) {
+        alert('Errore di connessione: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

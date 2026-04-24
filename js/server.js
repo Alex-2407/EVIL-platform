@@ -63,6 +63,7 @@ const {
 } = require('../middleware/limiter');
 
 const tokenManager = require('../services/token-manager');
+const emailService = require('../services/email-service');
 const securityHeaders = require('../middleware/security-headers');
 const { logger, auditLog, httpLogger } = require('../middleware/logger');
 
@@ -1967,18 +1968,24 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       });
     }
 
+    // Genera codice di verifica
+    const verificationCode = emailService.generateVerificationCode();
+    const verificationCodeHash = crypto.createHash('sha256').update(verificationCode).digest('hex');
+
     // Hash password with bcryptjs (configurable BCRYPT_ROUNDS from .env)
     const rounds = parseInt(process.env.BCRYPT_ROUNDS || 12);
     const hashedPassword = await bcryptjs.hash(password, rounds);
 
-    // Create new user
-    const newUser = {
+    // Crea utente pendente (non verificato)
+    const pendingUser = {
       id: crypto.randomUUID ? crypto.randomUUID() : `uid_${Date.now()}`,
       name: name.trim(),
       email: normalizedEmail,
       password: hashedPassword,
       createdAt: new Date().toISOString(),
       emailVerified: false,
+      verificationCodeHash: verificationCodeHash,
+      verificationCodeExpires: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 min
       loginHistory: [],
       failedLogins: 0,
       lockedUntil: null,
@@ -1989,50 +1996,102 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       }
     };
 
-    users.push(newUser);
+    users.push(pendingUser);
     saveUsers();
 
-    // Audit log
-    auditLog.security('USER_REGISTERED', { userId: newUser.id, email: normalizedEmail }, 'INFO');
+    // Invia email di verifica
+    const emailResult = await emailService.sendVerificationCode(normalizedEmail, verificationCode, name);
+    
+    if (!emailResult.success) {
+      // Rimuovi utente se email fallisce
+      users = users.filter(u => u.id !== pendingUser.id);
+      saveUsers();
+      
+      return res.status(500).json({ 
+        error: 'Errore invio email di verifica. Riprova.' 
+      });
+    }
 
-    // Generate tokens
+    // Audit log
+    auditLog.security('USER_REGISTERED_PENDING', { userId: pendingUser.id, email: normalizedEmail }, 'INFO');
+
+    res.json({
+      status: 'success',
+      message: 'Registrazione iniziata. Controlla la tua email per il codice di verifica.',
+      requiresVerification: true,
+      userId: pendingUser.id,
+      email: normalizedEmail
+    });
+  } catch (err) {
+    logger.error('Registration error', { error: err.message });
+    res.status(500).json({ error: 'Errore registrazione' });
+  }
+});
+
+// VERIFICA CODICE EMAIL
+app.post('/api/auth/verify-email-code', async (req, res) => {
+  try {
+    const { userId, code } = req.body;
+
+    if (!userId || !code) {
+      return res.status(400).json({ error: 'User ID e codice obbligatori' });
+    }
+
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Utente non trovato' });
+    }
+
+    // Controlla se il codice è scaduto
+    if (new Date() > new Date(user.verificationCodeExpires)) {
+      return res.status(403).json({ error: 'Codice di verifica scaduto. Registrati di nuovo.' });
+    }
+
+    // Verifica il codice
+    const codeHash = crypto.createHash('sha256').update(code).digest('hex');
+    if (codeHash !== user.verificationCodeHash) {
+      return res.status(403).json({ error: 'Codice di verifica non valido' });
+    }
+
+    // Marca email come verificata
+    user.emailVerified = true;
+    user.verificationCodeHash = null;
+    user.verificationCodeExpires = null;
+    saveUsers();
+
+    // Genera tokens
     const accessToken = jwt.sign(
-      { id: newUser.id, email: newUser.email, name: newUser.name },
+      { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: ACCESS_TOKEN_EXPIRY }
     );
 
     const refreshToken = jwt.sign(
-      { id: newUser.id },
+      { id: user.id },
       process.env.JWT_SECRET_REFRESH,
       { expiresIn: REFRESH_TOKEN_EXPIRY }
     );
 
-    // Store refresh token in Redis via token manager
-    await tokenManager.storeRefreshToken(newUser.id, refreshToken);
+    // Store refresh token in Redis
+    await tokenManager.storeRefreshToken(user.id, refreshToken);
 
-    const confirmationToken = jwt.sign(
-      { id: newUser.id },
-      JWT_SECRET,
-      { expiresIn: '1d' }
-    );
+    auditLog.security('USER_EMAIL_VERIFIED', { userId: user.id, email: user.email }, 'INFO');
 
     res.json({
       status: 'success',
-      message: 'Registrazione completata',
+      message: 'Email verificata con successo',
       accessToken,
       refreshToken,
-      confirmationToken,
       user: {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        emailVerified: newUser.emailVerified
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        emailVerified: true
       }
     });
   } catch (err) {
-    logger.error('Registration error', { error: err.message });
-    res.status(500).json({ error: 'Errore registrazione' });
+    logger.error('Email verification error', { error: err.message });
+    res.status(500).json({ error: 'Errore verifica email' });
   }
 });
 
@@ -2290,6 +2349,47 @@ app.post('/api/auth/confirm-email', async (req, res) => {
       res.json({ status: 'success', message: 'Email confermata con successo' });
     });
   } catch (err) {
+    res.status(500).json({ error: 'Errore: ' + err.message });
+  }
+});
+
+// REINVIA CODICE DI VERIFICA EMAIL
+app.post('/api/auth/resend-verification-code', async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID obbligatorio' });
+    }
+
+    const user = users.find(u => u.id === userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Utente non trovato' });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email già verificata' });
+    }
+
+    // Genera nuovo codice di verifica
+    const verificationCode = emailService.generateVerificationCode();
+    const verificationCodeHash = crypto.createHash('sha256').update(verificationCode).digest('hex');
+
+    // Aggiorna il codice
+    user.verificationCodeHash = verificationCodeHash;
+    user.verificationCodeExpires = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    saveUsers();
+
+    // Invia email
+    const emailResult = await emailService.sendVerificationCode(user.email, verificationCode, user.name);
+    
+    if (!emailResult.success) {
+      return res.status(500).json({ error: 'Errore invio email. Riprova.' });
+    }
+
+    res.json({ status: 'success', message: 'Codice reinviato alla tua email' });
+  } catch (err) {
+    logger.error('Resend verification code error', { error: err.message });
     res.status(500).json({ error: 'Errore: ' + err.message });
   }
 });

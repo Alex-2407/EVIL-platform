@@ -353,21 +353,13 @@
           return;
         }
 
-        successDiv.textContent = '✅ Registrazione completata! Controlla il link di conferma email.';
+        successDiv.textContent = '✅ Registrazione completata! Verifica il codice inviato alla tua email.';
         successDiv.style.display = 'block';
 
-        if (data.confirmationToken) {
-          const confirmationLink = document.getElementById('confirmationLink');
-          confirmationLink.innerHTML = `
-            <strong>Token di conferma:</strong> <code>${data.confirmationToken}</code><br>
-            <a href="confirm-email.html?token=${encodeURIComponent(data.confirmationToken)}">Conferma la tua email ora</a>
-          `;
-          confirmationLink.style.display = 'block';
-        }
-
+        // Reindirizza alla pagina di verifica email
         setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 5000);
+          window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}`;
+        }, 1500);
       } catch (err) {
         errorDiv.textContent = 'Errore di connessione: ' + err.message;
         errorDiv.style.display = 'block';
