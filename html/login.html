@@ -106,6 +106,10 @@
           <div id="loginError" class="error-message"></div>
           <button type="submit" class="btn-login">Accedi</button>
         </form>
+        <div class="auth-links">
+          <a href="forgot-password.html">Hai dimenticato la password?</a>
+          <a href="confirm-email.html">Conferma email</a>
+        </div>
         <div class="signup-link">
           Non hai un account? <a href="account.html">Registrati qui</a>
         </div>
@@ -233,8 +237,22 @@
       font-weight: bold;
     }
 
-    .signup-link a:hover {
+    .signup-link a:hover,
+    .auth-links a:hover {
       text-decoration: underline;
+    }
+
+    .auth-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 15px 0;
+    }
+
+    .auth-links a {
+      color: #9bf6ff;
+      font-size: 0.95rem;
+      text-decoration: none;
     }
 
     .login-info {

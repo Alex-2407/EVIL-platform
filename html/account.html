@@ -131,6 +131,7 @@
         <div class="login-link">
           Hai gi� un account? <a href="login.html">Accedi qui</a>
         </div>
+        <div id="confirmationLink" class="confirmation-link" style="display:none; margin-top:20px;"></div>
       </div>
     </div>
   </main>
@@ -258,8 +259,24 @@
       font-weight: bold;
     }
 
-    .login-link a:hover {
+    .login-link a:hover,
+    .confirmation-link a:hover {
       text-decoration: underline;
+    }
+
+    .confirmation-link {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(0, 255, 156, 0.08);
+      border: 1px solid rgba(0, 255, 156, 0.2);
+      border-radius: 6px;
+      color: #a8ffb8;
+      word-break: break-word;
+    }
+
+    .confirmation-link a {
+      color: #00ff9c;
+      font-weight: bold;
     }
 
     .account-info {
@@ -336,12 +353,21 @@
           return;
         }
 
-        successDiv.textContent = '✅ Registrazione completata! Reindirizzamento...';
+        successDiv.textContent = '✅ Registrazione completata! Controlla il link di conferma email.';
         successDiv.style.display = 'block';
+
+        if (data.confirmationToken) {
+          const confirmationLink = document.getElementById('confirmationLink');
+          confirmationLink.innerHTML = `
+            <strong>Token di conferma:</strong> <code>${data.confirmationToken}</code><br>
+            <a href="confirm-email.html?token=${encodeURIComponent(data.confirmationToken)}">Conferma la tua email ora</a>
+          `;
+          confirmationLink.style.display = 'block';
+        }
 
         setTimeout(() => {
           window.location.href = 'login.html';
-        }, 2000);
+        }, 5000);
       } catch (err) {
         errorDiv.textContent = 'Errore di connessione: ' + err.message;
         errorDiv.style.display = 'block';

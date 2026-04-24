@@ -1978,6 +1978,7 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       email: normalizedEmail,
       password: hashedPassword,
       createdAt: new Date().toISOString(),
+      emailVerified: false,
       loginHistory: [],
       failedLogins: 0,
       lockedUntil: null,
@@ -2010,15 +2011,23 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     // Store refresh token in Redis via token manager
     await tokenManager.storeRefreshToken(newUser.id, refreshToken);
 
+    const confirmationToken = jwt.sign(
+      { id: newUser.id },
+      JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
     res.json({
       status: 'success',
       message: 'Registrazione completata',
       accessToken,
       refreshToken,
+      confirmationToken,
       user: {
         id: newUser.id,
         name: newUser.name,
-        email: newUser.email
+        email: newUser.email,
+        emailVerified: newUser.emailVerified
       }
     });
   } catch (err) {
@@ -2111,7 +2120,8 @@ app.post('/api/auth/login', authLimiter, validateLogin, async (req, res) => {
       user: {
         id: user.id,
         name: user.name,
-        email: user.email
+        email: user.email,
+        emailVerified: !!user.emailVerified
       }
     });
   } catch (err) {
@@ -2256,6 +2266,33 @@ app.post('/api/auth/reset-password', async (req, res) => {
   }
 });
 
+app.post('/api/auth/confirm-email', async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: 'Token di conferma obbligatorio' });
+    }
+
+    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ error: 'Token di conferma non valido o scaduto' });
+      }
+
+      const user = users.find(u => u.id === decoded.id);
+      if (!user) {
+        return res.status(404).json({ error: 'Utente non trovato' });
+      }
+
+      user.emailVerified = true;
+      saveUsers();
+
+      res.json({ status: 'success', message: 'Email confermata con successo' });
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Errore: ' + err.message });
+  }
+});
 
 // GET PROFILO
 app.get('/api/auth/profile', (req, res) => {
