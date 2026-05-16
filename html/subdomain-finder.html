@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subdomain Finder - EVIL</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .scanner-section { background: linear-gradient(135deg, #1a1f3a 0%, #0f1629 100%); border: 1px solid #00d4ff; border-radius: 8px; padding: 40px; margin-bottom: 40px; }
+    .form-group { display: flex; gap: 10px; margin-bottom: 20px; }
+    .form-group input { flex: 1; padding: 12px 15px; background: rgba(20, 30, 50, 0.8); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 4px; color: #fff; font-family: 'Courier New', monospace; }
+    .form-group input:focus { outline: none; border-color: #00d4ff; box-shadow: 0 0 12px rgba(0, 212, 255, 0.2); }
+    .btn { padding: 12px 30px; background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%); border: none; border-radius: 4px; color: #0a0e27; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .btn:hover:not(:disabled) { box-shadow: 0 0 20px rgba(0, 212, 255, 0.5); transform: translateY(-2px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .results-section { background: linear-gradient(135deg, #1a1f3a 0%, #0f1629 100%); border: 1px solid #00d4ff; border-radius: 8px; padding: 30px; margin-top: 40px; display: none; }
+    .results-section.active { display: block; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+    .stat-card { background: rgba(0, 212, 255, 0.1); border: 1px solid #00d4ff; padding: 20px; border-radius: 6px; text-align: center; }
+    .stat-value { font-size: 32px; font-weight: bold; color: #00d4ff; }
+    .stat-label { color: #a0a0a0; font-size: 12px; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    .subdomains-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+    .subdomain-card { background: rgba(20, 30, 50, 0.8); border: 1px solid #00a8cc; padding: 15px; border-radius: 4px; transition: 0.3s; }
+    .subdomain-card:hover { border-color: #00d4ff; box-shadow: 0 0 15px rgba(0, 212, 255, 0.2); background: rgba(20, 30, 50, 0.95); }
+    .subdomain-name { color: #00d4ff; font-weight: bold; margin-bottom: 8px; word-break: break-all; }
+    .subdomain-ip { color: #a0a0a0; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+    .ip-badge { background: rgba(0, 255, 156, 0.2); padding: 3px 8px; border-radius: 3px; color: #00ff9c; font-family: monospace; }
+    .loading { text-align: center; padding: 40px; display: none; }
+    .loading.active { display: block; }
+    .spinner { border: 3px solid rgba(0, 212, 255, 0.2); border-top: 3px solid #00d4ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .error { background: rgba(255, 107, 107, 0.1); border: 1px solid #ff6b6b; padding: 20px; border-radius: 6px; color: #ff9999; margin-top: 20px; display: none; }
+    .error.active { display: block; }
+    .empty-state { text-align: center; padding: 40px; color: #606060; }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/public/evil-logo.svg" alt="Logo EVIL">
+        </button>
+        <div class="logo">EVIL</div>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li>
+            <a href="#">Attacchi ▼</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Database ▼</a>
+            <div class="dropdown">
+              <a href="malware-db.html">Database Malware</a>
+              <a href="malware-classification.html">Classificazione Malware</a>
+              <a href="malware-card-template.html">Template Scheda</a>
+              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
+              <a href="historic-attacks.html">Attacchi Storici</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Strumenti ▼</a>
+            <div class="dropdown">
+              <a href="security-check.html">URL / Website Security Check</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
+              <a href="dns-enumerator.html">DNS Records Enumerator</a>
+              <a href="subdomain-finder.html">Subdomain Finder</a>
+              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
+              <a href="file-analysis.html">Analisi File Compromessi</a>
+              <a href="report-generator.html">Generazione Report</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Educazione ▼</a>
+            <div class="dropdown">
+              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="phishing-quiz.html">Quiz Phishing</a>
+              <a href="social-engineering.html">Simulatore Social Engineering</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">OSINT ▼</a>
+            <div class="dropdown">
+              <a href="social-profiling.html">Profilazione da Social</a>
+              <a href="public-info.html">Raccolta Info Pubbliche</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div style="display: flex; gap: 16px; align-items: center;">
+        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+        <div class="auth-buttons">
+          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
+          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero-section">
+      <div class="hero-content">
+        <h1 class="hero-title">🔍 Subdomain Finder</h1>
+        <p class="hero-subtitle">Scopri i sottodomini di un dominio tramite DNS resolution. Enumera sottodomini comuni e li risolve per identificare quelli attivi.</p>
+      </div>
+    </section>
+
+    <section style="max-width: 1200px; margin: 0 auto; padding: 0 20px;">
+      <div class="scanner-section">
+        <div class="form-group">
+          <input type="text" id="domain-input" placeholder="Inserisci un dominio (es: example.com)">
+          <button class="btn" id="scan-btn" onclick="performSubdomainScan()">Scansiona</button>
+        </div>
+      </div>
+
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <p>Scansione sottodomini in corso...</p>
+      </div>
+
+      <div class="error" id="error-msg"></div>
+
+      <div class="results-section" id="results">
+        <div class="stats" id="stats"></div>
+        <div id="subdomains-container"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-label">EVIL Platform</div>
+        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
+      </div>
+      <div class="footer-center">
+        <div class="footer-label">Ambito</div>
+        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
+      </div>
+      <div class="footer-right">
+        <div class="footer-label">© 2026</div>
+        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const scanBtn = document.getElementById('scan-btn');
+    const domainInput = document.getElementById('domain-input');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    const errorMsg = document.getElementById('error-msg');
+
+    domainInput.addEventListener('input', () => {
+      scanBtn.disabled = !domainInput.value.trim();
+    });
+    scanBtn.disabled = true;
+
+    async function performSubdomainScan() {
+      const domain = domainInput.value.trim();
+      if (!domain) return;
+
+      loading.classList.add('active');
+      results.classList.remove('active');
+      errorMsg.classList.remove('active');
+      scanBtn.disabled = true;
+
+      try {
+        const response = await fetch('/api/subdomain-finder', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain })
+        });
+
+        if (!response.ok) throw new Error(`Backend error: ${response.status}`);
+        const data = await response.json();
+
+        loading.classList.remove('active');
+        displayResults(data);
+        results.classList.add('active');
+
+      } catch (err) {
+        loading.classList.remove('active');
+        showError(`Errore: ${err.message}<br>Assicurati che il server sia avviato`);
+      } finally {
+        scanBtn.disabled = false;
+      }
+    }
+
+    function displayResults(data) {
+      const statsHtml = `
+        <div class="stat-card"><div class="stat-value">${data.foundCount}</div><div class="stat-label">Sottodomini Trovati</div></div>
+        <div class="stat-card"><div class="stat-value">${data.totalChecked}</div><div class="stat-label">Verificati</div></div>
+        <div class="stat-card"><div class="stat-value">${Math.round((data.foundCount / data.totalChecked) * 100)}%</div><div class="stat-label">Tasso di Successo</div></div>
+      `;
+
+      document.getElementById('stats').innerHTML = statsHtml;
+
+      if (data.found.length === 0) {
+        document.getElementById('subdomains-container').innerHTML = `
+          <div class="empty-state"><p>🔍 Nessun sottodominio trovato</p><p style="font-size: 12px; margin-top: 10px;">Il dominio non risolve i sottodomini comuni</p></div>
+        `;
+        return;
+      }
+
+      let html = `<div style="margin-bottom: 20px;"><strong style="color: #00d4ff;">🔍 Sottodomini Attivi</strong></div><div class="subdomains-grid">`;
+
+      data.found.forEach(sub => {
+        html += `
+          <div class="subdomain-card">
+            <div class="subdomain-name">${sub.subdomain}</div>
+            <div class="subdomain-ip"><span>IP:</span><span class="ip-badge">${sub.ip}</span></div>
+          </div>
+        `;
+      });
+
+      html += `</div>`;
+      document.getElementById('subdomains-container').innerHTML = html;
+    }
+
+    function showError(message) {
+      errorMsg.innerHTML = `<strong>⚠️ Errore</strong><p style="margin-top: 10px;">${message}</p>`;
+      errorMsg.classList.add('active');
+    }
+
+    domainInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !scanBtn.disabled) performSubdomainScan();
+    });
+  </script>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/progress-manager.js"></script>
+</body>
+</html>
