@@ -681,7 +681,7 @@
 
       <!-- CTA E AUTH -->
       <div style="display: flex; gap: 16px; align-items: center;">
-        <button class="cta" onclick="window.location.href='security-check.html';">?? Analizza un Sito</button>
+        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
         <div class="auth-buttons">
           <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
           <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
@@ -693,7 +693,7 @@
   <main>
     <!-- INTESTAZIONE -->
     <div class="section-header">
-      <h1>?? Simulatore Attacchi Web</h1>
+      <h1>🛡️ Simulatore Attacchi Web</h1>
       <p class="section-description">
         Laboratorio interattivo e sicuro per comprendere le vulnerabilità web più comuni. 
         Simula attacchi in un ambiente controllato, NON colpisce alcun server reale e utilizza SOLO dati fittizi.
@@ -703,7 +703,7 @@
     <!-- DISCLAIMER EDUCATIVO -->
     <div class="disclaimer-box">
       <div class="disclaimer-title">
-        ?? LABORATORIO EDUCATIVO E SICURO
+        🛡️ LABORATORIO EDUCATIVO E SICURO
       </div>
       <div class="disclaimer-text">
         <strong>Questo simulatore:</strong> NON esegue attacchi reali, NON colpisce siti veri, NON utilizza payload pericolosi. 
@@ -714,7 +714,7 @@
 
     <!-- SELEZIONE ATTACCHI -->
     <div style="margin-top: 40px;">
-      <h2 style="color: #00ff9c; margin-bottom: 20px;">?? Seleziona il Tipo di Attacco</h2>
+      <h2 style="color: #00ff9c; margin-bottom: 20px;">⚠️ Seleziona il Tipo di Attacco</h2>
       <div class="attack-selector">
         <button class="attack-btn active" onclick="switchAttack('sql-injection', this)">SQL Injection</button>
         <button class="attack-btn" onclick="switchAttack('xss', this)">XSS (Cross-Site Scripting)</button>
@@ -729,15 +729,15 @@
       <div class="simulator-container">
         <!-- PANEL SIMULAZIONE -->
         <div class="simulation-panel">
-          <div class="panel-title">?? Simulazione SQL Injection</div>
+          <div class="panel-title">🧪 Simulazione SQL Injection</div>
           
           <div class="input-group">
-            <label class="input-label">?? Campo Ricerca Utente</label>
+            <label class="input-label">🔎 Campo Ricerca Utente</label>
             <input type="text" id="sql-input" class="input-field" placeholder="Inserisci un nome utente..." value="admin">
           </div>
 
           <div class="input-group">
-            <label class="input-label">?? Password</label>
+            <label class="input-label">🔒 Password</label>
             <input type="password" id="sql-password" class="input-field" placeholder="Inserisci password..." value="password123">
           </div>
 
@@ -754,28 +754,28 @@
 
         <!-- PANEL SPIEGAZIONE -->
         <div class="simulation-panel">
-          <div class="panel-title">?? Come Funziona</div>
+          <div class="panel-title">🔧 Come Funziona</div>
           
           <div class="explanation-content">
             <div class="explanation-section">
-              <div class="explanation-subtitle">?? Obiettivo dell'Attacco</div>
+              <div class="explanation-subtitle">🎯 Obiettivo dell'Attacco</div>
               <p>Iniettare codice SQL malevolo in un campo di input per manipolare le query database.</p>
             </div>
 
             <div class="explanation-section">
-              <div class="explanation-subtitle">?? Codice Vulnerabile (pseudocodice)</div>
+              <div class="explanation-subtitle">📜 Codice Vulnerabile (pseudocodice)</div>
               <div class="code-snippet">query = "SELECT * FROM users WHERE name='" + input + "' AND password='" + password + "'"</div>
               <p style="font-size: 0.85rem; color: #ff6600;">Problema: Input NON validato</p>
             </div>
 
             <div class="explanation-section">
-              <div class="explanation-subtitle">?? Payload Simulato</div>
+              <div class="explanation-subtitle">🧪 Payload Simulato</div>
               <div class="code-snippet">admin' OR '1'='1</div>
               <p style="font-size: 0.85rem; color: #ff9900;">Risultato: Bypassata l'autenticazione</p>
             </div>
 
             <div class="explanation-section">
-              <div class="explanation-subtitle">??? Difese Consigliate</div>
+              <div class="explanation-subtitle">🛡️ Difese Consigliate</div>
               <ul class="defense-list">
                 <li>Utilizzare Prepared Statements / Parameterized Queries</li>
                 <li>Validare tutti gli input lato server</li>
