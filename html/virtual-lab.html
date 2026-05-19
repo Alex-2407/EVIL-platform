@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -58,7 +58,7 @@
       <div class="lab-card" onclick="openLab('lab2')">
         <h3>?? Vulnerability Scanning</h3>
         <p style="color: #888; font-size: 0.9rem;">Intermedio | 3-4 ore</p>
-        <p style="color: #ddd;">Usa OpenVAS e Nessus per identificare vulnerabilità.</p>
+        <p style="color: #ddd;">Usa OpenVAS e Nessus per identificare vulnerabilitÃ .</p>
         <button style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 8px 15px; width: 100%; cursor: pointer; margin-top: 10px;" onclick="event.stopPropagation(); openLab('lab2')">Avvia Lab ?</button>
       </div>
       <div class="lab-card" onclick="openLab('lab3')">
@@ -101,7 +101,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">Â© 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
       </div>
     </div>
@@ -113,7 +113,7 @@
   <script>
   const labs = {
     lab1: { title: "Network Reconnaissance", steps: ["Setup: Kali + Target VM", "nmap -sn 192.168.1.0/24", "nmap -sV -p- [IP]", "nmap -O [IP]", "traceroute [IP]", "nslookup [domain]", "nmap -A -T4 [IP]"], output: "IP attivi, porte, servizi, versioni, OS" },
-    lab2: { title: "Vulnerability Scanning", steps: ["apt install openvas", "https://127.0.0.1:9392", "Targets ? New", "Tasks ? New", "Esegui scan", "Reports ? Analizza", "Filtra CVSS"], output: "Vulnerabilità con CVSS scores" },
+    lab2: { title: "Vulnerability Scanning", steps: ["apt install openvas", "https://127.0.0.1:9392", "Targets ? New", "Tasks ? New", "Esegui scan", "Reports ? Analizza", "Filtra CVSS"], output: "VulnerabilitÃ  con CVSS scores" },
     lab3: { title: "Web Application Testing", steps: ["Burp Suite", "Proxy 127.0.0.1:8080", "Certificato Burp", "Intercetta request", "admin' OR '1'='1", "XSS test", "CSRF form"], output: "SQLi, XSS, CSRF PoC" },
     lab4: { title: "Password Cracking", steps: ["gunzip rockyou.txt.gz", "hydra -l admin -P rockyou.txt ssh://target", "Web form brute", "samdump2 SYSTEM SAM", "john --format=md5", "hashcat -m 0 hashes.txt rockyou.txt", "Rainbow tables"], output: "Cracked passwords con tempo" },
     lab5: { title: "Privilege Escalation", steps: ["id && whoami && sudo -l", "searchsploit linux", "gcc -o exploit exploit.c", "sudo /usr/bin/find . -exec /bin/sh", "find / -perm -4000", "Library hijacking", "Backdoor /etc/passwd"], output: "root@target:/# id" },
@@ -143,4 +143,5 @@
   <script src="/js/progress-manager.js"></script>
 </body>
 </html>
+
 

