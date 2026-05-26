@@ -172,7 +172,7 @@
             <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
+              <a href="vulnerability-scanner.html">Scanner Vulnerabilità</a>
               <a href="dns-enumerator.html">DNS Records Enumerator</a>
               <a href="subdomain-finder.html">Subdomain Finder</a>
               <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
@@ -232,7 +232,7 @@
         (NIST NVD, CISA, agenzie governative di cybersecurity). <br><br>
         <strong>NON contiene:</strong> informazioni su attacchi a reti private, IP reali di vittime, log interni, dati sensibili, o informazioni non pubblicate.<br><br>
         <strong>Scopo:</strong> Educativo e informativo. I dati non rappresentano attacchi in tempo reale, 
-        ma incidenti gi� dichiarati pubblicamente e documentati ufficialmente.
+        ma incidenti già dichiarati pubblicamente e documentati ufficialmente.
       </div>
     </div>
 
@@ -401,7 +401,7 @@
           <div class="incident-date">Maggio 2026</div>
         </div>
         <div class="incident-description">
-          Dichiarato pubblicamente dalla societ� colpita e regolatori. Dati aggregati on file size, numero record. 
+          Dichiarato pubblicamente dalla società colpita e regolatori. Dati aggregati on file size, numero record. 
           Confermato da agenzie di regolamentazione. No dettagli su vittime specifiche.
         </div>
         <div class="incident-source">Fonte: GDPR Filing, SEC Disclosures, Press Release Pubblico</div>
@@ -428,7 +428,7 @@
       <div class="incident-card">
         <div class="incident-header">
           <div>
-            <div class="incident-title">Vulnerabilit� Critica Linux Kernel Scoperta</div>
+            <div class="incident-title">Vulnerabilità Critica Linux Kernel Scoperta</div>
             <div class="incident-types">
               <span class="incident-type">Linux Vulnerability</span>
               <span class="incident-type">CVSS 10.0</span>
@@ -597,10 +597,10 @@
 
           popupContent += '<strong style="color: #38bdf8;">Tipologie di Attacco:</strong><br>';
           Object.entries(attackTypes).forEach(([type, count]) => {
-            popupContent += `� ${type}: ${count}<br>`;
+            popupContent += `à ${type}: ${count}<br>`;
           });
 
-          popupContent += `<br><strong style="color: #22c55e;">Severit� massima:</strong> ${
+          popupContent += `<br><strong style="color: #22c55e;">Severità massima:</strong> ${
             countryData.incidents.some(i => i.severity === 'critical') ? 'CRITICA' : 'ALTA'
           }<br>`;
 
@@ -639,7 +639,7 @@
         if (data.monthly_trends) updateMonthlyTrends(data.monthly_trends);
 
         // Log aggiornamento
-        console.log('? Mappa aggiornata -', new Date().toLocaleTimeString('it-IT'));
+        console.log('à Mappa aggiornata -', new Date().toLocaleTimeString('it-IT'));
 
       } catch (err) {
         console.error('Errore nell\'aggiornamento della mappa:', err.message);
@@ -823,7 +823,7 @@
           timelineContainer.appendChild(card);
         });
 
-        console.log('? Timeline incidenti aggiornata -', topIncidents.length, 'incidenti visualizzati');
+        console.log('à Timeline incidenti aggiornata -', topIncidents.length, 'incidenti visualizzati');
 
       } catch (err) {
         console.error('Errore nell\'aggiornamento timeline:', err.message);
