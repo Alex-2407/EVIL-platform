@@ -1,3 +1,0 @@
-file:///C:/Users/utente01/Desktop/EVIL/html/home.html?reset-splash=true
-
-home.html?splash=2&reset-splash=true
