@@ -1,0 +1,181 @@
+{
+  "achievements": [
+    {
+      "id": "first_scan",
+      "name": "Sentinella del Flusso",
+      "tagline": "Hai illuminato la prima minaccia",
+      "description": "Completata la prima scansione di sicurezza su EVIL",
+      "activityKey": "scan",
+      "unlockType": "first",
+      "rarity": "bronze",
+      "visual": "radar",
+      "category": "tools"
+    },
+    {
+      "id": "malware_first",
+      "name": "Virologo Digitale",
+      "tagline": "Il campione è isolato",
+      "description": "Prima identificazione malware nel catalogo o quiz",
+      "activityKey": "malware_identified",
+      "unlockType": "first",
+      "rarity": "silver",
+      "visual": "biohazard",
+      "category": "database"
+    },
+    {
+      "id": "phishing_defender",
+      "name": "Guardiano dell'Inbox",
+      "tagline": "Nessun amo ti ha preso",
+      "description": "Completato il quiz anti-phishing",
+      "activityKey": "phishing_quiz_completed",
+      "unlockType": "first",
+      "rarity": "gold",
+      "visual": "hook",
+      "category": "education"
+    },
+    {
+      "id": "social_engineer",
+      "name": "Mindbreaker",
+      "tagline": "Hai visto oltre la maschera",
+      "description": "Completata una simulazione di social engineering",
+      "activityKey": "social_engineering_completed",
+      "unlockType": "first",
+      "rarity": "silver",
+      "visual": "mask",
+      "category": "education"
+    },
+    {
+      "id": "dns_first",
+      "name": "Cartografo DNS",
+      "tagline": "La rete ha rivelato i suoi segreti",
+      "description": "Prima enumerazione DNS completata",
+      "activityKey": "dns_enumeration",
+      "unlockType": "first",
+      "rarity": "bronze",
+      "visual": "globe",
+      "category": "tools"
+    },
+    {
+      "id": "vuln_first",
+      "name": "Cacciatore di Crepe",
+      "tagline": "Una fessura alla volta",
+      "description": "Trovata la prima vulnerabilità con lo scanner",
+      "activityKey": "vulnerability_found",
+      "unlockType": "first",
+      "rarity": "silver",
+      "visual": "crack",
+      "category": "tools"
+    },
+    {
+      "id": "ssl_first",
+      "name": "Custode del TLS",
+      "tagline": "Il lucchetto non mente",
+      "description": "Prima analisi certificato SSL",
+      "activityKey": "ssl_analysis",
+      "unlockType": "first",
+      "rarity": "bronze",
+      "visual": "lock",
+      "category": "tools"
+    },
+    {
+      "id": "osint_first",
+      "name": "Ombra OSINT",
+      "tagline": "Dati pubblici, intel privata",
+      "description": "Prima raccolta OSINT completata",
+      "activityKey": "osint_collection",
+      "unlockType": "first",
+      "rarity": "silver",
+      "visual": "eye",
+      "category": "osint"
+    },
+    {
+      "id": "ethical_hacker",
+      "name": "Forgia del Cifrario",
+      "tagline": "Hash, chiavi e verità",
+      "description": "Completato lo Studio Cifratura",
+      "activityKey": "crypto_study_completed",
+      "unlockType": "first",
+      "rarity": "gold",
+      "visual": "cipher",
+      "category": "education"
+    },
+    {
+      "id": "lab_master",
+      "name": "Architetto del Lab",
+      "tagline": "Missione virtuale conclusa",
+      "description": "Completato un laboratorio virtuale EVIL",
+      "activityKey": "lab_completed",
+      "unlockType": "first",
+      "rarity": "gold",
+      "visual": "flask",
+      "category": "education"
+    },
+    {
+      "id": "attack_monitor",
+      "name": "Radar Globale",
+      "tagline": "Il mondo brucia in tempo reale",
+      "description": "Visualizzata la mappa incidenti live",
+      "activityKey": "attacks_map_viewed",
+      "unlockType": "first",
+      "rarity": "bronze",
+      "visual": "map",
+      "category": "attacks"
+    },
+    {
+      "id": "report_first",
+      "name": "Cronista della Sicurezza",
+      "tagline": "Il report è firmato",
+      "description": "Generato il primo report di sicurezza",
+      "activityKey": "report_generated",
+      "unlockType": "first",
+      "rarity": "silver",
+      "visual": "scroll",
+      "category": "tools"
+    },
+    {
+      "id": "timeline_hero",
+      "name": "Risolutore d'Incidenti",
+      "tagline": "Timeline completata sotto pressione",
+      "description": "Completata una timeline Incident Response",
+      "activityKey": "incident_timeline_completed",
+      "unlockType": "first",
+      "rarity": "gold",
+      "visual": "clock",
+      "category": "education"
+    },
+    {
+      "id": "quiz_champion",
+      "name": "Mente Affilata",
+      "tagline": "Il Centro Quiz ti obbedisce",
+      "description": "Raggiunto un traguardo nel Centro Quiz",
+      "activityKey": "quiz_hub_milestone",
+      "unlockType": "first",
+      "rarity": "silver",
+      "visual": "brain",
+      "category": "education"
+    },
+    {
+      "id": "ten_scans",
+      "name": "Scansionista Seriale",
+      "tagline": "Dieci fronti, zero respiro",
+      "description": "Completate 10 scansioni di sicurezza",
+      "activityKey": "scan",
+      "unlockType": "milestone",
+      "milestone": { "field": "totalScans", "value": 10 },
+      "rarity": "gold",
+      "visual": "radar",
+      "category": "tools"
+    },
+    {
+      "id": "master_collector",
+      "name": "Collezionista Supremo",
+      "tagline": "La vetrina è quasi piena",
+      "description": "Sbloccati 10 trofei EVIL",
+      "unlockType": "meta",
+      "meta": { "minUnlocked": 10 },
+      "rarity": "legendary",
+      "visual": "crown",
+      "category": "special"
+    }
+  ]
+}

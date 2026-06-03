@@ -1,0 +1,98 @@
+/* Static File Scanner — accent emerald */
+
+.fa-page {
+  --sc-cyan: #34d399;
+  --sc-emerald: #10b981;
+}
+
+.fa-page .sc-scene__mesh {
+  background:
+    radial-gradient(ellipse 55% 50% at 12% 18%, rgba(52, 211, 153, 0.1), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 75%, rgba(16, 185, 129, 0.06), transparent 50%);
+}
+
+.fa-page .sc-kicker {
+  color: #6ee7b7;
+}
+
+.fa-page .sc-btn--primary {
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #022c22;
+}
+
+.fa-page .sc-btn--primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(52, 211, 153, 0.28);
+}
+
+.fa-page .sc-input:focus,
+.fa-page .fa-drop:focus-within {
+  border-color: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.15);
+}
+
+.fa-page .sc-auth input {
+  accent-color: #34d399;
+}
+
+.fa-drop {
+  margin-top: 1.75rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border: 2px dashed var(--sc-border);
+  border-radius: 8px;
+  background: rgba(52, 211, 153, 0.03);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.fa-drop:hover,
+.fa-drop.is-dragover {
+  border-color: rgba(52, 211, 153, 0.5);
+  background: rgba(52, 211, 153, 0.06);
+}
+
+.fa-drop__title {
+  color: #6ee7b7;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.fa-drop__sub {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.fa-drop input[type="file"] {
+  display: none;
+}
+
+.fa-mode {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  font-size: 0.88rem;
+}
+
+.fa-mode label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  color: #94a3b8;
+}
+
+.fa-verdict {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-family: var(--sc-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.fa-verdict--clean { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; }
+.fa-verdict--investigate { background: rgba(251, 191, 36, 0.15); color: #fcd34d; }
+.fa-verdict--suspicious,
+.fa-verdict--malicious { background: rgba(251, 113, 133, 0.15); color: #fda4af; }

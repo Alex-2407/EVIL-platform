@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="NASA">
+  <circle cx="60" cy="50" r="46" fill="#0B3D91"/>
+  <path fill="#FC3D21" d="M18 58c8-18 24-30 42-30s34 12 42 30H18z"/>
+  <text x="60" y="88" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="14" font-weight="700">NASA</text>
+</svg>

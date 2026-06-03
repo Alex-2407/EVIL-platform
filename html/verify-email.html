@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifica email — EVIL Cybersecurity Platform</title>
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth-pages.css?v=20260605">
+  <script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+</head>
+<body class="evil-theme auth-page-body auth-page-body--login">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="auth-scene" aria-hidden="true">
+    <div class="auth-scene__base"></div>
+    <div class="auth-scene__glow auth-scene__glow--one"></div>
+    <div class="auth-scene__glow auth-scene__glow--two"></div>
+  </div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="home.html" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="#">Didattica</a><div class="dropdown"><a href="web-simulator.html">Simulatore Attacchi Web</a><a href="virtual-lab.html">Lab Virtuale</a><a href="crypto-studio.html">Studio Cifratura</a><a href="quiz-hub.html">Centro Quiz</a><a href="hacked-timeline.html">Timeline Incident Response</a></div></li>
+          <li><a href="#">Intelligence</a><div class="dropdown"><a href="attacks-map.html">Mappa incidenti</a><a href="historic-attacks.html">Violazioni storiche</a><a href="malware-db.html">Catalogo malware</a><a href="malware-classification.html">Tassonomia malware</a><a href="manipulation-techniques.html">Persistenza ed evasione</a></div></li>
+          <li><a href="#">Strumenti</a><div class="dropdown"><a href="security-check.html">Check URL</a><a href="vulnerability-scanner.html">Header HTTP</a><a href="domain-recon.html">Ricognizione dominio</a><a href="file-analysis.html">Analisi file</a><a href="osint-hub.html">OSINT</a></div></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="auth-page auth-page--narrow">
+      <section id="viewPending" class="auth-panel auth-verify" hidden>
+        <p class="auth-panel__kicker">Quasi fatto</p>
+        <h1>Verifica la mail</h1>
+        <p class="auth-verify__lead">
+          Abbiamo inviato un link di conferma a <strong id="email-display"></strong>.
+          Aprilo per attivare l'account e sbloccare l'accesso.
+        </p>
+        <ul class="auth-verify__steps">
+          <li>Controlla la inbox (e la cartella spam)</li>
+          <li>Clicca <strong>Verifica email</strong> nel messaggio EVIL</li>
+          <li>Verrai reindirizzato qui con l'account attivo</li>
+        </ul>
+        <div id="deliveryNotice" class="auth-verify__notice" hidden></div>
+        <p class="auth-verify__hint">Il link scade entro 24 ore.</p>
+        <div id="resendMessage" class="auth-message auth-message--success" role="status"></div>
+        <button type="button" id="resendBtn" class="auth-submit auth-submit--outline">Reinvia email</button>
+        <p class="auth-switch">Hai già verificato? <a href="login.html">Accedi</a></p>
+      </section>
+
+      <section id="viewSuccess" class="auth-panel auth-verify" hidden>
+        <p class="auth-panel__kicker">Account attivo</p>
+        <h1>Email verificata</h1>
+        <p class="auth-verify__lead">Il tuo account EVIL è stato attivato. Stai per entrare nella piattaforma…</p>
+        <a href="home.html" class="auth-submit auth-submit--link">Vai alla home</a>
+      </section>
+
+      <section id="viewError" class="auth-panel auth-verify" hidden>
+        <p class="auth-panel__kicker">Verifica non riuscita</p>
+        <h1>Link non valido</h1>
+        <p id="errorText" class="auth-verify__lead"></p>
+        <a href="account.html" class="auth-submit auth-submit--link">Registrati di nuovo</a>
+        <p class="auth-switch"><a href="login.html">Torna al login</a></p>
+      </section>
+    </div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Piattaforma</p>
+        <h2 class="evil-site-foot__title">EVIL Platform</h2>
+        <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Ambito</p>
+        <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Legale</p>
+        <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+        <p class="evil-site-foot__copy">
+
+          <a href="help.html" class="evil-site-foot__link">Help</a>
+
+        </p>
+      </section>
+    </div>
+  </footer>
+
+  <script>
+    const API_URL = '/api';
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const userId = params.get('userId');
+    const email = params.get('email');
+    const reason = params.get('reason');
+
+    const viewPending = document.getElementById('viewPending');
+    const viewSuccess = document.getElementById('viewSuccess');
+    const viewError = document.getElementById('viewError');
+    const resendBtn = document.getElementById('resendBtn');
+    const resendMessage = document.getElementById('resendMessage');
+    let resendCooldown = 0;
+
+    const delivery = params.get('delivery') || sessionStorage.getItem('evil_email_delivery') || '';
+    const emailHint = sessionStorage.getItem('evil_email_hint') || '';
+
+    const deliveryNotice = document.getElementById('deliveryNotice');
+
+    function renderDeliveryNotice() {
+      let text = emailHint;
+      if (!text) {
+        if (delivery === 'sandbox') {
+          text = 'Con Mailtrap Sandbox l\'email NON arriva nella tua casella personale: aprila su https://mailtrap.io/sandboxes';
+        } else if (delivery === 'outbox') {
+          text = 'SMTP non configurato: apri il file HTML in data/email-outbox sul progetto per il link di verifica.';
+        } else if (delivery === 'live' || delivery === 'smtp') {
+          text = 'Se non vedi nulla, controlla anche la cartella spam.';
+        }
+      }
+      if (text) {
+        deliveryNotice.textContent = text;
+        deliveryNotice.hidden = false;
+      }
+    }
+
+    const errorMessages = {
+      missing: 'Il link di verifica è incompleto.',
+      invalid: 'Questo link non è valido o è già stato utilizzato.',
+      expired: 'Il link è scaduto. Registrati di nuovo o reinvia l\'email di verifica.',
+      server: 'Si è verificato un errore durante la verifica. Riprova tra poco.'
+    };
+
+    function show(el) {
+      [viewPending, viewSuccess, viewError].forEach((node) => { node.hidden = true; });
+      el.hidden = false;
+    }
+
+    if (status === 'success') {
+      show(viewSuccess);
+      fetch(`${API_URL}/auth/profile`, { credentials: 'include' })
+        .then((r) => r.ok ? r.json() : null)
+        .then((data) => {
+          if (data && data.user && window.AUTH_STORAGE && typeof AUTH_STORAGE.setUser === 'function') {
+            AUTH_STORAGE.setUser(data.user);
+          } else if (data && data.user) {
+            localStorage.setItem('user', JSON.stringify(data.user));
+          }
+        })
+        .catch(() => {});
+      setTimeout(() => { window.location.href = 'home.html'; }, 2500);
+    } else if (status === 'error') {
+      document.getElementById('errorText').textContent = errorMessages[reason] || errorMessages.invalid;
+      show(viewError);
+    } else {
+      if (email) {
+        document.getElementById('email-display').textContent = email;
+      } else {
+        document.getElementById('email-display').textContent = 'la tua email';
+      }
+      show(viewPending);
+      renderDeliveryNotice();
+    }
+
+    function updateResendButton() {
+      if (resendCooldown > 0) {
+        resendBtn.disabled = true;
+        resendBtn.textContent = `Reinvia tra ${resendCooldown}s`;
+        resendCooldown -= 1;
+        setTimeout(updateResendButton, 1000);
+      } else {
+        resendBtn.disabled = false;
+        resendBtn.textContent = 'Reinvia email';
+      }
+    }
+
+    resendBtn.addEventListener('click', async () => {
+      if (!userId) {
+        resendMessage.textContent = 'Sessione registrazione non trovata. Completa di nuovo la registrazione.';
+        resendMessage.className = 'auth-message auth-message--error';
+        resendMessage.style.display = 'block';
+        return;
+      }
+
+      resendMessage.style.display = 'none';
+      resendBtn.disabled = true;
+
+      try {
+        const response = await fetch(`${API_URL}/auth/resend-verification-code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          resendMessage.textContent = data.error || 'Errore invio email';
+          resendMessage.className = 'auth-message auth-message--error';
+          resendMessage.style.display = 'block';
+          resendBtn.disabled = false;
+          return;
+        }
+
+        if (data.emailHint) {
+          sessionStorage.setItem('evil_email_hint', data.emailHint);
+          const notice = document.getElementById('deliveryNotice');
+          if (notice) {
+            notice.textContent = data.emailHint;
+            notice.hidden = false;
+          }
+        }
+
+        resendMessage.textContent = data.message || 'Nuova email inviata.';
+        resendMessage.className = 'auth-message auth-message--success';
+        resendMessage.style.display = 'block';
+        resendCooldown = 60;
+        updateResendButton();
+      } catch (err) {
+        resendMessage.textContent = 'Errore di connessione: ' + err.message;
+        resendMessage.className = 'auth-message auth-message--error';
+        resendMessage.style.display = 'block';
+        resendBtn.disabled = false;
+      }
+    });
+  </script>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/auth-manager.js"></script>
+</body>
+</html>

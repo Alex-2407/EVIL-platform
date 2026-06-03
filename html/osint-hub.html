@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSINT — EVIL Strumenti</title>
+  <meta name="description" content="Hub OSINT didattico: profilazione da social e raccolta informazioni pubbliche su organizzazioni. Solo dati openly available.">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/tools-hub.css?v=20260704">
+  <script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+</head>
+<body class="evil-theme st-hub-page st-hub-page--osint">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="st-hub-scene" aria-hidden="true"><div class="st-hub-scene__mesh"></div></div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="home.html" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="#">Didattica</a><div class="dropdown"><a href="web-simulator.html">Simulatore Attacchi Web</a><a href="virtual-lab.html">Lab Virtuale</a><a href="crypto-studio.html">Studio Cifratura</a><a href="quiz-hub.html">Centro Quiz</a><a href="hacked-timeline.html">Timeline Incident Response</a></div></li>
+          <li><a href="#">Intelligence</a><div class="dropdown"><a href="attacks-map.html">Mappa incidenti</a><a href="historic-attacks.html">Violazioni storiche</a><a href="malware-db.html">Catalogo malware</a><a href="malware-classification.html">Tassonomia malware</a><a href="manipulation-techniques.html">Persistenza ed evasione</a></div></li>
+          <li><a href="#">Strumenti</a><div class="dropdown"><a href="security-check.html">Check URL</a><a href="vulnerability-scanner.html">Scanner CVE</a><a href="domain-recon.html">Ricognizione dominio</a><a href="file-analysis.html">Analisi file</a><a href="osint-hub.html">OSINT</a></div></li>
+        </ul>
+      </nav>
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="st-hub-hero">
+      <p class="st-hub-kicker">Strumenti · OSINT</p>
+      <h1>Intelligence open source</h1>
+      <p class="st-hub-hero__lead">
+        Due percorsi distinti: profilo persona da username social oppure dossier organizzazione da fonti pubbliche.
+        Non sostituiscono la ricognizione tecnica su dominio (<a href="domain-recon.html">DNS / SSL</a>).
+      </p>
+    </section>
+
+    <div class="st-hub-wrap">
+      <aside class="st-hub-callout" role="note">
+        Solo per formazione etica: raccogli esclusivamente informazioni già pubbliche e rispetta privacy e termini d’uso delle piattaforme.
+      </aside>
+
+      <div class="st-hub-grid">
+        <a class="st-hub-card" href="social-profiling.html">
+          <span class="st-hub-card__tag">Persone</span>
+          <h2 class="st-hub-card__title">Profilo social</h2>
+          <p class="st-hub-card__desc">Correlazione username e impronta digitale su reti social — utile per awareness su esposizione personale.</p>
+          <span class="st-hub-card__cta">Apri profilazione →</span>
+        </a>
+        <a class="st-hub-card" href="public-info.html">
+          <span class="st-hub-card__tag">Persone</span>
+          <h2 class="st-hub-card__title">Info pubbliche</h2>
+          <p class="st-hub-card__desc">Elenco per nazione/comune da Wikidata: persone documentate con comune di nascita quando disponibile.</p>
+          <span class="st-hub-card__cta">Apri raccolta info →</span>
+        </a>
+      </div>
+
+      <p class="st-hub-footer-links">
+        Tecnico:
+        <a href="security-check.html">Check URL</a> ·
+        <a href="dns-enumerator.html">DNS</a> ·
+        <a href="report-generator.html">Report PDF</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col"><p class="evil-site-foot__tag">Piattaforma</p><h2 class="evil-site-foot__title">EVIL Platform</h2><p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p></section>
+      <section class="evil-site-foot__col"><p class="evil-site-foot__tag">Ambito</p><p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p></section>
+      <section class="evil-site-foot__col"><p class="evil-site-foot__tag">Legale</p><p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+        <p class="evil-site-foot__copy">
+
+          <a href="help.html" class="evil-site-foot__link">Help</a>
+
+        </p></section>
+    </div>
+    <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+  </footer>
+
+  <script src="/js/matrixrain.js"></script>
+</body>
+</html>

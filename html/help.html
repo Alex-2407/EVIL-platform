@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Help e supporto - EVIL</title>
+  <meta name="description" content="Contatti e canali per richiedere supporto, chiarimenti didattici e assistenza sulla piattaforma EVIL.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260611">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/site-policies.css?v=20260603">
+</head>
+<body class="evil-theme policy-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="policy-scene" aria-hidden="true">
+    <canvas id="policy-particles"></canvas>
+    <div class="policy-scene__grid"></div>
+    <div class="policy-scene__mesh"></div>
+  </div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="help-main">
+    <section class="policy-hero" aria-labelledby="help-title">
+      <div class="policy-emblem" aria-hidden="true">
+        <div class="policy-emblem__ring"></div>
+        <div class="policy-emblem__ring"></div>
+        <div class="policy-emblem__core" title="Supporto">?</div>
+      </div>
+      <p class="policy-kicker">Assistenza · Chiarimenti · Didattica</p>
+      <h1 id="help-title">Help e supporto</h1>
+      <p class="policy-hero__lead">
+        Hai dubbi su uno strumento, un esercizio del lab o il funzionamento dell’account?
+        Qui trovi i <strong>contatti</strong> per richiedere spiegazioni e supporto in ambito formativo.
+      </p>
+      <div class="policy-hero__meta">
+        <span class="policy-chip policy-chip--ok">Supporto didattico</span>
+        <span class="policy-chip policy-chip--warn">Niente consulenza su attacchi non autorizzati</span>
+      </div>
+    </section>
+
+    <div class="policy-layout" style="grid-template-columns: minmax(0, 1fr); max-width: 720px;">
+      <div class="policy-content">
+        <section class="policy-section policy-reveal" id="help-contacts" aria-labelledby="h-contacts">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">✉</span>
+            <h2 id="h-contacts">Contatti</h2>
+          </div>
+          <p>Per assistenza, chiarimenti su contenuti didattici o segnalazioni tecniche sulla piattaforma:</p>
+          <ul>
+            <li>
+              <strong>Email:</strong>
+              <a href="mailto:support@projectevil.it" class="evil-site-foot__link" style="display:inline;">support@projectevil.it</a>
+            </li>
+            <li>
+              <strong>Sito:</strong>
+              <a href="https://www.projectevil.it" class="evil-site-foot__link" style="display:inline;" rel="noopener noreferrer">www.projectevil.it</a>
+            </li>
+          </ul>
+          <div class="policy-callout">
+            <strong>Orari indicativi di risposta:</strong> entro 2–5 giorni lavorativi per richieste standard;
+            urgenze legate ad account compromessi su istanza pubblica: indicarlo nell’oggetto.
+          </div>
+        </section>
+
+        <section class="policy-section policy-reveal" id="help-request" aria-labelledby="h-request">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">📎</span>
+            <h2 id="h-request">Cosa scrivere nella richiesta</h2>
+          </div>
+          <p>Per aiutarti in modo rapido, includi:</p>
+          <ol>
+            <li>Indirizzo email usato per l’account EVIL (se applicabile).</li>
+            <li>Pagina o strumento (es. Lab virtuale, Check URL, Centro Quiz).</li>
+            <li>Descrizione del problema o del concetto da chiarire.</li>
+            <li>Ambiente: locale (<code>localhost:5000</code>) o sito pubblico.</li>
+            <li>Screenshot o messaggio di errore, se presente.</li>
+          </ol>
+        </section>
+
+        <section class="policy-section policy-reveal" id="help-topics" aria-labelledby="h-topics">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◎</span>
+            <h2 id="h-topics">Su cosa possiamo aiutarti</h2>
+          </div>
+          <ul>
+            <li>Spiegazioni su quiz, lab, simulatori e percorsi didattici.</li>
+            <li>Problemi di registrazione, login, verifica email o recupero password.</li>
+            <li>Funzionamento degli strumenti di analisi in ambito difensivo autorizzato.</li>
+            <li>Segnalazioni di bug o contenuti errati nella piattaforma.</li>
+          </ul>
+          <div class="policy-callout policy-callout--critical">
+            <strong>Non forniamo supporto</strong> per attività offensive, bypass di sicurezza su sistemi terzi
+            o uso degli strumenti senza autorizzazione. Vedi anche le
+            <a href="site-policies.html" class="evil-site-foot__link" style="display:inline;">policy del sito</a>.
+          </div>
+        </section>
+
+        <section class="policy-section policy-reveal" id="help-faq" aria-labelledby="h-faq">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◇</span>
+            <h2 id="h-faq">Prima di scriverci</h2>
+          </div>
+          <h3>Verifica email non arriva</h3>
+          <p>In locale, senza SMTP configurato, il link può essere nell’outbox del progetto (<code>data/email-outbox</code>).
+            Con Mailtrap Sandbox l’email resta nell’inbox Mailtrap, non in Gmail.</p>
+          <h3>Pagina senza stili o login non funziona</h3>
+          <p>Apri sempre <strong>http://localhost:5000</strong> con il server avviato (<code>npm start</code>), non il file HTML dal disco.</p>
+          <h3>Progressi o account diversi tra PC</h3>
+          <p>In sviluppo locale i dati sono sul file <code>users.json</code> di quel computer; non si sincronizzano con produzione.</p>
+        </section>
+
+        <div class="policy-accept policy-reveal">
+          <p>Hai ancora bisogno di una mano? Scrivici a support@projectevil.it</p>
+          <div class="policy-accept__actions">
+            <a class="policy-btn policy-btn--primary" href="mailto:support@projectevil.it?subject=Richiesta%20supporto%20EVIL">Invia email</a>
+            <a class="policy-btn policy-btn--ghost" href="home.html">Torna alla Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Piattaforma</p>
+        <h2 class="evil-site-foot__title">EVIL Platform</h2>
+        <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Ambito</p>
+        <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Legale</p>
+        <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+        <p class="evil-site-foot__copy">
+          <a href="help.html" class="evil-site-foot__link">Help</a>
+          ·
+          <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        </p>
+      </section>
+    </div>
+    <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+  </footer>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/progress-manager.js"></script>
+  <script src="/js/site-policies.js?v=20260603"></script>
+</body>
+</html>

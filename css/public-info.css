@@ -1,0 +1,170 @@
+/* Public Info — accent teal dossier */
+
+.pi-page {
+  --sc-cyan: #2dd4bf;
+  --sc-emerald: #5eead4;
+}
+
+.pi-page .sc-scene__mesh {
+  background:
+    radial-gradient(ellipse 55% 50% at 12% 18%, rgba(45, 212, 191, 0.1), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 75%, rgba(94, 234, 212, 0.06), transparent 50%);
+}
+
+.pi-page .sc-kicker {
+  color: #99f6e4;
+}
+
+.pi-page .sc-btn--primary {
+  background: linear-gradient(135deg, #14b8a6, #0d9488);
+  color: #f0fdfa;
+}
+
+.pi-page .sc-btn--primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.28);
+}
+
+.pi-page .sc-input:focus {
+  border-color: #2dd4bf;
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.15);
+}
+
+.pi-page .sc-auth input {
+  accent-color: #2dd4bf;
+}
+
+.pi-parent-link {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+}
+
+.pi-parent-link a {
+  color: #99f6e4;
+  text-decoration: none;
+}
+
+.pi-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.pi-tabs button {
+  padding: 0.45rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.pi-tabs button.is-active {
+  background: rgba(45, 212, 191, 0.15);
+  border-color: #2dd4bf;
+  color: #99f6e4;
+}
+
+.pi-registry-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.pi-registry-table th,
+.pi-registry-table td {
+  padding: 0.5rem 0.65rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.pi-registry-table th {
+  color: #99f6e4;
+  font-weight: 600;
+}
+
+.pi-registry-table tr:hover td {
+  background: rgba(45, 212, 191, 0.05);
+}
+
+.pi-detail-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  background: rgba(45, 212, 191, 0.12);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  color: #99f6e4;
+  border-radius: 3px;
+}
+
+.pi-pagination {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pi-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.65rem;
+  margin-bottom: 0.75rem;
+}
+
+.pi-candidate {
+  border: 1px solid rgba(45, 212, 191, 0.25);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.pi-candidate__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.85rem 1rem;
+  background: rgba(45, 212, 191, 0.08);
+}
+
+.pi-candidate__id {
+  font-family: ui-monospace, monospace;
+  color: #99f6e4;
+}
+
+.pi-conf--high { color: #5eead4; }
+.pi-conf--medium { color: #fcd34d; }
+.pi-conf--low { color: #94a3b8; }
+
+.pi-cat-grid {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+}
+
+.pi-cat-block {
+  padding: 0.5rem 0.65rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid rgba(45, 212, 191, 0.35);
+  border-radius: 3px;
+}
+
+.pi-cat-block h4 {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #99f6e4;
+}
+
+.pi-cat-block ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.pi-cat-block li {
+  margin: 0.2rem 0;
+  font-size: 0.88rem;
+}
