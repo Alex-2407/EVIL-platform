@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Studio Cifratura - EVIL</title>
+  <meta name="description" content="Studio scenico su hash, AES, RSA, TLS e PKI — impara la crittografia per la cybersecurity.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260611">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/crypto-studio.css?v=20260620">
+</head>
+<body class="evil-theme crypto-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="crypto-scene" aria-hidden="true">
+    <canvas id="crypto-cipher-canvas"></canvas>
+    <div class="crypto-scene__mesh"></div>
+    <div class="crypto-scene__scanline"></div>
+    <div class="crypto-scene__vignette"></div>
+  </div>
+
+  <div class="crypto-term-tooltip" id="crypto-term-tooltip" role="tooltip" hidden></div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="crypto-hero" aria-labelledby="crypto-hero-title">
+      <div class="crypto-vault" aria-hidden="true">
+        <div class="crypto-vault__ring"></div>
+        <div class="crypto-vault__ring"></div>
+        <div class="crypto-vault__ring"></div>
+        <div class="crypto-vault__core" id="crypto-vault-glyph">&#x2756;</div>
+      </div>
+      <p class="crypto-kicker">Impara · Proteggi · Decifra</p>
+      <h1 id="crypto-hero-title">Studio Cifratura</h1>
+      <p class="crypto-hero__lead" id="crypto-intro-text"></p>
+      <div class="crypto-hero__chips">
+        <span class="crypto-chip crypto-chip--green">Hash &amp; integrità</span>
+        <span class="crypto-chip crypto-chip--violet">AES · RSA · ECC</span>
+        <span class="crypto-chip crypto-chip--gold">TLS &amp; certificati</span>
+      </div>
+      <p class="crypto-scroll-hint">Scorri per esplorare</p>
+    </section>
+
+    <div class="crypto-wrap">
+      <section class="crypto-section" id="crypto-forge-section" aria-labelledby="forge-title">
+        <header class="crypto-section-head">
+          <p class="crypto-kicker">Laboratorio</p>
+          <h2 id="forge-title">Forgia degli hash</h2>
+          <p>Calcola digest reali nel browser con Web Crypto API. Osserva l'effetto valanga: un bit cambiato → hash completamente diverso.</p>
+        </header>
+        <div class="crypto-forge">
+          <div class="crypto-forge__head">
+            <span></span><span></span><span></span>
+            <span class="crypto-forge__title">crypto.subtle.digest — sandbox locale</span>
+          </div>
+          <div class="crypto-forge__body">
+            <div class="crypto-field">
+              <label for="crypto-hash-input">Messaggio</label>
+              <textarea id="crypto-hash-input" spellcheck="false" placeholder="EVIL{impara_la_cifratura}">EVIL platform</textarea>
+            </div>
+            <div class="crypto-field">
+              <label for="crypto-hash-algo">Algoritmo</label>
+              <select id="crypto-hash-algo">
+                <option value="SHA-256">SHA-256</option>
+                <option value="SHA-384">SHA-384</option>
+                <option value="SHA-512">SHA-512</option>
+                <option value="SHA-1">SHA-1 (legacy)</option>
+                <option value="demo">— Effetto valanga —</option>
+              </select>
+            </div>
+            <div class="crypto-hash-out" id="crypto-hash-output" aria-live="polite"></div>
+            <p class="crypto-forge__note">Gli hash garantiscono integrità, non riservatezza. Per password usa bcrypt/Argon2 con salt — mai SHA-256 da solo.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="crypto-section" aria-labelledby="algo-title">
+        <header class="crypto-section-head">
+          <p class="crypto-kicker">Catalogo</p>
+          <h2 id="algo-title">Algoritmi e protocolli</h2>
+          <p>Panoramica didattica degli standard che incontrerai in pentest, forensics e difesa.</p>
+        </header>
+        <div class="crypto-rail" id="crypto-rail" role="tablist">
+          <button type="button" class="crypto-rail__btn is-active" data-filter="all" role="tab">Tutti</button>
+          <button type="button" class="crypto-rail__btn" data-filter="hash" role="tab">Hash</button>
+          <button type="button" class="crypto-rail__btn" data-filter="sym" role="tab">Simmetrica</button>
+          <button type="button" class="crypto-rail__btn" data-filter="asym" role="tab">Asimmetrica</button>
+          <button type="button" class="crypto-rail__btn" data-filter="tls" role="tab">TLS / PKI</button>
+        </div>
+        <div class="crypto-grid" id="crypto-algo-grid"></div>
+      </section>
+
+      <section class="crypto-section" aria-labelledby="compare-title">
+        <header class="crypto-section-head">
+          <p class="crypto-kicker">Sicurezza pratica</p>
+          <h2 id="compare-title">Cosa usare — e cosa evitare</h2>
+        </header>
+        <div class="crypto-compare">
+          <div class="crypto-compare__item crypto-compare__item--bad">
+            <h4>MD5 / SHA-1 per password</h4>
+            <p>Veloci e senza salt → rainbow table e collisioni. Mai in autenticazione.</p>
+          </div>
+          <div class="crypto-compare__item crypto-compare__item--good">
+            <h4>bcrypt / Argon2id</h4>
+            <p>Lenti, con salt e memoria — standard OWASP per storage password.</p>
+          </div>
+          <div class="crypto-compare__item crypto-compare__item--good">
+            <h4>SHA-256 + HMAC</h4>
+            <p>Integrità file, firma API, commit Git. Con chiave segreta per autenticità.</p>
+          </div>
+          <div class="crypto-compare__item crypto-compare__item--good">
+            <h4>TLS 1.3 + certificati validi</h4>
+            <p>HTTPS moderno, PFS, cipher forti. Verifica con <a href="ssl-analyzer.html" style="color:#6ee7b7">SSL Analyzer</a>.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="crypto-section" aria-labelledby="timeline-title">
+        <header class="crypto-section-head">
+          <p class="crypto-kicker">Storia</p>
+          <h2 id="timeline-title">Evoluzione crittografica</h2>
+        </header>
+        <div class="crypto-timeline">
+          <article class="crypto-timeline__item">
+            <span class="crypto-timeline__year">1977</span>
+            <h4>RSA</h4>
+            <p>Prima cifratura asimmetrica pratica — revoluzione PKI e commerce digitale.</p>
+          </article>
+          <article class="crypto-timeline__item">
+            <span class="crypto-timeline__year">2001</span>
+            <h4>AES standard NIST</h4>
+            <p>Sostituisce DES. Ancora oggi base di disk encryption e TLS.</p>
+          </article>
+          <article class="crypto-timeline__item">
+            <span class="crypto-timeline__year">2017</span>
+            <h4>Collisioni SHA-1</h4>
+            <p>SHAttered dimostra SHA-1 non sicuro per firme — migrazione a SHA-256.</p>
+          </article>
+          <article class="crypto-timeline__item">
+            <span class="crypto-timeline__year">2018+</span>
+            <h4>TLS 1.3 obbligatorio</h4>
+            <p>Cipher deprecati rimossi, handshake più veloce, sicurezza by default.</p>
+          </article>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Piattaforma</p>
+        <h2 class="evil-site-foot__title">EVIL Platform</h2>
+        <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Ambito</p>
+        <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Legale</p>
+        <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      </section>
+    </div>
+    <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+  </footer>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/progress-manager.js"></script>
+  <script src="/js/crypto-studio.js?v=20260620"></script>
+</body>
+</html>

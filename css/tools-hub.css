@@ -1,0 +1,227 @@
+/* Hub strumenti EVIL — landing ricognizione / OSINT */
+
+.st-hub-page {
+  --st-cyan: #22d3ee;
+  --st-emerald: #34d399;
+  --st-amber: #f59e0b;
+  --st-serif: Georgia, "Palatino Linotype", serif;
+  --st-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  --st-glass: rgba(9, 14, 24, 0.82);
+  --st-border: rgba(255, 255, 255, 0.1);
+}
+
+.st-hub-page main {
+  position: relative;
+  z-index: 2;
+}
+
+.st-hub-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.st-hub-scene__mesh {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 50% 45% at 12% 20%, rgba(34, 211, 238, 0.09), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 75%, rgba(52, 211, 153, 0.07), transparent 50%);
+}
+
+.st-hub-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 1.5rem) 3rem;
+}
+
+.st-hub-hero {
+  text-align: center;
+  padding: clamp(2.5rem, 6vw, 3.5rem) clamp(1rem, 4vw, 2rem) clamp(1.5rem, 3vw, 2rem);
+  border-bottom: 1px dashed var(--st-border);
+}
+
+.st-hub-kicker {
+  margin: 0 0 0.5rem;
+  font-family: var(--st-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--st-amber);
+}
+
+.st-hub-hero h1 {
+  margin: 0 0 0.65rem;
+  font-family: var(--st-serif);
+  font-size: clamp(1.65rem, 4vw, 2.25rem);
+  font-weight: 400;
+  color: #f8fafc;
+}
+
+.st-hub-hero__lead {
+  margin: 0 auto 1rem;
+  max-width: 40em;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #94a3b8;
+}
+
+.st-hub-hero__lead a {
+  color: var(--st-emerald);
+}
+
+.st-hub-back {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-family: var(--st-mono);
+  font-size: 0.72rem;
+  color: #67e8f9;
+  text-decoration: none;
+}
+
+.st-hub-back:hover {
+  color: var(--st-cyan);
+}
+
+.st-hub-callout {
+  margin: 1.5rem 0;
+  padding: 0.9rem 1rem;
+  border-left: 3px solid var(--st-cyan);
+  background: rgba(34, 211, 238, 0.08);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.st-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.st-hub-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.3rem;
+  background: var(--st-glass);
+  border: 1px solid var(--st-border);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.25s, transform 0.25s;
+}
+
+.st-hub-card:hover {
+  border-color: rgba(34, 211, 238, 0.4);
+  transform: translateY(-2px);
+}
+
+.st-hub-card__tag {
+  font-family: var(--st-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--st-amber);
+  margin-bottom: 0.4rem;
+}
+
+.st-hub-card__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+  color: #f1f5f9;
+}
+
+.st-hub-card__desc {
+  margin: 0 0 1rem;
+  flex: 1;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+.st-hub-card__cta {
+  font-family: var(--st-mono);
+  font-size: 0.72rem;
+  color: var(--st-emerald);
+}
+
+.st-hub-footer-links {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px dashed var(--st-border);
+  text-align: center;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.st-hub-footer-links a {
+  color: var(--st-emerald);
+  margin: 0 0.35rem;
+}
+
+.st-hub-page--osint .st-hub-scene__mesh {
+  background:
+    radial-gradient(ellipse 50% 45% at 15% 18%, rgba(52, 211, 153, 0.09), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 85% 78%, rgba(245, 158, 11, 0.06), transparent 50%);
+}
+
+/* Breadcrumb su pagine strumento figlie (DNS, OSINT, …) */
+.st-tool-parent {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+}
+
+.st-tool-parent a {
+  color: #f59e0b;
+  text-decoration: none;
+}
+
+.st-tool-parent a:hover {
+  text-decoration: underline;
+}
+
+.st-tool-notice {
+  max-width: 720px;
+  margin: 0 auto 1.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.08);
+  color: #fcd34d;
+}
+
+.st-tool-notice--real {
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.08);
+  color: #6ee7b7;
+}
+
+.st-tool-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.st-tool-tabs button {
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #94a3b8;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.st-tool-tabs button.is-active {
+  border-color: #22d3ee;
+  color: #22d3ee;
+  background: rgba(34, 211, 238, 0.08);
+}

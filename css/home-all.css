@@ -1,0 +1,5 @@
+/* Bundle home — importa tutti i moduli (ordine importante) */
+@import url('home-hero.css');
+@import url('home-unified.css');
+@import url('home-motion.css');
+@import url('home-footer.css');

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conferma Email - EVIL</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260611">
+  <link rel="stylesheet" href="/css/galaxy-btn.css?v=20260609">
+  <link rel="stylesheet" href="/css/responsive.css">
+</head>
+<body class="evil-theme">
+  <main>
+    <div class="login-container">
+      <div class="login-form">
+        <h1>Conferma Email</h1>
+        <p>Incolla il token di conferma ricevuto e conferma la tua email.</p>
+        <form id="confirmForm">
+          <div class="form-group">
+            <label for="confirm-token">Token di conferma:</label>
+            <input type="text" id="confirm-token" name="confirm-token" placeholder="Inserisci il token" required>
+          </div>
+          <div id="confirmError" class="error-message"></div>
+          <div id="confirmSuccess" class="success-message"></div>
+          <button type="submit" class="btn-login">Conferma Email</button>
+        </form>
+        <div class="login-link">
+          Torna a <a href="login.html">Login</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <style>
+    .login-container { max-width: 480px; margin: 80px auto; padding: 20px; }
+    .login-form { background: rgba(0,0,0,0.5); border:1px solid rgba(0,255,156,0.2); border-radius:12px; padding:35px; }
+    .login-form h1 { color:#00ff9c; margin-bottom:20px; }
+    .form-group label { color: rgba(255,255,255,0.8); display:block; margin-bottom:8px; }
+    .form-group input { width:100%; padding:12px; border-radius:4px; border:1px solid rgba(0,255,156,0.3); background: rgba(0,0,0,0.3); color:#fff; }
+    .btn-login { width:100%; padding:12px; background:linear-gradient(135deg,#00ff9c,#00cc77); border:none; color:#000; font-weight:bold; border-radius:4px; cursor:pointer; }
+    .btn-login:hover { transform:translateY(-2px); box-shadow:0 0 20px rgba(0,255,156,0.3); }
+    .login-link { margin-top:18px; color: rgba(255,255,255,0.75); }
+    .login-link a { color:#00ff9c; text-decoration:none; }
+  </style>
+
+  <script>
+    const API_URL = '/api';
+    const params = new URLSearchParams(window.location.search);
+    const tokenParam = params.get('token');
+    if (tokenParam) {
+      document.getElementById('confirm-token').value = decodeURIComponent(tokenParam);
+    }
+
+    document.getElementById('confirmForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = document.getElementById('confirm-token').value;
+      const errorDiv = document.getElementById('confirmError');
+      const successDiv = document.getElementById('confirmSuccess');
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      try {
+        const response = await fetch(`${API_URL}/auth/confirm-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          errorDiv.textContent = data.error || 'Errore conferma email';
+          errorDiv.style.display = 'block';
+          return;
+        }
+
+        successDiv.textContent = data.message || 'Email confermata con successo';
+        successDiv.style.display = 'block';
+        setTimeout(() => { window.location.href = 'login.html'; }, 2500);
+      } catch (err) {
+        errorDiv.textContent = 'Errore di connessione: ' + err.message;
+        errorDiv.style.display = 'block';
+      }
+    });
+  </script>
+  <script src="/js/galaxy-buttons.js"></script>
+</body>
+</html>

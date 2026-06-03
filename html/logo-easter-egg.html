@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EVIL</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260611">
+  <link rel="stylesheet" href="/css/galaxy-btn.css?v=20260609">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #0b0f1a;
+    }
+    #matrix-canvas {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+    }
+    #fade-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <script src="/js/matrixrain.js?v=4"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof playLogoEasterEgg === 'function') {
+        playLogoEasterEgg();
+      } else {
+        window.location.href = '/';
+      }
+    });
+  </script>
+  <script src="/js/galaxy-buttons.js"></script>
+</body>
+</html>

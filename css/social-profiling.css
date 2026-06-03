@@ -1,0 +1,68 @@
+/* Social Profiling — accent rose */
+
+.sp-page {
+  --sc-cyan: #fb7185;
+  --sc-emerald: #f472b6;
+}
+
+.sp-page .sc-scene__mesh {
+  background:
+    radial-gradient(ellipse 55% 50% at 12% 18%, rgba(251, 113, 133, 0.1), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 75%, rgba(244, 114, 182, 0.06), transparent 50%);
+}
+
+.sp-page .sc-kicker {
+  color: #fda4af;
+}
+
+.sp-page .sc-btn--primary {
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  color: #fff1f2;
+}
+
+.sp-page .sc-btn--primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(251, 113, 133, 0.28);
+}
+
+.sp-page .sc-input:focus {
+  border-color: #fb7185;
+  box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.15);
+}
+
+.sp-page .sc-auth input {
+  accent-color: #fb7185;
+}
+
+.sp-parent-link {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+}
+
+.sp-parent-link a {
+  color: #fda4af;
+  text-decoration: none;
+}
+
+.sp-parent-link a:hover {
+  text-decoration: underline;
+}
+
+.sp-platform-card {
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid rgba(251, 113, 133, 0.35);
+  border-radius: 4px;
+}
+
+.sp-platform-card--found {
+  border-left-color: #fb7185;
+}
+
+.sp-platform-card--absent {
+  border-left-color: rgba(100, 116, 139, 0.5);
+}
+
+.sp-platform-card--unknown {
+  border-left-color: rgba(251, 191, 36, 0.5);
+}

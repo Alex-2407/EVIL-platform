@@ -1,0 +1,214 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timeline Incident Response - EVIL</title>
+  <meta name="description" content="Simulazione didattica della cronologia di un attacco: kill chain, vista SOC, MITRE ATT&CK e contenimento.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260611">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/hacked-timeline.css?v=20260622">
+</head>
+<body class="evil-theme ir-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="ir-scene" aria-hidden="true">
+    <div class="ir-scene__mesh"></div>
+  </div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="home.html">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="ir-hero" aria-labelledby="ir-title">
+      <p class="ir-kicker">Simula · Correlazione · Contieni</p>
+      <h1 id="ir-title">Timeline Incident Response</h1>
+      <p class="ir-hero__lead">
+        Ricostruisci un incidente simulato come farebbe un SOC: dalla ricognizione al contenimento.
+        Cinque scenari, fasi kill chain, analisi tecnica e contromisure MITRE.
+      </p>
+      <div class="ir-chips">
+        <span class="ir-chip">5 scenari</span>
+        <span class="ir-chip">MITRE ATT&CK</span>
+        <a class="ir-chip" href="quiz-hub.html?cat=siem-detection">Quiz Log &amp; Detection →</a>
+        <a class="ir-chip" href="virtual-lab.html">Lab Virtuale →</a>
+      </div>
+    </section>
+
+    <div class="ir-wrap">
+      <p class="ir-notice">
+        <strong>Simulazione didattica.</strong>
+        Nessun log reale né sistema compromesso. I timestamp e gli eventi sono ispirati a casi noti per insegnare incident response e lettura SOC.
+      </p>
+
+      <div class="ir-controls">
+        <div class="ir-field">
+          <label for="ir-scenario">Scenario</label>
+          <select id="ir-scenario" aria-label="Scegli scenario">
+            <option value="web-attack">Web server — RCE e ransomware</option>
+            <option value="db-breach">Database — SQL injection</option>
+            <option value="ransomware">Ransomware — phishing</option>
+            <option value="account-breach">Email — credential stuffing</option>
+            <option value="insider-threat">Insider — exfiltrazione DBA</option>
+          </select>
+        </div>
+        <div class="ir-btns">
+          <button type="button" class="ir-btn" id="ir-play" aria-pressed="false">Play</button>
+          <button type="button" class="ir-btn ir-btn--ghost" id="ir-reset">Reset</button>
+        </div>
+        <div class="ir-field">
+          <label for="ir-speed">Velocità</label>
+          <select id="ir-speed">
+            <option value="0.5">×0.5</option>
+            <option value="1" selected>×1</option>
+            <option value="2">×2</option>
+          </select>
+        </div>
+        <div class="ir-field ir-field--grow">
+          <label for="ir-seek"><span id="ir-seek-label">Evento 1 / 1</span></label>
+          <input type="range" id="ir-seek" min="0" max="0" value="0" aria-label="Scorri timeline">
+        </div>
+      </div>
+
+      <div class="ir-scenario-head">
+        <h2 id="ir-scenario-title">—</h2>
+        <p id="ir-scenario-lead">—</p>
+      </div>
+
+      <div class="ir-phases" id="ir-phases" aria-label="Fasi kill chain"></div>
+
+      <div class="ir-layout">
+        <div class="ir-timeline">
+          <div class="ir-events" id="ir-events" role="list"></div>
+        </div>
+
+        <aside class="ir-panel" id="ir-panel" aria-labelledby="ir-detail-title">
+          <div class="ir-panel__head">
+            <h3 id="ir-detail-title">Dettaglio evento</h3>
+            <button type="button" class="ir-panel__close" id="ir-panel-close" aria-label="Chiudi pannello">×</button>
+          </div>
+          <dl class="ir-detail">
+            <dt>Orario</dt>
+            <dd id="ir-detail-time">—</dd>
+            <dt>Severità</dt>
+            <dd><span id="ir-detail-severity" class="ir-sev">—</span></dd>
+            <dt>Descrizione tecnica</dt>
+            <dd id="ir-detail-desc">—</dd>
+            <dt>Vista SOC</dt>
+            <dd id="ir-detail-soc">—</dd>
+            <dt>Contromisure</dt>
+            <dd><ul id="ir-detail-mit"></ul></dd>
+            <dt>MITRE ATT&CK</dt>
+            <dd id="ir-detail-mitre">—</dd>
+          </dl>
+        </aside>
+      </div>
+
+      <div class="ir-stats" aria-label="Stato incidente">
+        <div class="ir-stat">
+          <span class="ir-stat__label">Stato sistema</span>
+          <span class="ir-stat__value ir-stat--ok" id="ir-status-system">PULITO</span>
+        </div>
+        <div class="ir-stat">
+          <span class="ir-stat__label">Severità</span>
+          <span class="ir-stat__value ir-stat--ok" id="ir-status-severity">NORMALE</span>
+        </div>
+        <div class="ir-stat">
+          <span class="ir-stat__label">Durata (simulata)</span>
+          <span class="ir-stat__value" id="ir-status-duration">—</span>
+        </div>
+        <div class="ir-stat">
+          <span class="ir-stat__label">Dati a rischio</span>
+          <span class="ir-stat__value ir-stat--ok" id="ir-status-data">—</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Piattaforma</p>
+        <h2 class="evil-site-foot__title">EVIL Platform</h2>
+        <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Ambito</p>
+        <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Legale</p>
+        <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      </section>
+    </div>
+    <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+  </footer>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/progress-manager.js"></script>
+  <script src="/js/hacked-timeline-data.js?v=20260622"></script>
+  <script src="/js/hacked-timeline.js?v=20260622"></script>
+</body>
+</html>
