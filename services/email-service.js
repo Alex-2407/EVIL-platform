@@ -107,8 +107,9 @@ class EmailService {
       if (!host.includes('live.smtp') && !host.includes('smtp.mailtrap')) {
         hints.push('Per invio reale usa SMTP_HOST=live.smtp.mailtrap.io (non sandbox).');
       }
-      if (this.smtpUser !== 'api' && !this.smtpPass.startsWith('mt')) {
-        hints.push('Mailtrap Live: SMTP_USER=api e SMTP_PASS=<API token da Sending Domains → Integrations>.');
+      const pass = String(this.smtpPass || '');
+      if (this.smtpUser !== 'api' && !pass.startsWith('mt') && !/^[a-f0-9]{20,}$/i.test(pass)) {
+        hints.push('Mailtrap Live: SMTP_USER=api (o apismtp@mailtrap.io) e SMTP_PASS=<API token Sending>.');
       }
       if (this.fromEmail.includes('@gmail.com')) {
         hints.push('SMTP_FROM_EMAIL deve essere @projectevil.it (dominio verificato su Mailtrap), non Gmail.');
@@ -470,12 +471,13 @@ class EmailService {
     });
   }
 
-  async verifyConnection() {
+  async verifyConnection(timeoutMs) {
     if (!this.isConfigured() || !this.transporter) {
       return { ok: false, error: 'SMTP non configurato (credenziali mancanti o placeholder nel .env)' };
     }
+    const ms = timeoutMs || parseInt(process.env.SMTP_VERIFY_TIMEOUT_MS || '8000', 10);
     try {
-      await this.transporter.verify();
+      await this.withTimeout(this.transporter.verify(), ms, 'Verifica SMTP');
       return { ok: true, mode: this.resolveDeliveryMode(), host: this.smtpHost };
     } catch (err) {
       return { ok: false, error: err.message, host: this.smtpHost };

@@ -362,6 +362,9 @@ app.use((req, res, next) => {
   if (isStaticFile) {
     return next(); // bypass rate limit per file statici
   }
+  if (path.startsWith('/api/health')) {
+    return next();
+  }
   // applica rate limit solo alle API
   globalLimiter(req, res, next);
 });
@@ -1500,28 +1503,53 @@ app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
   }
 });
 
-// Diagnostica SMTP (dopo deploy: GET /api/health/smtp)
+// Health API (diagnostica deploy — sempre JSON leggibile)
+app.get('/api/health/ping', (req, res) => {
+  res.json({
+    ok: true,
+    service: 'evil-platform',
+    version: process.env.RENDER_GIT_COMMIT || 'local',
+    nodeEnv: process.env.NODE_ENV || 'development',
+    timestamp: new Date().toISOString(),
+  });
+});
+
 app.get('/api/health/smtp', async (req, res) => {
   try {
     const configured = emailService.isConfigured();
-    const check = configured ? await emailService.verifyConnection() : { ok: false, error: 'SMTP non configurato' };
+    const doVerify = req.query.verify === '1' || req.query.verify === 'true';
+    let check = { ok: null, skipped: true };
+    if (configured && doVerify) {
+      check = await emailService.verifyConnection();
+    } else if (!configured) {
+      check = { ok: false, error: 'SMTP non configurato' };
+    }
+
+    const hints =
+      typeof emailService.getSmtpDiagnostics === 'function'
+        ? emailService.getSmtpDiagnostics()
+        : ['Aggiorna il deploy: manca getSmtpDiagnostics nel server.'];
+
     res.json({
+      ok: check.ok === null ? null : Boolean(check.ok),
       configured,
-      ok: Boolean(check.ok),
+      verifySkipped: Boolean(check.skipped),
       host: emailService.smtpHost,
       port: emailService.smtpPort,
       secure: emailService.smtpSecure,
+      user: emailService.smtpUser ? `${emailService.smtpUser.slice(0, 6)}…` : '',
       mode: emailService.resolveDeliveryMode(),
       from: emailService.fromEmail,
       baseUrl: process.env.BASE_URL || emailService.baseUrl,
       usersFile,
       dataDir,
       emailDevOutbox: process.env.EMAIL_DEV_OUTBOX !== '0',
-      hints: emailService.getSmtpDiagnostics(),
+      hints,
       error: check.error || null,
+      tip: 'Aggiungi ?verify=1 per testare la connessione SMTP (può richiedere ~8s).',
     });
   } catch (err) {
-    res.status(500).json({ ok: false, error: err.message });
+    res.status(500).json({ ok: false, error: err.message, route: '/api/health/smtp' });
   }
 });
 
@@ -2342,10 +2370,12 @@ app.use((error, req, res, next) => {
     timestamp: new Date().toISOString()
   });
 
-  // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV !== 'production';
+  const isHealthApi = (req.originalUrl || '').startsWith('/api/health');
+  const isAuthApi = (req.originalUrl || '').startsWith('/api/auth');
+  const showDetail = isDevelopment || isHealthApi || isAuthApi;
   const errorResponse = {
-    error: isDevelopment ? message : 'Something went wrong',
+    error: showDetail ? message : 'Something went wrong',
     status: 'error',
     timestamp: new Date().toISOString()
   };
