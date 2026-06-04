@@ -20,8 +20,9 @@ CARICAMENTO SU UNICA — CHECKLIST
 --------------------------------
 [ ] Esporta CAPOLAVORO_UNICA_EVIL_SUITE.html come PDF
 [ ] Allega RELAZIONE_TECNICA_EVIL_SUITE.txt (se richiesto dal docente)
-[ ] Inserisci link: https://www.projectevil.it
-[ ] Inserisci link repo: https://github.com/Alex-2407/EVIL-platform
+[ ] Inserisci link sito: https://www.projectevil.it
+[ ] Indica repo GitHub PRIVATO (Alex-2407/EVIL-platform) — demo via sito live + relazione
+[ ] Opzionale: invita il docente come collaboratore GitHub se richiede accesso al codice
 [ ] Opzionale: 3–5 screenshot (home, mappa, profilo, scan URL, quiz)
 
 REPOSITORY GITHUB

@@ -23,7 +23,7 @@ SOMMARIO
  13.  Tecnologie e stack tecnico
  14.  Mappa completa del sito (38 pagine web)
  15.  API REST e comunicazione real-time
- 16.  Protezione del codice e repository GitHub (pubblico)
+ 16.  Protezione del codice e repository GitHub (privato)
  17.  Deploy, dominio e produzione
  18.  Conformità, uso etico e limiti
  19.  Innovazione e contributo originale
@@ -42,7 +42,7 @@ strumenti reali nello stesso ambiente, senza installare software locale.
 
 SITO IN PRODUZIONE:  https://www.projectevil.it  (alias https://projectevil.it)
 CODICE SORGENTE:    https://github.com/Alex-2407/EVIL-platform
-                     (repository PUBBLICO — clonabile, portfolio e deploy cloud)
+                     (repository PRIVATO — accesso solo al titolare e collaboratori invitati)
 
 PROBLEMA AFFRONTATO:
   Le risorse cybersecurity online sono frammentate (scanner separati, corsi
@@ -656,51 +656,46 @@ EVIL Vault (design):  profile, trophy-preview-local, jingle-preview-local
 
 
 ═══════════════════════════════════════════════════════════════════════════════════
-16. PROTEZIONE DEL CODICE E REPOSITORY GITHUB (PUBBLICO)
+16. PROTEZIONE DEL CODICE E REPOSITORY GITHUB (PRIVATO)
 ═══════════════════════════════════════════════════════════════════════════════════
 
-16.1 STATO ATTUALE: REPOSITORY PUBBLICO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16.1 STATO ATTUALE: REPOSITORY PRIVATO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Il codice sorgente su GitHub (Alex-2407/EVIL-platform) è PUBBLICO:
-    • Visibile a chiunque su github.com/Alex-2407/EVIL-platform
-    • Clonabile con: git clone https://github.com/Alex-2407/EVIL-platform.git
-    • Adatto a portfolio, dimostrazione in commissione, collaborazioni open source
-    • Deploy Render/Railway tramite collegamento GitHub già configurato
+  Il codice sorgente su GitHub (Alex-2407/EVIL-platform) è PRIVATO:
+    • Non visibile al pubblico su github.com senza invito esplicito
+    • Clonabile solo dal titolare e dai collaboratori autorizzati
+    • Adatto a proteggere il backend completo mantenendo il sito live dimostrabile
+    • Deploy Render/Railway continua tramite collegamento GitHub già autorizzato
 
-  Scelta corrente: massima trasparenza sul lavoro svolto; il valore del progetto
-  resta nell'integrazione della suite EVIL, nel deploy live e nell'esperienza utente,
-  non solo nel segreto del codice.
+  Scelta corrente: protezione del sorgente (backend, servizi, middleware) mentre
+  il capolavoro resta verificabile tramite sito in produzione, documentazione
+  locale e materiali consegnati alla commissione (relazione, portfolio UNICA).
 
-16.2 COSA È ESPOSTO CON REPO PUBBLICO
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16.2 COSA RESTA FUORI DA GITHUB (SEMPRE)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Accessibile a tutti:
-    • Intero backend (server.js, services/, middleware/)
-    • Frontend completo (html/, css/, js/)
-    • achievements.json, script di build e sync
-    • Documentazione e relazione in AAAPRIMI PER INIZIARE/
-
-  NON presente su GitHub (protetto da .gitignore):
+  NON presente nel repository (protetto da .gitignore):
     • .env — JWT_SECRET, Mailtrap, SMTP, Redis, password admin
     • users.json — account e hash password reali
     • node_modules/, logs/, email-outbox/, uploads/
 
-  Quindi: il codice è pubblico, i SEGRETI e i DATI UTENTI no.
+  Quindi: anche con repo privato, SEGRETI e DATI UTENTI non vanno mai committati.
 
-16.3 COSA RESTA VISIBILE SUL SITO LIVE (INDIPENDENTE DAL REPO)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16.3 COSA RESTA VISIBILE SUL SITO LIVE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  Su https://www.projectevil.it il browser espone sempre:
-    • HTML, CSS, JavaScript (DevTools → Sources)
-    • Chiamate API osservabili (Network)
+  Su https://www.projectevil.it il browser espone (come ogni sito web):
+    • HTML, CSS, JavaScript frontend (DevTools → Sources)
+    • Chiamate API osservabili (Network), non il codice server Node.js
 
-  Anche con repository privato, il frontend sul sito sarebbe comunque scaricabile.
-  Il repo pubblico aggiunge la visibilità dell'intero backend sorgente.
+  Con repository privato il backend sorgente (server.js, services/, middleware/)
+  NON è scaricabile da GitHub; resta accessibile solo al titolare e agli invitati.
 
-16.4 COME PROTEGGERSI COMUNQUE (CHECKLIST)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16.4 CHECKLIST SICUREZZA CODICE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+  ✓ Repository GitHub impostato su Private
   ✓ Non committare mai .env o users.json
   ✓ JWT e Mailtrap solo variabili ambiente su Render/Railway
   ✓ EVIL_TOOLS_PUBLIC=0 in produzione (login obbligatorio)
@@ -708,25 +703,26 @@ EVIL Vault (design):  profile, trophy-preview-local, jingle-preview-local
   ✓ COOKIE_DOMAIN coerente col dominio (es. .projectevil.it)
   ✓ BASE_URL=https://www.projectevil.it in produzione
   ✓ site-policies.html — termini d'uso e copyright sul brand EVIL Suite
-  ✓ Opzionale: tornare a repo privato (Settings → Make private) senza rompere deploy
 
-16.5 ALTERNATIVA: REPOSITORY PRIVATO (SE SI CAMBIA IDEA)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+16.5 CONDIVISIONE CON LA COMMISSIONE (SENZA RENDERE PUBBLICO IL REPO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  GitHub → EVIL-platform → Settings → Danger Zone →
-  Change repository visibility → Make private
+  Per dimostrare il lavoro senza aprire il repository:
+    • Sito live: https://www.projectevil.it (demo funzionante)
+    • Relazione tecnica e portfolio in AAAPRIMI PER INIZIARE/
+    • Screenshot / video walkthrough delle funzionalità
+    • Invito temporaneo come collaboratore GitHub (solo se richiesto dal docente)
 
-  Il deploy cloud continua a funzionare se GitHub è già autorizzato su Render.
-  Utile se si vuole limitare il clone del backend a collaboratori invitati.
-
-16.6 MESSAGGIO PER RELAZIONE / COMMISSIONE (REPO PUBBLICO)
+16.6 MESSAGGIO PER RELAZIONE / COMMISSIONE (REPO PRIVATO)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  "Ho sviluppato EVIL Suite e pubblicato il codice su GitHub in repository
-  pubblico (Alex-2407/EVIL-platform), dimostrando trasparenza e riproducibilità
-  del progetto. I segreti di produzione e i dati utente non sono nel repository.
-  Gli strumenti operativi su projectevil.it richiedono registrazione e sono
-  protetti da EVIL Shield (autenticazione, rate limit, anti-SSRF)."
+  "Ho sviluppato EVIL Suite e conservo il codice sorgente in un repository
+  GitHub privato (Alex-2407/EVIL-platform), accessibile solo a me e a eventuali
+  collaboratori invitati. Il capolavoro è verificabile sul sito deployato
+  projectevil.it e tramite la documentazione tecnica allegata. I segreti di
+  produzione e i dati utente non sono nel repository. Gli strumenti operativi
+  richiedono registrazione e sono protetti da EVIL Shield (autenticazione,
+  rate limit, anti-SSRF)."
 
 
 ═══════════════════════════════════════════════════════════════════════════════════
@@ -790,8 +786,8 @@ ma nella SUITE INTEGRATA e nei MODULI PROPRIETARI:
 
 FRASE DI CHIUSURA SUGGERITA (ORALE O SCRITTA):
   "Ho sviluppato EVIL Suite, un ecosistema software brandizzato in otto moduli
-  cooperanti, deployato su projectevil.it, con codice sorgente pubblico su GitHub
-  (Alex-2407/EVIL-platform) e strumenti operativi accessibili solo dopo
+  cooperanti, deployato su projectevil.it, con codice sorgente in repository
+  GitHub privato (Alex-2407/EVIL-platform) e strumenti operativi accessibili solo dopo
   registrazione e verifica email, protetti da EVIL Shield."
 
 
@@ -802,7 +798,7 @@ FRASE DI CHIUSURA SUGGERITA (ORALE O SCRITTA):
 COMPLETATO (giugno 2026):
   ✅ EVIL Suite completa — 8 moduli brand + Chrome
   ✅ 38 pagine web, deploy production-ready su Render
-  ✅ Repository GitHub pubblico Alex-2407/EVIL-platform (branch main)
+  ✅ Repository GitHub privato Alex-2407/EVIL-platform (branch main + chore/aaaprima-launchers)
   ✅ EVIL Shield — login obbligatorio strumenti, rate limit, anti-SSRF
   ✅ EVIL Chrome consolidato — evil-site-chrome.js, sessione JWT, no flash auth
   ✅ Email produzione — Mailtrap Live via API HTTPS (Render free tier)
@@ -815,7 +811,7 @@ PROSSIMI PASSI:
   🔄 Database utenti relazionale (PostgreSQL) al posto di JSON flat
   🔄 Certificazione formativa brand EVIL
   🔄 Eventuale PWA / multilingua
-  🔄 Valutare repo privato solo se serve limitare clone del backend
+  🔄 Valutare invito temporaneo al docente su GitHub (solo se richiesto)
 
 CONCLUSIONI:
   EVIL Suite rappresenta uno sviluppo software originale e articolato, presentabile
@@ -828,9 +824,9 @@ CONCLUSIONI:
 
 ═══════════════════════════════════════════════════════════════════════════════════
 DOCUMENTO:  2 giugno 2026
-VERSIONE:   3.2 — EVIL Suite Brand Architecture (auth chrome, Help API, Mailtrap)
+VERSIONE:   3.3 — EVIL Suite (repo GitHub privato, auth chrome, Help API)
 AUTORE:     Progetto EVIL / Alex-2407
-REPO:       https://github.com/Alex-2407/EVIL-platform  (commit main: b669073+)
-STATO:      Relazione aggiornata; repository pubblico; segreti fuori da Git
+REPO:       https://github.com/Alex-2407/EVIL-platform  (PRIVATO — solo titolare/invitati)
+STATO:      Relazione aggiornata; repository privato; segreti fuori da Git
 PERCORSO:   AAAPRIMI PER INIZIARE/RELAZIONE_TECNICA_EVIL_SUITE.txt
 ═══════════════════════════════════════════════════════════════════════════════════
