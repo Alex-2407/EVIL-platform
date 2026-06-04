@@ -1,0 +1,100 @@
+/* DNS Enumerator — estende layout URL Scanner (accento emerald) */
+
+.de-page {
+  --sc-cyan: #34d399;
+  --sc-emerald: #2dd4bf;
+}
+
+.de-page .sc-scene__mesh {
+  background:
+    radial-gradient(ellipse 55% 50% at 14% 20%, rgba(52, 211, 153, 0.1), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 86% 78%, rgba(45, 212, 191, 0.06), transparent 50%);
+}
+
+.de-page .sc-kicker {
+  color: #6ee7b7;
+}
+
+.de-page .sc-btn--primary {
+  background: linear-gradient(135deg, #34d399, #059669);
+  color: #022c22;
+}
+
+.de-page .sc-btn--primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(52, 211, 153, 0.28);
+}
+
+.de-page .sc-input:focus {
+  border-color: #34d399;
+  box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.15);
+}
+
+.de-page .sc-auth input {
+  accent-color: #34d399;
+}
+
+.de-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.de-tabs button {
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--sc-border);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #94a3b8;
+  font-family: var(--sc-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.de-tabs button.is-active {
+  border-color: rgba(52, 211, 153, 0.45);
+  color: #6ee7b7;
+  background: rgba(52, 211, 153, 0.08);
+}
+
+.de-txt-kind {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-family: var(--sc-mono);
+  text-transform: uppercase;
+  background: rgba(52, 211, 153, 0.12);
+  color: #6ee7b7;
+}
+
+.de-parent-link {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+}
+
+.de-parent-link a {
+  color: #6ee7b7;
+  text-decoration: none;
+}
+
+.de-parent-link a:hover {
+  text-decoration: underline;
+}
+
+.sc-record-line {
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.4rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 2px solid rgba(52, 211, 153, 0.35);
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.sc-muted {
+  opacity: 0.75;
+  font-size: 0.92rem;
+}

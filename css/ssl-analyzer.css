@@ -1,0 +1,64 @@
+/* SSL Certificate Analyzer — accent rose/cyan */
+
+.ssl-page {
+  --sc-cyan: #38bdf8;
+  --sc-emerald: #fb7185;
+}
+
+.ssl-page .sc-scene__mesh {
+  background:
+    radial-gradient(ellipse 55% 50% at 10% 15%, rgba(56, 189, 248, 0.1), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 90% 80%, rgba(251, 113, 133, 0.07), transparent 50%);
+}
+
+.ssl-page .sc-kicker {
+  color: #7dd3fc;
+}
+
+.ssl-page .sc-btn--primary {
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
+  color: #0c4a6e;
+}
+
+.ssl-page .sc-btn--primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.3);
+}
+
+.ssl-page .sc-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15);
+}
+
+.ssl-page .sc-auth input {
+  accent-color: #38bdf8;
+}
+
+.ssl-parent-link {
+  margin: 0 0 0.75rem;
+  font-size: 0.82rem;
+}
+
+.ssl-parent-link a {
+  color: #7dd3fc;
+  text-decoration: none;
+}
+
+.ssl-parent-link a:hover {
+  text-decoration: underline;
+}
+
+.ssl-lifecycle {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-family: var(--sc-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ssl-lifecycle--valid { background: rgba(52, 211, 153, 0.15); color: #6ee7b7; }
+.ssl-lifecycle--warning_expiry,
+.ssl-lifecycle--critical_expiry { background: rgba(251, 191, 36, 0.15); color: #fcd34d; }
+.ssl-lifecycle--expired,
+.ssl-lifecycle--not_yet_valid { background: rgba(251, 113, 133, 0.15); color: #fda4af; }

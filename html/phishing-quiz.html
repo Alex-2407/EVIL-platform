@@ -1,0 +1,1268 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Quiz Phishing - EVIL</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <link rel="stylesheet" href="/css/galaxy-btn.css?v=20260609">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <style>
+    .quiz-hero {
+      background: linear-gradient(135deg, rgba(255, 152, 0, 0.1), rgba(244, 67, 54, 0.1));
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 152, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .quiz-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at top left, rgba(255, 152, 0, 0.05), transparent);
+      pointer-events: none;
+    }
+
+    .quiz-hero h1 {
+      color: #ff9800;
+      font-size: 2.2rem;
+      margin: 20px 0;
+      font-family: 'Courier New', monospace;
+      position: relative;
+      z-index: 1;
+      text-shadow: 0 0 20px rgba(255, 152, 0, 0.3);
+    }
+
+    .quiz-hero p {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 1rem;
+      max-width: 900px;
+      margin: 15px auto;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quiz-hero-cta {
+      margin-top: 25px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .quiz-hero-cta a {
+      display: inline-block;
+      padding: 10px 25px;
+      background: rgba(255, 152, 0, 0.2);
+      border: 2px solid #ff9800;
+      color: #ff9800;
+      text-decoration: none;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
+
+    .quiz-hero-cta a:hover {
+      background: #ff9800;
+      color: #000;
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(255, 152, 0, 0.4);
+    }
+
+    .quiz-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      margin-bottom: 40px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff9800, #f44336);
+      transition: width 0.3s ease;
+    }
+
+    .quiz-content {
+      display: none;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 152, 0, 0.15);
+      border-radius: 8px;
+      padding: 40px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .quiz-content.active {
+      display: block;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .question-number {
+      font-size: 0.85rem;
+      color: #ff9800;
+      font-weight: bold;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .question-text {
+      font-size: 1.3rem;
+      color: #ffffff;
+      margin-bottom: 30px;
+      font-weight: 500;
+      line-height: 1.6;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .option {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      padding: 16px;
+      border: 1px solid rgba(255, 152, 0, 0.2);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.02);
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .option input[type="radio"]:checked + .option-label {
+      border-color: #ff9800;
+      background: rgba(255, 152, 0, 0.1);
+    }
+
+    .option-label:hover {
+      border-color: rgba(255, 152, 0, 0.4);
+      background: rgba(255, 152, 0, 0.05);
+    }
+
+    .radio-custom {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 152, 0, 0.4);
+      border-radius: 50%;
+      margin-right: 15px;
+      margin-top: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .option input[type="radio"]:checked + .option-label .radio-custom {
+      border-color: #ff9800;
+      background: #ff9800;
+    }
+
+    .radio-custom::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0;
+    }
+
+    .option input[type="radio"]:checked + .option-label .radio-custom::after {
+      opacity: 1;
+    }
+
+    .feedback {
+      margin-top: 25px;
+      padding: 16px;
+      border-radius: 6px;
+      display: none;
+      border-left: 3px solid;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.correct {
+      background: rgba(76, 175, 80, 0.1);
+      border-color: #4caf50;
+      color: #76ff7c;
+    }
+
+    .feedback.incorrect {
+      background: rgba(244, 67, 54, 0.1);
+      border-color: #f44336;
+      color: #ff8a80;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: space-between;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: all 0.3s ease;
+      font-family: 'Courier New', monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, #ff9800, #f44336);
+      color: white;
+      flex: 1;
+    }
+
+    .btn-next:hover:not(:disabled) {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+    }
+
+    .btn-next:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-prev {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 152, 0, 0.2);
+      color: rgba(255, 255, 255, 0.75);
+      width: 120px;
+    }
+
+    .btn-prev:hover {
+      border-color: #ff9800;
+      color: #ff9800;
+      background: rgba(255, 152, 0, 0.1);
+    }
+
+    .results {
+      display: none;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 152, 0, 0.15);
+      border-radius: 8px;
+      padding: 50px 40px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .score-circle {
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      font-weight: bold;
+      color: white;
+      background: linear-gradient(135deg, #ff9800, #f44336);
+      font-family: 'Courier New', monospace;
+    }
+
+    .results h2 {
+      font-size: 1.8rem;
+      color: #ff9800;
+      margin-bottom: 20px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .results p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .results p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .btn-restart {
+      background: linear-gradient(135deg, #ff9800, #f44336);
+      color: white;
+      padding: 12px 40px;
+      font-size: 0.9rem;
+      margin-top: 30px;
+    }
+
+    .btn-restart:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+    }
+
+    .topics-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .topic-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 152, 0, 0.15);
+      border-radius: 8px;
+      padding: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .topic-card:hover {
+      border-color: #ff9800;
+      background: rgba(255, 152, 0, 0.08);
+      transform: translateY(-5px);
+    }
+
+    .topic-icon {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+    }
+
+    .topic-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #ff9800;
+      margin-bottom: 10px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .topic-description {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 15px;
+      line-height: 1.5;
+    }
+
+    .topic-stats {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      border-top: 1px solid rgba(255, 152, 0, 0.1);
+      padding-top: 10px;
+    }
+
+    .video-modal {
+      display: none;
+      position: fixed;
+      z-index: 2000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-modal.show {
+      display: flex;
+    }
+
+    .video-content {
+      position: relative;
+      max-width: 600px;
+      width: 90%;
+      background: #0a0e17;
+      border: 2px solid #ff9800;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+
+    .video-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #ff9800;
+      font-size: 2rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .video-close:hover {
+      color: #f44336;
+    }
+
+    .celebration-animation {
+      font-size: 4rem;
+      animation: bounce 1s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+    }
+
+    .topic-progress {
+      font-size: 0.75rem;
+      margin-top: 10px;
+      padding: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 4px;
+      color: #76ff7c;
+    }
+
+    .topic-progress.completed {
+      color: #4caf50;
+      background: rgba(76, 175, 80, 0.1);
+    }
+
+    /* Windows Breach Final Cut Animation */
+    .windows-loading {
+      display: none;
+      position: fixed;
+      z-index: 3000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      justify-content: center;
+      align-items: center;
+      animation: backgroundState 6s forwards;
+    }
+
+    .windows-loading.show {
+      display: flex;
+    }
+
+    .windows-logo {
+      display: grid;
+      grid-template-columns: repeat(2, 80px);
+      grid-template-rows: repeat(2, 80px);
+      gap: 12px;
+    }
+
+    .tile {
+      width: 80px;
+      height: 80px;
+      background: black;
+    }
+
+    /* QUADRATO ANOMALO */
+    .lightning-bolt {
+      animation: tileFlash 6s forwards;
+    }
+
+    /* LAMPEGGIO BIANCO A ~3s */
+    @keyframes tileFlash {
+      0%, 18%, 100% {
+        background: black;
+      }
+
+      19% {
+        background: white;
+      }
+
+      20.2% {
+        background: black;
+      }
+
+      21.4% {
+        background: white;
+      }
+
+      22.6% {
+        background: black;
+      }
+    }
+
+    /* STATO GLOBALE */
+    @keyframes backgroundState {
+      /* normale */
+      0%, 37% {
+        background: white;
+      }
+
+      /* verde scuro sfumato (più breve) */
+      39%, 62% {
+        background: radial-gradient(
+          circle,
+          #00aa55 0%,
+          #007733 45%,
+          #003d1a 100%
+        );
+      }
+
+      /* bianco stabile finale (5s) */
+      100% {
+        background: white;
+      }
+    }
+
+    .windows-text {
+      display: none;
+    }
+  </style>
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+<script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme">
+  <!-- Splash Screen - Animazione di apertura (tipo 1 o tipo 2) -->
+  <div id="splash-screen">
+    <!-- Contenuto dinamico - inserito via JavaScript -->
+  </div>
+
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="/">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div id="windowsLoading" class="windows-loading">
+    <div class="windows-logo">
+      <div class="tile"></div>
+      <div class="tile lightning-bolt"></div>
+      <div class="tile"></div>
+      <div class="tile"></div>
+    </div>
+  </div>
+
+  <main>
+  <div class="quiz-hero">
+    <h1>?? PHISHING QUIZ</h1>
+    <p>Metti alla prova le tue abilit— nel riconoscere i tentativi di phishing e gli attacchi di social engineering</p>
+    <div class="quiz-hero-cta">
+      <a href="profile.html">?? Visualizza i Tuoi Trofei</a>
+    </div>
+  </div>
+
+  <div class="quiz-container">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar"></div>
+    </div>
+
+    <div id="topicsContainer">
+      <!-- Argomenti saranno generati da JavaScript -->
+    </div>
+
+    <div id="quizContainer">
+      <!-- Le domande saranno generate da JavaScript -->
+    </div>
+
+    <div id="resultsContainer"></div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+  <div class="evil-site-foot__glow" aria-hidden="true"></div>
+  <div class="evil-site-foot__grid">
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Piattaforma</p>
+      <h2 class="evil-site-foot__title">EVIL Platform</h2>
+      <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Ambito</p>
+      <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Legale</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy">
+        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        ·
+        <a href="help.html" class="evil-site-foot__link">Help</a>
+        ·
+        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </section>
+  </div>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+</footer>
+
+  <script>
+    const quizTopics = {
+      "email-recognition": {
+        name: "Riconoscimento Email Fraudolente",
+        icon: "??",
+        description: "Impara a identificare le email phishing ingannevoli",
+        questions: [
+          {
+            question: "Ricevi un'email dalla tua banca che ti chiede di cliccare un link per verificare il tuo account. Cosa noti di sospetto?",
+            options: [
+              { text: "Le banche non inviano mai email", correct: false },
+              { text: "L'email contiene errori di ortografia e il link non corrisponde all'URL ufficiale della banca", correct: true },
+              { text: "L'email è stata ricevuta il lunedì", correct: false },
+              { text: "L'email utilizza un tono cordiale", correct: false }
+            ],
+            explanation: "I phisher spesso commettono errori di ortografia e usano link che sembrano legittimi ma puntano a siti fake."
+          },
+          {
+            question: "Quale di questi indirizzi email è PROBABILMENTE fraudolento?",
+            options: [
+              { text: "support@amazon.com", correct: false },
+              { text: "support@amaz0n.com (con zero)", correct: true },
+              { text: "help.amazon.com@company.it", correct: true },
+              { text: "customer-service@amazon.com", correct: false }
+            ],
+            explanation: "I phisher usano domini simili - sostituiscono 'o' con '0' o invertono il dominio. Controlla sempre attentamente l'indirizzo email!"
+          },
+          {
+            question: "Un'email da PayPal dice che il tuo conto è sospetto e devi verificare ora. Cosa è sospetto?",
+            options: [
+              { text: "L'urgenza artificiale e la mancanza di dettagli personali", correct: true },
+              { text: "Il fatto che viene da PayPal", correct: false },
+              { text: "L'email contiene la tua foto", correct: false },
+              { text: "L'email è in inglese", correct: false }
+            ],
+            explanation: "I phisher creano urgenza artificiale per farti agire senza pensare. Le aziende non chiedono mai dati sensibili via email."
+          },
+          {
+            question: "Ricevi un'email con oggetto 'Importante: Azione Richiesta Urgente'. Qual è il segnale di allarme?",
+            options: [
+              { text: "— un'email importante", correct: false },
+              { text: "Il tono urgente è un classico tattica phishing per evitare che tu rifletta", correct: true },
+              { text: "— scritta in maiuscolo", correct: false },
+              { text: "Proviene da un indirizzo aziendale", correct: false }
+            ],
+            explanation: "L'urgenza forzata è una tattica comune dei phisher per bypassare la tua razionalità."
+          },
+          {
+            question: "Quale caratteristica dovrebbe SEMPRE avere un'email legittima da una banca?",
+            options: [
+              { text: "Richiedere password via link", correct: false },
+              { text: "Contenere dettagli personalizzati come numero conto o transazione", correct: true },
+              { text: "Utilizzare un dominio casuale", correct: false },
+              { text: "Chiedere di downloadare un allegato .exe", correct: false }
+            ],
+            explanation: "Le banche legittimi NON chiedono mai password. Personalizzano le email con i tuoi dati specifici."
+          }
+        ]
+      },
+      "social-engineering": {
+        name: "Social Engineering",
+        icon: "??",
+        description: "Riconosci le tecniche di manipolazione psicologica",
+        questions: [
+          {
+            question: "Un collega ti invia un link con scritto 'Controlla questo video esilarante'. Cosa fai?",
+            options: [
+              { text: "Clicco subito senza pensare", correct: false },
+              { text: "Chiedo al collega di confermare che è davvero lui a mandare il messaggio", correct: true },
+              { text: "Scarico il file senza scansionarlo", correct: false },
+              { text: "Apro in una finestra privata e poi clicco", correct: false }
+            ],
+            explanation: "— una tattica comune: hackers compromettono account e inviano link malevoli ai contatti. Sempre verificare di persona."
+          },
+          {
+            question: "Un estraneo ti chiama dicendo di essere da IT Support e vuole accedere al tuo computer. Cosa fai?",
+            options: [
+              { text: "Gli do accesso subito", correct: false },
+              { text: "Prendo il numero e richiamo il tuo IT Support diretto per verificare", correct: true },
+              { text: "Chiedo il suo nome e procedo", correct: false },
+              { text: "Rifiuto semplicemente", correct: false }
+            ],
+            explanation: "Verifica sempre contattando l'azienda direttamente con un numero che conosci."
+          },
+          {
+            question: "Quale tattica NON è tipica del social engineering?",
+            options: [
+              { text: "Fingere di essere un'autorit— (polizia, banca)", correct: false },
+              { text: "Creare urgenza artificiale", correct: false },
+              { text: "Inviare una lettera cartacea certificata con il tuo indirizzo completo", correct: true },
+              { text: "Sfruttare la fiducia verso colleghi o amici", correct: false }
+            ],
+            explanation: "Il social engineering sfrutta la psicologia. Una lettera certificata è meno efficace del phishing digitale immediato."
+          },
+          {
+            question: "Un'email dice che hai vinto un premio. È phishing?",
+            options: [
+              { text: "No, potrebbe essere legittimo", correct: false },
+              { text: "Sì, è quasi certamente una truffa", correct: true },
+              { text: "Solo se è in spam", correct: false },
+              { text: "Dipende da chi lo invia", correct: false }
+            ],
+            explanation: "Se non hai partecipato a un concorso, non puoi vincere. è una tattica classica di phishing e social engineering."
+          },
+          {
+            question: "Cosa rende il social engineering efficace?",
+            options: [
+              { text: "Sfrutta le emozioni umane (paura, curiosit—, greed)", correct: true },
+              { text: "Usa solo tecnologia sofisticata", correct: false },
+              { text: "Funziona solo su persone analfabete", correct: false },
+              { text: "Richiede accesso fisico", correct: false }
+            ],
+            explanation: "Il social engineering è efficace perché sfrutta la psicologia umana, non la tecnologia."
+          }
+        ]
+      },
+      "data-security": {
+        name: "Sicurezza dei Dati",
+        icon: "??",
+        description: "Proteggi i tuoi dati sensibili",
+        questions: [
+          {
+            question: "Quale informazione NON dovrebbe mai essere chiesta via email?",
+            options: [
+              { text: "Il tuo numero d'ordine", correct: false },
+              { text: "Password, PIN o codice di sicurezza", correct: true },
+              { text: "Il tuo indirizzo email", correct: false },
+              { text: "Il numero di telefono", correct: false }
+            ],
+            explanation: "Le aziende legittime non chiedono mai password o dati finanziari sensibili per email."
+          },
+          {
+            question: "Quale azione — SICURA quando ricevi un'email sospetta?",
+            options: [
+              { text: "Cliccare sul link per verificare se è legittimo", correct: false },
+              { text: "Andare direttamente al sito web digitando l'indirizzo nella barra degli indirizzi", correct: true },
+              { text: "Rispondere con i tuoi dati per confermare l'identit—", correct: false },
+              { text: "Cliccare sul link solo se l'email sembra ben formattata", correct: false }
+            ],
+            explanation: "Sempre accedere ai siti direttamente e mai tramite link in email."
+          },
+          {
+            question: "Se accidentalmente clicchi un link di phishing, cosa dovresti fare SUBITO?",
+            options: [
+              { text: "Aspettare per vedere se succede qualcosa", correct: false },
+              { text: "Cambiare la password da un altro dispositivo e monitorare l'account", correct: true },
+              { text: "Formattare il computer", correct: false },
+              { text: "Non fare nulla se non hai inserito dati", correct: false }
+            ],
+            explanation: "Cambia subito la password da un dispositivo pulito e monitora per attività sospette."
+          },
+          {
+            question: "Dove dovrebbero essere archiviati i tuoi dati sensibili?",
+            options: [
+              { text: "In un blocco note su Desktop", correct: false },
+              { text: "In un browser per ricordarli automaticamente", correct: false },
+              { text: "In un gestore password crittografato", correct: true },
+              { text: "Scritti su un post-it accanto al monitor", correct: false }
+            ],
+            explanation: "Un gestore password crittografato (1Password, Bitwarden, ecc.) è il modo più sicuro."
+          },
+          {
+            question: "Qual è il tipo di password PIÙ sicura?",
+            options: [
+              { text: "Semplice come 'password123'", correct: false },
+              { text: "Lunga, casuale, con maiuscole, minuscole, numeri e simboli", correct: true },
+              { text: "Il tuo nome + anno di nascita", correct: false },
+              { text: "Unica per tutti i siti", correct: false }
+            ],
+            explanation: "Le password forti sono lunghe (16+ caratteri), casualmente generate, e uniche per ogni sito."
+          }
+        ]
+      },
+      "malware-threats": {
+        name: "Minacce Malware",
+        icon: "??",
+        description: "Identifica e proteggi da programmi malevoli",
+        questions: [
+          {
+            question: "Ricevi un allegato .exe da un mittente sconosciuto. Cosa fai?",
+            options: [
+              { text: "Lo apro subito", correct: false },
+              { text: "Lo cancello senza aprirlo", correct: true },
+              { text: "Lo apro in una finestra virtuale per controllare", correct: false },
+              { text: "Lo carico su un cloud storage", correct: false }
+            ],
+            explanation: "Gli allegati eseguibili da sconosciuti sono altamente pericolosi. Cancella sempre senza esitare."
+          },
+          {
+            question: "Quale di questi file — RELATIVAMENTE sicuro aprire?",
+            options: [
+              { text: ".exe (eseguibile)", correct: false },
+              { text: ".bat (batch script)", correct: false },
+              { text: ".pdf (documento)", correct: true },
+              { text: ".scr (screensaver)", correct: false }
+            ],
+            explanation: "I file PDF sono generalmente più sicuri, ma comunque verifica la provenienza."
+          },
+          {
+            question: "Il tuo antivirus rileva malware. Qual è il primo passo?",
+            options: [
+              { text: "Ignorare l'avviso", correct: false },
+              { text: "Mettere il file in quarantena e scansionare il sistema", correct: true },
+              { text: "Disattivare l'antivirus", correct: false },
+              { text: "Inviare il file via email", correct: false }
+            ],
+            explanation: "Metti il file in quarantena e avvia una scansione completa del sistema."
+          },
+          {
+            question: "Qual è un segno che il tuo computer potrebbe essere infetto?",
+            options: [
+              { text: "Rallentamento inusuale e pop-up pubblicitari", correct: true },
+              { text: "Il display è acceso", correct: false },
+              { text: "Hai internet", correct: false },
+              { text: "Hai installato Windows", correct: false }
+            ],
+            explanation: "Rallentamenti, pop-up, comportamenti strani, e modifiche alle impostazioni sono segnali di allarme."
+          },
+          {
+            question: "Come previeni il malware?",
+            options: [
+              { text: "Antivirus, firewall, aggiornamenti, e buone pratiche online", correct: true },
+              { text: "Scaricando software da siti casuali", correct: false },
+              { text: "Aprendo tutti gli allegati", correct: false },
+              { text: "Disattivando tutti gli aggiornamenti", correct: false }
+            ],
+            explanation: "Una difesa multicapsula: antivirus, firewall, aggiornamenti regolari, e consapevolezza."
+          }
+        ]
+      },
+      "url-analysis": {
+        name: "Analisi URL e Link Sicuri",
+        icon: "??",
+        description: "Impara a controllare gli URL prima di cliccare",
+        questions: [
+          {
+            question: "Quale di questi URL — PROBABILMENTE un phishing?",
+            options: [
+              { text: "https://www.amazon.com/account", correct: false },
+              { text: "https://amaz0n.com/login (zero invece di 'o')", correct: true },
+              { text: "https://secure.amazon.com/login", correct: false },
+              { text: "https://amazon.com/customer/account", correct: false }
+            ],
+            explanation: "Attenzione ai domini simili ma falsi: 0 al posto di O, l al posto di 1, ecc."
+          },
+          {
+            question: "Come verifichi se un URL è sicuro PRIMA di cliccarlo?",
+            options: [
+              { text: "Clicchi semplicemente", correct: false },
+              { text: "Passa il mouse sopra per vedere l'URL effettivo, senza cliccarlo", correct: true },
+              { text: "Controlla il colore del link", correct: false },
+              { text: "Chiedi a un amico online", correct: false }
+            ],
+            explanation: "Sempre passa il mouse sopra i link per visualizzare l'URL effettivo."
+          },
+          {
+            question: "Quale caratteristica ha un URL SICURO?",
+            options: [
+              { text: "Inizia con 'http://'", correct: false },
+              { text: "Inizia con 'https://' e ha un lucchetto", correct: true },
+              { text: "— breve", correct: false },
+              { text: "Ha molti parametri", correct: false }
+            ],
+            explanation: "HTTPS (con lucchetto) indica una connessione crittografata e più sicura."
+          },
+          {
+            question: "Un link dice di portarti su PayPal ma l'URL — 'paypa1-verify.net'. Cosa fai?",
+            options: [
+              { text: "Clicco - è solo una variazione del dominio", correct: false },
+              { text: "Non clicco - è chiaramente un dominio diverso", correct: true },
+              { text: "Chiedo su social media", correct: false },
+              { text: "Lo apro in incognito prima", correct: false }
+            ],
+            explanation: "Se l'URL non corrisponde esattamente al sito ufficiale, è una bandiera rossa."
+          },
+          {
+            question: "Gli URL brevi (tinyurl, bit.ly) sono sicuri?",
+            options: [
+              { text: "Sì, sempre", correct: false },
+              { text: "No, nascondono l'URL reale - usali solo da fonti fidate", correct: true },
+              { text: "Sono sicuri solo se colorati", correct: false },
+              { text: "Dipende dal numero di caratteri", correct: false }
+            ],
+            explanation: "I link brevi nascondono l'URL reale, usali solo da fonti affidabili. Puoi espandere gli URL su siti come expandurl.com"
+          }
+        ]
+      }
+    };
+
+    let currentTopic = null;
+    let currentQuestion = 0;
+    let score = 0;
+    let topicScores = {};
+
+    function initQuiz() {
+      loadTopics();
+    }
+
+    function loadTopics() {
+      const topicsContainer = document.getElementById('topicsContainer');
+      topicsContainer.innerHTML = '<h2 style="margin-bottom: 30px; color: #ff9800; font-family: \'Courier New\', monospace;">Seleziona un argomento:</h2>';
+      
+      const grid = document.createElement('div');
+      grid.className = 'topics-container';
+
+      Object.entries(quizTopics).forEach(([key, topic]) => {
+        const completed = topicScores[key] === 100;
+        const card = document.createElement('div');
+        card.className = 'topic-card';
+        card.onclick = () => startTopic(key);
+        
+        const progressText = topicScores[key] !== undefined ? `${topicScores[key]}%` : '0%';
+        
+        card.innerHTML = `
+          <div class="topic-icon">${topic.icon}</div>
+          <div class="topic-name">${topic.name}</div>
+          <div class="topic-description">${topic.description}</div>
+          <div class="topic-progress ${completed ? 'completed' : ''}">
+            Completamento: ${progressText}
+            ${completed ? ' ?' : ''}
+          </div>
+        `;
+        
+        grid.appendChild(card);
+      });
+
+      topicsContainer.appendChild(grid);
+      document.getElementById('quizContainer').innerHTML = '';
+      document.getElementById('resultsContainer').innerHTML = '';
+      document.getElementById('progressBar').style.width = '0%';
+    }
+
+    function startTopic(topicKey) {
+      currentTopic = topicKey;
+      currentQuestion = 0;
+      score = 0;
+      const topicsContainer = document.getElementById('topicsContainer');
+      topicsContainer.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <h2 style="color: #ff9800; font-family: 'Courier New', monospace; margin: 0;">
+            ${quizTopics[currentTopic].icon} ${quizTopics[currentTopic].name}
+          </h2>
+          <button class="btn-prev" onclick="backToTopics()" style="margin: 0;">← ARGOMENTI</button>
+        </div>
+      `;
+      renderQuestion();
+    }
+
+    function backToTopics() {
+      loadTopics();
+    }
+
+    function renderQuestion() {
+      const quizContainer = document.getElementById('quizContainer');
+      quizContainer.innerHTML = '';
+
+      const topic = quizTopics[currentTopic];
+      const q = topic.questions[currentQuestion];
+      const total = topic.questions.length;
+      const progress = ((currentQuestion) / total) * 100;
+
+      document.getElementById('progressBar').style.width = progress + '%';
+
+      const quizContent = document.createElement('div');
+      quizContent.className = 'quiz-content active';
+
+      let html = `
+        <div class="question-number">Domanda ${currentQuestion + 1} di ${total}</div>
+        <div class="question-text">${q.question}</div>
+        <div class="options">
+      `;
+
+      q.options.forEach((option, index) => {
+        html += `
+          <label class="option">
+            <input type="radio" name="answer" value="${index}">
+            <div class="option-label">
+              <div class="radio-custom"></div>
+              <span>${option.text}</span>
+            </div>
+          </label>
+        `;
+      });
+
+      html += `
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="buttons">
+          ${currentQuestion > 0 ? '<button class="btn-prev" onclick="previousQuestion()">← INDIETRO</button>' : '<div></div>'}
+          <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>AVANTI ?</button>
+        </div>
+      `;
+
+      quizContent.innerHTML = html;
+      quizContainer.appendChild(quizContent);
+
+      document.querySelectorAll('input[name="answer"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+          document.getElementById('nextBtn').disabled = false;
+          checkAnswer();
+        });
+      });
+    }
+
+    function checkAnswer() {
+      const selected = document.querySelector('input[name="answer"]:checked');
+      if (!selected) return;
+
+      const topic = quizTopics[currentTopic];
+      const q = topic.questions[currentQuestion];
+      const selectedIndex = parseInt(selected.value);
+      const correct = q.options[selectedIndex].correct;
+      const feedback = document.getElementById('feedback');
+
+      feedback.className = 'feedback show ' + (correct ? 'correct' : 'incorrect');
+      feedback.innerHTML = `
+        <strong style="font-family: 'Courier New', monospace;">${correct ? '✓ CORRETTO!' : '✗ SBAGLIATO'}</strong><br><br>
+        ${q.explanation}
+      `;
+
+      if (correct) {
+        score++;
+      }
+    }
+
+    function nextQuestion() {
+      const topic = quizTopics[currentTopic];
+      if (currentQuestion < topic.questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function previousQuestion() {
+      if (currentQuestion > 0) {
+        currentQuestion--;
+        renderQuestion();
+      }
+    }
+
+    function showResults() {
+      const topic = quizTopics[currentTopic];
+      const numQuestions = topic.questions.length;
+      
+      // Se il quiz ha 5 domande, mostra l'animazione Windows
+      if (numQuestions === 5) {
+        showWindowsLoading();
+        setTimeout(() => {
+          displayResults();
+        }, 3500); // Mostra l'animazione per 3.5 secondi
+      } else {
+        displayResults();
+      }
+    }
+
+    function showWindowsLoading() {
+      const windowsLoading = document.getElementById('windowsLoading');
+      windowsLoading.classList.add('show');
+    }
+
+    function displayResults() {
+      const windowsLoading = document.getElementById('windowsLoading');
+      windowsLoading.classList.remove('show');
+
+      const topic = quizTopics[currentTopic];
+      const percentage = Math.round((score / topic.questions.length) * 100);
+      
+      topicScores[currentTopic] = percentage;
+
+      // Log dell'attività per il sistema di progressi
+      if (isAuthenticated() && percentage === 100) {
+        logActivity('phishing_quiz_completed', { accuracy: 100 });
+      }
+
+      let message = '';
+
+      if (percentage === 100) {
+        message = "PERFETTO! Hai completato l'argomento al 100% ??";
+      } else if (percentage >= 80) {
+        message = "OTTIMO! Buona conoscenza dell'argomento ??";
+      } else if (percentage >= 60) {
+        message = "DISCRETO - Rivedi gli argomenti ??";
+      } else {
+        message = "CONTINUA A IMPARARE - Studia di più ??";
+      }
+
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.innerHTML = `
+        <div class="results show">
+          <div class="score-circle">
+            ${score}/${topic.questions.length}
+          </div>
+          <h2>${percentage}%</h2>
+          <p style="color: #ff9800; font-weight: 700; font-family: 'Courier New', monospace; margin-bottom: 20px;">${message}</p>
+          <p>Hai risposto correttamente a <strong>${score} domande</strong> su <strong>${topic.questions.length}</strong></p>
+          <button class="btn-restart" onclick="backToTopics()">TORNA AI QUIZ ?</button>
+        </div>
+      `;
+
+      document.getElementById('quizContainer').innerHTML = '';
+    }
+
+    function createConfetti() {
+      for (let i = 0; i < 50; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.top = -10 + 'px';
+        confetti.style.background = ['#ff9800', '#f44336', '#7cffcc'][Math.floor(Math.random() * 3)];
+        confetti.style.animation = `fall ${2 + Math.random() * 1}s linear forwards`;
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 3000);
+      }
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes fall {
+        to {
+          transform: translateY(100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    initQuiz();
+
+    initQuiz();
+
+    // Footer visibility on scroll
+    const footer = document.querySelector('footer');
+    
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          footer.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    footerObserver.observe(footer);
+  </script>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/progress-manager.js"></script>
+</body>
+</html>
+
+
+
+

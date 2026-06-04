@@ -1,0 +1,157 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Advanced URL Scanner — EVIL Strumenti</title>
+  <meta name="description" content="Scansione passiva professionale: DNS, TLS, header HTTP, redirect, discovery e scoring ponderato. Solo su target autorizzati.">
+
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/security-check.css?v=20260713">
+  <script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme sc-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="sc-scene" aria-hidden="true"><div class="sc-scene__mesh"></div></div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="/">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="sc-hero">
+      <p class="sc-kicker">Strumenti · URL Scanner</p>
+      <h1>Advanced URL Scanner</h1>
+      <p class="sc-hero__lead">
+        Valutazione passiva multi-modulo per operatori SOC: risoluzione DNS, GeoIP/ASN, catena TLS,
+        audit header HTTP, redirect, surface discovery e scoring trasparente. Nessun exploit, nessun brute-force.
+      </p>
+    </section>
+
+    <div class="sc-wrap">
+      <div class="sc-panel">
+        <div class="sc-form-row">
+          <input type="url" id="scUrl" class="sc-input" placeholder="https://example.com" autocomplete="off" spellcheck="false">
+        </div>
+        <label class="sc-auth">
+          <input type="checkbox" id="scAuth">
+          <span>Dichiaro di avere autorizzazione esplicita a analizzare questo target (requisito legale e di piattaforma).</span>
+        </label>
+        <div class="sc-actions">
+          <button type="button" class="sc-btn sc-btn--primary" id="scScanBtn" disabled>Avvia scansione</button>
+          <button type="button" class="sc-btn sc-btn--ghost" id="scResetBtn">Reset</button>
+        </div>
+        <p class="sc-meta">5 moduli · ~15–40 s · analisi passiva · accesso libero (temporaneo)</p>
+      </div>
+
+      <aside class="sc-callout" role="note">
+        <strong>Metodologia:</strong> lookup DNS reali, TLS handshake, GET HTTP limitato (64 KB),
+        GeoIP via ip-api.com, discovery su <code>/.well-known/security.txt</code> e <code>/robots.txt</code>.
+        Threat intel locale solo su domini demo didattici.
+      </aside>
+
+      <div class="sc-log" id="scLog" aria-live="polite"></div>
+      <div class="sc-results" id="scResults"></div>
+    </div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+  <div class="evil-site-foot__glow" aria-hidden="true"></div>
+  <div class="evil-site-foot__grid">
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Piattaforma</p>
+      <h2 class="evil-site-foot__title">EVIL Platform</h2>
+      <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Ambito</p>
+      <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Legale</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy">
+        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        ·
+        <a href="help.html" class="evil-site-foot__link">Help</a>
+        ·
+        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </section>
+  </div>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+</footer>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/progress-manager.js"></script>
+  <script src="/js/security-check.js?v=20260705"></script>
+</body>
+</html>

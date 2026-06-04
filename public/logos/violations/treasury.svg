@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="US Treasury">
+  <rect width="120" height="100" rx="8" fill="#14532d"/>
+  <text x="60" y="46" text-anchor="middle" fill="#bbf7d0" font-family="Georgia,serif" font-size="10" font-weight="700">U.S.</text>
+  <text x="60" y="64" text-anchor="middle" fill="#fff" font-family="Georgia,serif" font-size="11" font-weight="700">TREASURY</text>
+</svg>

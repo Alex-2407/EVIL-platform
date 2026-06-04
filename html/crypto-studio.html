@@ -1,0 +1,373 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Studio Cifratura - EVIL</title>
+  <meta name="description" content="Studio scenico su hash, AES, RSA, TLS e PKI — impara la crittografia per la cybersecurity.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/crypto-studio.css?v=20260623">
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+<script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme crypto-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="cs-backdrop" aria-hidden="true">
+    <div class="cs-backdrop__mesh-wrap" id="cs-mesh-wrap">
+      <div class="cs-backdrop__mesh"></div>
+    </div>
+    <div class="cs-backdrop__beams"></div>
+  </div>
+
+  <div class="crypto-term-tooltip" id="crypto-term-tooltip" role="tooltip" hidden></div>
+
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="/">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="cs-hero cs-hero--editorial" id="cs-hero" aria-labelledby="crypto-hero-title">
+      <div class="cs-hero-stripe" aria-hidden="true"></div>
+      <span class="cs-hero-issue" aria-hidden="true">Didattica · Crittografia</span>
+
+      <div class="cs-hero-shell">
+        <div class="cs-hero-brand-col">
+          <p class="cs-kicker">Studio Cifratura</p>
+          <h1 id="crypto-hero-title" class="cs-hero-title">Hash, chiavi<br>e fiducia digitale</h1>
+          <span class="cs-hero-meta">Web Crypto API · browser locale</span>
+        </div>
+
+        <div class="cs-hero-divide" aria-hidden="true"></div>
+
+        <div class="cs-hero-main-col">
+          <blockquote class="cs-hero-punch">
+            <span class="cs-punch-mark" aria-hidden="true">«</span>
+            <span class="cs-punch-body">
+              <span class="cs-punch-lead">Un bit cambiato.</span>
+              <span class="cs-punch-accent"><em>Un digest diverso.</em></span>
+            </span>
+            <span class="cs-punch-mark cs-punch-mark--end" aria-hidden="true">»</span>
+          </blockquote>
+
+          <p class="cs-hero-lead" id="crypto-intro-text"></p>
+
+          <div class="cs-hero-cta">
+            <a class="cs-cta cs-cta--primary" href="#cs-lab">Apri laboratorio</a>
+            <a class="cs-cta cs-cta--ghost" href="#cs-catalog">Catalogo algoritmi</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="cs-scroll-hint" aria-hidden="true"><span>Scorri</span></div>
+    </section>
+
+    <nav class="cs-jump cs-reveal" aria-label="Sezioni studio">
+      <a class="cs-jump-link" href="#cs-lab"><span class="cs-jump-num">1</span> Laboratorio</a>
+      <a class="cs-jump-link" href="#cs-families"><span class="cs-jump-num">2</span> Famiglie</a>
+      <a class="cs-jump-link" href="#cs-catalog"><span class="cs-jump-num">3</span> Catalogo</a>
+      <a class="cs-jump-link" href="#cs-guide"><span class="cs-jump-num">4</span> Guida pratica</a>
+    </nav>
+
+    <section class="cs-showcase cs-reveal" id="cs-lab" aria-labelledby="lab-title">
+      <header class="cs-section-head">
+        <p class="cs-kicker">Laboratorio</p>
+        <h2 id="lab-title">Forgia degli hash</h2>
+        <p>Digita un messaggio e osserva il digest — e la griglia cromatica che lo rappresenta byte per byte.</p>
+      </header>
+
+      <div class="cs-lab-grid">
+        <article class="cs-lab-panel">
+          <div class="cs-lab-chrome">
+            <span class="cs-dot cs-dot--red"></span>
+            <span class="cs-dot cs-dot--amber"></span>
+            <span class="cs-dot cs-dot--green"></span>
+            <span class="cs-lab-chrome__title">crypto.subtle.digest</span>
+          </div>
+          <div class="cs-lab-body">
+            <div class="cs-field">
+              <label for="crypto-hash-input">Messaggio</label>
+              <textarea id="crypto-hash-input" spellcheck="false" placeholder="EVIL{impara_la_cifratura}">EVIL platform</textarea>
+              <button type="button" class="cs-flip-btn" id="cs-flip-bit">Flip ultimo bit — valanga</button>
+            </div>
+            <div class="cs-field">
+              <label for="crypto-hash-algo">Algoritmo</label>
+              <select id="crypto-hash-algo">
+                <option value="SHA-256">SHA-256</option>
+                <option value="SHA-384">SHA-384</option>
+                <option value="SHA-512">SHA-512</option>
+                <option value="SHA-1">SHA-1 (legacy)</option>
+                <option value="demo">— Solo spiegazione valanga —</option>
+              </select>
+            </div>
+            <div class="cs-hash-row">
+              <span class="cs-hash-label">Digest</span>
+              <div class="cs-hash-out" id="crypto-hash-output" aria-live="polite"></div>
+            </div>
+            <p class="cs-lab-note" id="cr-hash-diff" hidden></p>
+            <p class="cs-lab-note">Integrità sì, segretezza no. Per le password: bcrypt o Argon2 con salt.</p>
+          </div>
+        </article>
+
+        <aside class="cs-lab-visual" aria-label="Visualizzazione digest">
+          <div class="cs-digest-head">
+            <span>Mappa byte → colore</span>
+            <span class="cs-digest-algo" id="cs-digest-algo-label">SHA-256</span>
+          </div>
+          <div class="cs-digest-grid" id="cs-digest-grid" aria-hidden="true"></div>
+          <div class="cs-avalanche" id="cs-avalanche" aria-hidden="true">
+            <p class="cs-avalanche__label">Effetto valanga</p>
+            <div class="cs-avalanche__lines">
+              <code class="cs-avalanche__line" id="cs-avalanche-a"></code>
+              <code class="cs-avalanche__line" id="cs-avalanche-b"></code>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="cs-families cs-reveal" id="cs-families" aria-labelledby="families-title">
+      <header class="cs-section-head">
+        <p class="cs-kicker">Tre famiglie</p>
+        <h2 id="families-title">Come si protegge l'informazione</h2>
+        <p>Ogni famiglia risolve un problema diverso — clicca per filtrare il catalogo.</p>
+      </header>
+
+      <div class="cs-family-grid">
+        <button type="button" class="cs-family cs-family--hash" data-filter="hash">
+          <span class="cs-family-ring" aria-hidden="true"></span>
+          <div class="cs-family-deco cs-family-deco--hash" aria-hidden="true">
+            <span class="cs-hex-stream">a3f2…9c1e</span>
+            <span class="cs-hex-stream cs-hex-stream--alt">a3f2…9c1f</span>
+          </div>
+          <div class="cs-family-body">
+            <span class="cs-family-tag">Integrità</span>
+            <h3>Hash &amp; MAC</h3>
+            <p>Digest unidirezionali, HMAC, password hashing. Un bit cambia → output irriconoscibile.</p>
+          </div>
+        </button>
+
+        <button type="button" class="cs-family cs-family--sym" data-filter="sym">
+          <span class="cs-family-ring" aria-hidden="true"></span>
+          <div class="cs-family-deco cs-family-deco--sym" aria-hidden="true">
+            <div class="cs-block-grid">
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+              <span></span><span></span><span></span><span></span>
+            </div>
+          </div>
+          <div class="cs-family-body">
+            <span class="cs-family-tag">Riservatezza</span>
+            <h3>Simmetrica</h3>
+            <p>AES-GCM, ChaCha20 — stessa chiave per cifrare e decifrare. Veloce per volumi di dati.</p>
+          </div>
+        </button>
+
+        <button type="button" class="cs-family cs-family--asym" data-filter="asym-tls">
+          <span class="cs-family-ring" aria-hidden="true"></span>
+          <div class="cs-family-deco cs-family-deco--asym" aria-hidden="true">
+            <div class="cs-keypair">
+              <span class="cs-key cs-key--pub">pub</span>
+              <span class="cs-key-arrow">⇄</span>
+              <span class="cs-key cs-key--priv">priv</span>
+            </div>
+          </div>
+          <div class="cs-family-body">
+            <span class="cs-family-tag">Scambio &amp; firma</span>
+            <h3>Asimmetrica &amp; TLS</h3>
+            <p>RSA, curve ellittiche, certificati X.509 — la PKI dietro HTTPS e le firme digitali.</p>
+          </div>
+        </button>
+      </div>
+    </section>
+
+    <section class="cs-spotlight cs-reveal" aria-label="Protocollo TLS">
+      <div class="cs-tls-card">
+        <span class="cs-tls-shine" aria-hidden="true"></span>
+        <div class="cs-tls-deco" aria-hidden="true">
+          <ol class="cs-handshake" id="cs-handshake">
+            <li class="is-active"><span>1</span> Client Hello</li>
+            <li><span>2</span> Server Hello + cert</li>
+            <li><span>3</span> Key exchange</li>
+            <li><span>4</span> Finished</li>
+          </ol>
+        </div>
+        <div class="cs-tls-body">
+          <span class="cs-family-tag">Protocollo</span>
+          <h3>TLS 1.3 in quattro passi</h3>
+          <p>Il browser negozia cipher forti, verifica il certificato del server e stabilisce una sessione con forward secrecy.</p>
+          <a class="cs-cta cs-cta--ghost cs-cta--sm" href="ssl-analyzer.html">Analizza con SSL Analyzer</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cs-catalog cs-reveal" id="cs-catalog" aria-labelledby="algo-title">
+      <header class="cs-section-head">
+        <p class="cs-kicker">Catalogo</p>
+        <h2 id="algo-title">Algoritmi e protocolli</h2>
+        <p class="cs-catalog-hint">Clicca una scheda per la scheda tecnica completa — storia, equazioni, pro/contro e rank sicurezza.</p>
+      </header>
+      <div class="cs-rail" id="crypto-rail" role="tablist">
+        <button type="button" class="cs-rail__btn is-active" data-filter="all" role="tab">Tutti</button>
+        <button type="button" class="cs-rail__btn" data-filter="hash" role="tab">Hash</button>
+        <button type="button" class="cs-rail__btn" data-filter="sym" role="tab">Simmetrica</button>
+        <button type="button" class="cs-rail__btn" data-filter="asym" role="tab">Asimmetrica</button>
+        <button type="button" class="cs-rail__btn" data-filter="tls" role="tab">TLS / PKI</button>
+      </div>
+      <div class="cs-grid" id="crypto-algo-grid"></div>
+    </section>
+
+    <section class="cs-guide cs-reveal" id="cs-guide" aria-labelledby="guide-title">
+      <header class="cs-section-head">
+        <p class="cs-kicker">Sicurezza pratica</p>
+        <h2 id="guide-title">Quale strumento per quale problema</h2>
+        <p>Matrice decisionale rapida — i dettagli storici e tecnici sono nelle schede del catalogo.</p>
+      </header>
+      <div class="cs-guide-layout">
+        <div class="cs-guide-col cs-guide-col--use">
+          <h3 class="cs-guide-col__title">Usa</h3>
+          <ul class="cs-guide-list">
+            <li><strong>Password utenti</strong> → Argon2id (fallback bcrypt)</li>
+            <li><strong>Integrità file / Git / blockchain</strong> → SHA-256 o SHA-3</li>
+            <li><strong>API token / cookie firmati</strong> → HMAC-SHA256 o Ed25519</li>
+            <li><strong>Dati in transito</strong> → TLS 1.3 + certificato valido + ECDHE</li>
+            <li><strong>Dati at rest</strong> → AES-GCM o ChaCha20-Poly1305</li>
+            <li><strong>Scambio chiavi</strong> → X25519 / ECDHE + HKDF</li>
+            <li><strong>Firme digitali</strong> → Ed25519 o RSA ≥3072 bit</li>
+          </ul>
+        </div>
+        <div class="cs-guide-col cs-guide-col--avoid">
+          <h3 class="cs-guide-col__title">Evita</h3>
+          <ul class="cs-guide-list">
+            <li><strong>MD5 / SHA-1</strong> per password, firme o integrità critica</li>
+            <li><strong>SHA-256 da solo</strong> per hash password (troppo veloce)</li>
+            <li><strong>DES / 3DES / RC4</strong> — deprecati ovunque</li>
+            <li><strong>AES-CBC</strong> senza MAC autenticato (padding oracle)</li>
+            <li><strong>RSA key transport</strong> senza forward secrecy</li>
+            <li><strong>TLS &lt; 1.2</strong> e cipher suite obsolete</li>
+            <li><strong>Nonce/IV riutilizzati</strong> in qualsiasi AEAD</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="cs-modal" id="cs-algo-modal" hidden role="dialog" aria-modal="true" aria-labelledby="cs-modal-title">
+    <div class="cs-modal__backdrop" data-cs-close tabindex="-1" aria-hidden="true"></div>
+    <div class="cs-modal__panel" role="document">
+      <header class="cs-modal__head">
+        <div class="cs-modal__head-text">
+          <p class="cs-modal__cat" id="cs-modal-cat"></p>
+          <h2 class="cs-modal__title" id="cs-modal-title"></h2>
+        </div>
+        <div class="cs-modal__rank-wrap">
+          <div class="cs-modal__rank" id="cs-modal-rank" aria-label="Rank sicurezza">
+            <span class="cs-modal__rank-num" id="cs-modal-rank-num">—</span>
+            <span class="cs-modal__rank-label">/ 10</span>
+          </div>
+        </div>
+        <button type="button" class="cs-modal__close" id="cs-modal-close" aria-label="Chiudi scheda">×</button>
+      </header>
+      <div class="cs-modal__body" id="cs-modal-body"></div>
+    </div>
+  </div>
+
+  <footer class="evil-site-foot" id="site-footer">
+  <div class="evil-site-foot__glow" aria-hidden="true"></div>
+  <div class="evil-site-foot__grid">
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Piattaforma</p>
+      <h2 class="evil-site-foot__title">EVIL Platform</h2>
+      <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Ambito</p>
+      <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Legale</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy">
+        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        ·
+        <a href="help.html" class="evil-site-foot__link">Help</a>
+        ·
+        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </section>
+  </div>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+</footer>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/progress-manager.js"></script>
+  <script src="/js/crypto-algorithms-data.js?v=20260623"></script>
+  <script src="/js/crypto-studio.js?v=20260623"></script>
+</body>
+</html>

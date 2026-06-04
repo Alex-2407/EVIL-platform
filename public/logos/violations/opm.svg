@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="OPM">
+  <rect width="120" height="100" rx="8" fill="#1e3a5f"/>
+  <text x="60" y="48" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="28" font-weight="700">OPM</text>
+  <text x="60" y="72" text-anchor="middle" fill="#94a3b8" font-family="Arial,sans-serif" font-size="9">U.S. GOV</text>
+</svg>

@@ -1,0 +1,639 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Generazione Report - EVIL</title>
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260603c">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <link rel="stylesheet" href="/css/galaxy-btn.css?v=20260609">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/tools-hub.css?v=20260704">
+  <style>
+    .report-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 60px;
+      border-bottom: 2px solid rgba(77, 171, 247, 0.3);
+      padding-bottom: 40px;
+    }
+
+    .hero-section h1 {
+      font-size: 2.5rem;
+      color: #4dabe7;
+      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .hero-section p {
+      font-size: 1rem;
+      color: #b0b0b0;
+      max-width: 900px;
+      margin: 10px auto;
+      line-height: 1.7;
+    }
+
+    .form-section {
+      background: rgba(77, 171, 247, 0.05);
+      border: 1px solid rgba(77, 171, 247, 0.2);
+      border-radius: 8px;
+      padding: 40px;
+      margin: 40px 0;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #4dabe7;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      background: rgba(20, 30, 50, 0.8);
+      border: 1px solid rgba(77, 171, 247, 0.3);
+      border-radius: 4px;
+      color: #fff;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #606060;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #4dabe7;
+      box-shadow: 0 0 12px rgba(77, 171, 247, 0.2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-row.full {
+      grid-template-columns: 1fr;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-item input {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #4dabe7;
+    }
+
+    .checkbox-item label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 400;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4dabe7, #00d4ff);
+      color: #0a0e27;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(77, 171, 247, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #606060;
+      color: #b0b0b0;
+    }
+
+    .btn-secondary:hover {
+      border-color: #4dabe7;
+      color: #4dabe7;
+    }
+
+    .report-preview {
+      background: rgba(77, 171, 247, 0.03);
+      border: 1px solid rgba(77, 171, 247, 0.2);
+      border-radius: 8px;
+      padding: 40px;
+      margin: 40px 0;
+      display: none;
+    }
+
+    .report-preview.active {
+      display: block;
+    }
+
+    .report-header {
+      border-bottom: 2px solid rgba(77, 171, 247, 0.3);
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .report-title {
+      color: #4dabe7;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .report-meta {
+      color: #808080;
+      font-size: 0.9rem;
+    }
+
+    .report-section {
+      margin: 30px 0;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-left: 3px solid #4dabe7;
+      border-radius: 4px;
+    }
+
+    .report-section h3 {
+      color: #4dabe7;
+      font-size: 1.3rem;
+      margin-bottom: 15px;
+    }
+
+    .report-content {
+      color: #d1d5db;
+      line-height: 1.8;
+    }
+
+    .report-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .report-list li {
+      padding: 8px 0;
+      padding-left: 20px;
+      position: relative;
+      color: #d1d5db;
+    }
+
+    .report-list li:before {
+      content: "·";
+      position: absolute;
+      left: 0;
+      color: #4dabe7;
+      font-weight: 700;
+    }
+
+    .export-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+
+    .btn-export {
+      padding: 10px 20px;
+      background: rgba(77, 171, 247, 0.1);
+      border: 1px solid rgba(77, 171, 247, 0.3);
+      color: #4dabe7;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .btn-export:hover {
+      background: rgba(77, 171, 247, 0.2);
+      box-shadow: 0 0 15px rgba(77, 171, 247, 0.15);
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+<script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <header role="banner" aria-label="Intestazione principale">
+    <div class="header-container">
+      <div class="logo-section">
+        <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
+        </button>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
+      </div>
+
+      <nav role="navigation" aria-label="Menu principale">
+        <ul>
+          <li><a href="/">Home</a></li>
+
+          <li>
+            <a href="#">Didattica ▾</a>
+            <div class="dropdown">
+              <a href="web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="virtual-lab.html">Lab Virtuale</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Intelligence ▾</a>
+            <div class="dropdown">
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div class="auth-buttons">
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+        </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+  <main class="report-container">
+    <section class="hero-section">
+      <p class="st-tool-parent"><a href="security-check.html">← Strumenti</a></p>
+      <h1>?? Generazione Report</h1>
+      <p>Crea rapporti completi e personalizzati su attacchi, vulnerabilità e incidenti di sicurezza. Esporta in PDF o JSON per la comunicazione con stakeholder.</p>
+    </section>
+
+    <section class="form-section">
+      <h2 style="color: #4dabe7; margin-bottom: 30px;">?? Configurazione Report</h2>
+
+      <div class="form-group">
+        <label for="reportTitle">Titolo Report</label>
+        <input type="text" id="reportTitle" placeholder="Es: Incidente Sicurezza Marzo 2026">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reportDate">Data Incidente</label>
+          <input type="date" id="reportDate">
+        </div>
+        <div class="form-group">
+          <label for="reportSeverity">Severità</label>
+          <select id="reportSeverity">
+            <option value="critical">?? Critica</option>
+            <option value="high">?? Alta</option>
+            <option value="medium" selected>?? Media</option>
+            <option value="low">?? Bassa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="reportOrg">Organizzazione Colpita</label>
+          <input type="text" id="reportOrg" placeholder="Es: Acme Corporation">
+        </div>
+        <div class="form-group">
+          <label for="reportAuthor">Autore Report</label>
+          <input type="text" id="reportAuthor" placeholder="Es: Security Team EVIL">
+        </div>
+      </div>
+
+      <div class="form-group form-row full">
+        <label>Tipo Incidente</label>
+        <div class="checkbox-group">
+          <div class="checkbox-item">
+            <input type="checkbox" id="malware" name="incident" value="malware" checked>
+            <label for="malware">Malware</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="phishing" name="incident" value="phishing">
+            <label for="phishing">Phishing</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="ransomware" name="incident" value="ransomware">
+            <label for="ransomware">Ransomware</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="dataBreach" name="incident" value="dataBreach">
+            <label for="dataBreach">Data Breach</label>
+          </div>
+          <div class="checkbox-item">
+            <input type="checkbox" id="ddos" name="incident" value="ddos">
+            <label for="ddos">DDoS</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group form-row full">
+        <label for="description">Descrizione Incidente</label>
+        <textarea id="description" rows="6" placeholder="Descrivi dettagliatamente l'incidente..."></textarea>
+      </div>
+
+      <div class="form-group form-row full">
+        <label for="impact">Impatto e Conseguenze</label>
+        <textarea id="impact" rows="5" placeholder="Descrivi l'impatto tecnico e aziendale..."></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="systemsAffected">Sistemi Interessati</label>
+          <input type="text" id="systemsAffected" placeholder="Es: Email Server, Database, Web App">
+        </div>
+        <div class="form-group">
+          <label for="usersAffected">Utenti Interessati</label>
+          <input type="number" id="usersAffected" placeholder="Es: 1500" min="0">
+        </div>
+      </div>
+
+      <div class="form-group form-row full">
+        <label for="recommendations">Raccomandazioni</label>
+        <textarea id="recommendations" rows="5" placeholder="Suggerisci azioni correttive..."></textarea>
+      </div>
+
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="generateReport()">?? Genera Report</button>
+        <button class="btn btn-secondary" onclick="resetForm()">?? Cancella Form</button>
+      </div>
+    </section>
+
+    <section id="reportPreview" class="report-preview">
+      <div class="report-header">
+        <div class="report-title" id="previewTitle">EVIL Cybersecurity Report</div>
+        <div class="report-meta">
+          Generato il: <span id="previewDate"></span><br>
+          Autore: <span id="previewAuthor"></span>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <h3>?? Riepilogo Esecutivo</h3>
+        <div class="report-content" id="previewSummary"></div>
+      </div>
+
+      <div class="report-section">
+        <h3>?? Dettagli Incidente</h3>
+        <div class="report-content">
+          <strong>Organizzazione:</strong> <span id="previewOrg"></span><br>
+          <strong>Data Incidente:</strong> <span id="previewIncidentDate"></span><br>
+          <strong>Severità:</strong> <span id="previewSeverityLabel"></span><br>
+          <strong>Sistemi Interessati:</strong> <span id="previewSystems"></span><br>
+          <strong>Utenti Interessati:</strong> <span id="previewUsers"></span>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <h3>?? Descrizione Minaccia</h3>
+        <div class="report-content" id="previewDescription"></div>
+      </div>
+
+      <div class="report-section">
+        <h3>?? Impatto</h3>
+        <div class="report-content" id="previewImpact"></div>
+      </div>
+
+      <div class="report-section">
+        <h3>?? Raccomandazioni</h3>
+        <ul class="report-list" id="previewRecommendations"></ul>
+      </div>
+
+      <div class="export-buttons">
+        <button class="btn-export" onclick="exportPDF()">?? Scarica PDF</button>
+        <button class="btn-export" onclick="exportJSON()">?? Scarica JSON</button>
+        <button class="btn-export" onclick="printReport()">??? Stampa</button>
+      </div>
+    </section>
+  </main>
+  <footer class="evil-site-foot" id="site-footer">
+  <div class="evil-site-foot__glow" aria-hidden="true"></div>
+  <div class="evil-site-foot__grid">
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Piattaforma</p>
+      <h2 class="evil-site-foot__title">EVIL Platform</h2>
+      <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Ambito</p>
+      <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Legale</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy">
+        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        ·
+        <a href="help.html" class="evil-site-foot__link">Help</a>
+        ·
+        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </section>
+  </div>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+</footer>
+
+  <script src="/js/auth-manager.js"></script>
+  <script src="/js/tools-api.js"></script>
+  <script>
+    function generateReport() {
+      const title = document.getElementById('reportTitle').value || 'EVIL Cybersecurity Report';
+      const date = document.getElementById('reportDate').value;
+      const severity = document.getElementById('reportSeverity').value;
+      const org = document.getElementById('reportOrg').value || 'Organization';
+      const author = document.getElementById('reportAuthor').value || 'Security Team';
+      const description = document.getElementById('description').value || 'No description provided.';
+      const impact = document.getElementById('impact').value || 'No impact details provided.';
+      const systems = document.getElementById('systemsAffected').value || 'Not specified';
+      const users = document.getElementById('usersAffected').value || '0';
+      const recommendations = document.getElementById('recommendations').value || 'Under investigation';
+
+      const severityLabels = {
+        critical: '?? CRITICA',
+        high: '?? ALTA',
+        medium: '?? MEDIA',
+        low: '?? BASSA'
+      };
+
+      const checkedIncidents = Array.from(document.querySelectorAll('input[name="incident"]:checked'))
+        .map(el => el.value)
+        .join(', ') || 'Non specificato';
+
+      document.getElementById('previewTitle').textContent = title;
+      document.getElementById('previewDate').textContent = new Date().toLocaleString('it-IT');
+      document.getElementById('previewAuthor').textContent = author;
+      document.getElementById('previewSummary').textContent = `Incidente di sicurezza classificato come ${severityLabels[severity]}. Tipo: ${checkedIncidents}. ${description.substring(0, 200)}...`;
+      document.getElementById('previewOrg').textContent = org;
+      document.getElementById('previewIncidentDate').textContent = date || 'N/A';
+      document.getElementById('previewSeverityLabel').innerHTML = severityLabels[severity];
+      document.getElementById('previewSystems').textContent = systems;
+      document.getElementById('previewUsers').textContent = users;
+      document.getElementById('previewDescription').textContent = description;
+      document.getElementById('previewImpact').textContent = impact;
+      
+      const recList = recommendations.split('\n').filter(r => r.trim());
+      document.getElementById('previewRecommendations').innerHTML = recList
+        .map(r => `<li>${r.trim()}</li>`)
+        .join('');
+
+      document.getElementById('reportPreview').classList.add('active');
+      document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function resetForm() {
+      document.getElementById('reportTitle').value = '';
+      document.getElementById('reportDate').value = '';
+      document.getElementById('reportOrg').value = '';
+      document.getElementById('reportAuthor').value = '';
+      document.getElementById('description').value = '';
+      document.getElementById('impact').value = '';
+      document.getElementById('systemsAffected').value = '';
+      document.getElementById('usersAffected').value = '';
+      document.getElementById('recommendations').value = '';
+      document.getElementById('reportPreview').classList.remove('active');
+    }
+
+    function exportJSON() {
+      const data = {
+        title: document.getElementById('reportTitle').value,
+        date: new Date().toISOString(),
+        organization: document.getElementById('reportOrg').value,
+        author: document.getElementById('reportAuthor').value,
+        severity: document.getElementById('reportSeverity').value,
+        description: document.getElementById('description').value,
+        impact: document.getElementById('impact').value,
+        systems: document.getElementById('systemsAffected').value,
+        affectedUsers: document.getElementById('usersAffected').value,
+        recommendations: document.getElementById('recommendations').value
+      };
+      
+      const jsonString = JSON.stringify(data, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `report-${Date.now()}.json`;
+      link.click();
+    }
+
+    function exportPDF() {
+      const incident = {
+        title: document.getElementById('reportTitle').value,
+        target: document.getElementById('reportOrg').value,
+        severity: document.getElementById('reportSeverity').value,
+        summary: document.getElementById('description').value,
+        findings: document.getElementById('impact').value,
+        recommendations: document.getElementById('recommendations').value,
+        author: document.getElementById('reportAuthor').value,
+        systems: document.getElementById('systemsAffected').value,
+        usersAffected: document.getElementById('usersAffected').value
+      };
+      EvilTools.downloadToolPdf('/api/report-generator', { incident }, `evil-report-${Date.now()}.pdf`)
+        .then(() => window.progressManager?.logActivity?.('report_generated', { source: 'report-generator' }))
+        .catch(err => alert('Errore PDF: ' + err.message));
+    }
+
+    function printReport() {
+      window.print();
+    }
+
+    // Footer visibility on scroll
+    const footer = document.querySelector('footer');
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+
+    const footerObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          footer.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    footerObserver.observe(footer);
+  </script>
+
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/js.js"></script>
+  <script src="/js/progress-manager.js"></script>
+  <script src="/js/galaxy-buttons.js"></script>
+</body>
+</html>
+
+
+
+

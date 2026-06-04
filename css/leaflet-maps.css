@@ -1,0 +1,99 @@
+/**
+ * Fix Leaflet vs tema EVIL (border-box globale, transform antenati, tile sparsi)
+ */
+
+/* box-sizing: border-box globale in responsive.css rompe il posizionamento tile */
+.leaflet-container,
+.leaflet-container *,
+.leaflet-container *::before,
+.leaflet-container *::after {
+  box-sizing: content-box;
+}
+
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #050a12;
+  z-index: 1;
+}
+
+.leaflet-container img.leaflet-tile,
+.leaflet-container img.leaflet-marker-icon,
+.leaflet-container img.leaflet-image-layer {
+  max-width: none !important;
+  max-height: none !important;
+  width: auto;
+  height: auto;
+}
+
+/* Contenitore mappa: niente contain/transform (rompe i pane Leaflet) */
+.am-map-frame,
+.ha-map-frame {
+  position: relative;
+  isolation: isolate;
+  transform: none !important;
+  contain: none !important;
+}
+
+.am-map-frame #attacks-map,
+.ha-map-frame #historic-map {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+/* Sezioni mappa: reveal solo opacity, mai transform su antenati Leaflet */
+.am-map-section,
+.ha-map-section {
+  transform: none !important;
+}
+
+.am-map-frame .leaflet-pane,
+.ha-map-frame .leaflet-pane {
+  z-index: auto;
+}
+
+.am-map-frame .leaflet-tile-pane,
+.ha-map-frame .leaflet-tile-pane {
+  z-index: 1;
+}
+
+.am-map-frame .leaflet-overlay-pane,
+.ha-map-frame .leaflet-overlay-pane {
+  z-index: 4;
+}
+
+.am-map-frame img.leaflet-tile,
+.ha-map-frame img.leaflet-tile {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  border: none;
+  padding: 0;
+  margin: 0;
+  user-select: none;
+  pointer-events: auto;
+}
+
+/* HUD in alto a destra — libera i controlli zoom Leaflet (top-left) */
+.am-map-hud,
+.ha-map-hud {
+  top: 12px;
+  left: auto;
+  right: 12px;
+}
+
+.am-map-frame .leaflet-top.leaflet-left,
+.ha-map-frame .leaflet-top.leaflet-left {
+  margin-top: 8px;
+  margin-left: 8px;
+}
+
+.am-page .leaflet-marker-icon.ha-leaflet-icon,
+.am-page .leaflet-marker-icon.am-leaflet-icon,
+.ha-page .leaflet-marker-icon.ha-leaflet-icon {
+  background: transparent !important;
+  border: none !important;
+}

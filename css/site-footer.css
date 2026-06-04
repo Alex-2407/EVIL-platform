@@ -1,0 +1,121 @@
+/* Footer sito EVIL — condiviso su tutte le pagine (override style.css footer) */
+
+footer.evil-site-foot {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  margin-top: 3rem;
+  padding: clamp(2.5rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 2.5rem) clamp(2rem, 4vw, 2.75rem) !important;
+  background: linear-gradient(180deg, transparent 0%, rgba(6, 8, 14, 0.78) 30%, rgba(6, 8, 14, 0.94) 100%) !important;
+  border-top: 1px dashed rgba(255, 255, 255, 0.14) !important;
+  border-bottom: none !important;
+  color: #94a3b8;
+  opacity: 1 !important;
+  animation: none !important;
+  box-sizing: border-box;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.evil-site-foot__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 50% 80% at 12% 100%, rgba(167, 139, 250, 0.14), transparent 55%),
+    radial-gradient(ellipse 45% 70% at 88% 100%, rgba(245, 158, 11, 0.12), transparent 50%),
+    radial-gradient(ellipse 40% 60% at 50% 100%, rgba(0, 255, 156, 0.07), transparent 45%);
+}
+
+.evil-site-foot__grid {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 4vw, 2.75rem);
+  align-items: start;
+  padding: 0 !important;
+  border: none !important;
+}
+
+.evil-site-foot__col {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.evil-site-foot .footer-label,
+.evil-site-foot .footer-inner {
+  display: none;
+}
+
+.evil-site-foot__tag {
+  margin: 0;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #f59e0b;
+}
+
+.evil-site-foot__title {
+  margin: 0 0 0.15rem;
+  font-family: Georgia, "Palatino Linotype", serif;
+  font-size: clamp(1.15rem, 2.5vw, 1.35rem);
+  font-weight: 400;
+  color: #f8fafc;
+  line-height: 1.25;
+}
+
+.evil-site-foot__copy {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: #94a3b8;
+}
+
+.evil-site-foot__meta {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.72rem;
+  color: #cbd5e1;
+}
+
+.evil-site-foot__link {
+  color: #00ff9c;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.evil-site-foot__link:hover {
+  color: #fbbf24;
+}
+
+.evil-site-foot__link::after {
+  content: ' →';
+}
+
+.evil-site-foot__brand {
+  position: relative;
+  z-index: 1;
+  margin: clamp(1.75rem, 4vw, 2.25rem) auto 0;
+  max-width: 1120px;
+  padding-top: 1.25rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  text-align: center;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(148, 163, 184, 0.55);
+}
+
+@media (max-width: 900px) {
+  .evil-site-foot__grid {
+    grid-template-columns: 1fr;
+  }
+}

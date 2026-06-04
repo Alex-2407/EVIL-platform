@@ -1,0 +1,608 @@
+/* Attacchi storici — editoriale EVIL + mappa Leaflet */
+
+.ha-page {
+  --ha-amber: #f59e0b;
+  --ha-rose: #fb7185;
+  --ha-coral: #ff6b6b;
+  --ha-emerald: #00ff9c;
+  --ha-serif: Georgia, "Palatino Linotype", serif;
+  --ha-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  --ha-glass: rgba(9, 14, 24, 0.82);
+  --ha-border: rgba(255, 255, 255, 0.1);
+}
+
+.ha-page main {
+  position: relative;
+  z-index: 2;
+}
+
+.ha-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ha-scene__mesh {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(ellipse 50% 45% at 12% 18%, rgba(251, 113, 133, 0.1), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 72%, rgba(255, 107, 107, 0.08), transparent 50%),
+    radial-gradient(ellipse 40% 35% at 50% 100%, rgba(245, 158, 11, 0.06), transparent 45%);
+}
+
+.ha-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 1.5rem) 3rem;
+}
+
+.ha-hero {
+  text-align: center;
+  padding: clamp(2.5rem, 6vw, 3.5rem) clamp(1.25rem, 4vw, 2rem) clamp(1.5rem, 3vw, 2rem);
+  border-bottom: 1px dashed var(--ha-border);
+}
+
+.ha-kicker {
+  margin: 0 0 0.5rem;
+  font-family: var(--ha-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ha-amber);
+}
+
+.ha-hero h1 {
+  margin: 0 0 0.65rem;
+  font-family: var(--ha-serif);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 400;
+  color: #f8fafc;
+}
+
+.ha-hero__lead {
+  margin: 0 auto 1.25rem;
+  max-width: 42em;
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: #94a3b8;
+}
+
+.ha-nav-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.ha-nav-links a {
+  font-family: var(--ha-mono);
+  font-size: 0.72rem;
+  color: #fda4af;
+  text-decoration: none;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  border-radius: 6px;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.ha-nav-links a:hover {
+  background: rgba(251, 113, 133, 0.12);
+  border-color: var(--ha-rose);
+}
+
+.ha-section-head {
+  margin: 2rem 0 1rem;
+}
+
+.ha-section-head .ha-kicker {
+  margin-bottom: 0.35rem;
+}
+
+.ha-section-head h2 {
+  margin: 0;
+  font-family: var(--ha-serif);
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 400;
+  color: #f1f5f9;
+}
+
+.ha-map-section {
+  margin-bottom: 2rem;
+}
+
+.ha-map-frame {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: clamp(280px, 42vh, 480px);
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  background: #050a12;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
+}
+
+.ha-map-hud {
+  position: absolute;
+  z-index: 1000;
+  padding: 0.65rem 0.9rem;
+  border-radius: 10px;
+  background: var(--ha-glass);
+  border: 1px solid var(--ha-border);
+  pointer-events: none;
+}
+
+.ha-map-hud__label {
+  display: block;
+  font-family: var(--ha-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.ha-map-hud__val {
+  font-family: var(--ha-serif);
+  font-size: 1.35rem;
+  color: var(--ha-rose);
+  font-variant-numeric: tabular-nums;
+}
+
+.ha-marker {
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+
+.ha-marker__core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 12px currentColor;
+}
+
+.ha-marker__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  opacity: 0.6;
+  animation: haMarkerRing 2.2s ease-out infinite;
+}
+
+.ha-marker__ring:nth-child(2) {
+  animation-delay: 0.7s;
+}
+
+@keyframes haMarkerRing {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.ha-page .leaflet-marker-icon.ha-leaflet-icon {
+  background: transparent !important;
+  border: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.ha-page .leaflet-marker-icon .ha-marker {
+  animation: haMarkerPop 0.45s ease-out forwards;
+  animation-delay: calc(var(--ha-marker-i, 0) * 0.05s);
+}
+
+@keyframes haMarkerPop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ha-map-help {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+.ha-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.ha-card {
+  background: rgba(12, 18, 30, 0.85);
+  border: 1px solid rgba(251, 113, 133, 0.2);
+  border-radius: 12px;
+  padding: 1.35rem 1.4rem;
+  cursor: pointer;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  outline: none;
+}
+
+.ha-card:hover,
+.ha-card.is-active {
+  border-color: var(--ha-rose);
+  box-shadow: 0 0 24px rgba(251, 113, 133, 0.12);
+}
+
+.ha-card.is-active {
+  border-color: var(--ha-coral);
+}
+
+.ha-hero__lead a {
+  color: #fda4af;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ha-hero__lead a:hover {
+  color: #fecdd3;
+}
+
+.ha-card__date {
+  margin: 0 0 0.35rem;
+  font-family: var(--ha-mono);
+  font-size: 0.72rem;
+  color: #fda4af;
+  letter-spacing: 0.04em;
+}
+
+.ha-card__tag {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  font-family: var(--ha-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fecdd3;
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  border-radius: 4px;
+}
+
+.ha-card__head {
+  display: flex;
+  gap: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.ha-card__head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.ha-card__org {
+  margin: 0 0 0.25rem;
+  font-family: var(--ha-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+}
+
+.ha-card__headline {
+  margin: 0 0 0.35rem;
+  font-family: var(--ha-serif);
+  font-size: 1.15rem;
+  line-height: 1.25;
+  color: #f8fafc;
+  font-weight: 400;
+}
+
+.ha-card__title-sub {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.ha-logo-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 46px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ha-logo-wrap--card {
+  width: 64px;
+  height: 52px;
+}
+
+.ha-logo-wrap--table {
+  width: 40px;
+  height: 34px;
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.ha-logo-wrap--popup {
+  width: 48px;
+  height: 40px;
+  margin-bottom: 0.5rem;
+}
+
+.ha-logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.ha-logo-wrap .ha-logo--mono {
+  display: none;
+}
+
+.ha-logo-wrap.is-fallback .ha-logo--mono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-family: var(--ha-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fecdd3;
+  background: rgba(251, 113, 133, 0.15);
+}
+
+.ha-popup__org {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-family: var(--ha-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+}
+
+.ha-compare__org {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ha-compare__org strong {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.ha-card__title {
+  margin: 0 0 0.75rem;
+  font-family: var(--ha-serif);
+  font-size: 1.35rem;
+  color: #fecdd3;
+  font-weight: 400;
+}
+
+.ha-card__meta {
+  margin: 0 0 0.45rem;
+  font-size: 0.88rem;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
+.ha-card__meta strong {
+  color: #e2e8f0;
+}
+
+.ha-card__block {
+  margin: 0.75rem 0 0;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+.ha-card__block strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--ha-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ha-card__block p {
+  margin: 0;
+}
+
+.ha-card__block--impact {
+  background: rgba(248, 113, 113, 0.08);
+  border-left: 3px solid #f87171;
+}
+
+.ha-card__block--impact strong {
+  color: #f87171;
+}
+
+.ha-card__block--data {
+  background: rgba(34, 211, 238, 0.06);
+  border-left: 3px solid #22d3ee;
+}
+
+.ha-card__block--data strong {
+  color: #22d3ee;
+}
+
+.ha-card__block--lesson {
+  background: rgba(245, 158, 11, 0.08);
+  border-left: 3px solid var(--ha-amber);
+}
+
+.ha-card__block--lesson strong {
+  color: var(--ha-amber);
+}
+
+.ha-card__map-hint {
+  margin: 0.85rem 0 0;
+  font-size: 0.72rem;
+  font-family: var(--ha-mono);
+  color: #64748b;
+}
+
+.ha-compare {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 2.5rem;
+  background: rgba(12, 18, 30, 0.6);
+  border: 1px solid rgba(251, 113, 133, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.ha-compare thead {
+  background: rgba(251, 113, 133, 0.1);
+}
+
+.ha-compare th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-family: var(--ha-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ha-rose);
+}
+
+.ha-compare td {
+  padding: 0.75rem 1rem;
+  color: #94a3b8;
+  font-size: 0.88rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ha-compare tbody tr:hover {
+  background: rgba(251, 113, 133, 0.06);
+}
+
+.ha-cta {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border-radius: 14px;
+  border: 1px dashed rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.04);
+  margin-bottom: 2rem;
+}
+
+.ha-cta h2 {
+  margin: 0 0 0.75rem;
+  font-family: var(--ha-serif);
+  font-size: 1.5rem;
+  color: #f1f5f9;
+  font-weight: 400;
+}
+
+.ha-cta p,
+.ha-cta li {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.ha-cta ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem auto 1.25rem;
+  max-width: 36em;
+  text-align: left;
+}
+
+.ha-cta li {
+  margin: 0.4rem 0;
+  padding-left: 1rem;
+  border-left: 2px solid var(--ha-amber);
+}
+
+.ha-cta__btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  background: rgba(251, 113, 133, 0.2);
+  border: 1px solid var(--ha-rose);
+  color: #fecdd3;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.25s;
+}
+
+.ha-cta__btn:hover {
+  background: rgba(251, 113, 133, 0.35);
+}
+
+.ha-popup h4 {
+  margin: 0 0 0.35rem;
+  color: var(--ha-rose);
+  font-family: var(--ha-serif);
+}
+
+.ha-popup p {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+.ha-page .leaflet-popup-content-wrapper {
+  background: rgba(9, 14, 24, 0.95) !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(251, 113, 133, 0.3);
+  border-radius: 10px !important;
+}
+
+.ha-page .leaflet-popup-tip {
+  background: rgba(9, 14, 24, 0.95) !important;
+}
+
+.ha-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.ha-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (max-width: 768px) {
+  .ha-grid {
+    grid-template-columns: 1fr;
+  }
+  .ha-compare {
+    font-size: 0.8rem;
+  }
+  .ha-compare th,
+  .ha-compare td {
+    padding: 0.5rem 0.65rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ha-marker__ring,
+  .ha-page .leaflet-marker-icon .ha-marker,
+  .ha-scene__mesh {
+    animation: none !important;
+  }
+  .ha-reveal {
+    opacity: 1;
+    transform: none;
+  }
+}

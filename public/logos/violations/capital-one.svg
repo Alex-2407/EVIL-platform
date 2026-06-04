@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" role="img" aria-label="Capital One">
+  <rect width="120" height="100" rx="8" fill="#004977"/>
+  <text x="60" y="46" text-anchor="middle" fill="#fff" font-family="Arial,sans-serif" font-size="11" font-weight="700">CAPITAL</text>
+  <text x="60" y="62" text-anchor="middle" fill="#d03027" font-family="Arial,sans-serif" font-size="11" font-weight="700">ONE</text>
+</svg>

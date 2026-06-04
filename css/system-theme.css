@@ -1,0 +1,92 @@
+/**
+ * EVIL — tema di sistema condiviso (token, focus, touch, safe-area)
+ */
+body.evil-theme {
+  --evil-bg: #06080e;
+  --evil-surface: rgba(9, 14, 24, 0.88);
+  --evil-border: rgba(255, 255, 255, 0.1);
+  --evil-accent: #00ff9c;
+  --evil-amber: #f59e0b;
+  --evil-sky: #7dd3fc;
+  --evil-text: #e2e8f0;
+  --evil-muted: #94a3b8;
+  --evil-touch-min: 44px;
+  --evil-content-max: 1280px;
+  color-scheme: dark;
+  background-color: var(--evil-bg);
+  color: var(--evil-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safe area (iPhone, iPad notch, PWA) */
+body.evil-theme {
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+body.evil-theme header {
+  padding-top: max(0px, env(safe-area-inset-top, 0));
+}
+
+footer.evil-site-foot {
+  padding-bottom: max(clamp(2rem, 4vw, 2.75rem), env(safe-area-inset-bottom, 0)) !important;
+}
+
+/* Focus visibile — tastiera / switch control / VR pointer */
+body.evil-theme a:focus-visible,
+body.evil-theme button:focus-visible,
+body.evil-theme input:focus-visible,
+body.evil-theme select:focus-visible,
+body.evil-theme textarea:focus-visible,
+body.evil-theme [tabindex]:focus-visible {
+  outline: 2px solid var(--evil-amber);
+  outline-offset: 2px;
+}
+
+/* Touch target minimo (telefono / tablet) */
+@media (pointer: coarse) {
+  body.evil-theme .hamburger-btn,
+  body.evil-theme .auth-btn,
+  body.evil-theme header nav a,
+  body.evil-theme .auth-submit,
+  body.evil-theme .btn-login,
+  body.evil-theme button[type="submit"]:not(.img-btn) {
+    min-height: var(--evil-touch-min);
+  }
+
+  body.evil-theme header nav > ul > li > a {
+    min-height: var(--evil-touch-min);
+  }
+}
+
+/* Contenuto centrato su schermi molto larghi (PC ultrawide / VR browser) */
+@media (min-width: 1440px) {
+  body.evil-theme:not(.home-page) main {
+    max-width: var(--evil-content-max);
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* iPad / tablet landscape */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .evil-site-foot__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .evil-site-foot__col:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Riduzione movimento rispettata globalmente */
+@media (prefers-reduced-motion: reduce) {
+  body.evil-theme *,
+  body.evil-theme *::before,
+  body.evil-theme *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Anteprima trofei EVIL</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth-pages.css?v=20260605">
+  <link rel="stylesheet" href="/css/trophy-system.css?v=20260605">
+  <link rel="stylesheet" href="/css/profile-page.css?v=20260605">
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme auth-page-body profile-page">
+  <div class="auth-scene" aria-hidden="true">
+    <div class="auth-scene__base"></div>
+    <div class="auth-scene__glow auth-scene__glow--one"></div>
+    <div class="auth-scene__glow auth-scene__glow--two"></div>
+  </div>
+  <div class="profile-mesh" aria-hidden="true"></div>
+
+  <main class="trophy-preview-page profile-main">
+    <h1>Anteprima trofei</h1>
+    <p class="trophy-preview-page__warn">
+      Pagina di design: animazioni, suoni per rarità e cerimonia del Collezionista Supremo (~15 s).
+    </p>
+    <p id="previewStatus" class="profile-section-sub">Caricamento catalogo…</p>
+    <div class="trophy-preview-actions">
+      <button type="button" class="profile-trophy-tab is-active" id="playAll">Cerimonia tutti (sequenza)</button>
+      <button type="button" class="profile-trophy-tab" id="playRandom">Trofeo casuale</button>
+      <a href="jingle-preview-local.html" class="profile-trophy-tab" style="text-decoration:none;display:inline-flex;align-items:center;">Musichette sblocco</a>
+      <a href="profile.html" class="profile-trophy-tab" style="text-decoration:none;display:inline-flex;align-items:center;">← Profilo</a>
+    </div>
+    <div class="trophy-grid" id="previewGrid"></div>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Piattaforma</p>
+        <h2 class="evil-site-foot__title">EVIL Platform</h2>
+        <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Ambito</p>
+        <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Legale</p>
+        <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+        <p class="evil-site-foot__copy">
+          <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+          ·
+          <a href="help.html" class="evil-site-foot__link">Help</a>
+          ·
+          <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+        </p>
+      </section>
+    </div>
+    <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+  </footer>
+
+
+  <script src="/js/trophy-audio.js"></script>
+  <script src="/js/trophy-jingles.js"></script>
+  <script src="/js/trophy-system.js"></script>
+  <script>
+    (async function () {
+      const status = document.getElementById('previewStatus');
+      const grid = document.getElementById('previewGrid');
+
+      async function fetchCatalog() {
+        for (const url of ['/api/achievements', '/achievements.json']) {
+          const res = await fetch(url, { cache: 'no-store' });
+          if (!res.ok) continue;
+          const data = await res.json();
+          const list = data.achievements || data;
+          if (Array.isArray(list) && list.length) return list;
+        }
+        throw new Error('Catalogo non disponibile. Avvia il server (npm start).');
+      }
+
+      function renderGrid(catalog) {
+        grid.innerHTML = catalog.map((ach) => {
+          const card = TrophySystem.renderTrophyCard(ach, true, new Date().toISOString());
+          return card.replace(
+            '</article>',
+            `<button type="button" class="auth-submit auth-submit--outline" style="margin-top:12px;width:100%;cursor:pointer;" data-play="${ach.id}">Anteprima sblocco</button></article>`
+          );
+        }).join('');
+      }
+
+      function play(ach) {
+        if (!window.TrophySystem) {
+          alert('TrophySystem non caricato. Controlla /js/trophy-system.js');
+          return;
+        }
+        TrophySystem.playCeremony(ach);
+      }
+
+      try {
+        let catalog = await fetchCatalog();
+
+        if ((!catalog || !catalog.length) && window.TrophySystem) {
+          catalog = await TrophySystem.loadCatalog();
+        }
+
+        if (!catalog || !catalog.length) {
+          status.textContent = 'Catalogo vuoto. Riavvia il server: node js/server.js';
+          return;
+        }
+
+        status.textContent = catalog.length + ' trofei pronti. Clicca «Anteprima sblocco» su ogni card.';
+        renderGrid(catalog);
+
+        grid.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-play]');
+          if (!btn) return;
+          e.preventDefault();
+          const ach = catalog.find((a) => a.id === btn.getAttribute('data-play'));
+          if (ach) play(ach);
+        });
+
+        document.getElementById('playRandom').addEventListener('click', () => {
+          play(catalog[Math.floor(Math.random() * catalog.length)]);
+        });
+
+        document.getElementById('playAll').addEventListener('click', async () => {
+          for (const ach of catalog) {
+            await TrophySystem.playCeremony(ach);
+          }
+        });
+      } catch (err) {
+        status.innerHTML =
+          'Impossibile caricare i trofei. <strong>Riavvia il server</strong> (<code>node js/server.js</code>) e ricarica.<br><small>' +
+          err.message +
+          '</small>';
+      }
+    })();
+  </script>
+</body>
+</html>

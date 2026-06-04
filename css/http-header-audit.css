@@ -1,0 +1,59 @@
+/* HTTP Header Audit — estende layout URL Scanner (accento violet) */
+
+.ah-page {
+  --sc-cyan: #a78bfa;
+  --sc-emerald: #34d399;
+}
+
+.ah-page .sc-scene__mesh {
+  background:
+    radial-gradient(ellipse 55% 50% at 12% 18%, rgba(167, 139, 250, 0.09), transparent 55%),
+    radial-gradient(ellipse 45% 40% at 88% 75%, rgba(52, 211, 153, 0.05), transparent 50%);
+}
+
+.ah-page .sc-kicker {
+  color: #7dd3fc;
+}
+
+.ah-page .sc-btn--primary {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  color: #1e1b4b;
+}
+
+.ah-page .sc-btn--primary:not(:disabled):hover {
+  box-shadow: 0 6px 20px rgba(167, 139, 250, 0.3);
+}
+
+.ah-page .sc-input:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.15);
+}
+
+.ah-page .sc-auth input {
+  accent-color: #a78bfa;
+}
+
+.ah-page .sc-hero__lead a {
+  color: #7dd3fc;
+}
+
+.ah-page .sc-hero__lead strong {
+  color: #e2e8f0;
+}
+
+.sc-limit-list {
+  margin: 0.5rem 0 0;
+  padding-left: 1.25rem;
+  font-size: 0.92rem;
+  opacity: 0.9;
+}
+
+.sc-callout--muted {
+  opacity: 0.85;
+  border-style: dashed;
+}
+
+.sc-muted {
+  opacity: 0.75;
+  font-size: 0.92rem;
+}
