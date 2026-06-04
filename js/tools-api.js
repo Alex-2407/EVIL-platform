@@ -11,7 +11,7 @@
     if (typeof syncUserFromServer === 'function') return Promise.resolve();
     return new Promise((resolve) => {
       const s = document.createElement('script');
-      s.src = '/js/auth-manager.js?v=20260606';
+      s.src = '/js/auth-manager.js?v=20260607';
       s.onload = () => resolve();
       s.onerror = () => resolve();
       document.head.appendChild(s);

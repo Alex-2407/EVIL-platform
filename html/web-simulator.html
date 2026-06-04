@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -14,8 +14,8 @@
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
-  <script src="/js/auth-manager.js?v=20260606"></script>
-  <script src="/js/load-header.js?v=20260606" defer></script>
+  <script src="/js/auth-manager.js?v=20260607"></script>
+  <script src="/js/load-header.js?v=20260607" defer></script>
 </head>
 <body class="evil-theme sim-page">
   <div id="fade-overlay"></div>
@@ -30,7 +30,7 @@
         <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
           <img src="/html/generated-image.png" alt="Logo EVIL">
         </button>
-        <a href="/" class="header-evil-wordmark" aria-label="EVIL � torna alla home">EVIL</a>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
       </div>
 
       <nav role="navigation" aria-label="Menu principale">
@@ -38,7 +38,7 @@
           <li><a href="/">Home</a></li>
 
           <li>
-            <a href="#">Didattica ?</a>
+            <a href="#">Didattica ▾</a>
             <div class="dropdown">
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -49,7 +49,7 @@
           </li>
 
           <li>
-            <a href="#">Intelligence ?</a>
+            <a href="#">Intelligence ▾</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa incidenti</a>
               <a href="historic-attacks.html">Violazioni storiche</a>
@@ -60,7 +60,7 @@
           </li>
 
           <li>
-            <a href="#">Strumenti ?</a>
+            <a href="#">Strumenti ▾</a>
             <div class="dropdown">
               <a href="security-check.html">Check URL</a>
               <a href="vulnerability-scanner.html">Header HTTP</a>
@@ -88,7 +88,7 @@
 
   <main>
     <section class="sim-hero sim-hero--editorial" aria-labelledby="sim-hero-title">
-      <p class="sim-section-kicker">Impara � Laboratorio web</p>
+      <p class="sim-section-kicker">Impara · Laboratorio web</p>
       <h1 id="sim-hero-title">Laboratorio Attacchi Web</h1>
     </section>
 
@@ -129,7 +129,7 @@
     <div id="panel-sql-injection" class="tab-content active" role="tabpanel" data-attack="sql-injection">
       <div class="simulator-container">
         <div class="simulation-panel">
-          <div class="panel-title">Console � SQL Injection (simulata)</div>
+          <div class="panel-title">Console — SQL Injection (simulata)</div>
           <p class="panel-hint">Prova con <code>admin</code> oppure incolla <code>admin' OR '1'='1</code> nel campo utente. Il log descrive cosa farebbe il server vulnerabile.</p>
 
           <div class="input-group">
@@ -145,7 +145,7 @@
           <button type="button" class="simulate-btn" onclick="simulateSQLInjection()">Avvia simulazione passo-passo</button>
 
           <div class="log-output" id="sql-log" aria-live="polite">
-            <div class="log-line log-info">[PRONTO] Ambiente didattico � nessun database reale coinvolto</div>
+            <div class="log-line log-info">[PRONTO] Ambiente didattico — nessun database reale coinvolto</div>
             <div class="log-line log-info">[INFO] Premi il pulsante per vedere le 4 fasi illuminate sopra</div>
           </div>
 
@@ -156,24 +156,24 @@
           <div class="panel-title">Percorso didattico</div>
 
           <div class="learn-block">
-            <h3>Fase 1 � Cosa fa l'applicazione</h3>
-            <p>Il form di login invia nome e password al backend. Il backend costruisce una stringa SQL e la manda al database per chiedere: �esiste questa coppia?�.</p>
+            <h3>Fase 1 — Cosa fa l'applicazione</h3>
+            <p>Il form di login invia nome e password al backend. Il backend costruisce una stringa SQL e la manda al database per chiedere: «esiste questa coppia?».</p>
           </div>
 
           <div class="learn-block">
-            <h3>Fase 2 � Dove nasce il bug</h3>
-            <p>Il programmatore concatena direttamente il testo del form nella query. Il database non distingue �comandi SQL� da �dati� � legge tutto come un unico messaggio.</p>
+            <h3>Fase 2 — Dove nasce il bug</h3>
+            <p>Il programmatore concatena direttamente il testo del form nella query. Il database non distingue «comandi SQL» da «dati» — legge tutto come un unico messaggio.</p>
             <div class="code-snippet">"SELECT * FROM users WHERE user='" + input + "' AND pass='" + password + "'"</div>
           </div>
 
           <div class="learn-block">
-            <h3>Fase 3 � Cosa fa l'input malevolo (in teoria)</h3>
-            <p>Chiudendo la stringa con un apice e aggiungendo <code>OR '1'='1</code>, la condizione diventa sempre vera: il login pu� riuscire senza conoscere la password reale.</p>
+            <h3>Fase 3 — Cosa fa l'input malevolo (in teoria)</h3>
+            <p>Chiudendo la stringa con un apice e aggiungendo <code>OR '1'='1</code>, la condizione diventa sempre vera: il login può riuscire senza conoscere la password reale.</p>
             <div class="code-snippet">admin' OR '1'='1' --</div>
           </div>
 
           <div class="learn-block">
-            <h3>Fase 4 � Cosa fa il difensore</h3>
+            <h3>Fase 4 — Cosa fa il difensore</h3>
             <ul class="defense-list">
               <li><strong>Prepared statements:</strong> il DB tratta l'input solo come dato, mai come comando.</li>
               <li>Account DB con permessi minimi (no DROP, no file read).</li>
@@ -188,7 +188,7 @@
     <div id="panel-xss" class="tab-content" role="tabpanel" data-attack="xss">
       <div class="simulator-container">
         <div class="simulation-panel">
-          <div class="panel-title">Console � XSS (simulata)</div>
+          <div class="panel-title">Console — XSS (simulata)</div>
           <p class="panel-hint">Inserisci un commento normale o prova <code>&lt;script&gt;alert(1)&lt;/script&gt;</code>. Nessuno script viene eseguito sul tuo PC: solo il flusso viene narrato.</p>
 
           <div class="input-group">
@@ -204,7 +204,7 @@
           <button type="button" class="simulate-btn" onclick="simulateXSS()">Avvia simulazione passo-passo</button>
 
           <div class="log-output" id="xss-log" aria-live="polite">
-            <div class="log-line log-info">[PRONTO] XSS spiegato come catena browser ? server</div>
+            <div class="log-line log-info">[PRONTO] XSS spiegato come catena browser → server</div>
           </div>
 
           <div class="risk-badge risk-high">Impatto tipico: alto</div>
@@ -213,21 +213,21 @@
         <aside class="learn-panel">
           <div class="panel-title">Percorso didattico</div>
           <div class="learn-block">
-            <h3>Fase 1 � Superficie di attacco</h3>
+            <h3>Fase 1 — Superficie di attacco</h3>
             <p>Ogni campo che finisce nell'HTML visto da altri utenti: commenti, bio, parametri in URL riflessi nella pagina.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 2 � Errore</h3>
-            <p>Il server salva il testo e lo reinserisce nel DOM come HTML �vivo�, non come testo escapato.</p>
+            <h3>Fase 2 — Errore</h3>
+            <p>Il server salva il testo e lo reinserisce nel DOM come HTML «vivo», non come testo escapato.</p>
             <div class="code-snippet">element.innerHTML = commentoSalvato; // pericoloso</div>
           </div>
           <div class="learn-block">
-            <h3>Fase 3 � Effetto sulla vittima</h3>
+            <h3>Fase 3 — Effetto sulla vittima</h3>
             <p>Il browser della vittima interpreta tag ed eventi: furto cookie di sessione, redirect, clickjacking leggero.</p>
             <div class="code-snippet">&lt;img src=x onerror="/* codice JS */"&gt;</div>
           </div>
           <div class="learn-block">
-            <h3>Fase 4 � Difesa</h3>
+            <h3>Fase 4 — Difesa</h3>
             <ul class="defense-list">
               <li>Output encoding (trattare <code>&lt;</code> come testo, non come tag).</li>
               <li>Content-Security-Policy per bloccare script inline non autorizzati.</li>
@@ -241,8 +241,8 @@
     <div id="panel-brute-force" class="tab-content" role="tabpanel" data-attack="brute-force">
       <div class="simulator-container">
         <div class="simulation-panel">
-          <div class="panel-title">Console � Brute Force (simulata)</div>
-          <p class="panel-hint">La wordlist sotto � solo didattica. La simulazione mostra tentativi e risposte HTTP fittizie, non invia richieste a login reali.</p>
+          <div class="panel-title">Console — Brute Force (simulata)</div>
+          <p class="panel-hint">La wordlist sotto è solo didattica. La simulazione mostra tentativi e risposte HTTP fittizie, non invia richieste a login reali.</p>
 
           <div class="input-group">
             <label class="input-label" for="bf-username">Username target (fittizio)</label>
@@ -271,19 +271,19 @@ Studente2026!</textarea>
         <aside class="learn-panel">
           <div class="panel-title">Percorso didattico</div>
           <div class="learn-block">
-            <h3>Fase 1 � Cosa prova l'attaccante</h3>
+            <h3>Fase 1 — Cosa prova l'attaccante</h3>
             <p>Automatizza POST al form di login con liste di password comuni (rockyou, leak passate, varianti stagionali).</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 2 � Perch� a volte funziona</h3>
+            <h3>Fase 2 — Perché a volte funziona</h3>
             <p>Password umana prevedibile + assenza di limiti: il costo per l'attaccante diventa accettabile.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 3 � Segnale di successo</h3>
-            <p>Risposta diversa (200 vs 401), cookie di sessione, redirect alla dashboard � il simulatore li descrive nel log.</p>
+            <h3>Fase 3 — Segnale di successo</h3>
+            <p>Risposta diversa (200 vs 401), cookie di sessione, redirect alla dashboard — il simulatore li descrive nel log.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 4 � Difesa</h3>
+            <h3>Fase 4 — Difesa</h3>
             <ul class="defense-list">
               <li>Rate limiting per IP e per account; CAPTCHA progressivo.</li>
               <li>2FA (TOTP, WebAuthn) rende inutile solo la password rubata.</li>
@@ -297,8 +297,8 @@ Studente2026!</textarea>
     <div id="panel-file-upload" class="tab-content" role="tabpanel" data-attack="file-upload">
       <div class="simulator-container">
         <div class="simulation-panel">
-          <div class="panel-title">Console � Upload non sicuro (simulata)</div>
-          <p class="panel-hint">Esempio didattico: file <code>foto.jpg</code> che in realt� contiene codice server. Nessun file viene caricato sul disco.</p>
+          <div class="panel-title">Console — Upload non sicuro (simulata)</div>
+          <p class="panel-hint">Esempio didattico: file <code>foto.jpg</code> che in realtà contiene codice server. Nessun file viene caricato sul disco.</p>
 
           <div class="input-group">
             <label class="input-label" for="fu-filename">Nome file dichiarato</label>
@@ -312,7 +312,7 @@ Studente2026!</textarea>
 
           <div class="input-group">
             <label class="input-label" for="fu-content">Contenuto (solo testo dimostrativo)</label>
-            <textarea class="input-field" id="fu-content" rows="4">&lt;?php // esempio didattico � mai eseguito qui ?&gt;</textarea>
+            <textarea class="input-field" id="fu-content" rows="4">&lt;?php // esempio didattico — mai eseguito qui ?&gt;</textarea>
           </div>
 
           <button type="button" class="simulate-btn" onclick="simulateFileUpload()">Avvia simulazione passo-passo</button>
@@ -327,19 +327,19 @@ Studente2026!</textarea>
         <aside class="learn-panel">
           <div class="panel-title">Percorso didattico</div>
           <div class="learn-block">
-            <h3>Fase 1 � Funzione legittima</h3>
+            <h3>Fase 1 — Funzione legittima</h3>
             <p>L'utente carica un'immagine o un PDF; il server la memorizza e mostra un link pubblico.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 2 � Controllo insufficiente</h3>
-            <p>Si guarda solo l'estensione o il MIME inviato dal client � entrambi falsificabili.</p>
+            <h3>Fase 2 — Controllo insufficiente</h3>
+            <p>Si guarda solo l'estensione o il MIME inviato dal client — entrambi falsificabili.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 3 � Escalation</h3>
-            <p>Se la cartella <code>/uploads</code> esegue PHP o script, aprire l'URL del file pu� eseguire comandi sul server.</p>
+            <h3>Fase 3 — Escalation</h3>
+            <p>Se la cartella <code>/uploads</code> esegue PHP o script, aprire l'URL del file può eseguire comandi sul server.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 4 � Difesa</h3>
+            <h3>Fase 4 — Difesa</h3>
             <ul class="defense-list">
               <li>Whitelist estensioni + verifica magic bytes reali.</li>
               <li>Storage su bucket senza interprete; servire file statici con Content-Disposition: attachment.</li>
@@ -353,8 +353,8 @@ Studente2026!</textarea>
     <div id="panel-csrf" class="tab-content" role="tabpanel" data-attack="csrf">
       <div class="simulator-container">
         <div class="simulation-panel">
-          <div class="panel-title">Console � CSRF (simulata)</div>
-          <p class="panel-hint">Domini fittizi (bank.example.com). Il log mostra come il browser �porta� la sessione senza che tu clicchi consapevolmente.</p>
+          <div class="panel-title">Console — CSRF (simulata)</div>
+          <p class="panel-hint">Domini fittizi (bank.example.com). Il log mostra come il browser «porta» la sessione senza che tu clicchi consapevolmente.</p>
 
           <div class="input-group">
             <label class="input-label" for="csrf-site">Sito dove sei loggato (esempio)</label>
@@ -383,20 +383,20 @@ Studente2026!</textarea>
         <aside class="learn-panel">
           <div class="panel-title">Percorso didattico</div>
           <div class="learn-block">
-            <h3>Fase 1 � Sessione valida</h3>
+            <h3>Fase 1 — Sessione valida</h3>
             <p>Hai fatto login su bank.example.com; il browser conserva un cookie di sessione.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 2 � Trappola cross-site</h3>
+            <h3>Fase 2 — Trappola cross-site</h3>
             <p>Apri un'altra pagina che contiene form o immagine che punta a un URL sensibile della banca.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 3 � Richiesta �automatica�</h3>
+            <h3>Fase 3 — Richiesta «automatica»</h3>
             <p>Il browser allega i cookie: per il server sembra una tua azione, anche se non hai confermato nulla.</p>
             <div class="code-snippet">&lt;form action="https://bank.example.com/transfer" method="POST"&gt;...&lt;/form&gt;</div>
           </div>
           <div class="learn-block">
-            <h3>Fase 4 � Difesa</h3>
+            <h3>Fase 4 — Difesa</h3>
             <ul class="defense-list">
               <li>Token CSRF univoco per sessione e per form.</li>
               <li>Cookie SameSite=Lax/Strict; verifica header Origin.</li>
@@ -411,10 +411,10 @@ Studente2026!</textarea>
       <div class="status-bar__inner">
         <span class="status-dot" aria-hidden="true"></span>
         <span class="status-bar__segment"><strong>Stato:</strong> Laboratorio attivo (offline)</span>
-        <span class="status-bar__sep" aria-hidden="true">�</span>
+        <span class="status-bar__sep" aria-hidden="true">·</span>
         <span class="status-bar__segment"><strong>Tema:</strong> <span id="lab-status-topic">SQL Injection</span></span>
-        <span class="status-bar__sep" aria-hidden="true">�</span>
-        <span class="status-bar__segment"><strong>Ultima simulazione:</strong> <span id="lab-last-run">�</span></span>
+        <span class="status-bar__sep" aria-hidden="true">·</span>
+        <span class="status-bar__segment"><strong>Ultima simulazione:</strong> <span id="lab-last-run">—</span></span>
       </div>
     </div>
 
@@ -434,17 +434,17 @@ Studente2026!</textarea>
     </section>
     <section class="evil-site-foot__col">
       <p class="evil-site-foot__tag">Legale</p>
-      <p class="evil-site-foot__copy evil-site-foot__meta">� 2026 � EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
         <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
-        �
+        ·
         <a href="help.html" class="evil-site-foot__link">Help</a>
-        �
+        ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>
     </section>
   </div>
-  <p class="evil-site-foot__brand" aria-hidden="true">Impara � Simula � Difendi</p>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
 </footer>
 
 
@@ -497,7 +497,7 @@ Studente2026!</textarea>
       addLogWithDelay('[PHP] ? QUERY COSTRUITA REALMENTE:', 'warning', logElement, delay);
       delay += 150;
       
-      // Analizza se c'� injection
+      // Analizza se c'è injection
       const tokens = parseInput(input);
       const hasInjection = tokens.some(t => ['OR', 'UNION', 'COMMENT', 'SEMICOLON'].includes(t.type));
       
@@ -585,13 +585,13 @@ Studente2026!</textarea>
       delay += 500;
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
       delay += 150;
-      addLogWithDelay('[?? LEZIONE] Payload comune: admin\' OR \'1\'=\'1\' --', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Payload comune: admin\' OR \'1\'=\'1\' --', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] Come funziona: La condizione OR "1"="1" � SEMPRE vera', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Come funziona: La condizione OR "1"="1" è SEMPRE vera', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] Risultato: Ritorna il primo utente (solitamente admin)', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Risultato: Ritorna il primo utente (solitamente admin)', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA] Usare PREPARED STATEMENTS ? $stmt = $db->prepare("SELECT * FROM users WHERE username = ?")', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA] Usare PREPARED STATEMENTS → $stmt = $db->prepare("SELECT * FROM users WHERE username = ?")', 'success', logElement, delay);
     }
     
     // Tokenizza l'input per rilevare SQL injection
@@ -724,10 +724,10 @@ Studente2026!</textarea>
           addLogWithDelay('[JS] ? Accesso al Context Globale (window object)', 'error', logElement, delay);
           delay += 200;
           
-          addLogWithDelay('[JS] ? window.document.cookie = "PHPSESSID=abc123xyz789; admin=true"', 'error', logElement, delay);
+          addLogWithDelay('[JS] → window.document.cookie = "PHPSESSID=abc123xyz789; admin=true"', 'error', logElement, delay);
           delay += 200;
           
-          addLogWithDelay('[JS] ? window.localStorage = {"password":"mypass123", "card":"1234-5678-..."}', 'error', logElement, delay);
+          addLogWithDelay('[JS] → window.localStorage = {"password":"mypass123", "card":"1234-5678-..."}', 'error', logElement, delay);
           delay += 250;
           
           addLogWithDelay('[EXFIL] Tentativo exfiltration dati sensibili:', 'error', logElement, delay);
@@ -742,7 +742,7 @@ Studente2026!</textarea>
           addLogWithDelay('[EXFIL] PHPSESSID=abc123xyz789; admin=true; csrf_token=token456', 'error', logElement, delay);
           delay += 300;
           
-          addLogWithDelay('[PERSISTENT] Questa vulnerabilit� rimane nel database!', 'error', logElement, delay);
+          addLogWithDelay('[PERSISTENT] Questa vulnerabilità rimane nel database!', 'error', logElement, delay);
           delay += 250;
           addLogWithDelay('[PERSISTENT] TUTTI i futuri visitatori della pagina subiranno lo stesso attacco', 'error', logElement, delay);
         }
@@ -759,15 +759,15 @@ Studente2026!</textarea>
       delay += 500;
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
       delay += 150;
-      addLogWithDelay('[?? LEZIONE] XSS ha 3 varianti:', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] XSS ha 3 varianti:', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] 1. Reflected: Payload in URL (immediato)', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] 1. Reflected: Payload in URL (immediato)', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] 2. Stored: Payload nel database (persistente)', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] 2. Stored: Payload nel database (persistente)', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] 3. DOM-based: Manipolazione DOM lato client', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] 3. DOM-based: Manipolazione DOM lato client', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA] Usare textContent invece di innerHTML ? div.textContent = userInput', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA] Usare textContent invece di innerHTML → div.textContent = userInput', 'success', logElement, delay);
     }
     
     // Analizza se l'input contiene payload XSS
@@ -848,7 +848,7 @@ Studente2026!</textarea>
       }
       delay += 300;
       
-      addLogWithDelay('[TIMING] Velocit� attacco: ~100 tentativi/secondo (simulato)', 'warning', logElement, delay);
+      addLogWithDelay('[TIMING] Velocità attacco: ~100 tentativi/secondo (simulato)', 'warning', logElement, delay);
       addLogWithDelay('[TIMING] Nessun rate-limiting rilevato (VULNERABILE)', 'error', logElement, delay);
       delay += 300;
       
@@ -891,7 +891,7 @@ Studente2026!</textarea>
           addLogWithDelay('-----------------------------------------------------------', 'error', logElement, delay);
           delay += 150;
           
-          addLogWithDelay(`[??] PASSWORD TROVATA DOPO ${attemptNum} TENTATIVI!`, 'error', logElement, delay);
+          addLogWithDelay(`[🔑] PASSWORD TROVATA DOPO ${attemptNum} TENTATIVI!`, 'error', logElement, delay);
           delay += 300;
           
           const correctPassword = password;
@@ -956,17 +956,17 @@ Studente2026!</textarea>
       delay += 500;
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
       delay += 150;
-      addLogWithDelay('[?? LEZIONE] Wordlist comuni: rockyou.txt (14M pwd), hashcat, fasttrack', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Wordlist comuni: rockyou.txt (14M pwd), hashcat, fasttrack', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] Tempo stimato per 1 milione di tentativi: ~2.7 ore', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Tempo stimato per 1 milione di tentativi: ~2.7 ore', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] GPU-powered: Fino a 300 MILIARDI di tentativi/secondo', 'warning', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] GPU-powered: Fino a 300 MILIARDI di tentativi/secondo', 'warning', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 1] Implementare rate-limiting: Max 3 tentativi/5 minuti', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 1] Implementare rate-limiting: Max 3 tentativi/5 minuti', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 2] Account lockout: Dopo 5 fallimenti ? lockout 30 minuti', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 2] Account lockout: Dopo 5 fallimenti → lockout 30 minuti', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 3] Multi-Factor Authentication (2FA): OTP, SMS, Biometrico', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 3] Multi-Factor Authentication (2FA): OTP, SMS, Biometrico', 'success', logElement, delay);
     }
 
     // ============================================
@@ -1033,7 +1033,7 @@ Studente2026!</textarea>
       delay += 150;
       
       if (!mimeMatch && isDangerous) {
-        addLogWithDelay(`[!] VULNERABILIT�: MIME type mismatch con estensione pericolosa`, 'error', logElement, delay);
+        addLogWithDelay(`[!] VULNERABILITÀ: MIME type mismatch con estensione pericolosa`, 'error', logElement, delay);
         delay += 250;
       } else if (mimeMatch) {
         addLogWithDelay(`[?] MIME type corrisponde all'estensione`, 'success', logElement, delay);
@@ -1075,7 +1075,7 @@ Studente2026!</textarea>
           delay += 250;
           
           if (ext === 'php') {
-            addLogWithDelay('[EXEC] Server Apache ? mod_php attivo', 'error', logElement, delay);
+            addLogWithDelay('[EXEC] Server Apache → mod_php attivo', 'error', logElement, delay);
             delay += 200;
             
             addLogWithDelay('[EXEC] Browser richiede: GET /uploads/shell.php?cmd=id', 'error', logElement, delay);
@@ -1122,19 +1122,19 @@ Studente2026!</textarea>
       delay += 500;
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
       delay += 150;
-      addLogWithDelay('[?? LEZIONE] Bypassare filtri: .php.jpg, .php%00, .phtml', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Bypassare filtri: .php.jpg, .php%00, .phtml', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] Double extension: file.php.jpg (interpretato come PHP)', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Double extension: file.php.jpg (interpretato come PHP)', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] Magic bytes falsificati: PNG header + PHP code', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Magic bytes falsificati: PNG header + PHP code', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 1] Whitelist rigida: Solo estensioni permesse (.jpg, .png, .gif)', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 1] Whitelist rigida: Solo estensioni permesse (.jpg, .png, .gif)', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 2] Salvare in directory FUORI dal web root', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 2] Salvare in directory FUORI dal web root', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 3] Validare magic bytes + rinominare file (hash)', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 3] Validare magic bytes + rinominare file (hash)', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 4] Disabilitare script execution: .htaccess ? php_flag engine off', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 4] Disabilitare script execution: .htaccess → php_flag engine off', 'success', logElement, delay);
     }
     
     function getMagicBytesData(ext) {
@@ -1230,7 +1230,7 @@ Studente2026!</textarea>
       addLogWithDelay(`[?] Host: ${site.replace('https://', '')}`, 'error', logElement, delay);
       delay += 150;
       
-      // Qui il CSRF token NON viene inviato perch� viene dal sito esterno
+      // Qui il CSRF token NON viene inviato perché viene dal sito esterno
       addLogWithDelay('[?] Referer: ' + malicious, 'error', logElement, delay);
       delay += 150;
       
@@ -1248,19 +1248,19 @@ Studente2026!</textarea>
       addLogWithDelay('[SERVER] Analisi richiesta ricevuta:', 'info', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] ✓ Cookie session_id presente e valido', 'success', logElement, delay);
+      addLogWithDelay('[SERVER] âœ“ Cookie session_id presente e valido', 'success', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] ✓ Utente � autenticato (dai cookie)', 'success', logElement, delay);
+      addLogWithDelay('[SERVER] âœ“ Utente è autenticato (dai cookie)', 'success', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] ✗ CSRF Token NON verificato (vulnerabile)', 'error', logElement, delay);
+      addLogWithDelay('[SERVER] âœ— CSRF Token NON verificato (vulnerabile)', 'error', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] ✗ Referer NON validato (vulnerabile)', 'error', logElement, delay);
+      addLogWithDelay('[SERVER] âœ— Referer NON validato (vulnerabile)', 'error', logElement, delay);
       delay += 300;
       
-      addLogWithDelay('[DECISION] Poich� l\'utente � autenticato ? PROCEDI ALLA TRANSAZIONE', 'error', logElement, delay);
+      addLogWithDelay('[DECISION] Poiché l\'utente è autenticato → PROCEDI ALLA TRANSAZIONE', 'error', logElement, delay);
       delay += 300;
       
       addLogWithDelay('[DB] UPDATE accounts SET balance = balance - 10000 WHERE user_id = 1', 'error', logElement, delay);
@@ -1280,17 +1280,17 @@ Studente2026!</textarea>
       
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
       delay += 150;
-      addLogWithDelay('[?? LEZIONE] CSRF funziona perch� il browser AUTOMATICAMENTE include i cookie', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] CSRF funziona perché il browser AUTOMATICAMENTE include i cookie', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] Il server NON sa che la richiesta viene da un sito esterno', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] Il server NON sa che la richiesta viene da un sito esterno', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[?? LEZIONE] La vittima � AUTENTICATA, quindi il server la ritiene autorizzata', 'info', logElement, delay);
+      addLogWithDelay('[💡 LEZIONE] La vittima è AUTENTICATA, quindi il server la ritiene autorizzata', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 1] Token CSRF: Generare hash unico per ogni form ? token = hash(session + timestamp + secret)', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 1] Token CSRF: Generare hash unico per ogni form → token = hash(session + timestamp + secret)', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 2] SameSite Cookie: Set-Cookie: session=xxx; SameSite=Strict ? Invia cookie SOLO se same-origin', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 2] SameSite Cookie: Set-Cookie: session=xxx; SameSite=Strict → Invia cookie SOLO se same-origin', 'success', logElement, delay);
       delay += 200;
-      addLogWithDelay('[??? DIFESA 3] Validare Origin header: Verificare che la richiesta viene dallo stesso dominio', 'success', logElement, delay);
+      addLogWithDelay('[🛡️ DIFESA 3] Validare Origin header: Verificare che la richiesta viene dallo stesso dominio', 'success', logElement, delay);
     }
 
     // ============================================

@@ -1,7 +1,4 @@
-// Auth Manager v3 - Secure JWT con httpOnly Cookies
-// Tokens are now managed by server-side httpOnly cookies for XSS protection
-// Client only stores user metadata in localStorage
-
+// Auth Manager — sessione httpOnly + UI header
 const AUTH_API_URL = window.location.origin + '/api';
 const AUTH_TIMEOUT = 8000;
 
@@ -15,37 +12,22 @@ const AUTH_STORAGE = {
       name: user.name,
       email: user.email
     }));
-    try {
-      window.dispatchEvent(new CustomEvent('evil-auth-changed', { detail: { user } }));
-    } catch (_) { /* ignore */ }
   },
   getUser() {
     try {
       const userStr = localStorage.getItem('user');
       return userStr ? JSON.parse(userStr) : null;
-    } catch (err) {
-      console.warn('User parse error:', err);
+    } catch {
       return null;
     }
   },
   clearUser() {
     localStorage.removeItem('user');
-    try {
-      window.dispatchEvent(new CustomEvent('evil-auth-changed', { detail: null }));
-    } catch (_) { /* ignore */ }
   },
   clear() {
     this.clearUser();
   }
 };
-
-function notifyAuthVerified() {
-  try {
-    const bc = new BroadcastChannel('evil-auth');
-    bc.postMessage({ type: 'email-verified' });
-    bc.close();
-  } catch (_) { /* ignore */ }
-}
 
 async function fetchSession() {
   const controller = new AbortController();
@@ -62,59 +44,37 @@ async function fetchSession() {
       return data.user;
     }
     return null;
-  } catch (err) {
+  } catch {
     clearTimeout(timeoutId);
-    if (err.name !== 'AbortError') {
-      console.warn('Sessione:', err.message || err);
-    }
     return null;
   }
 }
 
-/**
- * Ripristina user in localStorage dalla sessione cookie (httpOnly).
- * @returns {Promise<Object|null>}
- */
 async function syncUserFromServer() {
   let user = await fetchSession();
   if (user) {
     AUTH_STORAGE.setUser(user);
     return user;
   }
-
-  const refreshed = await refreshAccessToken();
-  if (refreshed) {
+  if (await refreshAccessToken()) {
     user = await fetchSession();
     if (user) {
       AUTH_STORAGE.setUser(user);
       return user;
     }
   }
-
   return null;
 }
 
 function isAuthenticated() {
-  try {
-    const user = AUTH_STORAGE.getUser();
-    return !!(user && user.id && user.name && user.email);
-  } catch (err) {
-    console.warn('Auth check error:', err);
-    return false;
-  }
+  const user = AUTH_STORAGE.getUser();
+  return !!(user && user.id && user.name && user.email);
 }
 
 function getCurrentUser() {
-  try {
-    const user = AUTH_STORAGE.getUser();
-    if (!user || !user.id || !user.name || !user.email) {
-      return null;
-    }
-    return user;
-  } catch (err) {
-    console.warn('User error:', err);
-    return null;
-  }
+  const user = AUTH_STORAGE.getUser();
+  if (!user || !user.id || !user.name || !user.email) return null;
+  return user;
 }
 
 async function refreshAccessToken() {
@@ -125,17 +85,14 @@ async function refreshAccessToken() {
       credentials: 'include',
       body: JSON.stringify({})
     });
-
     if (!response.ok) return false;
-
     const data = await response.json();
-    if (data.status === 'success') {
-      if (data.user) AUTH_STORAGE.setUser(data.user);
+    if (data.status === 'success' && data.user) {
+      AUTH_STORAGE.setUser(data.user);
       return true;
     }
     return false;
-  } catch (err) {
-    console.error('Token refresh error:', err);
+  } catch {
     return false;
   }
 }
@@ -144,10 +101,7 @@ async function fetchAuthenticated(url, options = {}) {
   return fetch(url, {
     ...options,
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers
-    }
+    headers: { 'Content-Type': 'application/json', ...options.headers }
   });
 }
 
@@ -162,22 +116,15 @@ async function apiFetch(url, options = {}) {
 async function logout() {
   if (logoutInProgress) return;
   logoutInProgress = true;
-
   try {
-    try {
-      await fetch(`${AUTH_API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } catch (err) {
-      console.warn('Server logout fallito (procedi comunque):', err);
-    }
-
+    await fetch(`${AUTH_API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(() => {});
     AUTH_STORAGE.clear();
     window.location.replace('login.html');
-  } catch (err) {
-    console.error('Logout error:', err);
+  } catch {
     AUTH_STORAGE.clear();
     window.location.replace('login.html');
   }
@@ -185,33 +132,28 @@ async function logout() {
 
 function renderGuestAuthButtons(authButtons) {
   authButtons.innerHTML = `
-    <button class="auth-btn account" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
-    <button class="auth-btn login" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+    <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+    <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
   `;
 }
 
 function renderUserAuthButtons(authButtons, user) {
   authButtons.innerHTML = `
     <div class="user-menu">
-      <a href="profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')} - Visualizza il tuo profilo e i tuoi trofei">
+      <a href="profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')}">
         👤 ${escapeHtml(getInitials(user.name))}
       </a>
-      <button class="auth-btn logout" onclick="logout();">Log Out</button>
+      <button class="auth-btn logout" type="button" onclick="logout();">Log Out</button>
     </div>
   `;
 }
 
-/**
- * Inizializza il header: cookie httpOnly + cache localStorage
- */
 async function initAuthHeader() {
-  const authButtons = document.querySelector('.auth-buttons');
+  const authButtons = document.querySelector('header .auth-buttons') || document.querySelector('.auth-buttons');
   if (!authButtons) return;
 
   const cached = getCurrentUser();
-  if (cached) {
-    renderUserAuthButtons(authButtons, cached);
-  }
+  if (cached) renderUserAuthButtons(authButtons, cached);
 
   const serverUser = await syncUserFromServer();
   if (serverUser) {
@@ -220,9 +162,6 @@ async function initAuthHeader() {
   }
 
   if (!cached) {
-    renderGuestAuthButtons(authButtons);
-  } else {
-    AUTH_STORAGE.clearUser();
     renderGuestAuthButtons(authButtons);
   }
 }
@@ -236,24 +175,22 @@ function scheduleInitAuthHeader() {
 }
 
 function escapeHtml(text) {
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-  return String(text).replace(/[&<>"']/g, (m) => map[m]);
+  return String(text).replace(/[&<>"']/g, (m) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  })[m]);
 }
 
 function getInitials(fullName) {
   if (!fullName || typeof fullName !== 'string') return 'U';
-  return fullName
-    .trim()
-    .split(/\s+/)
-    .map((word) => word.charAt(0).toUpperCase())
-    .join('')
-    .substring(0, 3);
+  return fullName.trim().split(/\s+/).map((w) => w.charAt(0).toUpperCase()).join('').substring(0, 3);
+}
+
+function notifyAuthVerified() {
+  try {
+    const bc = new BroadcastChannel('evil-auth');
+    bc.postMessage({ type: 'email-verified' });
+    bc.close();
+  } catch { /* ignore */ }
 }
 
 window.AUTH_STORAGE = AUTH_STORAGE;
@@ -263,6 +200,7 @@ window.syncUserFromServer = syncUserFromServer;
 window.isAuthenticated = isAuthenticated;
 window.getCurrentUser = getCurrentUser;
 window.notifyAuthVerified = notifyAuthVerified;
+window.scheduleInitAuthHeader = scheduleInitAuthHeader;
 
 window.addEventListener('storage', (e) => {
   if (e.key === 'user') scheduleInitAuthHeader();
@@ -273,11 +211,11 @@ try {
   authBc.onmessage = (ev) => {
     if (ev.data?.type === 'email-verified') scheduleInitAuthHeader();
   };
-} catch (_) { /* ignore */ }
+} catch { /* ignore */ }
 
-window.addEventListener('evil-auth-changed', () => scheduleInitAuthHeader());
-
-window.addEventListener('pageshow', () => scheduleInitAuthHeader());
-document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') scheduleInitAuthHeader();
-});
+// Backup se load-header non parte
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => scheduleInitAuthHeader());
+} else {
+  scheduleInitAuthHeader();
+}

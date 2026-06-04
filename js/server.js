@@ -494,7 +494,7 @@ function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
 }
 
-const AUTH_CHROME_VERSION = '20260606';
+const AUTH_CHROME_VERSION = '20260607';
 
 /** auth-manager (sync) prima di load-header (defer) — evita header "Accedi" su pagine senza script in fondo */
 function injectAuthChromeScripts(html) {
