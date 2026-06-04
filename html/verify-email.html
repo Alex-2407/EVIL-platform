@@ -1,9 +1,9 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Verifica email â€” EVIL Cybersecurity Platform</title>
+  <title>Verifica email — EVIL Cybersecurity Platform</title>
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
@@ -11,10 +11,11 @@
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/auth-pages.css?v=20260605">
-  <script src="/js/load-header.js" defer></script>
-  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+<link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+  <script src="/js/auth-manager.js?v=20260606"></script>
+  <script src="/js/load-header.js?v=20260606" defer></script>
 </head>
 <body class="evil-theme auth-page-body auth-page-body--login">
   <div id="fade-overlay"></div>
@@ -31,7 +32,7 @@
         <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
           <img src="/html/generated-image.png" alt="Logo EVIL">
         </button>
-        <a href="/" class="header-evil-wordmark" aria-label="EVIL â€” torna alla home">EVIL</a>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
       </div>
 
       <nav role="navigation" aria-label="Menu principale">
@@ -39,7 +40,7 @@
           <li><a href="/">Home</a></li>
 
           <li>
-            <a href="#">Didattica â–¾</a>
+            <a href="#">Didattica ?</a>
             <div class="dropdown">
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -50,7 +51,7 @@
           </li>
 
           <li>
-            <a href="#">Intelligence â–¾</a>
+            <a href="#">Intelligence ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa incidenti</a>
               <a href="historic-attacks.html">Violazioni storiche</a>
@@ -61,7 +62,7 @@
           </li>
 
           <li>
-            <a href="#">Strumenti â–¾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">Check URL</a>
               <a href="vulnerability-scanner.html">Header HTTP</a>
@@ -103,16 +104,16 @@
         </ul>
         <div id="deliveryNotice" class="auth-verify__notice" hidden></div>
         <p class="auth-verify__hint">Il link scade entro 24 ore. Per sicurezza il link arriva <strong>solo via email</strong>, non su questa pagina.</p>
-        <p id="pollHint" class="auth-verify__hint">Puoi verificare dal telefono: questa pagina si aggiorna da sola quando il link Ã¨ stato aperto.</p>
+        <p id="pollHint" class="auth-verify__hint">Puoi verificare dal telefono: questa pagina si aggiorna da sola quando il link è stato aperto.</p>
         <div id="resendMessage" class="auth-message auth-message--success" role="status"></div>
         <button type="button" id="resendBtn" class="auth-submit auth-submit--outline">Reinvia email</button>
-        <p class="auth-switch">Hai giÃ  verificato? <a href="login.html">Accedi</a></p>
+        <p class="auth-switch">Hai già verificato? <a href="login.html">Accedi</a></p>
       </section>
 
       <section id="viewSuccess" class="auth-panel auth-verify" hidden>
         <p class="auth-panel__kicker">Account attivo</p>
         <h1>Email verificata</h1>
-        <p id="successLead" class="auth-verify__lead">Il tuo account EVIL Ã¨ stato attivato. Stai per entrare nella piattaformaâ€¦</p>
+        <p id="successLead" class="auth-verify__lead">Il tuo account EVIL è stato attivato. Stai per entrare nella piattaforma…</p>
         <a href="home.html" class="auth-submit auth-submit--link">Vai alla home</a>
         <p class="auth-switch"><a href="login.html">Accedi da questo dispositivo</a></p>
       </section>
@@ -141,17 +142,17 @@
     </section>
     <section class="evil-site-foot__col">
       <p class="evil-site-foot__tag">Legale</p>
-      <p class="evil-site-foot__copy evil-site-foot__meta">Â© 2026 Â· EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
         <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
-        Â·
+        ·
         <a href="help.html" class="evil-site-foot__link">Help</a>
-        Â·
+        ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>
     </section>
   </div>
-  <p class="evil-site-foot__brand" aria-hidden="true">Impara Â· Simula Â· Difendi</p>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
 </footer>
 
   <script>
@@ -194,10 +195,10 @@
     }
 
     const errorMessages = {
-      missing: 'Il link di verifica Ã¨ incompleto.',
-      invalid: 'Questo link non Ã¨ valido o Ã¨ giÃ  stato utilizzato.',
-      expired: 'Il link Ã¨ scaduto. Registrati di nuovo o reinvia l\'email di verifica.',
-      server: 'Si Ã¨ verificato un errore durante la verifica. Riprova tra poco.'
+      missing: 'Il link di verifica è incompleto.',
+      invalid: 'Questo link non è valido o è già stato utilizzato.',
+      expired: 'Il link è scaduto. Registrati di nuovo o reinvia l\'email di verifica.',
+      server: 'Si è verificato un errore durante la verifica. Riprova tra poco.'
     };
 
     function show(el) {
@@ -212,7 +213,7 @@
       const lead = document.getElementById('successLead');
       if (lead && fromOtherDevice) {
         lead.textContent =
-          'Email verificata da un altro dispositivo. Account attivo: puoi accedere da qui con email e password, oppure continuare se questa pagina ha giÃ  la sessione.';
+          'Email verificata da un altro dispositivo. Account attivo: puoi accedere da qui con email e password, oppure continuare se questa pagina ha già la sessione.';
       }
       if (typeof notifyAuthVerified === 'function') notifyAuthVerified();
       if (typeof scheduleInitAuthHeader === 'function') {
@@ -347,6 +348,5 @@
 
   <script src="/js/matrixrain.js"></script>
   <script src="/js/js.js"></script>
-  <script src="/js/auth-manager.js?v=20260605"></script>
 </body>
 </html>

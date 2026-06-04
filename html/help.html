@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -12,9 +12,10 @@
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/site-policies.css?v=20260603">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
-<script src="/js/load-header.js" defer></script>
-  <link rel="stylesheet" href="/css/system-theme.css?v=20260717">
+<link rel="stylesheet" href="/css/system-theme.css?v=20260717">
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+  <script src="/js/auth-manager.js?v=20260606"></script>
+  <script src="/js/load-header.js?v=20260606" defer></script>
 </head>
 <body class="evil-theme policy-page">
   <div id="fade-overlay"></div>
@@ -32,7 +33,7 @@
         <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
           <img src="/html/generated-image.png" alt="Logo EVIL">
         </button>
-        <a href="/" class="header-evil-wordmark" aria-label="EVIL â€” torna alla home">EVIL</a>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
       </div>
 
       <nav role="navigation" aria-label="Menu principale">
@@ -40,7 +41,7 @@
           <li><a href="/">Home</a></li>
 
           <li>
-            <a href="#">Didattica â–¾</a>
+            <a href="#">Didattica ?</a>
             <div class="dropdown">
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -51,7 +52,7 @@
           </li>
 
           <li>
-            <a href="#">Intelligence â–¾</a>
+            <a href="#">Intelligence ?</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa incidenti</a>
               <a href="historic-attacks.html">Violazioni storiche</a>
@@ -62,7 +63,7 @@
           </li>
 
           <li>
-            <a href="#">Strumenti â–¾</a>
+            <a href="#">Strumenti ?</a>
             <div class="dropdown">
               <a href="security-check.html">Check URL</a>
               <a href="vulnerability-scanner.html">Header HTTP</a>
@@ -95,7 +96,7 @@
         <div class="policy-emblem__ring"></div>
         <div class="policy-emblem__core" title="Supporto">?</div>
       </div>
-      <p class="policy-kicker">Assistenza Â· Chiarimenti Â· Didattica</p>
+      <p class="policy-kicker">Assistenza · Chiarimenti · Didattica</p>
       <h1 id="help-title">Help e supporto</h1>
       <p class="policy-hero__lead">
         Hai dubbi su uno strumento, un esercizio del lab o il funzionamento dell'account?
@@ -133,10 +134,10 @@
 
         <section class="policy-section policy-reveal" id="help-form-section" aria-labelledby="h-form">
           <div class="policy-section__head">
-            <span class="policy-section__icon" aria-hidden="true">âœ‰</span>
+            <span class="policy-section__icon" aria-hidden="true">?</span>
             <h2 id="h-form">Invia una richiesta</h2>
           </div>
-          <p>Compila il modulo: riceverai un'email di conferma e il team riceverÃ  il messaggio su <strong>support@projectevil.it</strong>.</p>
+          <p>Compila il modulo: riceverai un'email di conferma e il team riceverà il messaggio su <strong>support@projectevil.it</strong>.</p>
           <form id="helpContactForm" class="help-form" novalidate>
             <input type="hidden" id="help-page" name="page" value="">
             <label class="help-form__field">
@@ -153,7 +154,7 @@
             </label>
             <label class="help-form__field">
               <span>Messaggio</span>
-              <textarea id="help-message" name="message" rows="6" required minlength="10" maxlength="4000" placeholder="Pagina o strumento, ambiente (locale/produzione), descrizione del problemaâ€¦"></textarea>
+              <textarea id="help-message" name="message" rows="6" required minlength="10" maxlength="4000" placeholder="Pagina o strumento, ambiente (locale/produzione), descrizione del problema…"></textarea>
             </label>
             <p id="helpFormMessage" class="help-form__msg" hidden role="status"></p>
             <button type="submit" class="policy-btn policy-btn--primary">Invia richiesta</button>
@@ -162,7 +163,7 @@
 
         <section class="policy-section policy-reveal" id="help-request" aria-labelledby="h-request">
           <div class="policy-section__head">
-            <span class="policy-section__icon" aria-hidden="true">ðŸ“Ž</span>
+            <span class="policy-section__icon" aria-hidden="true">??</span>
             <h2 id="h-request">Cosa scrivere nella richiesta</h2>
           </div>
           <p>Per aiutarti in modo rapido, includi:</p>
@@ -177,7 +178,7 @@
 
         <section class="policy-section policy-reveal" id="help-topics" aria-labelledby="h-topics">
           <div class="policy-section__head">
-            <span class="policy-section__icon" aria-hidden="true">Ã¢â€”Å½</span>
+            <span class="policy-section__icon" aria-hidden="true">â—Ž</span>
             <h2 id="h-topics">Su cosa possiamo aiutarti</h2>
           </div>
           <ul>
@@ -187,7 +188,7 @@
             <li>Segnalazioni di bug o contenuti errati nella piattaforma.</li>
           </ul>
           <div class="policy-callout policy-callout--critical">
-            <strong>Non forniamo supporto</strong> per attivitÃ  offensive, bypass di sicurezza su sistemi terzi
+            <strong>Non forniamo supporto</strong> per attività offensive, bypass di sicurezza su sistemi terzi
             o uso degli strumenti senza autorizzazione. Vedi anche le
             <a href="site-policies.html" class="evil-site-foot__link" style="display:inline;">policy del sito</a>.
           </div>
@@ -195,22 +196,22 @@
 
         <section class="policy-section policy-reveal" id="help-faq" aria-labelledby="h-faq">
           <div class="policy-section__head">
-            <span class="policy-section__icon" aria-hidden="true">â—‡</span>
+            <span class="policy-section__icon" aria-hidden="true">?</span>
             <h2 id="h-faq">Prima di scriverci</h2>
           </div>
           <h3>Verifica email non arriva</h3>
-          <p>In locale, senza SMTP configurato, il link puÃ² essere nell'outbox del progetto (<code>data/email-outbox</code>).
+          <p>In locale, senza SMTP configurato, il link può essere nell'outbox del progetto (<code>data/email-outbox</code>).
             Con Mailtrap Sandbox l'email resta nell'inbox Mailtrap, non in Gmail.</p>
           <h3>Pagina senza stili o login non funziona</h3>
           <p>In locale apri <strong>http://localhost:5000</strong> con <code>npm start</code>, non il file HTML dal disco.</p>
           <p>Online usa sempre lo stesso dominio (es. solo <code>www</code> o solo apex), imposta <code>BASE_URL</code> e
             <code>COOKIE_DOMAIN=.tuodominio.it</code> in produzione, e verifica l'email prima del primo accesso.</p>
-          <h3>Lab Virtuale: Â«Avvia VMÂ» non risponde</h3>
+          <h3>Lab Virtuale: «Avvia VM» non risponde</h3>
           <p>Il lab usa le API <code>/api/virtual-lab/*</code> sullo stesso dominio. In produzione servono
-            <code>TRUST_PROXY=1</code> e, se hai piÃ¹ istanze, <code>REDIS_URL</code> per le sessioni.
-            Se vedi un messaggio rosso sotto la card, Ã¨ il dettaglio dell'errore (limite sessioni, rete, ecc.).</p>
-          <h3>Edge: Â«La connessione non Ã¨ sicuraÂ»</h3>
-          <p>In <strong>locale</strong>, <code>http://localhost</code> non ha certificato TLS: Edge lo segnala ma Ã¨ normale per lo sviluppo.</p>
+            <code>TRUST_PROXY=1</code> e, se hai più istanze, <code>REDIS_URL</code> per le sessioni.
+            Se vedi un messaggio rosso sotto la card, è il dettaglio dell'errore (limite sessioni, rete, ecc.).</p>
+          <h3>Edge: «La connessione non è sicura»</h3>
+          <p>In <strong>locale</strong>, <code>http://localhost</code> non ha certificato TLS: Edge lo segnala ma è normale per lo sviluppo.</p>
           <p>In <strong>produzione</strong> apri solo <code>https://</code> sul dominio con certificato attivo (Render/Railway: abilita TLS sul custom domain).
             Imposta <code>NODE_ENV=production</code>, <code>BASE_URL=https://www.tuodominio.it</code>, <code>TRUST_PROXY=1</code> e <code>FORCE_HTTPS=1</code>.
             Non mescolare <code>www</code> e dominio senza <code>www</code> se il certificato copre un solo host.</p>
@@ -242,17 +243,17 @@
     </section>
     <section class="evil-site-foot__col">
       <p class="evil-site-foot__tag">Legale</p>
-      <p class="evil-site-foot__copy evil-site-foot__meta">Â© 2026 Â· EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
         <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
-        Â·
+        ·
         <a href="help.html" class="evil-site-foot__link">Help</a>
-        Â·
+        ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>
     </section>
   </div>
-  <p class="evil-site-foot__brand" aria-hidden="true">Impara Â· Simula Â· Difendi</p>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
 </footer>
 
   <script src="/js/matrixrain.js"></script>

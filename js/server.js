@@ -282,7 +282,7 @@ app.get('/js/matrixrain.js', (req, res) => {
   res.sendFile(path.join(root, 'js', 'matrixrain.js'));
 });
 
-const LAB_JS_NO_CACHE = /^(virtual-lab(-guides)?|crypto-studio|quiz-hub(-data)?(-extra)?|hacked-timeline(-data)?|attacks-map|historic-attacks(-data)?|malware-db(-data)?|malware-classification(-data)?|manipulation-techniques(-data)?|security-check|http-header-audit|tools-api|url-scanner-service|http-header-audit-service)\.js$/i;
+const LAB_JS_NO_CACHE = /^(virtual-lab(-guides)?|crypto-studio|quiz-hub(-data)?(-extra)?|hacked-timeline(-data)?|attacks-map|historic-attacks(-data)?|malware-db(-data)?|malware-classification(-data)?|manipulation-techniques(-data)?|security-check|http-header-audit|tools-api|url-scanner-service|http-header-audit-service|load-header|auth-manager)\.js$/i;
 app.use('/js', express.static(path.join(root, 'js'), {
   maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,
   etag: true,
@@ -319,12 +319,13 @@ app.use('/public', express.static(path.join(root, 'public'), {
 // HTML con asset injection (prima dello static /html, altrimenti bypass)
 app.get(/^\/html\/[^/]+\.html$/i, (req, res, next) => {
   const rel = req.path.replace(/^\/html\//i, '');
-  const filePath = path.join(root, 'html', rel);
-  if (!fs.existsSync(filePath)) return next();
-  const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'));
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  return res.send(htmlContent);
+  if (!sendInjectedHtml(res, rel)) return next();
+});
+
+app.get(/^\/[^/]+\.html$/i, (req, res, next) => {
+  const rel = req.path.replace(/^\//, '');
+  if (!rel || rel.includes('/') || rel.startsWith('html/')) return next();
+  if (!sendInjectedHtml(res, rel)) return next();
 });
 
 app.use('/html', express.static(path.join(root, 'html'))); // asset non-html + fallback
@@ -493,8 +494,35 @@ function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
 }
 
-function hasLoadHeaderJs(html) {
-  return /load-header\.js/i.test(html);
+const AUTH_CHROME_VERSION = '20260606';
+
+/** auth-manager (sync) prima di load-header (defer) — evita header "Accedi" su pagine senza script in fondo */
+function injectAuthChromeScripts(html) {
+  if (!/<header[\s>]/i.test(html) || !html.includes('</head>')) return html;
+
+  const block =
+    `  <script src="/js/auth-manager.js?v=${AUTH_CHROME_VERSION}"></script>\n` +
+    `  <script src="/js/load-header.js?v=${AUTH_CHROME_VERSION}" defer></script>\n`;
+
+  let out = html.replace(/\s*<script[^>]*src="[^"]*auth-manager\.js[^"]*"[^>]*>\s*<\/script>\s*/gi, '\n');
+  out = out.replace(/\s*<script[^>]*src="[^"]*load-header\.js[^"]*"[^>]*>\s*<\/script>\s*/gi, '\n');
+
+  if (!out.includes('auth-manager.js')) {
+    out = out.replace('</head>', `${block}</head>`);
+  }
+  return out;
+}
+
+function sendInjectedHtml(res, relativeName) {
+  const filePath = path.join(root, 'html', relativeName);
+  if (!fs.existsSync(filePath)) return false;
+  const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'));
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.send(htmlContent);
+  return true;
 }
 
 function injectSiteChromeCss(html, href, marker) {
@@ -603,13 +631,7 @@ function injectPageAssets(htmlContent) {
     html = injectSiteChromeCss(html, EVIL_SCROLLBAR_CSS, 'evil-scrollbar.css');
   }
 
-  if (!hasLoadHeaderJs(html) && /<header[\s>]/i.test(html)) {
-    html = html.replace('</head>', '<script src="/js/load-header.js?v=20260605" defer></script>\n</head>');
-  }
-
-  if (!html.includes('auth-manager.js') && /<header[\s>]/i.test(html)) {
-    html = html.replace('</body>', '<script src="/js/auth-manager.js?v=20260605"></script>\n</body>');
-  }
+  html = injectAuthChromeScripts(html);
 
   html = injectSiteFooterCss(html);
   html = injectEvilMotion(html);
@@ -650,24 +672,6 @@ app.get(['/phishing-quiz.html', '/html/phishing-quiz.html'], (req, res) => {
 });
 app.get(['/social-engineering.html', '/html/social-engineering.html'], (req, res) => {
   res.redirect(301, '/quiz-hub.html?cat=social-engineering');
-});
-
-// Route personalizzata per i file HTML - header unificato + CSS responsive
-app.get('*.html', (req, res, next) => {
-  const filePath = path.join(root, 'html', req.path);
-
-  if (fs.existsSync(filePath) && filePath.endsWith('.html')) {
-    const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'));
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    if (/virtual-lab|web-simulator|crypto-studio|quiz-hub|hacked-timeline|attacks-map|historic-attacks|malware-db|malware-classification|manipulation-techniques/i.test(req.path)) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-    }
-    return res.send(htmlContent);
-  }
-
-  next();
 });
 
 const PORT = process.env.PORT || 5000;
