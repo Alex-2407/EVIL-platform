@@ -16,6 +16,10 @@
   let markerById = {};
   let mapReady = false;
   let resizeObserver = null;
+  let mapFrozen = false;
+  const MAP_CENTER = [28, 12];
+  const MAP_ZOOM = 2;
+  const POPUP_OPTS = window.EvilLeafletMap?.POPUP_OPTS || { autoPan: false };
 
   function $(id) {
     return document.getElementById(id);
@@ -64,10 +68,10 @@
       if (map) return;
 
       map = L.map(el, {
-        center: [28, 12],
-        zoom: 2,
-        minZoom: 2,
-        maxZoom: 2,
+        center: MAP_CENTER,
+        zoom: MAP_ZOOM,
+        minZoom: MAP_ZOOM,
+        maxZoom: MAP_ZOOM,
         worldCopyJump: false,
         zoomAnimation: false,
         fadeAnimation: false,
@@ -101,10 +105,15 @@
 
       map.whenReady(() => {
         scheduleMapResize();
-        if (window.EvilLeafletMap) window.EvilLeafletMap.lockMapInteraction(map);
+        if (window.EvilLeafletMap) {
+          window.EvilLeafletMap.lockMapInteraction(map);
+          if (!mapFrozen) {
+            window.EvilLeafletMap.freezeMapView(map, MAP_CENTER, MAP_ZOOM);
+            mapFrozen = true;
+          }
+        }
         mapReady = true;
         renderMarkers();
-        fitAllMarkers();
       });
     };
 
@@ -159,11 +168,17 @@
     if (!map || !layerGroup || !mapReady) return;
     layerGroup.clearLayers();
     markerById = {};
+    const coordBucket = new Map();
+    const spread = window.EvilLeafletMap?.spreadCoords;
 
     ATTACKS.forEach((attack, i) => {
       const lat = Number(attack.lat);
       const lon = Number(attack.lon);
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+      const [dispLat, dispLon] = spread
+        ? spread(lat, lon, coordBucket, 1)
+        : [lat, lon];
 
       const icon = L.divIcon({
         className: 'ha-leaflet-icon',
@@ -174,24 +189,15 @@
 
       const popup = popupHtml(attack);
 
-      const marker = L.marker([lat, lon], { icon });
-      marker.bindPopup(popup);
+      const marker = L.marker([dispLat, dispLon], { icon, interactive: true });
+      marker.bindPopup(popup, POPUP_OPTS);
       marker.on('click', () => focusAttack(attack.id, false));
       layerGroup.addLayer(marker);
-      markerById[attack.id] = { marker, lat, lon };
+      markerById[attack.id] = { marker, lat: dispLat, lon: dispLon };
     });
 
     $('ha-map-count').textContent = String(ATTACKS.length);
     scheduleMapResize();
-  }
-
-  function fitAllMarkers() {
-    if (!map || ATTACKS.length === 0) return;
-    const bounds = L.latLngBounds(ATTACKS.map((a) => [a.lat, a.lon]));
-    if (bounds.isValid()) {
-      map.setView(bounds.getCenter(), 2, { animate: false });
-    }
-    syncMarkerPositions();
   }
 
   function focusAttack(id, fly = true) {
@@ -202,12 +208,7 @@
       c.classList.toggle('is-active', c.dataset.attackId === id);
     });
 
-    if (fly) {
-      map.setView([entry.lat, entry.lon], 2, { animate: true });
-      setTimeout(() => entry.marker.openPopup(), 350);
-    } else {
-      entry.marker.openPopup();
-    }
+    entry.marker.openPopup();
 
     const card = document.querySelector(`.ha-card[data-attack-id="${id}"]`);
     card?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

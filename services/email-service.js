@@ -435,7 +435,9 @@ class EmailService {
     const verificationLink = this.buildVerificationLink(token);
     const mail = this.buildVerificationMail(name, verificationLink);
     const isDev = process.env.NODE_ENV !== 'production';
-    const allowOutbox = isDev && process.env.EMAIL_DEV_OUTBOX !== '0';
+    const allowOutbox =
+      process.env.EMAIL_DEV_OUTBOX !== '0' &&
+      (isDev || process.env.EMAIL_FALLBACK_OUTBOX === '1' || !this.isConfigured());
 
     if (!this.isConfigured()) {
       if (allowOutbox) {

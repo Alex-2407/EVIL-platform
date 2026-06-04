@@ -331,6 +331,27 @@
   background: rgba(153, 27, 27, 0.5);
 }
 
+.auth-verify__linkbox {
+  margin: 1rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.auth-verify__linkbox-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  color: #fcd34d;
+}
+
+.auth-verify__direct-link {
+  display: inline-block;
+  word-break: break-all;
+  color: #7dd3fc;
+  font-size: 0.88rem;
+}
+
 .auth-links {
   display: flex;
   flex-direction: column;

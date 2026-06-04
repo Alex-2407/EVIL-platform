@@ -38,6 +38,10 @@
   let refreshInFlight = false;
   let mapReady = false;
   let pendingRegions = null;
+  let mapFrozen = false;
+  const MAP_CENTER = [24, 10];
+  const MAP_ZOOM = 2;
+  const POPUP_OPTS = window.EvilLeafletMap?.POPUP_OPTS || { autoPan: false };
 
   function $(id) {
     return document.getElementById(id);
@@ -204,10 +208,10 @@
       if (map) return;
 
       map = L.map(el, {
-        center: [24, 10],
-        zoom: 2,
-        minZoom: 2,
-        maxZoom: 2,
+        center: MAP_CENTER,
+        zoom: MAP_ZOOM,
+        minZoom: MAP_ZOOM,
+        maxZoom: MAP_ZOOM,
         worldCopyJump: false,
         zoomAnimation: false,
         fadeAnimation: false,
@@ -240,7 +244,13 @@
 
       map.whenReady(() => {
         scheduleMapResize();
-        if (window.EvilLeafletMap) window.EvilLeafletMap.lockMapInteraction(map);
+        if (window.EvilLeafletMap) {
+          window.EvilLeafletMap.lockMapInteraction(map);
+          if (!mapFrozen) {
+            window.EvilLeafletMap.freezeMapView(map, MAP_CENTER, MAP_ZOOM);
+            mapFrozen = true;
+          }
+        }
         mapReady = true;
         if (pendingRegions) {
           const regions = pendingRegions;
@@ -319,32 +329,21 @@
         iconAnchor: [14, 14],
       });
 
-      const marker = L.marker([lat, lon], { icon });
-      marker.bindPopup(popupHtml);
+      const marker = L.marker([lat, lon], { icon, interactive: true });
+      marker.bindPopup(popupHtml, POPUP_OPTS);
+      marker.on('click', () => marker.openPopup());
       layerGroup.addLayer(marker);
       registerMarker(region.country, lat, lon, marker);
     });
 
-    if (!mapViewLocked && regions.length > 0) {
-      const bounds = L.latLngBounds(
-        regions
-          .filter((r) => Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lon)))
-          .map((r) => [Number(r.lat), Number(r.lon)])
-      );
-      if (bounds.isValid()) {
-        map.setView(bounds.getCenter(), 2, { animate: false });
-        mapViewLocked = true;
-      }
-    }
-
+    mapViewLocked = true;
     scheduleMapResize();
   }
 
-  function flyToCountry(country) {
+  function focusCountryMarker(country) {
     const entry = markerByCountry[country];
     if (!entry || !map) return;
-    map.flyTo([entry.lat, entry.lon], 4, { duration: 0.9 });
-    setTimeout(() => entry.marker.openPopup(), 400);
+    entry.marker.openPopup();
   }
 
   function updateStats(payload) {
@@ -488,7 +487,7 @@
       const feed = $('incidents-feed');
       feed?.querySelectorAll('.am-incident').forEach((c) => c.classList.remove('is-highlight'));
       card.classList.add('is-highlight');
-      if (country) flyToCountry(country);
+      if (country) focusCountryMarker(country);
     };
 
     card.addEventListener('click', (e) => {

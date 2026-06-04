@@ -693,8 +693,20 @@ const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
 // NEW CONFIG: Uses middleware/upload.js with security hardening
 // See: middleware/upload.js for MIME whitelist, UUID generation, user isolation
 
-// Database utenti (salvataggio file)
-const usersFile = path.join(root, 'users.json');
+// Database utenti — cartella scrivibile (Render: imposta DATA_DIR)
+function ensureDataDir() {
+  const dir = process.env.DATA_DIR
+    ? path.resolve(process.env.DATA_DIR)
+    : path.join(root, 'data');
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  return dir;
+}
+
+const dataDir = ensureDataDir();
+const usersFile = path.join(dataDir, 'users.json');
+const legacyUsersFile = path.join(root, 'users.json');
 let users = [];
 
 // Cache file per persistenza incidenti fra riavvii
@@ -727,6 +739,10 @@ function saveIncidentsCacheToDisk(cache) {
 // Carica utenti dal file
 function loadUsers() {
   try {
+    if (!fs.existsSync(usersFile) && fs.existsSync(legacyUsersFile)) {
+      fs.copyFileSync(legacyUsersFile, usersFile);
+      console.log('📁 Utenti migrati da users.json root →', usersFile);
+    }
     if (fs.existsSync(usersFile)) {
       const data = fs.readFileSync(usersFile, 'utf8');
       users = JSON.parse(data);
@@ -740,9 +756,12 @@ function loadUsers() {
 // Salva utenti nel file
 function saveUsers() {
   try {
+    ensureDataDir();
     fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+    return true;
   } catch (err) {
-    console.error('Errore salvataggio utenti:', err.message);
+    console.error('Errore salvataggio utenti:', err.message, usersFile);
+    return false;
   }
 }
 
@@ -1513,7 +1532,13 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     };
 
     users.push(pendingUser);
-    saveUsers();
+    if (!saveUsers()) {
+      users = users.filter((u) => u.id !== pendingUser.id);
+      return res.status(500).json({
+        error:
+          'Impossibile salvare l\'account sul server. Imposta DATA_DIR su una cartella scrivibile (es. /tmp/evil-data su Render).',
+      });
+    }
 
     let emailResult;
     try {
@@ -1551,10 +1576,15 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       emailHint: emailResult.hint || ''
     };
 
-    if (isDev && emailResult.verificationLink) {
-      payload.devVerificationLink = emailResult.verificationLink;
+    const verifyLink =
+      emailResult.actionLink ||
+      emailResult.verificationLink ||
+      (isDev ? emailResult.verificationLink : null);
+    if (verifyLink) {
+      payload.verificationLink = verifyLink;
+      if (isDev) payload.devVerificationLink = verifyLink;
     }
-    if (isDev && emailResult.outboxFile) {
+    if (emailResult.outboxFile) {
       payload.outboxFile = emailResult.outboxFile;
     }
 

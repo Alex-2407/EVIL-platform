@@ -102,6 +102,10 @@
           <li>Verrai reindirizzato qui con l'account attivo</li>
         </ul>
         <div id="deliveryNotice" class="auth-verify__notice" hidden></div>
+        <div id="verifyLinkBox" class="auth-verify__linkbox" hidden>
+          <p class="auth-verify__linkbox-label">Link di verifica (SMTP non disponibile o modalità outbox):</p>
+          <a id="verifyDirectLink" class="auth-verify__direct-link" href="#">Apri link di verifica</a>
+        </div>
         <p class="auth-verify__hint">Il link scade entro 24 ore.</p>
         <div id="resendMessage" class="auth-message auth-message--success" role="status"></div>
         <button type="button" id="resendBtn" class="auth-submit auth-submit--outline">Reinvia email</button>
@@ -178,7 +182,7 @@
         if (delivery === 'sandbox') {
           text = 'Con Mailtrap Sandbox l\'email NON arriva nella tua casella personale: aprila su https://mailtrap.io/sandboxes';
         } else if (delivery === 'outbox') {
-          text = 'SMTP non configurato: apri il file HTML in data/email-outbox sul progetto per il link di verifica.';
+          text = 'SMTP non configurato: usa il link qui sotto oppure apri data/email-outbox sul server.';
         } else if (delivery === 'live' || delivery === 'smtp') {
           text = 'Se non vedi nulla, controlla anche la cartella spam.';
         }
@@ -186,6 +190,15 @@
       if (text) {
         deliveryNotice.textContent = text;
         deliveryNotice.hidden = false;
+      }
+
+      const verifyLink = sessionStorage.getItem('evil_verify_link');
+      const linkBox = document.getElementById('verifyLinkBox');
+      const linkAnchor = document.getElementById('verifyDirectLink');
+      if (verifyLink && linkBox && linkAnchor) {
+        linkAnchor.href = verifyLink;
+        linkAnchor.textContent = verifyLink.length > 72 ? verifyLink.slice(0, 68) + '…' : verifyLink;
+        linkBox.hidden = false;
       }
     }
 
