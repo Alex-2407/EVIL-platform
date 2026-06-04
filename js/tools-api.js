@@ -1,15 +1,31 @@
 /**
  * EVIL Tools API — fetch uniforme per gli strumenti
- * Login obbligatorio: iscrizione o accesso prima di usare scan/OSINT/DNS ecc.
+ * Login obbligatorio: cookie httpOnly + cache localStorage
  */
 (function () {
   const TOOLS_PUBLIC = false;
   const page = window.location.pathname.split('/').pop() || 'home.html';
   const LOGIN_URL = 'login.html?redirect=' + encodeURIComponent(page);
 
-  function ensureToolAuth(silent) {
+  function loadAuthManager() {
+    if (typeof syncUserFromServer === 'function') return Promise.resolve();
+    return new Promise((resolve) => {
+      const s = document.createElement('script');
+      s.src = '/js/auth-manager.js?v=20260605';
+      s.onload = () => resolve();
+      s.onerror = () => resolve();
+      document.head.appendChild(s);
+    });
+  }
+
+  async function ensureToolAuth(silent) {
     if (TOOLS_PUBLIC) return true;
+    await loadAuthManager();
     if (typeof isAuthenticated === 'function' && isAuthenticated()) return true;
+    if (typeof syncUserFromServer === 'function') {
+      const user = await syncUserFromServer();
+      if (user) return true;
+    }
     if (!silent) {
       window.location.href = LOGIN_URL;
     }
@@ -18,6 +34,7 @@
 
   async function handleAuthResponse(response) {
     if (response.status === 401 && !TOOLS_PUBLIC) {
+      if (typeof AUTH_STORAGE !== 'undefined') AUTH_STORAGE.clearUser();
       window.location.href = LOGIN_URL;
       throw new Error('Autenticazione richiesta');
     }
@@ -25,7 +42,7 @@
   }
 
   async function postToolJson(path, body) {
-    if (!ensureToolAuth()) throw new Error('Non autenticato');
+    if (!(await ensureToolAuth())) throw new Error('Non autenticato');
     const response = await handleAuthResponse(
       await fetch(path, {
         method: 'POST',
@@ -40,7 +57,7 @@
   }
 
   async function uploadToolFile(path, file) {
-    if (!ensureToolAuth()) throw new Error('Non autenticato');
+    if (!(await ensureToolAuth())) throw new Error('Non autenticato');
     const fd = new FormData();
     fd.append('file', file);
     const response = await handleAuthResponse(
@@ -52,7 +69,7 @@
   }
 
   async function downloadToolPdf(path, body, filename) {
-    if (!ensureToolAuth()) throw new Error('Non autenticato');
+    if (!(await ensureToolAuth())) throw new Error('Non autenticato');
     const response = await handleAuthResponse(
       await fetch(path, {
         method: 'POST',
@@ -74,9 +91,14 @@
     URL.revokeObjectURL(url);
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
+  document.addEventListener('DOMContentLoaded', async function () {
     if (TOOLS_PUBLIC) return;
+    await loadAuthManager();
     if (typeof isAuthenticated === 'function' && isAuthenticated()) return;
+    if (typeof syncUserFromServer === 'function') {
+      const user = await syncUserFromServer();
+      if (user) return;
+    }
     window.location.replace(LOGIN_URL);
   });
 

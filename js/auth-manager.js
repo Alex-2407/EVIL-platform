@@ -2,25 +2,22 @@
 // Tokens are now managed by server-side httpOnly cookies for XSS protection
 // Client only stores user metadata in localStorage
 
-// Usa l'URL dinamico per funzionare sia in localhost che su Render
 const AUTH_API_URL = window.location.origin + '/api';
-const AUTH_TIMEOUT = 5000; // 5 secondi timeout
+const AUTH_TIMEOUT = 8000;
 
-// ==================== TOKEN & USER STORAGE ====================
-// NOTE: Access/Refresh tokens are now stored in httpOnly cookies by the server
-// This protects against XSS attacks that could steal tokens from localStorage
-
-// Flag per evitare logout ricorsivo infinito
 let logoutInProgress = false;
+let authHeaderInitPromise = null;
 
 const AUTH_STORAGE = {
   setUser(user) {
-    // Only store user metadata (id, name, email) - NOT sensitive tokens
     localStorage.setItem('user', JSON.stringify({
       id: user.id,
       name: user.name,
       email: user.email
     }));
+    try {
+      window.dispatchEvent(new CustomEvent('evil-auth-changed', { detail: { user } }));
+    } catch (_) { /* ignore */ }
   },
   getUser() {
     try {
@@ -33,51 +30,73 @@ const AUTH_STORAGE = {
   },
   clearUser() {
     localStorage.removeItem('user');
+    try {
+      window.dispatchEvent(new CustomEvent('evil-auth-changed', { detail: null }));
+    } catch (_) { /* ignore */ }
   },
   clear() {
     this.clearUser();
   }
 };
 
-/**
- * Ripristina user in localStorage dalla sessione cookie (httpOnly).
- * @returns {Promise<Object|null>}
- */
-async function syncUserFromServer() {
+function notifyAuthVerified() {
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT);
-    const response = await fetch(`${AUTH_API_URL}/auth/profile`, {
+    const bc = new BroadcastChannel('evil-auth');
+    bc.postMessage({ type: 'email-verified' });
+    bc.close();
+  } catch (_) { /* ignore */ }
+}
+
+async function fetchSession() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT);
+  try {
+    const response = await fetch(`${AUTH_API_URL}/auth/session`, {
       credentials: 'include',
       signal: controller.signal
     });
     clearTimeout(timeoutId);
-
     if (!response.ok) return null;
-
     const data = await response.json();
-    const user = data?.user;
-    if (user && user.id && user.name && user.email) {
-      AUTH_STORAGE.setUser(user);
-      return user;
+    if (data.authenticated && data.user?.id && data.user?.name && data.user?.email) {
+      return data.user;
     }
     return null;
   } catch (err) {
+    clearTimeout(timeoutId);
     if (err.name !== 'AbortError') {
-      console.warn('Sync sessione da server:', err.message || err);
+      console.warn('Sessione:', err.message || err);
     }
     return null;
   }
 }
 
 /**
- * Controlla se l'utente è autenticato
- * @returns {boolean} True se autenticato
+ * Ripristina user in localStorage dalla sessione cookie (httpOnly).
+ * @returns {Promise<Object|null>}
  */
+async function syncUserFromServer() {
+  let user = await fetchSession();
+  if (user) {
+    AUTH_STORAGE.setUser(user);
+    return user;
+  }
+
+  const refreshed = await refreshAccessToken();
+  if (refreshed) {
+    user = await fetchSession();
+    if (user) {
+      AUTH_STORAGE.setUser(user);
+      return user;
+    }
+  }
+
+  return null;
+}
+
 function isAuthenticated() {
   try {
     const user = AUTH_STORAGE.getUser();
-    // Autenticato solo se user esiste E ha i campi richiesti
     return !!(user && user.id && user.name && user.email);
   } catch (err) {
     console.warn('Auth check error:', err);
@@ -85,15 +104,10 @@ function isAuthenticated() {
   }
 }
 
-/**
- * Ottieni l'utente corrente
- * @returns {Object|null} User object o null
- */
 function getCurrentUser() {
   try {
     const user = AUTH_STORAGE.getUser();
     if (!user || !user.id || !user.name || !user.email) {
-      console.warn('User object invalido');
       return null;
     }
     return user;
@@ -103,35 +117,22 @@ function getCurrentUser() {
   }
 }
 
-/**
- * Refresha il access token usando il refresh token
- * Il server invia automaticamente il nuovo access token nei cookie
- * @returns {Promise<boolean>} True se refresh successful
- */
 async function refreshAccessToken() {
   try {
-    // Il browser invia automaticamente i cookie (credentials: 'include')
     const response = await fetch(`${AUTH_API_URL}/auth/refresh-token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      credentials: 'include', // Invia cookies automaticamente
-      body: JSON.stringify({}) // Server legge il refresh token dal cookie
+      credentials: 'include',
+      body: JSON.stringify({})
     });
 
-    if (!response.ok) {
-      console.warn('Token refresh failed:', response.status);
-      return false;
-    }
+    if (!response.ok) return false;
 
     const data = await response.json();
-    
     if (data.status === 'success') {
-      if (data.user && typeof AUTH_STORAGE.setUser === 'function') {
-        AUTH_STORAGE.setUser(data.user);
-      }
+      if (data.user) AUTH_STORAGE.setUser(data.user);
       return true;
     }
-
     return false;
   } catch (err) {
     console.error('Token refresh error:', err);
@@ -139,12 +140,6 @@ async function refreshAccessToken() {
   }
 }
 
-/**
- * Helper per fare richieste autenticate in modo sicuro
- * @param {string} url - URL to fetch
- * @param {Object} options - Fetch options
- * @returns {Promise<Response>} Fetch response
- */
 async function fetchAuthenticated(url, options = {}) {
   return fetch(url, {
     ...options,
@@ -156,7 +151,6 @@ async function fetchAuthenticated(url, options = {}) {
   });
 }
 
-/** @deprecated Usa fetchAuthenticated; mantiene compatibilità con achievement-manager */
 function getAuthHeaders() {
   return { 'Content-Type': 'application/json' };
 }
@@ -165,34 +159,22 @@ async function apiFetch(url, options = {}) {
   return fetchAuthenticated(url, options);
 }
 
-/**
- * Esegui logout sicuro
- */
 async function logout() {
-  // Previeni logout ricorsivo infinito
-  if (logoutInProgress) {
-    console.warn('Logout già in corso, salto per evitare loop');
-    return;
-  }
+  if (logoutInProgress) return;
   logoutInProgress = true;
 
   try {
-    // Notifica il server (i cookie vengono inviati automaticamente)
     try {
-      await fetch(`${AUTH_API_URL}/auth/logout`, { 
+      await fetch(`${AUTH_API_URL}/auth/logout`, {
         method: 'POST',
-        credentials: 'include', // Invia i cookie
-        headers: { 'Content-Type': 'application/json' },
-        timeout: AUTH_TIMEOUT
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' }
       });
     } catch (err) {
       console.warn('Server logout fallito (procedi comunque):', err);
     }
-    
-    // Cancella dati locali
+
     AUTH_STORAGE.clear();
-    
-    // Reindirizza al login (usa replace per evitare history back loop)
     window.location.replace('login.html');
   } catch (err) {
     console.error('Logout error:', err);
@@ -220,42 +202,39 @@ function renderUserAuthButtons(authButtons, user) {
 }
 
 /**
- * Inizializza il header con stato di autenticazione (localStorage + cookie httpOnly)
+ * Inizializza il header: cookie httpOnly + cache localStorage
  */
 async function initAuthHeader() {
-  try {
-    const authButtons = document.querySelector('.auth-buttons');
-    if (!authButtons) return;
+  const authButtons = document.querySelector('.auth-buttons');
+  if (!authButtons) return;
 
-    let user = getCurrentUser();
-    if (!user) {
-      user = await syncUserFromServer();
-    } else {
-      syncUserFromServer().then((serverUser) => {
-        if (!serverUser) {
-          AUTH_STORAGE.clearUser();
-          renderGuestAuthButtons(authButtons);
-        } else if (serverUser.id !== user.id || serverUser.name !== user.name) {
-          renderUserAuthButtons(authButtons, serverUser);
-        }
-      });
-    }
+  const cached = getCurrentUser();
+  if (cached) {
+    renderUserAuthButtons(authButtons, cached);
+  }
 
-    if (user) {
-      renderUserAuthButtons(authButtons, user);
-    } else {
-      renderGuestAuthButtons(authButtons);
-    }
-  } catch (err) {
-    console.error('Auth header init error:', err);
+  const serverUser = await syncUserFromServer();
+  if (serverUser) {
+    renderUserAuthButtons(authButtons, serverUser);
+    return;
+  }
+
+  if (!cached) {
+    renderGuestAuthButtons(authButtons);
+  } else {
+    AUTH_STORAGE.clearUser();
+    renderGuestAuthButtons(authButtons);
   }
 }
 
-/**
- * Sanitizza HTML per prevenire XSS
- * @param {string} text - Testo da sanitizzare
- * @returns {string} HTML escappato
- */
+function scheduleInitAuthHeader() {
+  if (authHeaderInitPromise) return authHeaderInitPromise;
+  authHeaderInitPromise = initAuthHeader().finally(() => {
+    authHeaderInitPromise = null;
+  });
+  return authHeaderInitPromise;
+}
+
 function escapeHtml(text) {
   const map = {
     '&': '&amp;',
@@ -264,25 +243,36 @@ function escapeHtml(text) {
     '"': '&quot;',
     "'": '&#039;'
   };
-  return text.replace(/[&<>"']/g, m => map[m]);
+  return String(text).replace(/[&<>"']/g, (m) => map[m]);
 }
 
-/**
- * Estrae le iniziali dal nome completo
- * @param {string} fullName - Nome completo (es: "Fabio Mario Branca")
- * @returns {string} Iniziali in maiuscolo (es: "FMB")
- */
 function getInitials(fullName) {
   if (!fullName || typeof fullName !== 'string') return 'U';
-  
   return fullName
     .trim()
     .split(/\s+/)
-    .map(word => word.charAt(0).toUpperCase())
+    .map((word) => word.charAt(0).toUpperCase())
     .join('')
-    .substring(0, 3); // Limita a 3 caratteri
+    .substring(0, 3);
 }
 
+window.AUTH_STORAGE = AUTH_STORAGE;
 window.logout = logout;
-window.initAuthHeader = initAuthHeader;
+window.initAuthHeader = scheduleInitAuthHeader;
 window.syncUserFromServer = syncUserFromServer;
+window.isAuthenticated = isAuthenticated;
+window.getCurrentUser = getCurrentUser;
+window.notifyAuthVerified = notifyAuthVerified;
+
+window.addEventListener('storage', (e) => {
+  if (e.key === 'user') scheduleInitAuthHeader();
+});
+
+try {
+  const authBc = new BroadcastChannel('evil-auth');
+  authBc.onmessage = (ev) => {
+    if (ev.data?.type === 'email-verified') scheduleInitAuthHeader();
+  };
+} catch (_) { /* ignore */ }
+
+window.addEventListener('evil-auth-changed', () => scheduleInitAuthHeader());

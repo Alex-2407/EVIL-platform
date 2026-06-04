@@ -604,7 +604,11 @@ function injectPageAssets(htmlContent) {
   }
 
   if (!hasLoadHeaderJs(html) && /<header[\s>]/i.test(html)) {
-    html = html.replace('</head>', '<script src="/js/load-header.js" defer></script>\n</head>');
+    html = html.replace('</head>', '<script src="/js/load-header.js?v=20260605" defer></script>\n</head>');
+  }
+
+  if (!html.includes('auth-manager.js') && /<header[\s>]/i.test(html)) {
+    html = html.replace('</body>', '<script src="/js/auth-manager.js?v=20260605"></script>\n</body>');
   }
 
   html = injectSiteFooterCss(html);
@@ -2057,6 +2061,55 @@ app.post('/api/auth/confirm-email', async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: 'Errore: ' + err.message });
+  }
+});
+
+// Stato verifica email (polling da pagina "in attesa" — anche altro dispositivo)
+app.get('/api/auth/verification-status', async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId || typeof userId !== 'string') {
+      return res.status(400).json({ error: 'userId obbligatorio' });
+    }
+
+    const user = users.find((u) => u.id === userId);
+    if (!user) {
+      return res.status(404).json({ error: 'Utente non trovato', emailVerified: false });
+    }
+
+    res.json({
+      status: user.emailVerified ? 'verified' : 'pending',
+      emailVerified: !!user.emailVerified,
+    });
+  } catch (err) {
+    logger.error('Verification status error', { error: err.message });
+    res.status(500).json({ error: 'Errore stato verifica' });
+  }
+});
+
+// Sessione corrente (cookie httpOnly) — per header UI senza dipendere da localStorage
+app.get('/api/auth/session', optionalAuthenticate, (req, res) => {
+  try {
+    if (!req.user?.id) {
+      return res.json({ authenticated: false });
+    }
+
+    const user = users.find((u) => u.id === req.user.id);
+    if (!user) {
+      return res.json({ authenticated: false });
+    }
+
+    res.json({
+      authenticated: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        emailVerified: !!user.emailVerified,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ authenticated: false, error: err.message });
   }
 });
 

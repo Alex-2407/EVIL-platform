@@ -103,6 +103,7 @@
         </ul>
         <div id="deliveryNotice" class="auth-verify__notice" hidden></div>
         <p class="auth-verify__hint">Il link scade entro 24 ore. Per sicurezza il link arriva <strong>solo via email</strong>, non su questa pagina.</p>
+        <p id="pollHint" class="auth-verify__hint">Puoi verificare dal telefono: questa pagina si aggiorna da sola quando il link è stato aperto.</p>
         <div id="resendMessage" class="auth-message auth-message--success" role="status"></div>
         <button type="button" id="resendBtn" class="auth-submit auth-submit--outline">Reinvia email</button>
         <p class="auth-switch">Hai già verificato? <a href="login.html">Accedi</a></p>
@@ -111,8 +112,9 @@
       <section id="viewSuccess" class="auth-panel auth-verify" hidden>
         <p class="auth-panel__kicker">Account attivo</p>
         <h1>Email verificata</h1>
-        <p class="auth-verify__lead">Il tuo account EVIL è stato attivato. Stai per entrare nella piattaforma…</p>
+        <p id="successLead" class="auth-verify__lead">Il tuo account EVIL è stato attivato. Stai per entrare nella piattaforma…</p>
         <a href="home.html" class="auth-submit auth-submit--link">Vai alla home</a>
+        <p class="auth-switch"><a href="login.html">Accedi da questo dispositivo</a></p>
       </section>
 
       <section id="viewError" class="auth-panel auth-verify" hidden>
@@ -203,25 +205,69 @@
       el.hidden = false;
     }
 
-    if (status === 'success') {
+    let verificationPollTimer = null;
+
+    function applyVerifiedUi(fromOtherDevice) {
       show(viewSuccess);
-      (async () => {
-        try {
-          if (typeof syncUserFromServer === 'function') {
-            await syncUserFromServer();
-          } else {
-            const r = await fetch(`${API_URL}/auth/profile`, { credentials: 'include' });
-            if (r.ok) {
-              const data = await r.json();
-              if (data?.user && window.AUTH_STORAGE?.setUser) {
-                AUTH_STORAGE.setUser(data.user);
-              } else if (data?.user) {
-                localStorage.setItem('user', JSON.stringify(data.user));
-              }
+      const lead = document.getElementById('successLead');
+      if (lead && fromOtherDevice) {
+        lead.textContent =
+          'Email verificata da un altro dispositivo. Account attivo: puoi accedere da qui con email e password, oppure continuare se questa pagina ha già la sessione.';
+      }
+      if (typeof notifyAuthVerified === 'function') notifyAuthVerified();
+      if (typeof scheduleInitAuthHeader === 'function') {
+        scheduleInitAuthHeader();
+      } else if (typeof initAuthHeader === 'function') {
+        initAuthHeader();
+      }
+    }
+
+    async function syncSessionAfterVerify() {
+      try {
+        if (typeof syncUserFromServer === 'function') {
+          await syncUserFromServer();
+        } else {
+          const r = await fetch(`${API_URL}/auth/session`, { credentials: 'include' });
+          if (r.ok) {
+            const data = await r.json();
+            if (data?.user && window.AUTH_STORAGE?.setUser) {
+              AUTH_STORAGE.setUser(data.user);
             }
           }
-        } catch (_) { /* redirect comunque */ }
-        window.location.href = 'home.html';
+        }
+      } catch (_) { /* ignore */ }
+    }
+
+    function startVerificationPolling() {
+      if (!userId || status === 'success' || status === 'error') return;
+
+      const check = async () => {
+        try {
+          const r = await fetch(
+            `${API_URL}/auth/verification-status?userId=${encodeURIComponent(userId)}`
+          );
+          if (!r.ok) return;
+          const data = await r.json();
+          if (data.emailVerified) {
+            if (verificationPollTimer) clearInterval(verificationPollTimer);
+            applyVerifiedUi(true);
+            await syncSessionAfterVerify();
+          }
+        } catch (_) { /* retry */ }
+      };
+
+      check();
+      verificationPollTimer = setInterval(check, 4000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) check();
+      });
+    }
+
+    if (status === 'success') {
+      applyVerifiedUi(false);
+      (async () => {
+        await syncSessionAfterVerify();
+        window.setTimeout(() => { window.location.href = 'home.html'; }, 2200);
       })();
     } else if (status === 'error') {
       document.getElementById('errorText').textContent = errorMessages[reason] || errorMessages.invalid;
@@ -234,6 +280,7 @@
       }
       show(viewPending);
       renderDeliveryNotice();
+      startVerificationPolling();
     }
 
     function updateResendButton() {
@@ -300,6 +347,6 @@
 
   <script src="/js/matrixrain.js"></script>
   <script src="/js/js.js"></script>
-  <script src="/js/auth-manager.js"></script>
+  <script src="/js/auth-manager.js?v=20260605"></script>
 </body>
 </html>
