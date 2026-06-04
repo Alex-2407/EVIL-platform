@@ -282,7 +282,7 @@ app.get('/js/matrixrain.js', (req, res) => {
   res.sendFile(path.join(root, 'js', 'matrixrain.js'));
 });
 
-const LAB_JS_NO_CACHE = /^(virtual-lab(-guides)?|crypto-studio|quiz-hub(-data)?(-extra)?|hacked-timeline(-data)?|attacks-map|historic-attacks(-data)?|malware-db(-data)?|malware-classification(-data)?|manipulation-techniques(-data)?|security-check|http-header-audit|tools-api|url-scanner-service|http-header-audit-service|load-header|auth-manager)\.js$/i;
+const LAB_JS_NO_CACHE = /^(virtual-lab(-guides)?|crypto-studio|quiz-hub(-data)?(-extra)?|hacked-timeline(-data)?|attacks-map|historic-attacks(-data)?|malware-db(-data)?|malware-classification(-data)?|manipulation-techniques(-data)?|security-check|http-header-audit|tools-api|url-scanner-service|http-header-audit-service|load-header|auth-manager|evil-site-chrome)\.js$/i;
 app.use('/js', express.static(path.join(root, 'js'), {
   maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,
   etag: true,
@@ -468,7 +468,7 @@ app.use(express.json());
 
 /** Set httpOnly auth cookies and persist refresh token in Redis */
 async function establishAuthSession(res, user) {
-  const tokens = setTokenCookies(res, user.id, user.email);
+  const tokens = setTokenCookies(res, user.id, user.email, user.name);
   await tokenManager.storeRefreshToken(user.id, tokens.refreshToken);
   return tokens;
 }
@@ -494,20 +494,18 @@ function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
 }
 
-const AUTH_CHROME_VERSION = '20260607';
+const AUTH_CHROME_VERSION = '20260608';
 
-/** auth-manager (sync) prima di load-header (defer) — evita header "Accedi" su pagine senza script in fondo */
+/** Un solo script defer: menu + auth (evita doppio init e header "Accedi" con JWT valido) */
 function injectAuthChromeScripts(html) {
   if (!/<header[\s>]/i.test(html) || !html.includes('</head>')) return html;
 
-  const block =
-    `  <script src="/js/auth-manager.js?v=${AUTH_CHROME_VERSION}"></script>\n` +
-    `  <script src="/js/load-header.js?v=${AUTH_CHROME_VERSION}" defer></script>\n`;
+  const block = `  <script src="/js/evil-site-chrome.js?v=${AUTH_CHROME_VERSION}" defer></script>\n`;
+  const stripRe =
+    /\s*<script[^>]*src="[^"]*(?:auth-manager|load-header|evil-site-chrome)\.js[^"]*"[^>]*>\s*<\/script>\s*/gi;
 
-  let out = html.replace(/\s*<script[^>]*src="[^"]*auth-manager\.js[^"]*"[^>]*>\s*<\/script>\s*/gi, '\n');
-  out = out.replace(/\s*<script[^>]*src="[^"]*load-header\.js[^"]*"[^>]*>\s*<\/script>\s*/gi, '\n');
-
-  if (!out.includes('auth-manager.js')) {
+  let out = html.replace(stripRe, '\n');
+  if (!out.includes('evil-site-chrome.js')) {
     out = out.replace('</head>', `${block}</head>`);
   }
   return out;
@@ -2098,18 +2096,20 @@ app.get('/api/auth/session', optionalAuthenticate, (req, res) => {
       return res.json({ authenticated: false });
     }
 
-    const user = users.find((u) => u.id === req.user.id);
-    if (!user) {
-      return res.json({ authenticated: false });
-    }
+    const dbUser = users.find((u) => u.id === req.user.id);
+    const email = dbUser?.email || req.user.email;
+    const name =
+      dbUser?.name ||
+      req.user.name ||
+      (email ? String(email).split('@')[0] : 'Utente');
 
     res.json({
       authenticated: true,
       user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        emailVerified: !!user.emailVerified,
+        id: req.user.id,
+        name,
+        email,
+        emailVerified: dbUser ? !!dbUser.emailVerified : true,
       },
     });
   } catch (err) {

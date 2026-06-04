@@ -47,10 +47,6 @@
       }
     }
 
-    if (typeof window.initEvilNavigation === 'function') {
-      window.initEvilNavigation();
-    }
-
     try {
       const existingFooter = document.querySelector('footer');
       const hasSiteFooter =

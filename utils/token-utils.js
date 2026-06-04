@@ -40,15 +40,18 @@ function getAuthCookieOptions(maxAge) {
  * Generate Access Token (15 minutes)
  * Used for API authentication
  */
-function generateAccessToken(userId, email) {
+function generateAccessToken(userId, email, name) {
   if (!process.env.JWT_SECRET) {
     throw new Error('JWT_SECRET not configured');
   }
+
+  const displayName = (name && String(name).trim()) || String(email || '').split('@')[0] || 'Utente';
 
   return jwt.sign(
     {
       id: userId,
       email: email,
+      name: displayName,
       type: 'access'
     },
     process.env.JWT_SECRET,
@@ -89,8 +92,8 @@ function generateRefreshToken(userId, email) {
  * CRITICAL: Both cookies are httpOnly, Secure, SameSite:Strict
  * Only accessible to server, not JavaScript
  */
-function setTokenCookies(res, userId, email) {
-  const accessToken = generateAccessToken(userId, email);
+function setTokenCookies(res, userId, email, name) {
+  const accessToken = generateAccessToken(userId, email, name);
   const refreshToken = generateRefreshToken(userId, email);
 
   res.cookie('accessToken', accessToken, getAuthCookieOptions(
