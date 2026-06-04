@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Capolavoro — EVIL Suite | Portfolio UNICA</title>
+  <style>
+    :root {
+      --bg: #06080e;
+      --panel: #0f1419;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #00ff9c;
+      --accent2: #7dd3fc;
+      --warn: #f59e0b;
+      --line: rgba(125, 211, 252, 0.18);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      font-size: 11pt;
+    }
+    .print-hint {
+      background: #1e293b;
+      border-bottom: 1px solid var(--line);
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      color: var(--accent2);
+      text-align: center;
+    }
+    @media print {
+      .print-hint, .no-print { display: none !important; }
+      body { background: #fff; color: #111; font-size: 10.5pt; }
+      .cover { page-break-after: always; background: #0a0a0a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      section { page-break-inside: avoid; }
+      a { color: #0d47a1; }
+      .fig img { max-width: 100%; border: 1px solid #ccc; }
+    }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    .cover {
+      min-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 3rem 1.5rem;
+      background: radial-gradient(ellipse at 50% 0%, rgba(0,255,156,0.08), transparent 55%),
+                  radial-gradient(ellipse at 80% 80%, rgba(125,211,252,0.06), transparent 50%),
+                  var(--bg);
+      border-bottom: 1px solid var(--line);
+    }
+    .cover img.logo { width: 120px; height: 120px; margin-bottom: 1.5rem; }
+    .cover h1 {
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      margin: 0 0 0.5rem;
+      letter-spacing: 0.04em;
+    }
+    .cover h1 em { color: var(--accent); font-style: normal; }
+    .cover .sub { font-size: 1.15rem; color: var(--muted); max-width: 36rem; margin: 0 auto 1.5rem; }
+    .cover .meta { color: var(--muted); font-size: 0.95rem; }
+    .cover .meta strong { color: var(--accent2); }
+    h2 {
+      color: var(--accent);
+      font-size: 1.35rem;
+      margin: 2.5rem 0 1rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid var(--line);
+    }
+    h3 { color: var(--accent2); font-size: 1.05rem; margin: 1.5rem 0 0.6rem; }
+    p { margin: 0 0 1rem; }
+    ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; }
+    li { margin-bottom: 0.35rem; }
+    .lead {
+      font-size: 1.05rem;
+      color: var(--muted);
+      border-left: 3px solid var(--accent);
+      padding-left: 1rem;
+      margin: 1.5rem 0;
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 1rem 1.15rem;
+    }
+    .card h4 { margin: 0 0 0.5rem; color: var(--warn); font-size: 0.95rem; }
+    .timeline { position: relative; padding-left: 1.5rem; border-left: 2px solid var(--line); margin: 1rem 0; }
+    .timeline .item { margin-bottom: 1.25rem; position: relative; }
+    .timeline .item::before {
+      content: "";
+      position: absolute;
+      left: -1.65rem;
+      top: 0.35rem;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .timeline .when { font-size: 0.85rem; color: var(--warn); font-weight: 600; }
+    .fig {
+      margin: 1.25rem 0;
+      text-align: center;
+    }
+    .fig img {
+      max-width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #000;
+    }
+    .fig figcaption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+    .arch {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.72rem;
+      line-height: 1.35;
+      background: #0a0e14;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 1rem;
+      overflow-x: auto;
+      white-space: pre;
+      color: #cbd5e1;
+    }
+    .links a {
+      color: var(--accent2);
+      word-break: break-all;
+    }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+    .badge {
+      background: rgba(0,255,156,0.1);
+      border: 1px solid rgba(0,255,156,0.25);
+      color: var(--accent);
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+    }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+    th, td { border: 1px solid var(--line); padding: 0.5rem 0.65rem; text-align: left; }
+    th { background: var(--panel); color: var(--accent2); }
+    footer.doc-foot {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--line);
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+<p class="print-hint no-print">
+  <strong>Per caricare su UNICA:</strong> apri questo file nel browser → Ctrl+P → «Salva come PDF».
+  Allega anche la relazione tecnica (<code>RELAZIONE_TECNICA_EVIL_SUITE.txt</code>) se richiesto.
+</p>
+
+<section class="cover">
+  <img class="logo" src="../public/evil-logo.svg" alt="Logo EVIL" width="120" height="120">
+  <h1><em>EVIL</em> Suite</h1>
+  <p class="sub">
+    Educational Vulnerability &amp; Intelligence Lab —<br>
+    Piattaforma web integrata per formazione, strumenti difensivi e threat intelligence
+  </p>
+  <p class="meta">
+    <strong>Capolavoro / Progetto di percorso</strong><br>
+    Autore: Alex-2407 · Giugno 2026<br>
+    Deploy: <a href="https://www.projectevil.it" style="color:#7dd3fc">www.projectevil.it</a><br>
+    Codice: <a href="https://github.com/Alex-2407/EVIL-platform" style="color:#7dd3fc">github.com/Alex-2407/EVIL-platform</a>
+  </p>
+</section>
+
+<div class="wrap">
+
+  <h2>1. Sintesi del capolavoro</h2>
+  <p class="lead">
+    Ho progettato e sviluppato <strong>EVIL Suite</strong>, un ecosistema software completo
+    che unisce didattica della cybersecurity, strumenti di analisi difensiva autorizzata,
+    mappe di threat intelligence e gamification del percorso formativo — tutto in un unico
+    prodotto web deployato in produzione, con codice sorgente pubblico e autenticazione reale.
+  </p>
+  <p>
+    Il progetto nasce da un'esigenza concreta: online trovi scanner, corsi e mappe incidenti
+    separati, spesso con interfacce incoerenti e senza tracciamento dei progressi. EVIL risponde
+    integrando <strong>otto moduli brandizzati</strong> (Core, Shield, Forge, Scout, Intel Map,
+    Academy, Archive, Vault) sotto un'unica identità visiva e un unico account utente.
+  </p>
+
+  <div class="badge-row">
+    <span class="badge">38 pagine web</span>
+    <span class="badge">Node.js + Express</span>
+    <span class="badge">API REST + WebSocket</span>
+    <span class="badge">Deploy Render</span>
+    <span class="badge">GitHub pubblico</span>
+    <span class="badge">Uso etico documentato</span>
+  </div>
+
+  <h2>2. Obiettivi e competenze dimostrate</h2>
+  <div class="grid2">
+    <div class="card">
+      <h4>Obiettivi didattici</h4>
+      <ul>
+        <li>Formare l'utente su ethical hacking e difesa</li>
+        <li>Offrire strumenti reali solo con dichiarazione di autorizzazione</li>
+        <li>Visualizzare threat intel da fonti pubbliche (CISA, NVD)</li>
+        <li>Motivare l'apprendimento con trofei e progressi misurabili</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Competenze tecniche</h4>
+      <ul>
+        <li>Architettura client-server e API REST</li>
+        <li>Sicurezza applicativa (JWT, SSRF guard, rate limit)</li>
+        <li>Frontend vanilla responsive (38 pagine)</li>
+        <li>DevOps: deploy cloud, dominio, email transazionale</li>
+        <li>Documentazione tecnica e relazione di progetto</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>3. Il percorso di realizzazione</h2>
+  <p>
+    Il capolavoro non è nato in un solo step: è il risultato di un percorso iterativo
+    che ha alternato progettazione, implementazione, test in locale e deploy in produzione,
+    con correzioni guidate da problemi reali (encoding, auth, email su hosting free tier).
+  </p>
+
+  <div class="timeline">
+    <div class="item">
+      <div class="when">Fase 1 — Concept e architura</div>
+      <p>Definizione del brand EVIL, scelta del modello «suite modulare», mappa delle 38 pagine
+      e separazione in sottosistemi nominati (Forge, Academy, Vault…). Progettazione stack:
+      Node.js 18, Express, JWT, JSON persistence, Leaflet per mappe.</p>
+    </div>
+    <div class="item">
+      <div class="when">Fase 2 — Core e strumenti (EVIL Forge)</div>
+      <p>Implementazione backend <code>server.js</code> e servizi di scan: URL security check,
+      DNS enum, SSL, subdomain, header audit, file analysis. Gateway client unificato
+      (<code>tools-api.js</code>) e policy anti-SSRF su ogni URL scansionato.</p>
+    </div>
+    <div class="item">
+      <div class="when">Fase 3 — Formazione e contenuti (EVIL Academy + Archive)</div>
+      <p>Virtual lab con sessioni server-side, quiz hub, phishing quiz, crypto studio,
+      simulatore attacchi web. Knowledge base malware (~1000 voci), classificazione famiglie,
+      tecniche di manipolazione documentate.</p>
+    </div>
+    <div class="item">
+      <div class="when">Fase 4 — Threat intel (EVIL Intel Map)</div>
+      <p>Aggregator proprietario su feed CISA KEV e NIST NVD: normalizzazione, geocodifica,
+      cache, mappa Leaflet interattiva, aggiornamenti WebSocket, timeline storica incidenti.</p>
+    </div>
+    <div class="item">
+      <div class="when">Fase 5 — Gamification (EVIL Vault)</div>
+      <p>Sistema 16 trofei SVG con rarità, cerimonia di sblocco, audio Web API, profilo operatore,
+      sync progressi via API autenticate. Collegamento cross-modulo: ogni attività può sbloccare achievement.</p>
+    </div>
+    <div class="item">
+      <div class="when">Fase 6 — Sicurezza e auth (EVIL Shield + Chrome)</div>
+      <p>Registrazione con verifica email reale, cookie httpOnly, rate limit per endpoint,
+      login obbligatorio per strumenti. Consolidamento UI in <code>evil-site-chrome.js</code>:
+      header unificato, sessione sincronizzata, gate auth centralizzato su pagine protette.</p>
+    </div>
+    <div class="item">
+      <div class="when">Fase 7 — Produzione su projectevil.it</div>
+      <p>Deploy su Render, dominio custom, Mailtrap Live via API HTTPS (SMTP bloccato su free tier),
+      modulo Help con invio email al team, hardening auth su tutte le pagine strumenti,
+      documentazione in «AAAPRIMI PER INIZIARE».</p>
+    </div>
+  </div>
+
+  <h2>4. Architettura del sistema</h2>
+  <figure class="fig">
+    <img src="https://www.projectevil.it/html/generated-image.png" alt="Interfaccia EVIL Platform — home" width="800" height="450" onerror="this.style.display='none'">
+    <figcaption>Figura 1 — Identità visiva EVIL (logo e home su projectevil.it). Se l'immagine non carica offline, visita il sito live.</figcaption>
+  </figure>
+
+  <div class="arch">                    ┌─────────────────────────────────────┐
+                    │         EVIL SUITE (projectevil.it)  │
+                    └──────────────────┬──────────────────┘
+                                       │
+         ┌─────────────────────────────┼─────────────────────────────┐
+         │                             │                             │
+    ┌────▼────┐                   ┌────▼────┐                   ┌────▼────┐
+    │EVIL Core│◄──────────────────│EVIL     │──────────────────►│EVIL     │
+    │ server  │   tutte le API     │ Shield  │   JWT, SSRF, RL   │ Chrome  │
+    └────┬────┘                    └─────────┘                   └────┬────┘
+         │                                                              │
+    Forge · Scout · Intel Map · Academy · Archive · Vault  (moduli web+API)</div>
+
+  <h3>Moduli principali</h3>
+  <table>
+    <thead>
+      <tr><th>Modulo</th><th>Ruolo</th><th>Esempio pagina</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>EVIL Forge</td><td>Strumenti scan e analisi</td><td>security-check.html</td></tr>
+      <tr><td>EVIL Scout</td><td>OSINT fonti pubbliche</td><td>social-profiling.html</td></tr>
+      <tr><td>EVIL Intel Map</td><td>Mappa incidenti live</td><td>attacks-map.html</td></tr>
+      <tr><td>EVIL Academy</td><td>Lab, quiz, simulatori</td><td>virtual-lab.html</td></tr>
+      <tr><td>EVIL Archive</td><td>Database malware</td><td>malware-db.html</td></tr>
+      <tr><td>EVIL Vault</td><td>Trofei e profilo</td><td>profile.html</td></tr>
+    </tbody>
+  </table>
+
+  <h2>5. Risultati tangibili</h2>
+  <ul>
+    <li><strong>Sito live:</strong> <a href="https://www.projectevil.it">https://www.projectevil.it</a> — piattaforma accessibile da browser, mobile-responsive.</li>
+    <li><strong>Repository pubblico:</strong> codice completo su GitHub per trasparenza e riproducibilità; segreti e dati utenti esclusi via <code>.gitignore</code>.</li>
+    <li><strong>Autenticazione end-to-end:</strong> registrazione, verifica email, login, profilo, strumenti protetti.</li>
+    <li><strong>Threat intelligence reale:</strong> dati aggregati da CISA/NVD, non mock statici.</li>
+    <li><strong>Gamification:</strong> 16 achievement con feedback visivo e sonoro.</li>
+    <li><strong>Documentazione:</strong> relazione tecnica 20 capitoli + avviatori locali in AAAPRIMI PER INIZIARE.</li>
+  </ul>
+
+  <figure class="fig">
+    <img src="https://www.projectevil.it/html/generated-image.png" alt="Logo EVIL" width="200" height="200" style="max-width:200px">
+    <figcaption>Figura 2 — Marchio EVIL Suite (Educational Vulnerability &amp; Intelligence Lab)</figcaption>
+  </figure>
+
+  <h2>6. Scelte progettuali rilevanti</h2>
+  <h3>Sicurezza by design (EVIL Shield)</h3>
+  <p>Ogni scan passa da validazione URL anti-SSRF; le API strumenti richiedono JWT;
+  rate limit differenziati per login, scan, upload e modulo Help. In produzione
+  <code>EVIL_TOOLS_PUBLIC=0</code>: nessuno strumento operativo senza account verificato.</p>
+
+  <h3>Esperienza utente unificata (EVIL Chrome)</h3>
+  <p>Un solo script (<code>evil-site-chrome.js</code>) gestisce menu, dropdown mobile e stato
+  utente loggato su tutte le pagine, evitando flash «Accedi» e doppi caricamenti —
+  problema risolto con boot in capture phase, script defer e gate auth centralizzato.</p>
+
+  <h3>Deploy su cloud free tier</h3>
+  <p>Render free tier blocca SMTP: ho integrato Mailtrap Sending via API HTTPS per email
+  di verifica, reset password e modulo Help — soluzione documentata in relazione tecnica.</p>
+
+  <h2>7. Conformità etica e limiti</h2>
+  <p>
+    EVIL è esplicitamente pensato per <strong>formazione e ricerca autorizzata</strong>.
+    Gli strumenti di scan richiedono checkbox di autorizzazione sul target; l'OSINT usa
+    solo fonti pubbliche; le policy sono in <code>site-policies.html</code>. Non vi sono
+    claim di impenetrabilità: il valore è nell'integrazione didattica e nella qualità
+    dell'implementazione software.
+  </p>
+
+  <h2>8. Difficoltà affrontate e soluzioni</h2>
+  <table>
+    <thead>
+      <tr><th>Problema</th><th>Soluzione adottata</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Email non inviata su Render</td><td>Mailtrap API HTTPS al posto di SMTP</td></tr>
+      <tr><td>Header «Accedi» su pagine strumenti</td><td>evil-site-chrome unificato + session API</td></tr>
+      <tr><td>Doppio caricamento pagine</td><td>Link assoluti /pagina.html, script defer</td></tr>
+      <tr><td>Utenti persi al redeploy</td><td>DATA_DIR su volume persistente (roadmap)</td></tr>
+      <tr><td>Modulo Help non funzionante</td><td>Endpoint POST /api/help + rate limit</td></tr>
+    </tbody>
+  </table>
+
+  <h2>9. Materiali allegabili su UNICA</h2>
+  <ul class="links">
+    <li><strong>Questo documento</strong> — salvare come PDF dal browser</li>
+    <li><strong>RELAZIONE_TECNICA_EVIL_SUITE.txt</strong> — relazione tecnica completa (20 capitoli)</li>
+    <li><strong>Sito demo:</strong> <a href="https://www.projectevil.it">https://www.projectevil.it</a></li>
+    <li><strong>Codice sorgente:</strong> <a href="https://github.com/Alex-2407/EVIL-platform">github.com/Alex-2407/EVIL-platform</a></li>
+    <li><strong>Screenshot consigliati:</strong> home, mappa incidenti, profilo trofei, scan URL (catturare dal sito live)</li>
+  </ul>
+
+  <h2>10. Conclusioni</h2>
+  <p>
+    EVIL Suite dimostra la capacità di concepire, implementare e mettere in produzione
+    una piattaforma software articolata: non un singolo script o una pagina statica,
+    ma un <strong>ecosistema modulare</strong> con backend, frontend, sicurezza, deploy
+    e documentazione. Il percorso — dalla prima idea di brand alla risoluzione dei bug
+    di produzione — riflette un approccio ingegneristico reale: iterazione, test,
+    hardening e comunicazione tecnica (relazione + portfolio).
+  </p>
+  <p>
+    Il capolavoro è verificabile: basta visitare projectevil.it, registrarsi,
+    esplorare strumenti e moduli formativi, e confrontare con il codice pubblico su GitHub.
+  </p>
+
+  <footer class="doc-foot">
+    EVIL Suite — Capolavoro portfolio · Giugno 2026 · Alex-2407<br>
+    Educational Vulnerability &amp; Intelligence Lab · www.projectevil.it
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,30 @@
+EVIL Suite — materiali capolavoro e avvio
+==========================================
+
+CONTENUTI DI QUESTA CARTELLA
+----------------------------
+
+1. CAPOLAVORO_UNICA_EVIL_SUITE.html
+   Documento portfolio per caricamento su UNICA (capolavoro).
+   • Apri con Chrome/Edge → Ctrl+P → "Salva come PDF"
+   • Include sintesi, percorso di sviluppo, architettura, risultati, link al sito live
+   • Allega screenshot dal sito se UNICA richiede immagini aggiuntive
+
+2. RELAZIONE_TECNICA_EVIL_SUITE.txt
+   Relazione tecnica completa (20 capitoli) — allegato tecnico di supporto
+
+3. AVVIO.txt / start-local.bat / start-server.bat
+   Avvio progetto in locale (http://localhost:5000)
+
+CARICAMENTO SU UNICA — CHECKLIST
+--------------------------------
+[ ] Esporta CAPOLAVORO_UNICA_EVIL_SUITE.html come PDF
+[ ] Allega RELAZIONE_TECNICA_EVIL_SUITE.txt (se richiesto dal docente)
+[ ] Inserisci link: https://www.projectevil.it
+[ ] Inserisci link repo: https://github.com/Alex-2407/EVIL-platform
+[ ] Opzionale: 3–5 screenshot (home, mappa, profilo, scan URL, quiz)
+
+REPOSITORY GITHUB
+-----------------
+Branch capolavoro / avviatori: chore/aaaprima-launchers
+Branch produzione: main

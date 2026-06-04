@@ -1,0 +1,836 @@
+╔════════════════════════════════════════════════════════════════════════════════╗
+║                    RELAZIONE TECNICA — PROGETTO EVIL SUITE                      ║
+║   Piattaforma software integrata per cybersecurity education e threat intel   ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+SOMMARIO
+═══════════════════════════════════════════════════════════════════════════════════
+
+  1.  Introduzione e visione del progetto
+  2.  Il marchio EVIL e la suite software proprietaria
+  3.  Architettura generale dell'ecosistema
+  4.  EVIL Core — motore centrale della piattaforma
+  5.  EVIL Shield — livello di sicurezza integrato
+  6.  EVIL Forge — laboratorio strumenti offensive security
+  7.  EVIL Scout — modulo OSINT e ricognizione
+  8.  EVIL Intel Map — intelligence e visualizzazione incidenti
+  9.  EVIL Academy — formazione interattiva e laboratori
+ 10.  EVIL Archive — knowledge base e database malware
+ 11.  EVIL Vault — gamification, trofei e progressi utente
+ 12.  EVIL Chrome — esperienza utente unificata
+ 13.  Tecnologie e stack tecnico
+ 14.  Mappa completa del sito (38 pagine web)
+ 15.  API REST e comunicazione real-time
+ 16.  Protezione del codice e repository GitHub (pubblico)
+ 17.  Deploy, dominio e produzione
+ 18.  Conformità, uso etico e limiti
+ 19.  Innovazione e contributo originale
+ 20.  Roadmap e conclusioni
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+1. INTRODUZIONE E VISIONE DEL PROGETTO
+═══════════════════════════════════════════════════════════════════════════════════
+
+EVIL (Educational Vulnerability & Intelligence Lab) non è un singolo strumento
+isolato, ma una SUITE SOFTWARE integrata sviluppata come piattaforma web completa
+per la cybersecurity didattica. L'obiettivo è colmare il divario tra teoria
+accademica e pratica operativa: l'utente impara, misura i progressi e utilizza
+strumenti reali nello stesso ambiente, senza installare software locale.
+
+SITO IN PRODUZIONE:  https://www.projectevil.it  (alias https://projectevil.it)
+CODICE SORGENTE:    https://github.com/Alex-2407/EVIL-platform
+                     (repository PUBBLICO — clonabile, portfolio e deploy cloud)
+
+PROBLEMA AFFRONTATO:
+  Le risorse cybersecurity online sono frammentate (scanner separati, corsi
+  separati, mappe threat intel altrove). EVIL unifica tutto con identità visiva
+  coerente, autenticazione centralizzata e tracciamento del percorso formativo.
+
+SOLUZIONE PROPOSTA:
+  Otto sottosistemi brandizzati (EVIL Core, Shield, Forge, Scout, Intel Map,
+  Academy, Archive, Vault) più il layer EVIL Chrome per l'interfaccia, che
+  insieme costituiscono la piattaforma proprietaria EVIL Suite.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+2. IL MARCHIO EVIL E LA SUITE SOFTWARE PROPRIETARIA
+═══════════════════════════════════════════════════════════════════════════════════
+
+2.1 IDENTITÀ DEL BRAND
+━━━━━━━━━━━━━━━━━━━━━━
+
+  Nome commerciale / progettuale:  EVIL Suite
+  Acronimo espanso:                Educational Vulnerability & Intelligence Lab
+  Dominio:                         projectevil.it
+  Tono visivo:                     Dark cyber — rosso, giallo, verde su nero
+  Lingua interfaccia:              Italiano (contenuti tecnici internazionali)
+
+2.2 PERCHÉ UNA "SUITE" E NON UN SITO VETRINA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Una suite software è un insieme di moduli cooperanti sotto un unico brand.
+  In EVIL ogni modulo ha:
+    • Responsabilità ben definita (single responsibility)
+    • API o script dedicati
+    • Pagine HTML associate
+    • Integrazione con EVIL Core (auth, log, rate limit)
+
+  Questo approccio è ciò che permette di presentare il lavoro come SVILUPPO
+  SOFTWARE ORIGINALE e non come semplice raccolta di link esterni.
+
+2.3 SCHEMA BRAND — PANORAMICA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+                    ┌─────────────────────────────────────┐
+                    │         EVIL SUITE (piattaforma)     │
+                    └──────────────────┬──────────────────┘
+                                       │
+         ┌─────────────────────────────┼─────────────────────────────┐
+         │                             │                             │
+    ┌────▼────┐                   ┌────▼────┐                   ┌────▼────┐
+    │EVIL Core│◄──────────────────│EVIL     │──────────────────►│EVIL     │
+    │         │    tutti i moduli │ Shield  │    protegge API   │ Chrome  │
+    └────┬────┘    passano da    └─────────┘                   └────┬────┘
+         │            Core                                              │
+    ┌────┴────┬──────────┬──────────┬──────────┬──────────┬───────────┴───┐
+    │         │          │          │          │          │               │
+ Forge    Scout    Intel Map  Academy   Archive    Vault          (UI/UX)
+(strumenti)(OSINT)  (mappe)   (corsi)   (malware)  (trofei)
+
+
+2.4 TABELLA RIEPILOGATIVA MODULI BRAND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌──────────────┬────────────────────────────────────────────────────────────┐
+│ MODULO       │ DESCRIZIONE BREVE                                                          │
+├──────────────┼────────────────────────────────────────────────────────────┤
+│ EVIL Core    │ Server Node.js, API REST, WebSocket, auth, deploy, health check          │
+│ EVIL Shield  │ SSRF guard, rate limit, sanitizzazione, Helmet, validazione produzione   │
+│ EVIL Forge   │ URL scan, DNS, SSL, subdomain, header audit, file scan, report PDF       │
+│ EVIL Scout   │ Social profiling e OSINT su fonti pubbliche verificate                    │
+│ EVIL Intel   │ Aggregazione CISA/NVD, mappa live, trend mensile, WebSocket incidenti      │
+│ Map          │                                                                            │
+│ EVIL Academy │ Virtual lab, quiz hub, phishing quiz, crypto studio, simulatori            │
+│ EVIL Archive │ Database malware (~1000 voci), classificazione, tecniche manipolazione   │
+│ EVIL Vault   │ 16 trofei SVG, cerimonia sblocco, musichette, profilo, progress API      │
+│ EVIL Chrome  │ Header/footer unificati, auth sessione, tema, responsive su 38 pagine      │
+└──────────────┴────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+3. ARCHITETTURA GENERALE DELL'ECOSISTEMA
+═══════════════════════════════════════════════════════════════════════════════════
+
+Modello architetturale: CLIENT-SERVER con API REST, WebSocket e asset statici.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         ARCHITETTURA EVIL SUITE 2026                        │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  CLIENT (Browser)                         SERVER (Node.js 18 + Express)     │
+│  ┌─────────────────────────┐              ┌─────────────────────────────┐  │
+│  │ EVIL Chrome (UI layer)  │   HTTP/HTTPS │ EVIL Core                   │  │
+│  │ 38 × HTML + CSS + JS    │◄────────────►│  js/server.js               │  │
+│  │ Moduli: Forge, Scout,   │   WebSocket  │  middleware/ + services/    │  │
+│  │ Vault, Academy, Intel…  │              │  EVIL Shield (inline)       │  │
+│  └─────────────────────────┘              └──────────────┬──────────────┘  │
+│                                                           │                 │
+│                                                           ▼                 │
+│                                              users.json, achievements.json  │
+│                                              .incidents-cache.json, .env    │
+│                                              (DATA_DIR opzionale su cloud)  │
+│                                                           │                 │
+│                                                           ▼                 │
+│                                              API esterne: NIST NVD, CISA,   │
+│                                              DNS, Mailtrap API/SMTP, Redis  │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+FLUSSO TIPICO UTENTE:
+  1. Accesso a projectevil.it → EVIL Chrome carica header, tema e sessione
+  2. Registrazione/login → EVIL Core + Shield (rate limit, cookie JWT httpOnly)
+  3. Verifica email → invio via Mailtrap Live (API HTTPS su Render free tier)
+  4. Uso strumento (es. scan URL) → EVIL Forge → API protetta da Shield
+  5. Attività registrata → EVIL Vault aggiorna progressi / sblocca trofeo
+  6. Consultazione mappa → EVIL Intel Map (pubblica, solo lettura)
+  7. Supporto → modulo Help (help.html) → POST /api/help → email al team
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+4. EVIL CORE — MOTORE CENTRALE DELLA PIATTAFORMA
+═══════════════════════════════════════════════════════════════════════════════════
+
+4.1 COS'È EVIL CORE
+━━━━━━━━━━━━━━━━━━━
+
+  EVIL Core è il nucleo runtime della suite: senza Core nessun altro modulo
+  può funzionare in produzione. Gestisce il ciclo di vita delle richieste HTTP,
+  il routing verso i sottosistemi, la persistenza utenti e l'integrazione
+  con servizi esterni.
+
+4.2 COMPONENTI SOFTWARE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+  File principale:     js/server.js (~2660 righe)
+  Servizi dedicati:
+    • services/email-service.js      — verifica email, reset password, Help
+    • services/token-manager.js      — refresh token (Redis opzionale)
+    • services/incidents-service.js  — feed EVIL Intel Map
+    • services/virtual-lab-service.js — sessioni EVIL Academy
+
+  Utility:
+    • utils/token-utils.js           — cookie httpOnly access/refresh + name JWT
+
+  Script operativi:
+    • js/check-deployment.js         — checklist pre-deploy
+    • js/verify-services.js          — test servizi critici (npm test)
+    • scripts/setup-local.js         — setup .env locale
+    • scripts/build-home-css.js      — bundle CSS home
+    • scripts/inject-auth-head.js    — sync auth chrome su tutte le pagine HTML
+
+4.3 FUNZIONALITÀ CORE
+━━━━━━━━━━━━━━━━━━━━━
+
+  • Routing pagine HTML con iniezione asset (injectPageAssets):
+      header CSS, tema, scrollbar, evil-motion, auth chrome, script defer
+  • Servizio file statici (/css, /js, /html, /public, /assets)
+  • Link menu normalizzati alla root (/pagina.html) — evita doppio caricamento
+  • Compressione gzip, CORS, cookie-parser
+  • Health check: GET /health, /api/health, /api/health/ping, /api/health/smtp
+  • Trust proxy per deploy dietro Render/nginx
+  • Validazione ambiente produzione (JWT forti obbligatori)
+  • Audit log e logger strutturato (middleware/logger.js)
+  • Sincronizzazione achievements.json → html/achievements.json
+
+4.4 AVVIO E DEPLOY
+━━━━━━━━━━━━━━━━━━
+
+  Sviluppo:  npm start  →  build home CSS  →  http://localhost:5000
+  Cloud:     Procfile → web: npm start
+  Engine:    Node.js 18.x (package.json engines)
+
+  Avvio rapido locale: cartella "AAAPRIMI PER INIZIARE" → start-local.bat
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+5. EVIL SHIELD — LIVELLO DI SICUREZZA INTEGRATO
+═══════════════════════════════════════════════════════════════════════════════════
+
+5.1 COS'È EVIL SHIELD
+━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Shield non è un prodotto separato installabile: è il LAYER DI SICUREZZA
+  trasversale che protegge ogni richiesta API e l'avvio in produzione. È parte
+  dell'innovazione architetturale della suite (security-by-design).
+
+5.2 MODULI SHIELD
+━━━━━━━━━━━━━━━━━
+
+  middleware/auth.js
+    • authenticateToken — JWT da cookie httpOnly
+    • optionalAuthenticate — sessione opzionale (header UI)
+    • authenticateTools — login obbligatorio per strumenti (default)
+    • toolsArePublic() — disattivato salvo EVIL_TOOLS_PUBLIC=1 (solo test)
+    • Validazione password: 12+ caratteri, maiuscola, numero, speciale
+    • Guest user solo in modalità test esplicita
+
+  middleware/sanitization.js
+    • sanitizeUrl, sanitizeString, sanitizeEmail
+    • assertSafePublicUrl — anti-SSRF (blocco IP privati, localhost, metadata)
+
+  middleware/limiter.js
+    • globalLimiter — API (escluse pagine statiche)
+    • authLimiter, registerLimiter, passwordResetLimiter, refreshTokenLimiter
+    • helpLimiter — modulo Help (5 invii / 15 min per IP+email)
+    • scanLimiter, dnsLimiter, uploadLimiter, virtualLabLimiter
+
+  middleware/security-headers.js + helmet
+  middleware/validation-schemas.js + express-validator
+  middleware/upload.js, file-scanner-upload.js
+
+5.3 POLITICA ACCESSO STRUMENTI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  REGOLA PRODUZIONE: per usare EVIL Forge e EVIL Scout l'utente DEVE
+  registrarsi o accedere. Implementazione tripla (difesa in profondità):
+    • Frontend: evil-site-chrome.js — gate data-evil-auth="required"
+    • Frontend: tools-api.js — ensureToolAuth() prima di ogni POST
+    • Backend: authenticateTools su POST /api/scan, /api/dns-enum, ecc.
+
+  Pagine protette (auth obbligatoria):
+    security-check, vulnerability-scanner, dns-enumerator, subdomain-finder,
+    ssl-analyzer, file-analysis, social-profiling, public-info, profile
+
+5.4 CHECKLIST SICUREZZA
+━━━━━━━━━━━━━━━━━━━━━━━
+
+  npm run check:deploy — verifica SSRF guard, rate limit register, Procfile,
+                       pagine trofei, assenza segreti in repo
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+6. EVIL FORGE — LABORATORIO STRUMENTI OFFENSIVE SECURITY
+═══════════════════════════════════════════════════════════════════════════════════
+
+6.1 COS'È EVIL FORGE
+━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Forge è il modulo operativo della suite: l'utente autorizzato esegue
+  analisi di sicurezza su target per cui dichiara permesso. Tutti gli strumenti
+  condividono il gateway client EvilTools (js/tools-api.js) e le stesse
+  policy di autenticazione EVIL Shield.
+
+6.2 STRUMENTI FORGE — DETTAGLIO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ┌─────────────────────┬──────────────────┬─────────────────────────────────┐
+  │ Strumento           │ Pagina           │ API / Servizio                  │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ URL Security Check  │ security-check   │ POST /api/scan                  │
+  │                     │                  │ js/url-scanner-service.js       │
+  │                     │                  │ Grade A–F, findings, DNS, TLS   │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ Header / Vuln Audit │ vulnerability-   │ POST /api/vulnerability-scan    │
+  │                     │ scanner.html     │ js/http-header-audit-service.js │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ DNS Enumerator      │ dns-enumerator   │ POST /api/dns-enum, /api/whois  │
+  │                     │                  │ js/dns-enumerator-service.js    │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ Subdomain Finder    │ subdomain-finder │ POST /api/subdomain-finder      │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ SSL Analyzer        │ ssl-analyzer     │ POST /api/ssl-analyzer          │
+  │                     │                  │ js/ssl-analyzer-service.js      │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ File Analysis       │ file-analysis    │ POST /api/file-scan             │
+  │                     │                  │ js/file-scanner-service.js      │
+  ├─────────────────────┼──────────────────┼─────────────────────────────────┤
+  │ Report Generator    │ report-generator │ POST /api/report-generator (PDF)│
+  └─────────────────────┴──────────────────┴─────────────────────────────────┘
+
+6.3 URL SECURITY CHECK — PIPELINE TECNICA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Input URL → sanitizeUrl → assertSafePublicUrl (Shield) → runUrlScan:
+    1. Risoluzione DNS / GeoIP
+    2. Tracciamento catena redirect
+    3. Handshake TLS e analisi certificato
+    4. Audit header HTTP (CSP, HSTS, X-Frame-Options, ecc.)
+    5. Discovery robots.txt / security.txt
+    6. Calcolo security_score e grade
+  Timeout operazione: ~45s con gestione 408
+
+6.4 INNOVAZIONE FORGE
+━━━━━━━━━━━━━━━━━━━━━
+
+  Integrazione end-to-end in un'unica UI (security-check.html) invece di
+  tool separati; un solo login; storico progressi collegato a EVIL Vault.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+7. EVIL SCOUT — MODULO OSINT E RICOGNIZIONE
+═══════════════════════════════════════════════════════════════════════════════════
+
+7.1 COS'È EVIL SCOUT
+━━━━━━━━━━━━━━━━━━━
+
+  EVIL Scout raccoglie informazioni da fonti OSINT pubbliche e verificabili,
+  senza accesso non autorizzato. È complementare a EVIL Forge (tecnico) e
+  EVIL Intel Map (threat landscape globale).
+
+7.2 COMPONENTI
+━━━━━━━━━━━━━━
+
+  social-profiling.html + js/social-profiling.js
+    • POST /api/social-profile
+    • js/social-profiling-service.js
+    • Verifica username su piattaforme pubbliche (GitHub API, probe HTTP)
+    • Risultati onesti: confermato / assente / inconclusivo (no dati inventati)
+
+  public-info.html + js/public-info.js
+    • POST /api/osint-search
+    • js/public-info-service.js, public-info-registry-service.js
+    • Modalità: persona, dominio, registry, dettaglio Wikidata
+
+  osint-hub.html, domain-recon.html — hub navigazione OSINT
+
+7.3 ETICA E LIMITI
+━━━━━━━━━━━━━━━━━━
+
+  Solo dati pubblici; uso didattico; policy in site-policies.html;
+  login obbligatorio per eseguire ricerche attive.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+8. EVIL INTEL MAP — INTELLIGENCE E VISUALIZZAZIONE INCIDENTI
+═══════════════════════════════════════════════════════════════════════════════════
+
+8.1 COS'È EVIL INTEL MAP
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Intel Map trasforma feed di threat intelligence pubblici in esperienza
+  visiva comprensibile: mappa geografica, statistiche, trend mensile e
+  aggiornamenti live via WebSocket.
+
+8.2 SERVIZIO PROPRIETARIO
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  services/incidents-service.js — EVIL Incidents Aggregator
+    • Ingest da CISA Known Exploited Vulnerabilities (KEV)
+    • Ingest da NIST National Vulnerability Database API 2.0
+    • Normalizzazione, deduplica, geocodifica
+    • Cache su disco (.incidents-cache.json)
+    • Sparkline trend mensile per dashboard
+
+8.3 INTERFACCIA
+━━━━━━━━━━━━━━━
+
+  attacks-map.html + js/attacks-map.js + css/attacks-map.css
+    • Mappa Leaflet (fix tile in js/leaflet-map-fix.js)
+    • Pannello KPI, filtri severità/fonte
+    • GET /api/realtime-incidents
+    • WS /ws/incidents
+
+  historic-attacks.html, hacked-timeline.html — contesto storico
+
+8.4 ACCESSO
+━━━━━━━━━━━
+
+  Consultazione mappa: pubblica (lettura).
+  Strumenti Forge/Scout: richiedono account.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+9. EVIL ACADEMY — FORMAZIONE INTERATTIVA E LABORATORI
+═══════════════════════════════════════════════════════════════════════════════════
+
+9.1 COS'È EVIL ACADEMY
+━━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Academy è il vertical didattico: quiz, simulatori, laboratori virtuali
+  e percorsi teorici per l'apprendimento dell'ethical hacking e della difesa.
+
+9.2 MODULI ACADEMY
+━━━━━━━━━━━━━━━━━━
+
+  EVIL Virtual Lab Runtime
+    • virtual-lab.html, js/virtual-lab.js, virtual-lab-guides.js
+    • services/virtual-lab-service.js
+    • API: /api/virtual-lab/catalog, /sessions, /exec
+    • Sessioni sandbox server-side, terminal simulato, scenari guidati
+
+  EVIL Quiz Hub
+    • quiz-hub.html, js/quiz-hub.js, quiz-hub-data.js, quiz-hub-glossary.js
+    • Domande multi-area cybersecurity
+
+  Altri moduli:
+    • phishing-quiz.html — anti-phishing interattivo
+    • crypto-studio.html — algoritmi e demo crittografia
+    • web-simulator.html — scenari attacco/difesa browser (SQLi, XSS, ecc.)
+    • ethical-hacking.html, social-engineering.html — contenuti formativi
+
+9.3 COLLEGAMENTO EVIL VAULT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Completamento quiz/lab/attività → chiavi in achievements.json →
+  progress-manager.js → sblocco trofeo EVIL Vault.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+10. EVIL ARCHIVE — KNOWLEDGE BASE E DATABASE MALWARE
+═══════════════════════════════════════════════════════════════════════════════════
+
+10.1 COS'È EVIL ARCHIVE
+━━━━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Archive è la knowledge base consultabile della suite: catalogazione
+  malware, tecniche di manipolazione e schede informative per studio autonomo.
+
+10.2 CONTENUTI
+━━━━━━━━━━━━━
+
+  malware-db.html — catalogo esteso (~1000 entries, script generazione catalogo)
+  malware-classification.html — tassonomia famiglie
+  manipulation-techniques.html — tecniche documentate
+  malware-card-template.html — template scheda
+
+  Dati: js/malware-db-data.js, malware-classification-data.js,
+        manipulation-techniques-data.js
+
+10.3 ACCESSO
+━━━━━━━━━━━━
+
+  Consultazione pubblica; progressi/trofei legati a identificazione malware
+  tramite EVIL Vault.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+11. EVIL VAULT — GAMIFICATION, TROFEI E PROGRESSI
+═══════════════════════════════════════════════════════════════════════════════════
+
+11.1 COS'È EVIL VAULT
+━━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Vault è il sistema proprietario di gamification: motiva l'utente a
+  esplorare tutta la suite collegando ogni attività a achievement, feedback
+  visivo e sonoro. È uno dei elementi più distintivi del progetto rispetto a
+  tool cybersecurity generici.
+
+11.2 EVIL TROPHY SYSTEM
+━━━━━━━━━━━━━━━━━━━━━━━
+
+  Catalogo: achievements.json — 16 trofei con:
+    • id, name, tagline, description
+    • rarity: bronze, silver, gold, legendary, supreme
+    • visual: icona SVG tematica (radar, biohazard, ecc.)
+    • activityKey + unlockType (first, count, threshold)
+
+  Runtime frontend:
+    • js/trophy-system.js   — griglia profilo, filtri, cerimonia ~15s supreme
+    • js/trophy-audio.js    — fanfare Web Audio API
+    • js/trophy-jingles.js  — musichette per rarità
+    • css/trophy-system.css
+
+  Pagine design (mantenute in produzione):
+    • html/trophy-preview-local.html — anteprima animazioni trofei
+    • html/jingle-preview-local.html — anteprima suoni sblocco
+    • Link da profile.html; meta noindex (non indicizzazione SEO)
+
+11.3 EVIL PROGRESS ENGINE
+━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  js/progress-manager.js
+    • isAuthenticated(), tracciamento attività per chiave
+    • Sync POST /api/progress/save, GET /api/progress/load
+    • POST /api/progress/unlock-achievement
+    • Iniezione dinamica trophy-system.css/js al primo sblocco
+
+  profile.html + js/profile-page.js — vetrina, obiettivi, registro attività
+    • Sessione via GET /api/auth/session (JWT valido anche senza users.json
+      su disco ephemeral — importante su Render free tier)
+
+11.4 CERIMONIA DI SBLOCCO
+━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Al primo unlock: overlay fullscreen, SVG animato, audio rarità-specifico,
+  per supreme cerimonia estesa (~15 secondi). Esperienza "product-like"
+  pensata per retention formativa.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+12. EVIL CHROME — ESPERIENZA UTENTE UNIFICATA
+═══════════════════════════════════════════════════════════════════════════════════
+
+12.1 COS'È EVIL CHROME
+━━━━━━━━━━━━━━━━━━━━━━
+
+  EVIL Chrome (dal greco "chroma" = aspetto, non il browser Google Chrome) è
+  il layer di presentazione unificato: garantisce che tutte le 38 pagine
+  appaiano come un unico prodotto professionale.
+
+12.2 COMPONENTI CHROME (2026 — architettura consolidata)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Motore unico: js/evil-site-chrome.js
+    • Menu header, dropdown, hamburger mobile
+    • Stato utente (iniziali + Log Out) sincronizzato con /api/auth/session
+    • Gate auth centralizzato (data-evil-auth="required")
+    • Classe evil-auth-pending — nessun flash "Accedi" durante sync sessione
+    • Boot in capture phase + script body defer (ordine esecuzione corretto)
+    • Sostituisce i vecchi auth-manager.js e load-header.js (ora shim vuoti)
+
+  Componenti condivisi:
+    • html/components/header.html, footer.html — template embedded nelle pagine
+    • css/system-theme.css — variabili tema EVIL
+    • css/site-header.css, site-footer.css, evil-scrollbar.css
+    • css/responsive.css — breakpoint PC / tablet / smartphone
+    • scripts/inject-auth-head.js — sync auth chrome su tutte le pagine
+    • js/server.js injectPageAssets() — iniezione runtime in produzione
+    • css/home.bundle.css — bundle generato (build-home-css.js)
+    • js/evil-motion.js, css/evil-motion.css — micro-animazioni
+    • js/matrixrain.js — easter egg logo (viewport-aware, mobile-safe)
+
+  Gateway client strumenti: js/tools-api.js
+    • Attende __evilAuthReady prima di ogni POST
+    • Redirect assoluto /login.html?redirect=…
+
+12.3 HOME EXPERIENCE
+━━━━━━━━━━━━━━━━━━━
+
+  home.html + js/home-experience.js + css/home-motion.css
+    • Splash introduttiva, showcase moduli, card animate
+    • Fix responsive card "Mappa incidenti" su mobile
+
+12.4 MODULO HELP (EVIL Core + Chrome)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  help.html + js/help-form.js
+    • Form contatto → POST /api/help
+    • Email al team (support@projectevil.it) + conferma all'utente
+    • Rate limit helpLimiter (anti-spam)
+    • Richiede email configurata (Mailtrap API o SMTP)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+13. TECNOLOGIE E STACK TECNICO
+═══════════════════════════════════════════════════════════════════════════════════
+
+BACKEND:  Node.js 18, Express 4.22, bcryptjs, JWT, express-rate-limit,
+          helmet, axios, ws, multer, nodemailer, compression, cookie-parser
+
+FRONTEND: HTML5, CSS3, JavaScript ES6+ vanilla, Leaflet, Canvas, Fetch API
+
+PERSISTENZA: users.json, achievements.json, .incidents-cache.json
+             DATA_DIR (volume persistente consigliato su Render)
+
+EMAIL PRODUZIONE (Render free tier):
+  • MAILTRAP_API_TOKEN + EMAIL_USE_MAILTRAP_API=1
+  • Invio via HTTPS send.api.mailtrap.io (SMTP porte 587/465 bloccate)
+  • Locale: SMTP o outbox in data/email-outbox (EMAIL_DEV_OUTBOX=1)
+
+SEGRETI:  .env (JWT, Mailtrap, Redis) — mai committato
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+14. MAPPA COMPLETA DEL SITO — 38 PAGINE PER MODULO BRAND
+═══════════════════════════════════════════════════════════════════════════════════
+
+EVIL Core / Auth:     login, account, profile, forgot/reset password,
+                      verify-email, confirm-email
+
+EVIL Chrome:          home, help, site-policies, logo-easter-egg
+
+EVIL Forge:           security-check, vulnerability-scanner, dns-enumerator,
+                      subdomain-finder, ssl-analyzer, file-analysis,
+                      report-generator
+
+EVIL Scout:           social-profiling, public-info, osint-hub, domain-recon
+
+EVIL Intel Map:       attacks-map, historic-attacks, hacked-timeline
+
+EVIL Academy:         virtual-lab, web-simulator, quiz-hub, phishing-quiz,
+                      crypto-studio, ethical-hacking, social-engineering
+
+EVIL Archive:         malware-db, malware-classification,
+                      manipulation-techniques, malware-card-template
+
+EVIL Vault (design):  profile, trophy-preview-local, jingle-preview-local
+                      (ultime 2 pagine: noindex, solo anteprima interna)
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+15. API REST E COMUNICAZIONE REAL-TIME — RIEPILOGO
+═══════════════════════════════════════════════════════════════════════════════════
+
+  HEALTH:
+    GET  /health, /api/health
+    GET  /api/health/ping
+    GET  /api/health/smtp (?verify=1 per test connessione)
+
+  AUTH:
+    POST /api/auth/register, /login, /logout, /refresh-token
+    POST /api/auth/forgot-password, /reset-password
+    POST /api/auth/verify-email-code, /confirm-email, /resend-verification-code
+    GET  /api/auth/verify-email, /verification-status, /session, /profile
+    POST /api/auth/verify
+
+  SUPPORTO:
+    POST /api/help  [helpLimiter — pubblico, no login richiesto]
+
+  STRUMENTI [authenticateTools + Shield]:
+    POST /api/scan, /dns-enum, /whois, /subdomain-finder, /ssl-analyzer,
+         /vulnerability-scan, /file-scan, /social-profile, /osint-search,
+         /report-generator
+
+  THREAT INTEL:
+    GET  /api/realtime-incidents  [pubblico, rate limit]
+    WS   /ws/incidents
+
+  ACADEMY:
+    GET/POST /api/virtual-lab/*
+
+  VAULT:
+    GET  /api/achievements, /achievements.json
+    GET/POST /api/progress/load, /save, /unlock-achievement  [auth JWT]
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+16. PROTEZIONE DEL CODICE E REPOSITORY GITHUB (PUBBLICO)
+═══════════════════════════════════════════════════════════════════════════════════
+
+16.1 STATO ATTUALE: REPOSITORY PUBBLICO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Il codice sorgente su GitHub (Alex-2407/EVIL-platform) è PUBBLICO:
+    • Visibile a chiunque su github.com/Alex-2407/EVIL-platform
+    • Clonabile con: git clone https://github.com/Alex-2407/EVIL-platform.git
+    • Adatto a portfolio, dimostrazione in commissione, collaborazioni open source
+    • Deploy Render/Railway tramite collegamento GitHub già configurato
+
+  Scelta corrente: massima trasparenza sul lavoro svolto; il valore del progetto
+  resta nell'integrazione della suite EVIL, nel deploy live e nell'esperienza utente,
+  non solo nel segreto del codice.
+
+16.2 COSA È ESPOSTO CON REPO PUBBLICO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Accessibile a tutti:
+    • Intero backend (server.js, services/, middleware/)
+    • Frontend completo (html/, css/, js/)
+    • achievements.json, script di build e sync
+    • Documentazione e relazione in AAAPRIMI PER INIZIARE/
+
+  NON presente su GitHub (protetto da .gitignore):
+    • .env — JWT_SECRET, Mailtrap, SMTP, Redis, password admin
+    • users.json — account e hash password reali
+    • node_modules/, logs/, email-outbox/, uploads/
+
+  Quindi: il codice è pubblico, i SEGRETI e i DATI UTENTI no.
+
+16.3 COSA RESTA VISIBILE SUL SITO LIVE (INDIPENDENTE DAL REPO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Su https://www.projectevil.it il browser espone sempre:
+    • HTML, CSS, JavaScript (DevTools → Sources)
+    • Chiamate API osservabili (Network)
+
+  Anche con repository privato, il frontend sul sito sarebbe comunque scaricabile.
+  Il repo pubblico aggiunge la visibilità dell'intero backend sorgente.
+
+16.4 COME PROTEGGERSI COMUNQUE (CHECKLIST)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ✓ Non committare mai .env o users.json
+  ✓ JWT e Mailtrap solo variabili ambiente su Render/Railway
+  ✓ EVIL_TOOLS_PUBLIC=0 in produzione (login obbligatorio)
+  ✓ Password forti e uniche per JWT_SECRET in produzione
+  ✓ COOKIE_DOMAIN coerente col dominio (es. .projectevil.it)
+  ✓ BASE_URL=https://www.projectevil.it in produzione
+  ✓ site-policies.html — termini d'uso e copyright sul brand EVIL Suite
+  ✓ Opzionale: tornare a repo privato (Settings → Make private) senza rompere deploy
+
+16.5 ALTERNATIVA: REPOSITORY PRIVATO (SE SI CAMBIA IDEA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  GitHub → EVIL-platform → Settings → Danger Zone →
+  Change repository visibility → Make private
+
+  Il deploy cloud continua a funzionare se GitHub è già autorizzato su Render.
+  Utile se si vuole limitare il clone del backend a collaboratori invitati.
+
+16.6 MESSAGGIO PER RELAZIONE / COMMISSIONE (REPO PUBBLICO)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  "Ho sviluppato EVIL Suite e pubblicato il codice su GitHub in repository
+  pubblico (Alex-2407/EVIL-platform), dimostrando trasparenza e riproducibilità
+  del progetto. I segreti di produzione e i dati utente non sono nel repository.
+  Gli strumenti operativi su projectevil.it richiedono registrazione e sono
+  protetti da EVIL Shield (autenticazione, rate limit, anti-SSRF)."
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+17. DEPLOY, DOMINIO E PRODUZIONE
+═══════════════════════════════════════════════════════════════════════════════════
+
+  Dominio:     https://www.projectevil.it
+  Hosting:     Render.com (Node.js, piano free tier)
+  Build:       npm install && npm start (Procfile)
+  Branch:      main — deploy automatico su push GitHub
+
+  Variabili ambiente consigliate (produzione):
+    NODE_ENV=production
+    BASE_URL=https://www.projectevil.it
+    JWT_SECRET=<stringa lunga casuale>
+    JWT_REFRESH_SECRET=<stringa lunga casuale>
+    EVIL_TOOLS_PUBLIC=0
+    EMAIL_DEV_OUTBOX=0
+    TRUST_PROXY=1
+    MAILTRAP_API_TOKEN=<token Mailtrap Sending>
+    EMAIL_USE_MAILTRAP_API=1
+    HELP_SUPPORT_EMAIL=support@projectevil.it
+    COOKIE_DOMAIN=.projectevil.it
+    DATA_DIR=/var/data  (volume persistente Render — users.json)
+    REDIS_URL=<opzionale, rate limit distribuito>
+
+  Verifica locale:
+    npm test              → test servizi critici
+    npm run check:deploy  → checklist pre-deploy
+    GET /api/health/smtp  → diagnostica email
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+18. CONFORMITÀ, USO ETICO E LIMITI
+═══════════════════════════════════════════════════════════════════════════════════
+
+  • Finalità educativa e ricerca autorizzata (site-policies.html)
+  • Scan solo con dichiarazione autorizzazione utente (checkbox su ogni strumento)
+  • OSINT solo fonti pubbliche
+  • GDPR e privacy documentati
+  • Nessuna claim di "impenetrabilità" o "primo al mondo"
+  • Modulo Help per segnalazioni bug e richieste supporto documentate
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+19. INNOVAZIONE E CONTRIBUTO ORIGINALE
+═══════════════════════════════════════════════════════════════════════════════════
+
+L'innovazione del progetto NON risiede in un singolo algoritmo brevettabile,
+ma nella SUITE INTEGRATA e nei MODULI PROPRIETARI:
+
+  1. EVIL Suite — piattaforma all-in-one cybersecurity education + tools
+  2. EVIL Incidents Aggregator — normalizzazione multi-feed CISA/NVD + geo + WS
+  3. EVIL Trophy System — gamification con SVG, cerimonia e audio per rarità
+  4. EVIL Progress Engine — collegamento attività cross-modulo → achievement
+  5. EVIL Tools Gateway — API unificate con Shield (SSRF + auth + rate limit)
+  6. EVIL Virtual Lab Runtime — sessioni lab server-side nel browser
+  7. EVIL Chrome — auth sessione unificata, gate centralizzato, 38 pagine responsive
+  8. EVIL Shield — security-by-design trasversale alla suite
+  9. Pipeline email produzione — Mailtrap API HTTPS compatibile Render free tier
+
+FRASE DI CHIUSURA SUGGERITA (ORALE O SCRITTA):
+  "Ho sviluppato EVIL Suite, un ecosistema software brandizzato in otto moduli
+  cooperanti, deployato su projectevil.it, con codice sorgente pubblico su GitHub
+  (Alex-2407/EVIL-platform) e strumenti operativi accessibili solo dopo
+  registrazione e verifica email, protetti da EVIL Shield."
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+20. ROADMAP E CONCLUSIONI
+═══════════════════════════════════════════════════════════════════════════════════
+
+COMPLETATO (giugno 2026):
+  ✅ EVIL Suite completa — 8 moduli brand + Chrome
+  ✅ 38 pagine web, deploy production-ready su Render
+  ✅ Repository GitHub pubblico Alex-2407/EVIL-platform (branch main)
+  ✅ EVIL Shield — login obbligatorio strumenti, rate limit, anti-SSRF
+  ✅ EVIL Chrome consolidato — evil-site-chrome.js, sessione JWT, no flash auth
+  ✅ Email produzione — Mailtrap Live via API HTTPS (Render free tier)
+  ✅ Verifica email cross-device — polling /api/auth/verification-status
+  ✅ Modulo Help — POST /api/help con email team + conferma utente
+  ✅ Auth header su pagine strumenti e profilo (gate centralizzato, script defer)
+
+PROSSIMI PASSI:
+  🔄 Volume persistente Render (DATA_DIR) per users.json stabile
+  🔄 Database utenti relazionale (PostgreSQL) al posto di JSON flat
+  🔄 Certificazione formativa brand EVIL
+  🔄 Eventuale PWA / multilingua
+  🔄 Valutare repo privato solo se serve limitare clone del backend
+
+CONCLUSIONI:
+  EVIL Suite rappresenta uno sviluppo software originale e articolato, presentabile
+  come piattaforma proprietaria con sottosistemi nominati e documentati. La
+  combinazione di EVIL Forge (strumenti), EVIL Intel Map (threat intel reale),
+  EVIL Academy (formazione), EVIL Vault (gamification) e EVIL Shield (sicurezza)
+  costituisce un contributo tecnico-educativo completo, pronto per relazione,
+  presentazione Prezi e discussione in commissione.
+
+
+═══════════════════════════════════════════════════════════════════════════════════
+DOCUMENTO:  2 giugno 2026
+VERSIONE:   3.2 — EVIL Suite Brand Architecture (auth chrome, Help API, Mailtrap)
+AUTORE:     Progetto EVIL / Alex-2407
+REPO:       https://github.com/Alex-2407/EVIL-platform  (commit main: b669073+)
+STATO:      Relazione aggiornata; repository pubblico; segreti fuori da Git
+PERCORSO:   AAAPRIMI PER INIZIARE/RELAZIONE_TECNICA_EVIL_SUITE.txt
+═══════════════════════════════════════════════════════════════════════════════════
