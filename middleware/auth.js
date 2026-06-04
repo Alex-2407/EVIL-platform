@@ -176,7 +176,7 @@ const validateRegister = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ 
         error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+        details: errors.array().map(e => ({ field: e.path || e.param, message: e.msg }))
       });
     }
     next();
@@ -205,7 +205,7 @@ const validateLogin = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ 
         error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+        details: errors.array().map(e => ({ field: e.path || e.param, message: e.msg }))
       });
     }
     next();
@@ -240,7 +240,7 @@ const validatePasswordReset = [
     if (!errors.isEmpty()) {
       return res.status(400).json({ 
         error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.param, message: e.msg }))
+        details: errors.array().map(e => ({ field: e.path || e.param, message: e.msg }))
       });
     }
     next();
