@@ -8,7 +8,6 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { logger } = require('../middleware/logger');
-const { resolvePublicBaseUrl } = require('../utils/resolve-base-url');
 
 const SMTP_PLACEHOLDERS = new Set([
   '',
@@ -27,8 +26,8 @@ class EmailService {
     this.smtpUser = (process.env.SMTP_USER || '').trim();
     this.smtpPass = (process.env.SMTP_PASS || '').trim();
     this.smtpMode = (process.env.SMTP_MODE || 'auto').toLowerCase();
-    this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@projectevil.it';
-    this.baseUrl = (resolvePublicBaseUrl() || 'http://localhost:5000').replace(/\/$/, '');
+    this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@evil-platform.com';
+    this.baseUrl = (process.env.BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
     const dataRoot = process.env.DATA_DIR
       ? path.resolve(process.env.DATA_DIR)
       : path.join(process.cwd(), 'data');
@@ -37,37 +36,29 @@ class EmailService {
     );
 
     this.smtpSendTimeoutMs = parseInt(process.env.SMTP_SEND_TIMEOUT_MS || '15000', 10);
-    const onRender = Boolean(process.env.RENDER || process.env.RENDER_EXTERNAL_URL);
     this.registerSmtpTimeoutMs = parseInt(
-      process.env.REGISTER_SMTP_TIMEOUT_MS || (onRender ? '12000' : '6000'),
+      process.env.REGISTER_SMTP_TIMEOUT_MS || '6000',
       10
     );
+
+    this.applyProviderDefaults();
 
     if (this.isConfigured()) {
       this.transporter = nodemailer.createTransport({
         host: this.smtpHost,
         port: this.smtpPort,
         secure: this.smtpSecure,
-        connectionTimeout: Math.min(12000, this.registerSmtpTimeoutMs),
-        greetingTimeout: Math.min(12000, this.registerSmtpTimeoutMs),
+        requireTLS: this.smtpPort === 587 && !this.smtpSecure,
+        connectionTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
+        greetingTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
         socketTimeout: this.smtpSendTimeoutMs,
         auth: {
           user: this.smtpUser,
           pass: this.smtpPass
         }
       });
-      logger.info('SMTP email service ready', {
-        host: this.smtpHost,
-        port: this.smtpPort,
-        mode: this.resolveDeliveryMode(),
-        baseUrl: this.baseUrl,
-        from: this.fromEmail,
-      });
     } else {
       this.transporter = null;
-      logger.warn('SMTP non configurato — registrazione userà outbox se EMAIL_DEV_OUTBOX≠0', {
-        baseUrl: this.baseUrl,
-      });
     }
   }
 
@@ -93,12 +84,51 @@ class EmailService {
     );
   }
 
+  /** Mailtrap Live: 587 + STARTTLS; Gmail: 465 + SSL */
+  applyProviderDefaults() {
+    const host = this.smtpHost.toLowerCase();
+    if (host.includes('mailtrap') || host.includes('live.smtp')) {
+      if (this.smtpPort === 587) {
+        this.smtpSecure = false;
+      }
+      if (host.includes('live.smtp') && this.smtpPort === 465 && process.env.SMTP_SECURE !== 'true') {
+        this.smtpSecure = true;
+      }
+    }
+    if (host.includes('gmail') && this.smtpPort === 465) {
+      this.smtpSecure = true;
+    }
+  }
+
+  getSmtpDiagnostics() {
+    const host = this.smtpHost.toLowerCase();
+    const hints = [];
+    if (host.includes('mailtrap')) {
+      if (!host.includes('live.smtp') && !host.includes('smtp.mailtrap')) {
+        hints.push('Per invio reale usa SMTP_HOST=live.smtp.mailtrap.io (non sandbox).');
+      }
+      if (this.smtpUser !== 'api' && !this.smtpPass.startsWith('mt')) {
+        hints.push('Mailtrap Live: SMTP_USER=api e SMTP_PASS=<API token da Sending Domains → Integrations>.');
+      }
+      if (this.fromEmail.includes('@gmail.com')) {
+        hints.push('SMTP_FROM_EMAIL deve essere @projectevil.it (dominio verificato su Mailtrap), non Gmail.');
+      }
+      if (this.smtpPort === 465 && this.smtpSecure) {
+        hints.push('Mailtrap consiglia PORT=587 e SMTP_SECURE=false (STARTTLS).');
+      }
+    }
+    if (host.includes('gmail') && process.env.SMTP_MODE === 'live') {
+      hints.push('Stai usando Gmail SMTP: il DNS Mailtrap (DKIM) non serve per Gmail.');
+    }
+    return hints;
+  }
+
   resolveDeliveryMode() {
     if (this.smtpMode === 'sandbox') return 'sandbox';
     if (this.smtpMode === 'live') return 'live';
     const host = this.smtpHost.toLowerCase();
     if (host.includes('sandbox')) return 'sandbox';
-    if (host.includes('live.smtp.mailtrap')) return 'live';
+    if (host.includes('live.smtp.mailtrap') || host.includes('smtp.mailtrap.live')) return 'live';
     if (host.includes('gmail') || host.includes('sendgrid') || host.includes('office365')) {
       return 'live';
     }

@@ -1,7 +1,5 @@
 // ==================== ENVIRONMENT & SECURITY ====================
 require('dotenv').config();
-const { bootstrapBaseUrlEnv } = require('../utils/resolve-base-url');
-bootstrapBaseUrlEnv();
 
 const express = require('express');
 const cors = require('cors');
@@ -142,36 +140,9 @@ app.get(['/health', '/api/health'], (req, res) => {
     status: 'ok',
     service: 'evil-platform',
     env: process.env.NODE_ENV || 'development',
-    baseUrl: process.env.BASE_URL || null,
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
   });
-});
-
-app.get('/api/health/smtp', async (req, res) => {
-  try {
-    const configured = emailService.isConfigured();
-    const mode = emailService.resolveDeliveryMode();
-    const verify = configured ? await emailService.verifyConnection() : { ok: false, error: 'SMTP non configurato' };
-    res.status(verify.ok ? 200 : 503).json({
-      configured,
-      mode,
-      host: process.env.SMTP_HOST || null,
-      port: process.env.SMTP_PORT || null,
-      from: process.env.SMTP_FROM_EMAIL || null,
-      baseUrl: emailService.baseUrl,
-      registerSmtpTimeoutMs: emailService.registerSmtpTimeoutMs,
-      verify,
-      hint:
-        mode === 'sandbox'
-          ? 'Mailtrap Sandbox: le email sono solo su mailtrap.io/sandboxes, non in Gmail.'
-          : mode === 'live'
-            ? 'Mailtrap Sending: usa SMTP_FROM_EMAIL sul dominio verificato (es. @projectevil.it).'
-            : null,
-    });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
 // Dietro nginx/Cloudflare in produzione: IP reale per rate limit e sessioni lab
@@ -734,7 +705,21 @@ function ensureDataDir() {
 }
 
 const dataDir = ensureDataDir();
-const usersFile = path.join(dataDir, 'users.json');
+
+function resolveUsersFile() {
+  const custom = (process.env.DB_FILE || '').trim();
+  if (custom) {
+    const resolved = path.isAbsolute(custom) ? custom : path.join(root, custom);
+    const parent = path.dirname(resolved);
+    if (!fs.existsSync(parent)) {
+      fs.mkdirSync(parent, { recursive: true });
+    }
+    return resolved;
+  }
+  return path.join(dataDir, 'users.json');
+}
+
+const usersFile = resolveUsersFile();
 const legacyUsersFile = path.join(root, 'users.json');
 let users = [];
 
@@ -1512,6 +1497,31 @@ app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Diagnostica SMTP (dopo deploy: GET /api/health/smtp)
+app.get('/api/health/smtp', async (req, res) => {
+  try {
+    const configured = emailService.isConfigured();
+    const check = configured ? await emailService.verifyConnection() : { ok: false, error: 'SMTP non configurato' };
+    res.json({
+      configured,
+      ok: Boolean(check.ok),
+      host: emailService.smtpHost,
+      port: emailService.smtpPort,
+      secure: emailService.smtpSecure,
+      mode: emailService.resolveDeliveryMode(),
+      from: emailService.fromEmail,
+      baseUrl: process.env.BASE_URL || emailService.baseUrl,
+      usersFile,
+      dataDir,
+      emailDevOutbox: process.env.EMAIL_DEV_OUTBOX !== '0',
+      hints: emailService.getSmtpDiagnostics(),
+      error: check.error || null,
+    });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: err.message });
   }
 });
 
@@ -2421,8 +2431,13 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🔐 CORS Origins: ${corsOrigins}`);
   const toolsPublic = process.env.EVIL_TOOLS_PUBLIC === '1' || process.env.EVIL_TOOLS_PUBLIC === 'true';
   console.log(`🛠️  Strumenti API: ${toolsPublic ? 'accesso pubblico (EVIL_TOOLS_PUBLIC)' : 'login obbligatorio'}`);
+  console.log(`📁 Utenti: ${usersFile}`);
   if (emailService.isConfigured()) {
-    console.log(`📧 SMTP: ${emailService.smtpHost} (modalità ${emailService.resolveDeliveryMode()})`);
+    console.log(
+      `📧 SMTP: ${emailService.smtpHost}:${emailService.smtpPort} secure=${emailService.smtpSecure} (modalità ${emailService.resolveDeliveryMode()})`
+    );
+    const smtpHints = emailService.getSmtpDiagnostics();
+    smtpHints.forEach((h) => console.warn(`⚠️ SMTP config: ${h}`));
     emailService.verifyConnection().then((r) => {
       if (r.ok) console.log('📧 SMTP connessione OK');
       else console.warn(`⚠️ SMTP non raggiungibile: ${r.error}`);
