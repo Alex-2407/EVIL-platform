@@ -131,9 +131,38 @@
           </div>
         </section>
 
+        <section class="policy-section policy-reveal" id="help-form-section" aria-labelledby="h-form">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">✉</span>
+            <h2 id="h-form">Invia una richiesta</h2>
+          </div>
+          <p>Compila il modulo: riceverai un'email di conferma e il team riceverà il messaggio su <strong>support@projectevil.it</strong>.</p>
+          <form id="helpContactForm" class="help-form" novalidate>
+            <input type="hidden" id="help-page" name="page" value="">
+            <label class="help-form__field">
+              <span>Nome</span>
+              <input type="text" id="help-name" name="name" required minlength="2" maxlength="100" autocomplete="name">
+            </label>
+            <label class="help-form__field">
+              <span>Email</span>
+              <input type="email" id="help-email" name="email" required autocomplete="email">
+            </label>
+            <label class="help-form__field">
+              <span>Oggetto</span>
+              <input type="text" id="help-subject" name="subject" required minlength="3" maxlength="120">
+            </label>
+            <label class="help-form__field">
+              <span>Messaggio</span>
+              <textarea id="help-message" name="message" rows="6" required minlength="10" maxlength="4000" placeholder="Pagina o strumento, ambiente (locale/produzione), descrizione del problema…"></textarea>
+            </label>
+            <p id="helpFormMessage" class="help-form__msg" hidden role="status"></p>
+            <button type="submit" class="policy-btn policy-btn--primary">Invia richiesta</button>
+          </form>
+        </section>
+
         <section class="policy-section policy-reveal" id="help-request" aria-labelledby="h-request">
           <div class="policy-section__head">
-            <span class="policy-section__icon" aria-hidden="true">ðŸ“Ž</span>
+            <span class="policy-section__icon" aria-hidden="true">📎</span>
             <h2 id="h-request">Cosa scrivere nella richiesta</h2>
           </div>
           <p>Per aiutarti in modo rapido, includi:</p>
@@ -190,10 +219,9 @@
         </section>
 
         <div class="policy-accept policy-reveal">
-          <p>Hai ancora bisogno di una mano? Scrivici a support@projectevil.it</p>
+          <p>Preferisci scrivere direttamente? <a href="mailto:support@projectevil.it" class="evil-site-foot__link">support@projectevil.it</a></p>
           <div class="policy-accept__actions">
-            <a class="policy-btn policy-btn--primary" href="mailto:support@projectevil.it?subject=Richiesta%20supporto%20EVIL">Invia email</a>
-            <a class="policy-btn policy-btn--ghost" href="home.html">Torna alla Home</a>
+            <a class="policy-btn policy-btn--ghost" href="/">Torna alla Home</a>
           </div>
         </div>
       </div>
@@ -229,6 +257,7 @@
 
   <script src="/js/matrixrain.js"></script>
   <script src="/js/progress-manager.js"></script>
+  <script src="/js/help-form.js?v=20260620"></script>
   <script src="/js/site-policies.js?v=20260603"></script>
 </body>
 </html>

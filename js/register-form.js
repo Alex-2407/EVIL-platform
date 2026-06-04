@@ -11,6 +11,12 @@
     const map = {
       'Email already registered': 'Questa email è già registrata. Prova ad accedere.',
       'Validation failed': 'Dati non validi. Controlla i campi e riprova.',
+      'Something went wrong':
+        'Errore server: verifica che il deploy usi npm start (API Node attive) e che SMTP/DATA_DIR siano configurati su Render.',
+      'Servizio non disponibile. Verifica che il deploy esegua npm start e non solo file statici.':
+        'Il sito online non espone le API: avvia il server Node (npm start) sul hosting, non solo file statici.',
+      'Errore server temporaneo. Riprova tra qualche minuto.':
+        'Errore temporaneo del server. Riprova tra qualche minuto.',
       'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env (vedi SETUP_EMAIL_VERIFICATION.md).':
         'Il server non può inviare l\'email di verifica. Contatta l\'amministratore o configura SMTP su Render.',
     };

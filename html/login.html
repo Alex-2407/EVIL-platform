@@ -200,7 +200,12 @@
             window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}`;
             return;
           }
-          errorDiv.textContent = data.error || 'Errore di login';
+          let errMsg = data.error || 'Errore di login';
+          if (errMsg === 'Something went wrong') {
+            errMsg =
+              'Errore server: il sito deve essere servito dal server Node (npm start), non solo come file statici.';
+          }
+          errorDiv.textContent = errMsg;
           errorDiv.style.display = 'block';
           return;
         }

@@ -693,8 +693,18 @@ const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
 // NEW CONFIG: Uses middleware/upload.js with security hardening
 // See: middleware/upload.js for MIME whitelist, UUID generation, user isolation
 
-// Database utenti (salvataggio file)
-const usersFile = path.join(root, 'users.json');
+// Database utenti (salvataggio file — DATA_DIR per Render/disk persistente)
+const dataDir = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : root;
+try {
+  fs.mkdirSync(dataDir, { recursive: true });
+} catch (_) {
+  /* ignore */
+}
+const usersFile = process.env.DB_FILE && path.isAbsolute(process.env.DB_FILE)
+  ? process.env.DB_FILE
+  : path.join(dataDir, path.basename(process.env.DB_FILE || 'users.json'));
 let users = [];
 
 // Cache file per persistenza incidenti fra riavvii
@@ -740,9 +750,12 @@ function loadUsers() {
 // Salva utenti nel file
 function saveUsers() {
   try {
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+    fs.mkdirSync(path.dirname(usersFile), { recursive: true });
+    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf8');
+    return true;
   } catch (err) {
-    console.error('Errore salvataggio utenti:', err.message);
+    console.error('Errore salvataggio utenti:', err.message, usersFile);
+    return false;
   }
 }
 
@@ -1466,6 +1479,57 @@ app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
 // ENDPOINT AUTENTICAZIONE
 // ========================
 
+// HELP — modulo contatti (email staff + conferma utente)
+app.post('/api/help/contact', globalLimiter, async (req, res) => {
+  try {
+    const name = sanitizeString(req.body?.name, { maxLength: 100 });
+    const email = sanitizeEmail(req.body?.email);
+    const subject = sanitizeString(req.body?.subject, { maxLength: 120 });
+    const message = sanitizeString(req.body?.message, { maxLength: 4000, escapeHtml: false });
+    const page = sanitizeString(req.body?.page, { maxLength: 200 });
+
+    if (!name || name.length < 2) {
+      return res.status(400).json({ error: 'Inserisci il nome (minimo 2 caratteri).' });
+    }
+    if (!email) {
+      return res.status(400).json({ error: 'Indirizzo email non valido.' });
+    }
+    if (!subject || subject.length < 3) {
+      return res.status(400).json({ error: 'Inserisci un oggetto (minimo 3 caratteri).' });
+    }
+    if (!message || message.length < 10) {
+      return res.status(400).json({ error: 'Descrivi la richiesta (minimo 10 caratteri).' });
+    }
+
+    const result = await emailService.sendHelpRequest({
+      name,
+      email,
+      subject,
+      message,
+      page: page || req.get('Referer') || ''
+    });
+
+    if (!result.success) {
+      return res.status(503).json({
+        error: result.error || 'Impossibile inviare la richiesta. Verifica SMTP su Render.'
+      });
+    }
+
+    auditLog.security('HELP_REQUEST_SENT', { email }, 'INFO');
+
+    res.json({
+      status: 'success',
+      message: 'Richiesta inviata. Controlla la tua email per la conferma di ricezione.',
+      emailDelivery: result.delivery,
+      emailHint: result.hint || '',
+      confirmationSent: !!result.confirmationSent
+    });
+  } catch (err) {
+    logger.error('Help contact error', { error: err.message });
+    res.status(500).json({ error: 'Errore invio richiesta supporto' });
+  }
+});
+
 // REGISTRAZIONE
 app.post('/api/auth/register', registerLimiter, validateRegister, async (req, res) => {
   try {
@@ -1508,7 +1572,13 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     };
 
     users.push(pendingUser);
-    saveUsers();
+    if (!saveUsers()) {
+      users = users.filter((u) => u.id !== pendingUser.id);
+      return res.status(503).json({
+        error:
+          'Impossibile salvare l\'account sul server. In produzione configura DATA_DIR su un volume persistente.'
+      });
+    }
 
     let emailResult;
     try {
@@ -2227,6 +2297,12 @@ app.post('/api/report-generator', authenticateTools, (req, res) => {
 
 // Catch 404 errors
 app.use((req, res, next) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({
+      error:
+        'Endpoint API non trovato. Avvia il sito con npm start (server Node) e usa lo stesso dominio per HTML e API.'
+    });
+  }
   const error = new Error(`Route ${req.originalUrl} not found`);
   error.statusCode = 404;
   next(error);
@@ -2249,10 +2325,19 @@ app.use((error, req, res, next) => {
     timestamp: new Date().toISOString()
   });
 
-  // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV !== 'production';
+  const isApi = req.path.startsWith('/api/');
+  let clientMessage = isDevelopment ? message : 'Something went wrong';
+  if (!isDevelopment && isApi) {
+    if (statusCode === 404) {
+      clientMessage =
+        'Servizio non disponibile. Verifica che il deploy esegua npm start e non solo file statici.';
+    } else if (statusCode >= 500) {
+      clientMessage = 'Errore server temporaneo. Riprova tra qualche minuto.';
+    }
+  }
   const errorResponse = {
-    error: isDevelopment ? message : 'Something went wrong',
+    error: clientMessage,
     status: 'error',
     timestamp: new Date().toISOString()
   };

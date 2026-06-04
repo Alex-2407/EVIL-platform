@@ -686,6 +686,137 @@ class EmailService {
       return { success: false, error: err.message };
     }
   }
+
+  buildHelpMail({ name, email, subject, message, page }) {
+    const safeName = this.escapeHtml(name);
+    const safeEmail = this.escapeHtml(email);
+    const safeSubject = this.escapeHtml(subject);
+    const safeMessage = this.escapeHtml(message).replace(/\n/g, '<br>');
+    const safePage = this.escapeHtml(page || '—');
+    const text = [
+      `Richiesta supporto EVIL`,
+      ``,
+      `Da: ${name} <${email}>`,
+      `Oggetto: ${subject}`,
+      `Pagina: ${page || '—'}`,
+      ``,
+      message,
+      ``,
+      '— Inviato dal modulo Help EVIL'
+    ].join('\n');
+
+    const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"></head><body style="font-family:system-ui,sans-serif;background:#06080e;color:#e2e8f0;padding:24px;">
+      <h2 style="color:#f59e0b;margin:0 0 16px;">Richiesta supporto EVIL</h2>
+      <p><strong>Nome:</strong> ${safeName}<br><strong>Email:</strong> ${safeEmail}<br><strong>Oggetto:</strong> ${safeSubject}<br><strong>Pagina:</strong> ${safePage}</p>
+      <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(125,211,252,0.15);border-radius:12px;padding:16px;line-height:1.6;">${safeMessage}</div>
+    </body></html>`;
+
+    return { subject: `[EVIL Help] ${subject}`, text, html, attachments: [] };
+  }
+
+  buildHelpConfirmationMail(name) {
+    const safeName = this.escapeHtml(name);
+    const text = [
+      `Ciao ${name},`,
+      ``,
+      `Abbiamo ricevuto la tua richiesta di supporto su EVIL Platform.`,
+      `Il team la esaminerà e ti risponderà all\'indirizzo indicato entro 2–5 giorni lavorativi.`,
+      ``,
+      `Per urgenze su account compromessi, indicalo nell\'oggetto delle prossime comunicazioni.`,
+      ``,
+      '— EVIL Platform'
+    ].join('\n');
+
+    const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"></head><body style="font-family:system-ui,sans-serif;background:#06080e;color:#e2e8f0;padding:24px;">
+      <h2 style="color:#7dd3fc;margin:0 0 12px;">Richiesta ricevuta</h2>
+      <p>Ciao <strong>${safeName}</strong>,</p>
+      <p>Abbiamo ricevuto la tua richiesta di supporto. Ti risponderemo all\'indirizzo email indicato entro <strong>2–5 giorni lavorativi</strong>.</p>
+      <p style="color:#64748b;font-size:13px;">Messaggio automatico — non rispondere a questa email.</p>
+    </body></html>`;
+
+    return {
+      subject: 'EVIL Platform — Richiesta di supporto ricevuta',
+      text,
+      html,
+      attachments: []
+    };
+  }
+
+  async sendMailTo({ to, mail }) {
+    const isDev = process.env.NODE_ENV !== 'production';
+    const allowOutbox = isDev && process.env.EMAIL_DEV_OUTBOX !== '0';
+
+    if (!this.isConfigured()) {
+      if (allowOutbox) {
+        return this.writeOutboxPreview({
+          email: to,
+          actionLink: '#',
+          mail,
+          titleLabel: 'help',
+          buttonLabel: 'Anteprima'
+        });
+      }
+      return {
+        success: false,
+        error: 'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env.'
+      };
+    }
+
+    try {
+      const info = await this.withTimeout(
+        this.transporter.sendMail({
+          from: this.fromEmail,
+          to,
+          subject: mail.subject,
+          text: mail.text,
+          html: mail.html,
+          attachments: mail.attachments || []
+        }),
+        this.smtpSendTimeoutMs,
+        'Invio email'
+      );
+      const delivery = this.resolveDeliveryMode();
+      return {
+        success: true,
+        delivery,
+        messageId: info.messageId,
+        hint: this.getDeliveryHint(delivery)
+      };
+    } catch (err) {
+      logger.error('Errore invio SMTP', { error: err.message, to });
+      if (allowOutbox) {
+        const outbox = this.writeOutboxPreview({
+          email: to,
+          actionLink: '#',
+          mail,
+          titleLabel: 'help-fallback',
+          buttonLabel: 'Anteprima'
+        });
+        outbox.smtpError = err.message;
+        return outbox;
+      }
+      return { success: false, error: err.message };
+    }
+  }
+
+  async sendHelpRequest({ name, email, subject, message, page }) {
+    const supportTo =
+      (process.env.HELP_SUPPORT_EMAIL || process.env.SMTP_FROM_EMAIL || 'support@projectevil.it').trim();
+    const staffMail = this.buildHelpMail({ name, email, subject, message, page });
+    const confirmMail = this.buildHelpConfirmationMail(name);
+
+    const staffResult = await this.sendMailTo({ to: supportTo, mail: staffMail });
+    if (!staffResult.success) return staffResult;
+
+    const userResult = await this.sendMailTo({ to: email, mail: confirmMail });
+    return {
+      success: true,
+      delivery: staffResult.delivery,
+      hint: staffResult.hint,
+      confirmationSent: userResult.success,
+      confirmationHint: userResult.hint || userResult.error
+    };
+  }
 }
 
 module.exports = new EmailService();

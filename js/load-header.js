@@ -15,6 +15,16 @@ function hasEmbeddedHeader() {
   );
 }
 
+function closeAllDropdowns(nav, exceptLi) {
+  if (!nav) return;
+  nav.querySelectorAll(':scope > ul > li').forEach((li) => {
+    if (li === exceptLi) return;
+    li.classList.remove('dropdown-open');
+    const d = li.querySelector('.dropdown');
+    if (d) d.style.display = 'none';
+  });
+}
+
 function initializeHeaderEvents() {
   const nav = document.querySelector('header nav');
   if (!nav || nav.dataset.evilNavBound === '1') return;
@@ -25,42 +35,43 @@ function initializeHeaderEvents() {
   );
 
   dropdownTriggers.forEach((trigger) => {
+    const li = trigger.closest('li');
+    const dropdown = trigger.nextElementSibling;
+    if (!dropdown || !dropdown.classList.contains('dropdown')) return;
+
     trigger.addEventListener('click', (e) => {
-      const dropdown = trigger.nextElementSibling;
-      if (!dropdown || !dropdown.classList.contains('dropdown')) return;
-
       e.preventDefault();
-      const li = trigger.closest('li');
-
-      if (isMobileNav()) {
-        const willOpen = !li.classList.contains('dropdown-open');
-        nav.querySelectorAll('li.dropdown-open').forEach((openLi) => {
-          if (openLi !== li) {
-            openLi.classList.remove('dropdown-open');
-            const d = openLi.querySelector('.dropdown');
-            if (d) d.style.display = 'none';
-          }
-        });
-        li.classList.toggle('dropdown-open', willOpen);
-        dropdown.style.display = willOpen ? 'block' : 'none';
-      } else {
-        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-      }
+      const willOpen = !li.classList.contains('dropdown-open');
+      closeAllDropdowns(nav, willOpen ? li : null);
+      li.classList.toggle('dropdown-open', willOpen);
+      dropdown.style.display = willOpen ? 'block' : 'none';
     });
+
+    if (!isMobileNav()) {
+      li.addEventListener('mouseenter', () => {
+        closeAllDropdowns(nav, li);
+        li.classList.add('dropdown-open');
+        dropdown.style.display = 'block';
+      });
+      li.addEventListener('mouseleave', () => {
+        li.classList.remove('dropdown-open');
+        dropdown.style.display = 'none';
+      });
+    }
   });
 
   if (!window.__evilNavResizeBound) {
     window.__evilNavResizeBound = true;
     window.addEventListener('resize', () => {
-      if (!isMobileNav()) {
-        document.querySelectorAll('header nav li.dropdown-open').forEach((li) => {
-          li.classList.remove('dropdown-open');
-          const d = li.querySelector('.dropdown');
-          if (d) d.style.display = '';
-        });
-      }
+      closeAllDropdowns(nav, null);
     });
   }
+
+  document.addEventListener('click', (e) => {
+    if (!nav.contains(e.target)) {
+      closeAllDropdowns(nav, null);
+    }
+  });
 }
 
 function initializeHamburgerMenu() {
@@ -75,6 +86,7 @@ function initializeHamburgerMenu() {
     hamburgerBtn.classList.toggle('active', open);
     nav.classList.toggle('active', open);
     hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (!open) closeAllDropdowns(nav, null);
   });
 
   nav.querySelectorAll('a').forEach((link) => {
@@ -84,11 +96,7 @@ function initializeHamburgerMenu() {
       hamburgerBtn.classList.remove('active');
       nav.classList.remove('active');
       hamburgerBtn.setAttribute('aria-expanded', 'false');
-      nav.querySelectorAll('li.dropdown-open').forEach((li) => {
-        li.classList.remove('dropdown-open');
-        const d = li.querySelector('.dropdown');
-        if (d) d.style.display = 'none';
-      });
+      closeAllDropdowns(nav, null);
     });
   });
 
@@ -101,7 +109,11 @@ function initializeHamburgerMenu() {
       }
       const btn = document.querySelector('header .hamburger-btn');
       const menu = document.querySelector('header nav');
-      if (!btn || !menu || !menu.classList.contains('active')) return;
+      closeAllDropdowns(menu, null);
+      if (document.fullscreenElement) {
+        document.exitFullscreen?.().catch(() => {});
+      }
+      if (!btn || !menu) return;
       btn.classList.remove('active');
       menu.classList.remove('active');
       btn.setAttribute('aria-expanded', 'false');

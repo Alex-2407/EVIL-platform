@@ -104,11 +104,32 @@
     }
   }
 
+  /** Mappa fissa: niente pan/zoom, marker cliccabili */
+  function lockMapInteraction(map) {
+    if (!map) return;
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    if (map.keyboard) map.keyboard.disable();
+    if (map.tap) map.tap.disable();
+    const zc = map.zoomControl;
+    if (zc && map.removeControl) {
+      try {
+        map.removeControl(zc);
+      } catch (_) {
+        /* ignore */
+      }
+    }
+  }
+
   global.EvilLeafletMap = {
     waitForFrame,
     applyContainerSize,
     fixSize,
     scheduleFixSize,
     bindAutoResize,
+    lockMapInteraction,
   };
 })(typeof window !== 'undefined' ? window : global);

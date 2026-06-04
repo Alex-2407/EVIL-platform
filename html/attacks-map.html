@@ -131,8 +131,17 @@
         </div>
         <p class="am-map-help">
           I cerchi mostrano intensità per paese su dati OSINT pubblici. Clicca un marker per il dettaglio.
+          La mappa è fissa (senza zoom/pan) per evitare glitch di rendering.
           <span id="feed-source-line"></span>
         </p>
+        <details class="am-data-modes-doc">
+          <summary>Che significa «cache o fallback etichettato»?</summary>
+          <div class="am-data-modes-doc__body">
+            <p><strong>Feed live</strong> — EVIL interroga in tempo reale le API pubbliche (CISA KEV, NIST NVD, CERT Italia/Europa) e aggiorna mappa e statistiche.</p>
+            <p><strong>Cache</strong> — Se le API esterne non rispondono o sono lente, il server mostra l’ultimo snapshot salvato su disco (con data/ora visibile in «Aggiornato»). I dati restano utili ma non sono istantanei.</p>
+            <p><strong>Fallback / demo</strong> — Se non c’è né live né cache valida, EVIL mostra un dataset dimostrativo <em>etichettato</em> nel badge arancione («Dati demo — feed offline»), così la mappa non resta vuota in didattica.</p>
+          </div>
+        </details>
       </section>
 
       <section class="am-stats-section am-reveal" aria-labelledby="stats-title">

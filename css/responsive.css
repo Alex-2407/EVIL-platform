@@ -539,7 +539,8 @@ body.evil-theme {
 
 /* ——— Touch: niente hover-only ——— */
 @media (hover: none) and (pointer: coarse) {
-  header nav li:hover .dropdown {
+  header nav li:hover .dropdown,
+  header nav li.dropdown-open > .dropdown {
     display: none;
   }
 

@@ -199,12 +199,18 @@
         center: [24, 10],
         zoom: 2,
         minZoom: 2,
-        maxZoom: 7,
+        maxZoom: 2,
         worldCopyJump: false,
         zoomAnimation: false,
         fadeAnimation: false,
         markerZoomAnimation: false,
         zoomControl: false,
+        dragging: false,
+        touchZoom: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+        boxZoom: false,
+        keyboard: false,
         attributionControl: true,
       });
 
@@ -217,12 +223,16 @@
       layerGroup = L.layerGroup().addTo(map);
       markerByCountry = {};
 
-      if (window.EvilLeafletMap) window.EvilLeafletMap.bindAutoResize(map, frame);
+      if (window.EvilLeafletMap) {
+        window.EvilLeafletMap.bindAutoResize(map, frame);
+        window.EvilLeafletMap.lockMapInteraction(map);
+      }
 
-      map.on('zoomend moveend resize', syncMarkerPositions);
+      map.on('resize', syncMarkerPositions);
 
       map.whenReady(() => {
         scheduleMapResize();
+        if (window.EvilLeafletMap) window.EvilLeafletMap.lockMapInteraction(map);
         mapReady = true;
         if (pendingRegions) {
           const regions = pendingRegions;
