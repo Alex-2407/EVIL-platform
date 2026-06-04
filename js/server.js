@@ -479,7 +479,7 @@ const HOME_STYLESHEETS = [
 ];
 
 const SITE_FOOTER_CSS = '/css/site-footer.css?v=20260606';
-const SITE_HEADER_CSS = '/css/site-header.css?v=20260618';
+const SITE_HEADER_CSS = '/css/site-header.css?v=20260619';
 const SYSTEM_THEME_CSS = '/css/system-theme.css?v=20260717';
 const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css?v=20260717';
 const RESPONSIVE_CSS = '/css/responsive.css?v=20260717';

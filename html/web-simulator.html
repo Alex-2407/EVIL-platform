@@ -36,7 +36,7 @@
           <li><a href="/">Home</a></li>
 
           <li>
-            <a href="#">Didattica â–¾</a>
+            <a href="#">Didattica ▾</a>
             <div class="dropdown">
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
@@ -47,7 +47,7 @@
           </li>
 
           <li>
-            <a href="#">Intelligence â–¾</a>
+            <a href="#">Intelligence ▾</a>
             <div class="dropdown">
               <a href="attacks-map.html">Mappa incidenti</a>
               <a href="historic-attacks.html">Violazioni storiche</a>
@@ -58,7 +58,7 @@
           </li>
 
           <li>
-            <a href="#">Strumenti â–¾</a>
+            <a href="#">Strumenti ▾</a>
             <div class="dropdown">
               <a href="security-check.html">Check URL</a>
               <a href="vulnerability-scanner.html">Header HTTP</a>
@@ -86,7 +86,7 @@
 
   <main>
     <section class="sim-hero sim-hero--editorial" aria-labelledby="sim-hero-title">
-      <p class="sim-section-kicker">Impara Â· Laboratorio web</p>
+      <p class="sim-section-kicker">Impara · Laboratorio web</p>
       <h1 id="sim-hero-title">Laboratorio Attacchi Web</h1>
     </section>
 
@@ -155,18 +155,18 @@
 
           <div class="learn-block">
             <h3>Fase 1 â€” Cosa fa l'applicazione</h3>
-            <p>Il form di login invia nome e password al backend. Il backend costruisce una stringa SQL e la manda al database per chiedere: Â«esiste questa coppia?Â».</p>
+            <p>Il form di login invia nome e password al backend. Il backend costruisce una stringa SQL e la manda al database per chiedere: «esiste questa coppia?».</p>
           </div>
 
           <div class="learn-block">
             <h3>Fase 2 â€” Dove nasce il bug</h3>
-            <p>Il programmatore concatena direttamente il testo del form nella query. Il database non distingue Â«comandi SQLÂ» da Â«datiÂ» â€” legge tutto come un unico messaggio.</p>
+            <p>Il programmatore concatena direttamente il testo del form nella query. Il database non distingue «comandi SQL» da «dati» â€” legge tutto come un unico messaggio.</p>
             <div class="code-snippet">"SELECT * FROM users WHERE user='" + input + "' AND pass='" + password + "'"</div>
           </div>
 
           <div class="learn-block">
             <h3>Fase 3 â€” Cosa fa l'input malevolo (in teoria)</h3>
-            <p>Chiudendo la stringa con un apice e aggiungendo <code>OR '1'='1</code>, la condizione diventa sempre vera: il login puÃ² riuscire senza conoscere la password reale.</p>
+            <p>Chiudendo la stringa con un apice e aggiungendo <code>OR '1'='1</code>, la condizione diventa sempre vera: il login può riuscire senza conoscere la password reale.</p>
             <div class="code-snippet">admin' OR '1'='1' --</div>
           </div>
 
@@ -216,7 +216,7 @@
           </div>
           <div class="learn-block">
             <h3>Fase 2 â€” Errore</h3>
-            <p>Il server salva il testo e lo reinserisce nel DOM come HTML Â«vivoÂ», non come testo escapato.</p>
+            <p>Il server salva il testo e lo reinserisce nel DOM come HTML «vivo», non come testo escapato.</p>
             <div class="code-snippet">element.innerHTML = commentoSalvato; // pericoloso</div>
           </div>
           <div class="learn-block">
@@ -240,7 +240,7 @@
       <div class="simulator-container">
         <div class="simulation-panel">
           <div class="panel-title">Console â€” Brute Force (simulata)</div>
-          <p class="panel-hint">La wordlist sotto Ã¨ solo didattica. La simulazione mostra tentativi e risposte HTTP fittizie, non invia richieste a login reali.</p>
+          <p class="panel-hint">La wordlist sotto è solo didattica. La simulazione mostra tentativi e risposte HTTP fittizie, non invia richieste a login reali.</p>
 
           <div class="input-group">
             <label class="input-label" for="bf-username">Username target (fittizio)</label>
@@ -273,7 +273,7 @@ Studente2026!</textarea>
             <p>Automatizza POST al form di login con liste di password comuni (rockyou, leak passate, varianti stagionali).</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 2 â€” PerchÃ© a volte funziona</h3>
+            <h3>Fase 2 â€” Perché a volte funziona</h3>
             <p>Password umana prevedibile + assenza di limiti: il costo per l'attaccante diventa accettabile.</p>
           </div>
           <div class="learn-block">
@@ -334,7 +334,7 @@ Studente2026!</textarea>
           </div>
           <div class="learn-block">
             <h3>Fase 3 â€” Escalation</h3>
-            <p>Se la cartella <code>/uploads</code> esegue PHP o script, aprire l'URL del file puÃ² eseguire comandi sul server.</p>
+            <p>Se la cartella <code>/uploads</code> esegue PHP o script, aprire l'URL del file può eseguire comandi sul server.</p>
           </div>
           <div class="learn-block">
             <h3>Fase 4 â€” Difesa</h3>
@@ -352,7 +352,7 @@ Studente2026!</textarea>
       <div class="simulator-container">
         <div class="simulation-panel">
           <div class="panel-title">Console â€” CSRF (simulata)</div>
-          <p class="panel-hint">Domini fittizi (bank.example.com). Il log mostra come il browser Â«portaÂ» la sessione senza che tu clicchi consapevolmente.</p>
+          <p class="panel-hint">Domini fittizi (bank.example.com). Il log mostra come il browser «porta» la sessione senza che tu clicchi consapevolmente.</p>
 
           <div class="input-group">
             <label class="input-label" for="csrf-site">Sito dove sei loggato (esempio)</label>
@@ -389,7 +389,7 @@ Studente2026!</textarea>
             <p>Apri un'altra pagina che contiene form o immagine che punta a un URL sensibile della banca.</p>
           </div>
           <div class="learn-block">
-            <h3>Fase 3 â€” Richiesta Â«automaticaÂ»</h3>
+            <h3>Fase 3 â€” Richiesta «automatica»</h3>
             <p>Il browser allega i cookie: per il server sembra una tua azione, anche se non hai confermato nulla.</p>
             <div class="code-snippet">&lt;form action="https://bank.example.com/transfer" method="POST"&gt;...&lt;/form&gt;</div>
           </div>
@@ -409,9 +409,9 @@ Studente2026!</textarea>
       <div class="status-bar__inner">
         <span class="status-dot" aria-hidden="true"></span>
         <span class="status-bar__segment"><strong>Stato:</strong> Laboratorio attivo (offline)</span>
-        <span class="status-bar__sep" aria-hidden="true">Â·</span>
+        <span class="status-bar__sep" aria-hidden="true">·</span>
         <span class="status-bar__segment"><strong>Tema:</strong> <span id="lab-status-topic">SQL Injection</span></span>
-        <span class="status-bar__sep" aria-hidden="true">Â·</span>
+        <span class="status-bar__sep" aria-hidden="true">·</span>
         <span class="status-bar__segment"><strong>Ultima simulazione:</strong> <span id="lab-last-run">â€”</span></span>
       </div>
     </div>
@@ -432,17 +432,17 @@ Studente2026!</textarea>
     </section>
     <section class="evil-site-foot__col">
       <p class="evil-site-foot__tag">Legale</p>
-      <p class="evil-site-foot__copy evil-site-foot__meta">Â© 2026 Â· EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
         <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
-        Â·
+        ·
         <a href="help.html" class="evil-site-foot__link">Help</a>
-        Â·
+        ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>
     </section>
   </div>
-  <p class="evil-site-foot__brand" aria-hidden="true">Impara Â· Simula Â· Difendi</p>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
 </footer>
 
 
@@ -496,7 +496,7 @@ Studente2026!</textarea>
       addLogWithDelay('[PHP] ? QUERY COSTRUITA REALMENTE:', 'warning', logElement, delay);
       delay += 150;
       
-      // Analizza se c'Ã¨ injection
+      // Analizza se c'è injection
       const tokens = parseInput(input);
       const hasInjection = tokens.some(t => ['OR', 'UNION', 'COMMENT', 'SEMICOLON'].includes(t.type));
       
@@ -586,7 +586,7 @@ Studente2026!</textarea>
       delay += 150;
       addLogWithDelay('[ðŸ’¡ LEZIONE] Payload comune: admin\' OR \'1\'=\'1\' --', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[ðŸ’¡ LEZIONE] Come funziona: La condizione OR "1"="1" Ã¨ SEMPRE vera', 'info', logElement, delay);
+      addLogWithDelay('[ðŸ’¡ LEZIONE] Come funziona: La condizione OR "1"="1" è SEMPRE vera', 'info', logElement, delay);
       delay += 200;
       addLogWithDelay('[ðŸ’¡ LEZIONE] Risultato: Ritorna il primo utente (solitamente admin)', 'info', logElement, delay);
       delay += 200;
@@ -741,7 +741,7 @@ Studente2026!</textarea>
           addLogWithDelay('[EXFIL] PHPSESSID=abc123xyz789; admin=true; csrf_token=token456', 'error', logElement, delay);
           delay += 300;
           
-          addLogWithDelay('[PERSISTENT] Questa vulnerabilitÃ  rimane nel database!', 'error', logElement, delay);
+          addLogWithDelay('[PERSISTENT] Questa vulnerabilità rimane nel database!', 'error', logElement, delay);
           delay += 250;
           addLogWithDelay('[PERSISTENT] TUTTI i futuri visitatori della pagina subiranno lo stesso attacco', 'error', logElement, delay);
         }
@@ -1229,7 +1229,7 @@ Studente2026!</textarea>
       addLogWithDelay(`[?] Host: ${site.replace('https://', '')}`, 'error', logElement, delay);
       delay += 150;
       
-      // Qui il CSRF token NON viene inviato perchÃ© viene dal sito esterno
+      // Qui il CSRF token NON viene inviato perché viene dal sito esterno
       addLogWithDelay('[?] Referer: ' + malicious, 'error', logElement, delay);
       delay += 150;
       
@@ -1250,7 +1250,7 @@ Studente2026!</textarea>
       addLogWithDelay('[SERVER] âœ“ Cookie session_id presente e valido', 'success', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] âœ“ Utente Ã¨ autenticato (dai cookie)', 'success', logElement, delay);
+      addLogWithDelay('[SERVER] âœ“ Utente è autenticato (dai cookie)', 'success', logElement, delay);
       delay += 150;
       
       addLogWithDelay('[SERVER] âœ— CSRF Token NON verificato (vulnerabile)', 'error', logElement, delay);
@@ -1259,7 +1259,7 @@ Studente2026!</textarea>
       addLogWithDelay('[SERVER] âœ— Referer NON validato (vulnerabile)', 'error', logElement, delay);
       delay += 300;
       
-      addLogWithDelay('[DECISION] PoichÃ© l\'utente Ã¨ autenticato â†’ PROCEDI ALLA TRANSAZIONE', 'error', logElement, delay);
+      addLogWithDelay('[DECISION] Poiché l\'utente è autenticato â†’ PROCEDI ALLA TRANSAZIONE', 'error', logElement, delay);
       delay += 300;
       
       addLogWithDelay('[DB] UPDATE accounts SET balance = balance - 10000 WHERE user_id = 1', 'error', logElement, delay);
@@ -1279,11 +1279,11 @@ Studente2026!</textarea>
       
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
       delay += 150;
-      addLogWithDelay('[ðŸ’¡ LEZIONE] CSRF funziona perchÃ© il browser AUTOMATICAMENTE include i cookie', 'info', logElement, delay);
+      addLogWithDelay('[ðŸ’¡ LEZIONE] CSRF funziona perché il browser AUTOMATICAMENTE include i cookie', 'info', logElement, delay);
       delay += 200;
       addLogWithDelay('[ðŸ’¡ LEZIONE] Il server NON sa che la richiesta viene da un sito esterno', 'info', logElement, delay);
       delay += 200;
-      addLogWithDelay('[ðŸ’¡ LEZIONE] La vittima Ã¨ AUTENTICATA, quindi il server la ritiene autorizzata', 'info', logElement, delay);
+      addLogWithDelay('[ðŸ’¡ LEZIONE] La vittima è AUTENTICATA, quindi il server la ritiene autorizzata', 'info', logElement, delay);
       delay += 200;
       addLogWithDelay('[ðŸ›¡ï¸ DIFESA 1] Token CSRF: Generare hash unico per ogni form â†’ token = hash(session + timestamp + secret)', 'success', logElement, delay);
       delay += 200;

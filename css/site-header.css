@@ -66,7 +66,7 @@ header .logo-section a.header-evil-wordmark {
   filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
 }
 
-/* Home: wordmark header con gli stessi effetti del titolo hero (.home-title) */
+/* Home: wordmark = stesso stile del titolo hero (.home-hero--editorial .home-title) */
 body.home-page header {
   position: sticky;
   top: 0;
@@ -74,45 +74,22 @@ body.home-page header {
 }
 
 body.home-page header .header-evil-wordmark {
-  background: linear-gradient(180deg, #ffffff 0%, #d1fae5 40%, #a5f3fc 100%);
-  background-size: 100% 200%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent !important;
-  letter-spacing: 0.08em;
+  color: #fff !important;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  letter-spacing: -0.03em;
+  line-height: 0.9;
+  font-weight: 900;
   text-shadow: none;
-  filter: drop-shadow(0 0 20px rgba(0, 255, 156, 0.4));
-  animation: evilHeaderWordmarkShine 6s ease-in-out infinite;
+  filter: none;
+  animation: none;
 }
 
 body.home-page header .header-evil-wordmark:hover {
-  opacity: 1;
-  filter: drop-shadow(0 0 26px rgba(56, 189, 248, 0.5));
-}
-
-@keyframes evilHeaderWordmarkShine {
-  0%,
-  100% {
-    background-position: 0% 0%;
-    filter: drop-shadow(0 0 18px rgba(0, 255, 156, 0.35));
-  }
-  50% {
-    background-position: 0% 100%;
-    filter: drop-shadow(0 0 28px rgba(56, 189, 248, 0.45));
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  body.home-page header .header-evil-wordmark {
-    animation: none;
-    -webkit-text-fill-color: #fff;
-    color: #fff !important;
-    background: none;
-    -webkit-background-clip: border-box;
-    background-clip: border-box;
-    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35));
-  }
+  opacity: 0.92;
+  filter: none;
 }
 
 @media (max-width: 480px) {
