@@ -479,7 +479,7 @@ const HOME_STYLESHEETS = [
 ];
 
 const SITE_FOOTER_CSS = '/css/site-footer.css?v=20260606';
-const SITE_HEADER_CSS = '/css/site-header.css?v=20260612';
+const SITE_HEADER_CSS = '/css/site-header.css?v=20260618';
 const SYSTEM_THEME_CSS = '/css/system-theme.css?v=20260717';
 const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css?v=20260717';
 const RESPONSIVE_CSS = '/css/responsive.css?v=20260717';
@@ -525,6 +525,17 @@ function injectSiteFooterCss(html) {
 function injectSiteHeaderCss(html) {
   let out = upgradeSiteChromeCssLink(html, SITE_HEADER_CSS);
   return injectSiteChromeCss(out, SITE_HEADER_CSS, 'evil-site-header-injected');
+}
+
+/** site-header.css deve caricare per ultimo (dopo home.bundle) per vincere la cascata */
+function ensureSiteHeaderCssLast(html) {
+  const re = /<link rel="stylesheet" href="([^"]*site-header\.css[^"]*)">\s*/gi;
+  const matches = [...html.matchAll(re)];
+  if (!matches.length) return html;
+  const href = matches[matches.length - 1][1];
+  const cleaned = html.replace(re, '');
+  const linkTag = `<link rel="stylesheet" href="${href}">`;
+  return cleaned.replace('</head>', `  ${linkTag}\n</head>`);
 }
 
 function injectHomeStyles(html) {
@@ -594,9 +605,10 @@ function injectPageAssets(htmlContent) {
   }
 
   html = injectSiteFooterCss(html);
-  html = injectSiteHeaderCss(html);
   html = injectEvilMotion(html);
   html = injectHomeStyles(html);
+  html = injectSiteHeaderCss(html);
+  html = ensureSiteHeaderCssLast(html);
 
   const canonical = getCanonicalOrigin();
   if (canonical && !html.includes('rel="canonical"')) {
