@@ -207,6 +207,23 @@ const passwordResetLimiter = rateLimit({
 });
 
 /**
+ * Modulo Help: 5 invii / 15 min per IP+email
+ */
+const helpLimiter = rateLimit({
+  store: redis ? createRedisLimiterStore() : undefined,
+  windowMs: parseInt(process.env.RATE_LIMIT_HELP_WINDOW_MS || 900000),
+  max: parseInt(process.env.RATE_LIMIT_HELP_MAX || 5),
+  message: { error: 'Troppe richieste dal modulo Help. Riprova più tardi.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `${req.body?.email || 'unknown'}:${req.ip || 'unknown'}`,
+  skip: (req) => !req.ip,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
+});
+
+/**
  * Refresh token rate limiter
  */
 const refreshTokenLimiter = rateLimit({
@@ -355,6 +372,7 @@ module.exports = {
   authLimiter,
   registerLimiter,
   passwordResetLimiter,
+  helpLimiter,
   refreshTokenLimiter,
   scanLimiter,
   dnsLimiter,
