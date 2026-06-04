@@ -46,23 +46,17 @@
   }
 
   async function ensureSession() {
-    if (typeof isAuthenticated !== 'function' || !isAuthenticated()) {
-      window.location.href = 'login.html?redirect=profile.html';
-      return false;
+    if (window.__evilAuthReady) await window.__evilAuthReady;
+
+    let user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+    if (!user && typeof syncUserFromServer === 'function') {
+      user = await syncUserFromServer();
     }
-    try {
-      const res = await fetch(`${API_URL}/auth/profile`, { credentials: 'include' });
-      if (!res.ok) {
-        window.location.href = 'login.html?redirect=profile.html';
-        return false;
-      }
-      const data = await res.json();
-      if (data.user && window.AUTH_STORAGE) AUTH_STORAGE.setUser(data.user);
-      return data.user || null;
-    } catch {
-      window.location.href = 'login.html?redirect=profile.html';
-      return false;
+    if (!user) {
+      window.location.replace('/login.html?redirect=profile.html');
+      return null;
     }
+    return user;
   }
 
   function formatDate(iso) {
@@ -237,7 +231,7 @@
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       if (typeof logout === 'function') logout();
-      else window.location.replace('login.html');
+      else window.location.replace('/login.html');
     });
   }
 
@@ -246,7 +240,6 @@
     if (!user) return;
 
     if (typeof loadUserProgress === 'function') await loadUserProgress();
-    if (typeof initAuthHeader === 'function') initAuthHeader();
 
     const stats = typeof getProgressStats === 'function'
       ? getProgressStats()

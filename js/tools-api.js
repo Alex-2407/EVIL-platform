@@ -4,22 +4,24 @@
 (function () {
   const TOOLS_PUBLIC = false;
   const page = window.location.pathname.split('/').pop() || 'home.html';
-  const LOGIN_URL = 'login.html?redirect=' + encodeURIComponent(page);
+  const LOGIN_URL = '/login.html?redirect=' + encodeURIComponent(page);
 
-  function waitForChrome() {
-    if (typeof syncUserFromServer === 'function') return Promise.resolve();
+  async function waitForChrome() {
+    if (window.__evilAuthReady) {
+      await window.__evilAuthReady;
+      return;
+    }
     return new Promise((resolve) => {
-      const done = () => resolve();
       const t = setInterval(() => {
-        if (typeof syncUserFromServer === 'function') {
+        if (window.__evilAuthReady) {
           clearInterval(t);
-          resolve();
+          window.__evilAuthReady.then(resolve);
         }
       }, 50);
       setTimeout(() => {
         clearInterval(t);
         resolve();
-      }, 3000);
+      }, 8000);
     });
   }
 

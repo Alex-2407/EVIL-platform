@@ -7,6 +7,18 @@
   const AUTH_API_URL = window.location.origin + '/api';
   const AUTH_TIMEOUT = 8000;
 
+  const AUTH_REQUIRED_PAGES = new Set([
+    'security-check.html',
+    'vulnerability-scanner.html',
+    'dns-enumerator.html',
+    'subdomain-finder.html',
+    'ssl-analyzer.html',
+    'file-analysis.html',
+    'social-profiling.html',
+    'public-info.html',
+    'profile.html'
+  ]);
+
   let logoutInProgress = false;
   let authHeaderInitPromise = null;
   let authReadyResolve;
@@ -206,15 +218,27 @@
     return null;
   }
 
+  function normalizeStoredUser(user) {
+    if (!user?.id || !user?.email) return null;
+    const name =
+      user.name ||
+      (typeof user.email === 'string' ? user.email.split('@')[0] : '') ||
+      'Utente';
+    return { id: user.id, name, email: user.email };
+  }
+
   function isAuthenticated() {
-    const user = AUTH_STORAGE.getUser();
-    return !!(user && user.id && user.name && user.email);
+    return !!normalizeStoredUser(AUTH_STORAGE.getUser());
   }
 
   function getCurrentUser() {
-    const user = AUTH_STORAGE.getUser();
-    if (!user || !user.id || !user.name || !user.email) return null;
-    return user;
+    return normalizeStoredUser(AUTH_STORAGE.getUser());
+  }
+
+  function pageRequiresAuth() {
+    if (document.body?.dataset?.evilAuth === 'required') return true;
+    const page = window.location.pathname.split('/').pop() || '';
+    return AUTH_REQUIRED_PAGES.has(page);
   }
 
   function escapeHtml(text) {
@@ -230,15 +254,15 @@
 
   function renderGuestAuthButtons(authButtons) {
     authButtons.innerHTML = `
-      <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
-      <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+      <button class="auth-btn account" type="button" onclick="window.location.href='/login.html';" aria-label="Accedi a EVIL">Accedi</button>
+      <button class="auth-btn login" type="button" onclick="window.location.href='/account.html';" aria-label="Registrati su EVIL">Registrati</button>
     `;
   }
 
   function renderUserAuthButtons(authButtons, user) {
     authButtons.innerHTML = `
       <div class="user-menu">
-        <a href="profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')}">
+        <a href="/profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')}">
           👤 ${escapeHtml(getInitials(user.name))}
         </a>
         <button class="auth-btn logout" type="button" onclick="window.EVIL_logout();">Log Out</button>
@@ -271,13 +295,15 @@
   }
 
   async function ensureAuthenticatedOrRedirect(redirectPage) {
-    await window.__evilAuthReady;
+    if (!window.__evilSiteChromeBooting) {
+      await window.__evilAuthReady;
+    }
     const user = await syncUserFromServer();
     if (user) return true;
     if (isAuthenticated()) return true;
 
     const page = redirectPage || window.location.pathname.split('/').pop() || 'home.html';
-    window.location.replace(`login.html?redirect=${encodeURIComponent(page)}`);
+    window.location.replace(`/login.html?redirect=${encodeURIComponent(page)}`);
     return false;
   }
 
@@ -299,10 +325,10 @@
         headers: { 'Content-Type': 'application/json' }
       }).catch(() => {});
       AUTH_STORAGE.clear();
-      window.location.replace('login.html');
+      window.location.replace('/login.html');
     } catch {
       AUTH_STORAGE.clear();
-      window.location.replace('login.html');
+      window.location.replace('/login.html');
     }
   }
 
@@ -345,18 +371,40 @@
     window.__evilSiteChromeBooting = true;
     document.documentElement.classList.add('evil-auth-pending');
 
+    let showAuthUi = true;
     try {
       await loadHeaderComponent();
+      if (pageRequiresAuth()) {
+        const ok = await ensureAuthenticatedOrRedirect();
+        if (!ok) showAuthUi = false;
+      }
     } catch (err) {
       console.error('[EVIL chrome]', err);
       try {
         await initEvilNavigation();
+        if (pageRequiresAuth()) {
+          const ok = await ensureAuthenticatedOrRedirect();
+          if (!ok) showAuthUi = false;
+        }
       } catch (_) { /* ignore */ }
     } finally {
-      markAuthUiReady();
+      if (showAuthUi) markAuthUiReady();
       window.__evilSiteChromeBooted = true;
       window.__evilSiteChromeBooting = false;
       if (authReadyResolve) authReadyResolve();
+    }
+  }
+
+  function scheduleSiteChromeBoot() {
+    if (window.__evilSiteChromeBootScheduled) return;
+    window.__evilSiteChromeBootScheduled = true;
+    const run = () => {
+      void bootSiteChrome();
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', run, { once: true, capture: true });
+    } else {
+      run();
     }
   }
 
@@ -384,9 +432,5 @@
     };
   } catch { /* ignore */ }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootSiteChrome, { once: true });
-  } else {
-    bootSiteChrome();
-  }
+  scheduleSiteChromeBoot();
 })();

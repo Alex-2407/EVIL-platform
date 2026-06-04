@@ -159,12 +159,7 @@ header nav a:hover::after {
   transform: scaleX(1);
 }
 
-/* Un solo menu aperto: gestito da JS (.dropdown-open), non da :hover multipli */
 header nav li:hover .dropdown {
-  display: none;
-}
-
-header nav li.dropdown-open .dropdown {
   display: block;
 }
 

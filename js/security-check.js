@@ -4,7 +4,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   const page = window.location.pathname.split('/').pop() || 'security-check.html';
-  const LOGIN_URL = 'login.html?redirect=' + encodeURIComponent(page);
+  const LOGIN_URL = '/login.html?redirect=' + encodeURIComponent(page);
   let lastReport = null;
 
   function esc(s) {
@@ -273,14 +273,7 @@
     lastReport = null;
   }
 
-  document.addEventListener('DOMContentLoaded', async () => {
-    if (typeof ensureAuthenticatedOrRedirect === 'function') {
-      if (!(await ensureAuthenticatedOrRedirect(page))) return;
-    } else if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
-      window.location.replace(LOGIN_URL);
-      return;
-    }
-
+  document.addEventListener('DOMContentLoaded', () => {
     const auth = $('scAuth');
     const input = $('scUrl');
     const btn = $('scScanBtn');

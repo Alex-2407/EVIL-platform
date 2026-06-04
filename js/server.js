@@ -494,7 +494,33 @@ function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
 }
 
-const AUTH_CHROME_VERSION = '20260609';
+const AUTH_CHROME_VERSION = '20260610';
+
+const AUTH_REQUIRED_HTML =
+  /^(security-check|vulnerability-scanner|dns-enumerator|subdomain-finder|ssl-analyzer|file-analysis|social-profiling|public-info|profile)\.html$/i;
+
+const DEFER_BODY_SCRIPT_RE =
+  /(?:matrixrain\.js|\/js\/js\.js|tools-api\.js|progress-manager\.js|security-check\.js|http-header-audit\.js|dns-enumerator\.js|subdomain-finder\.js|ssl-analyzer\.js|file-analysis\.js|social-profiling\.js|public-info\.js|profile-page\.js|web-simulator-lab\.js)/i;
+
+function injectAuthRequiredBody(html, reqPath) {
+  const base = path.basename(String(reqPath || '').replace(/^\//, ''));
+  if (!AUTH_REQUIRED_HTML.test(base)) return html;
+  return html.replace(/<body([^>]*)>/i, (match, attrs) => {
+    if (/data-evil-auth/i.test(attrs)) return match;
+    return `<body${attrs} data-evil-auth="required">`;
+  });
+}
+
+function addDeferToBodyScripts(html) {
+  return html.replace(
+    /<script([^>]*)\ssrc="(\/js\/[^"]+\.js[^"]*)"([^>]*)>\s*<\/script>/gi,
+    (full, before, src, after) => {
+      if (/\bdefer\b/i.test(`${before} ${after}`)) return full;
+      if (!DEFER_BODY_SCRIPT_RE.test(src)) return full;
+      return `<script${before} src="${src}" defer${after}></script>`;
+    }
+  );
+}
 
 /** Un solo script defer: menu + auth (evita doppio init e header "Accedi" con JWT valido) */
 function injectAuthChromeScripts(html) {
@@ -523,7 +549,7 @@ function normalizeSiteNavLinks(html) {
 function sendInjectedHtml(res, relativeName) {
   const filePath = path.join(root, 'html', relativeName);
   if (!fs.existsSync(filePath)) return false;
-  const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'));
+  const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'), relativeName);
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
@@ -601,9 +627,10 @@ function injectEvilMotion(html) {
   return html;
 }
 
-function injectPageAssets(htmlContent) {
+function injectPageAssets(htmlContent, pageName) {
   if (!htmlContent.includes('</head>')) return htmlContent;
   let html = htmlContent;
+  html = injectAuthRequiredBody(html, pageName);
 
   html = html
     .replace(/href="\.\.\/css\//g, 'href="/css/')
@@ -640,6 +667,7 @@ function injectPageAssets(htmlContent) {
 
   html = injectAuthChromeScripts(html);
   html = normalizeSiteNavLinks(html);
+  html = addDeferToBodyScripts(html);
 
   html = injectSiteFooterCss(html);
   html = injectEvilMotion(html);
