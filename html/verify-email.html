@@ -205,17 +205,24 @@
 
     if (status === 'success') {
       show(viewSuccess);
-      fetch(`${API_URL}/auth/profile`, { credentials: 'include' })
-        .then((r) => r.ok ? r.json() : null)
-        .then((data) => {
-          if (data && data.user && window.AUTH_STORAGE && typeof AUTH_STORAGE.setUser === 'function') {
-            AUTH_STORAGE.setUser(data.user);
-          } else if (data && data.user) {
-            localStorage.setItem('user', JSON.stringify(data.user));
+      (async () => {
+        try {
+          if (typeof syncUserFromServer === 'function') {
+            await syncUserFromServer();
+          } else {
+            const r = await fetch(`${API_URL}/auth/profile`, { credentials: 'include' });
+            if (r.ok) {
+              const data = await r.json();
+              if (data?.user && window.AUTH_STORAGE?.setUser) {
+                AUTH_STORAGE.setUser(data.user);
+              } else if (data?.user) {
+                localStorage.setItem('user', JSON.stringify(data.user));
+              }
+            }
           }
-        })
-        .catch(() => {});
-      setTimeout(() => { window.location.href = 'home.html'; }, 2500);
+        } catch (_) { /* redirect comunque */ }
+        window.location.href = 'home.html';
+      })();
     } else if (status === 'error') {
       document.getElementById('errorText').textContent = errorMessages[reason] || errorMessages.invalid;
       show(viewError);

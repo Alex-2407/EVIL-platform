@@ -121,7 +121,31 @@ function initializeHamburgerMenu() {
   }
 }
 
-function initEvilNavigation() {
+function ensureAuthManagerLoaded() {
+  if (typeof initAuthHeader === 'function') {
+    return Promise.resolve();
+  }
+  if (window.__evilAuthManagerLoading) {
+    return window.__evilAuthManagerLoading;
+  }
+  window.__evilAuthManagerLoading = new Promise((resolve) => {
+    const existing = document.querySelector('script[data-evil-auth-manager="1"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(), { once: true });
+      existing.addEventListener('error', () => resolve(), { once: true });
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = '/js/auth-manager.js?v=20260604';
+    script.dataset.evilAuthManager = '1';
+    script.onload = () => resolve();
+    script.onerror = () => resolve();
+    document.head.appendChild(script);
+  });
+  return window.__evilAuthManagerLoading;
+}
+
+async function initEvilNavigation() {
   initializeHeaderEvents();
   initializeHamburgerMenu();
 
@@ -129,8 +153,9 @@ function initEvilNavigation() {
     bindLogoEasterEggButton();
   }
 
+  await ensureAuthManagerLoaded();
   if (typeof initAuthHeader === 'function') {
-    initAuthHeader();
+    await initAuthHeader();
   }
 }
 

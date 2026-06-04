@@ -40,6 +40,37 @@ const AUTH_STORAGE = {
 };
 
 /**
+ * Ripristina user in localStorage dalla sessione cookie (httpOnly).
+ * @returns {Promise<Object|null>}
+ */
+async function syncUserFromServer() {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT);
+    const response = await fetch(`${AUTH_API_URL}/auth/profile`, {
+      credentials: 'include',
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) return null;
+
+    const data = await response.json();
+    const user = data?.user;
+    if (user && user.id && user.name && user.email) {
+      AUTH_STORAGE.setUser(user);
+      return user;
+    }
+    return null;
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.warn('Sync sessione da server:', err.message || err);
+    }
+    return null;
+  }
+}
+
+/**
  * Controlla se l'utente è autenticato
  * @returns {boolean} True se autenticato
  */
@@ -170,40 +201,50 @@ async function logout() {
   }
 }
 
+function renderGuestAuthButtons(authButtons) {
+  authButtons.innerHTML = `
+    <button class="auth-btn account" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+    <button class="auth-btn login" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
+  `;
+}
+
+function renderUserAuthButtons(authButtons, user) {
+  authButtons.innerHTML = `
+    <div class="user-menu">
+      <a href="profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')} - Visualizza il tuo profilo e i tuoi trofei">
+        👤 ${escapeHtml(getInitials(user.name))}
+      </a>
+      <button class="auth-btn logout" onclick="logout();">Log Out</button>
+    </div>
+  `;
+}
+
 /**
- * Inizializza il header con stato di autenticazione
+ * Inizializza il header con stato di autenticazione (localStorage + cookie httpOnly)
  */
-function initAuthHeader() {
+async function initAuthHeader() {
   try {
     const authButtons = document.querySelector('.auth-buttons');
-    
     if (!authButtons) return;
-    
-    if (isAuthenticated()) {
-      const user = getCurrentUser();
-      if (!user) {
-        // Token invalido: NON chiamare logout (causa loop), mostra semplicemente login/signup
-        console.warn('User invalido ma isAuthenticated true - mostro bottoni guest');
-        authButtons.innerHTML = `
-          <button class="auth-btn account" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
-          <button class="auth-btn login" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
-        `;
-        return;
-      }
-      
-      authButtons.innerHTML = `
-        <div class="user-menu">
-          <a href="profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')} - Visualizza il tuo profilo e i tuoi trofei">
-            👤 ${escapeHtml(getInitials(user.name))}
-          </a>
-          <button class="auth-btn logout" onclick="logout();">Log Out</button>
-        </div>
-      `;
+
+    let user = getCurrentUser();
+    if (!user) {
+      user = await syncUserFromServer();
     } else {
-      authButtons.innerHTML = `
-        <button class="auth-btn account" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
-        <button class="auth-btn login" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
-      `;
+      syncUserFromServer().then((serverUser) => {
+        if (!serverUser) {
+          AUTH_STORAGE.clearUser();
+          renderGuestAuthButtons(authButtons);
+        } else if (serverUser.id !== user.id || serverUser.name !== user.name) {
+          renderUserAuthButtons(authButtons, serverUser);
+        }
+      });
+    }
+
+    if (user) {
+      renderUserAuthButtons(authButtons, user);
+    } else {
+      renderGuestAuthButtons(authButtons);
     }
   } catch (err) {
     console.error('Auth header init error:', err);
@@ -244,5 +285,4 @@ function getInitials(fullName) {
 
 window.logout = logout;
 window.initAuthHeader = initAuthHeader;
-
-document.addEventListener('DOMContentLoaded', initAuthHeader);
+window.syncUserFromServer = syncUserFromServer;
