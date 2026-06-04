@@ -1517,12 +1517,19 @@ app.get('/api/health/ping', (req, res) => {
 app.get('/api/health/smtp', async (req, res) => {
   try {
     const configured = emailService.isConfigured();
+    const transport = emailService.getEmailTransport
+      ? emailService.getEmailTransport()
+      : 'smtp';
     const doVerify = req.query.verify === '1' || req.query.verify === 'true';
     let check = { ok: null, skipped: true };
     if (configured && doVerify) {
-      check = await emailService.verifyConnection();
+      if (transport === 'mailtrap_api') {
+        check = { ok: true, mode: 'mailtrap_api', note: 'Verifica invio reale: registrati con una email di test.' };
+      } else {
+        check = await emailService.verifyConnection();
+      }
     } else if (!configured) {
-      check = { ok: false, error: 'SMTP non configurato' };
+      check = { ok: false, error: 'Email non configurata (SMTP o MAILTRAP_API_TOKEN)' };
     }
 
     const hints =
@@ -1534,6 +1541,9 @@ app.get('/api/health/smtp', async (req, res) => {
       ok: check.ok === null ? null : Boolean(check.ok),
       configured,
       verifySkipped: Boolean(check.skipped),
+      transport,
+      renderHosting: Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID),
+      mailtrapApi: transport === 'mailtrap_api',
       host: emailService.smtpHost,
       port: emailService.smtpPort,
       secure: emailService.smtpSecure,
@@ -1546,7 +1556,10 @@ app.get('/api/health/smtp', async (req, res) => {
       emailDevOutbox: process.env.EMAIL_DEV_OUTBOX !== '0',
       hints,
       error: check.error || null,
-      tip: 'Aggiungi ?verify=1 per testare la connessione SMTP (può richiedere ~8s).',
+      tip:
+        transport === 'mailtrap_api'
+          ? 'Render free: email via API HTTPS (non SMTP). Prova la registrazione.'
+          : 'Aggiungi ?verify=1 per testare SMTP (~8s). Su Render free usa MAILTRAP_API_TOKEN.',
     });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message, route: '/api/health/smtp' });
@@ -1637,7 +1650,7 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
           'Impossibile inviare l\'email di verifica. L\'account non è stato creato finché la mail non parte.',
         details: smtpErr,
         smtpHint:
-          'Su Render: SMTP_HOST=live.smtp.mailtrap.io, SMTP_PORT=587, SMTP_SECURE=false, SMTP_USER=api, SMTP_PASS=token Mailtrap, SMTP_FROM_EMAIL=noreply@projectevil.it',
+          'Render FREE blocca SMTP (porte 587/465). Usa MAILTRAP_API_TOKEN=token Sending + EMAIL_USE_MAILTRAP_API=1, oppure upgrade piano Render a pagamento.',
       });
     }
 
@@ -2449,9 +2462,14 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`🛠️  Strumenti API: ${toolsPublic ? 'accesso pubblico (EVIL_TOOLS_PUBLIC)' : 'login obbligatorio'}`);
   console.log(`📁 Utenti: ${usersFile}`);
   if (emailService.isConfigured()) {
-    console.log(
-      `📧 SMTP: ${emailService.smtpHost}:${emailService.smtpPort} secure=${emailService.smtpSecure} (modalità ${emailService.resolveDeliveryMode()})`
-    );
+    const transport = emailService.getEmailTransport ? emailService.getEmailTransport() : 'smtp';
+    if (transport === 'mailtrap_api') {
+      console.log('📧 Email: Mailtrap API (HTTPS) — adatto a Render free tier');
+    } else {
+      console.log(
+        `📧 SMTP: ${emailService.smtpHost}:${emailService.smtpPort} secure=${emailService.smtpSecure} (modalità ${emailService.resolveDeliveryMode()})`
+      );
+    }
     const smtpHints = emailService.getSmtpDiagnostics();
     smtpHints.forEach((h) => console.warn(`⚠️ SMTP config: ${h}`));
     emailService.verifyConnection().then((r) => {

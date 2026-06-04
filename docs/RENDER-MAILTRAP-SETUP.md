@@ -1,5 +1,22 @@
 # Deploy Render + Mailtrap Live + projectevil.it
 
+## Render FREE: SMTP non funziona
+
+Dal 2025 Render **blocca le porte SMTP 587, 465 e 25** sui servizi **gratuiti**.  
+Sintomo: `Connection timeout` con Mailtrap/Gmail anche se le credenziali sono corrette.
+
+**Soluzione consigliata:** invio via **Mailtrap API** (HTTPS, porta 443):
+
+| Variabile | Value |
+|-----------|--------|
+| `MAILTRAP_API_TOKEN` | Token **EVIL projectevil.it SMTP** (stesso della dashboard Sending) |
+| `EMAIL_USE_MAILTRAP_API` | `1` |
+| `SMTP_FROM_EMAIL` | `noreply@projectevil.it` |
+
+(Su Render, se `SMTP_PASS` è già il token hex Mailtrap, l’API si attiva anche senza variabili extra dopo l’ultimo deploy.)
+
+**Alternativa:** upgrade del Web Service Render a un **piano a pagamento** → SMTP su porta 587 torna disponibile.
+
 ## Variabili Render consigliate
 
 | Variabile | Valore |

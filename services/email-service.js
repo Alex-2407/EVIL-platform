@@ -6,8 +6,11 @@
 const fs = require('fs');
 const path = require('path');
 const nodemailer = require('nodemailer');
+const axios = require('axios');
 const crypto = require('crypto');
 const { logger } = require('../middleware/logger');
+
+const MAILTRAP_SEND_API = 'https://send.api.mailtrap.io/api/send';
 
 const SMTP_PLACEHOLDERS = new Set([
   '',
@@ -65,12 +68,115 @@ class EmailService {
   }
 
   isConfigured() {
+    if (this.useMailtrapApi() && this.getMailtrapApiToken()) {
+      return Boolean(this.fromEmail && !this.isPlaceholder(this.fromEmail));
+    }
     return Boolean(
       this.smtpUser &&
       this.smtpPass &&
       !this.isPlaceholder(this.smtpUser) &&
       !this.isPlaceholder(this.smtpPass)
     );
+  }
+
+  onRenderHosting() {
+    return Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID);
+  }
+
+  getMailtrapApiToken() {
+    const explicit = (process.env.MAILTRAP_API_TOKEN || '').trim();
+    if (explicit && !this.isPlaceholder(explicit)) return explicit;
+    const pass = String(this.smtpPass || '');
+    if (/^[a-f0-9]{20,}$/i.test(pass)) return pass;
+    return '';
+  }
+
+  /** Render free tier blocca porte SMTP 587/465 — usa API HTTPS (porta 443). */
+  useMailtrapApi() {
+    if (process.env.EMAIL_USE_MAILTRAP_API === '0') return false;
+    if (process.env.EMAIL_USE_MAILTRAP_API === '1') return true;
+    const transport = (process.env.EMAIL_TRANSPORT || '').toLowerCase();
+    if (transport === 'mailtrap_api' || transport === 'api') return true;
+    if (transport === 'smtp') return false;
+    if (this.onRenderHosting() && this.getMailtrapApiToken()) return true;
+    return false;
+  }
+
+  getEmailTransport() {
+    return this.useMailtrapApi() ? 'mailtrap_api' : 'smtp';
+  }
+
+  async sendViaMailtrapApi({ to, subject, text, html }) {
+    const token = this.getMailtrapApiToken();
+    if (!token) {
+      return { success: false, error: 'MAILTRAP_API_TOKEN mancante (token Sending Mailtrap).' };
+    }
+
+    const fromEmail = this.fromEmail;
+    const payload = {
+      from: { email: fromEmail, name: 'EVIL Platform' },
+      to: [{ email: to }],
+      subject,
+      text,
+      html,
+      category: 'Account',
+    };
+
+    try {
+      const res = await axios.post(
+        process.env.MAILTRAP_API_URL || MAILTRAP_SEND_API,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          timeout: parseInt(process.env.MAILTRAP_API_TIMEOUT_MS || '20000', 10),
+          validateStatus: (s) => s >= 200 && s < 300,
+        }
+      );
+      logger.info('Email inviata via Mailtrap API', {
+        recipient: to,
+        status: res.status,
+      });
+      return {
+        success: true,
+        delivery: 'mailtrap_api',
+        messageId: res.data?.message_ids?.[0] || res.data?.message_id || null,
+        hint: 'Email inviata via API Mailtrap (HTTPS). Controlla inbox e spam.',
+      };
+    } catch (err) {
+      const detail =
+        err.response?.data?.errors?.[0] ||
+        err.response?.data?.message ||
+        err.message;
+      logger.error('Errore Mailtrap API', {
+        error: detail,
+        status: err.response?.status,
+        recipient: to,
+      });
+      return {
+        success: false,
+        error: typeof detail === 'string' ? detail : JSON.stringify(detail),
+      };
+    }
+  }
+
+  async sendVerificationEmail(email, token, name = 'Utente') {
+    const verificationLink = this.buildVerificationLink(token);
+    const mail = this.buildVerificationMail(name, verificationLink);
+
+    if (this.useMailtrapApi()) {
+      return this.sendViaMailtrapApi({
+        to: email,
+        subject: mail.subject,
+        text: mail.text,
+        html: mail.html,
+      });
+    }
+
+    return this.sendVerificationEmailSmtp(email, mail);
   }
 
   resolveSmtpAuth() {
@@ -137,6 +243,14 @@ class EmailService {
     }
     if (host.includes('gmail') && process.env.SMTP_MODE === 'live') {
       hints.push('Stai usando Gmail SMTP: il DNS Mailtrap (DKIM) non serve per Gmail.');
+    }
+    if (this.onRenderHosting() && !this.useMailtrapApi()) {
+      hints.push(
+        'Render (piano free) blocca SMTP su porte 587/465. Imposta MAILTRAP_API_TOKEN e EMAIL_USE_MAILTRAP_API=1, oppure passa a un piano Render a pagamento.'
+      );
+    }
+    if (this.useMailtrapApi()) {
+      hints.push('Invio email via Mailtrap API (HTTPS) — adatto a Render free tier.');
     }
     return hints;
   }
@@ -505,26 +619,16 @@ class EmailService {
     return process.env.EMAIL_DEV_OUTBOX !== '0';
   }
 
-  /**
-   * Registrazione: email obbligatoria via SMTP (nessun link in pagina / outbox in produzione).
-   */
-  async sendRegistrationVerification(email, token, name = 'Utente') {
-    const verificationLink = this.buildVerificationLink(token);
-    const mail = this.buildVerificationMail(name, verificationLink);
+  async sendVerificationEmailSmtp(email, mail) {
+    const isDev = process.env.NODE_ENV !== 'production';
+    const allowDevOutbox = isDev && this.outboxAllowed();
 
     if (!this.isConfigured()) {
       return {
         success: false,
         error:
-          'SMTP non configurato su Render. Imposta SMTP_HOST, SMTP_USER, SMTP_PASS e SMTP_FROM_EMAIL.',
+          'SMTP non configurato. Imposta credenziali SMTP oppure MAILTRAP_API_TOKEN su Render.',
       };
-    }
-
-    const isDev = process.env.NODE_ENV !== 'production';
-    const allowDevOutbox = isDev && this.outboxAllowed();
-
-    if (allowDevOutbox && process.env.EMAIL_REGISTER_SKIP_SMTP === '1') {
-      return this.sendViaOutbox(email, name, verificationLink);
     }
 
     const transport = this.createSmtpTransporter(this.registerSmtpTimeoutMs);
@@ -540,16 +644,9 @@ class EmailService {
           attachments: mail.attachments || [],
         }),
         this.registerSmtpTimeoutMs,
-        'Invio email registrazione'
+        'Invio email verifica'
       );
       const delivery = this.resolveDeliveryMode();
-      logger.info('Email verifica registrazione inviata via SMTP', {
-        messageId: info.messageId,
-        recipient: email,
-        delivery,
-        host: this.smtpHost,
-        user: this.smtpAuth.user,
-      });
       return {
         success: true,
         delivery,
@@ -557,16 +654,11 @@ class EmailService {
         hint: this.getDeliveryHint(delivery),
       };
     } catch (err) {
-      logger.error('Errore SMTP registrazione', {
-        error: err.message,
-        recipient: email,
-        host: this.smtpHost,
-        user: this.smtpAuth.user,
-      });
       if (allowDevOutbox) {
-        const outbox = this.sendViaOutbox(email, name, verificationLink);
-        outbox.smtpError = err.message;
-        return outbox;
+        const verificationLink = mail.html?.match(/href="([^"]+verify-email[^"]+)"/)?.[1];
+        if (verificationLink) {
+          return this.sendViaOutbox(email, 'Utente', verificationLink);
+        }
       }
       return { success: false, error: err.message };
     } finally {
@@ -580,62 +672,27 @@ class EmailService {
     }
   }
 
-  async sendVerificationLink(email, token, name = 'Utente') {
-    const verificationLink = this.buildVerificationLink(token);
-    const mail = this.buildVerificationMail(name, verificationLink);
-    const allowOutbox = this.outboxAllowed();
-
+  /** Registrazione: email obbligatoria (API Mailtrap su Render, SMTP in locale). */
+  async sendRegistrationVerification(email, token, name = 'Utente') {
     if (!this.isConfigured()) {
-      if (allowOutbox) {
-        return this.sendViaOutbox(email, name, verificationLink);
-      }
       return {
         success: false,
-        error: 'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env (vedi SETUP_EMAIL_VERIFICATION.md).'
+        error:
+          'Email non configurata. Su Render: MAILTRAP_API_TOKEN + EMAIL_USE_MAILTRAP_API=1 (il piano free blocca SMTP).',
       };
     }
 
-    try {
-      const info = await this.withTimeout(
-        this.transporter.sendMail({
-          from: this.fromEmail,
-          to: email,
-          subject: mail.subject,
-          text: mail.text,
-          html: mail.html,
-          attachments: mail.attachments || []
-        }),
-        this.smtpSendTimeoutMs,
-        'Invio email verifica'
-      );
-      const delivery = this.resolveDeliveryMode();
-      logger.info('Email verifica inviata via SMTP', {
-        messageId: info.messageId,
-        recipient: email,
-        delivery,
-        host: this.smtpHost
-      });
-      return {
-        success: true,
-        delivery,
-        messageId: info.messageId,
-        actionLink: verificationLink,
-        hint: this.getDeliveryHint(delivery)
-      };
-    } catch (err) {
-      logger.error('Errore invio SMTP verifica', {
-        error: err.message,
-        recipient: email,
-        host: this.smtpHost
-      });
-      if (allowOutbox) {
-        const outbox = this.sendViaOutbox(email, name, verificationLink);
-        outbox.smtpError = err.message;
-        outbox.hint = `SMTP fallito (${err.message}). ${outbox.hint}`;
-        return outbox;
-      }
-      return { success: false, error: err.message };
+    const isDev = process.env.NODE_ENV !== 'production';
+    if (isDev && this.outboxAllowed() && process.env.EMAIL_REGISTER_SKIP_SMTP === '1') {
+      const link = this.buildVerificationLink(token);
+      return this.sendViaOutbox(email, name, link);
     }
+
+    return this.sendVerificationEmail(email, token, name);
+  }
+
+  async sendVerificationLink(email, token, name = 'Utente') {
+    return this.sendRegistrationVerification(email, token, name);
   }
 
   /**
