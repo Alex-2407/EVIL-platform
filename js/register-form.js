@@ -195,7 +195,13 @@
         if (verifyLink) {
           sessionStorage.setItem('evil_verify_link', verifyLink);
         }
-        window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}&delivery=${encodeURIComponent(data.emailDelivery || '')}`;
+        if (data.emailHint) {
+          sessionStorage.setItem('evil_email_hint', data.emailHint);
+        }
+        if (data.emailDelivery) {
+          sessionStorage.setItem('evil_email_delivery', data.emailDelivery);
+        }
+        window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}&delivery=${encodeURIComponent(data.emailDelivery || 'pending')}`;
         return;
       } catch (err) {
         const msg =

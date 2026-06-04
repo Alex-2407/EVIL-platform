@@ -37,7 +37,7 @@ class EmailService {
 
     this.smtpSendTimeoutMs = parseInt(process.env.SMTP_SEND_TIMEOUT_MS || '15000', 10);
     this.registerSmtpTimeoutMs = parseInt(
-      process.env.REGISTER_SMTP_TIMEOUT_MS || '6000',
+      process.env.REGISTER_SMTP_TIMEOUT_MS || '12000',
       10
     );
 
@@ -488,13 +488,18 @@ class EmailService {
     return process.env.EMAIL_DEV_OUTBOX !== '0';
   }
 
+  /** Fallback registrazione se SMTP lento (anche con EMAIL_DEV_OUTBOX=0) */
+  registrationFallbackEnabled() {
+    return process.env.EMAIL_REGISTER_FALLBACK !== '0';
+  }
+
   /**
    * Registrazione: timeout SMTP breve + fallback outbox (evita hang su projectevil.it)
    */
   async sendRegistrationVerification(email, token, name = 'Utente') {
     const verificationLink = this.buildVerificationLink(token);
     const mail = this.buildVerificationMail(name, verificationLink);
-    const allowOutbox = this.outboxAllowed();
+    const allowOutbox = this.outboxAllowed() || this.registrationFallbackEnabled();
     const skipSmtp = process.env.EMAIL_REGISTER_SKIP_SMTP === '1';
 
     if (!this.isConfigured() || skipSmtp) {

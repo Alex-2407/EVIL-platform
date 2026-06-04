@@ -1607,74 +1607,48 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       });
     }
 
-    let emailResult;
-    try {
-      emailResult = await emailService.sendRegistrationVerification(
-        normalizedEmail,
-        verificationToken,
-        name
-      );
-    } catch (emailErr) {
-      logger.error('Registration email send failed', { error: emailErr.message, email: normalizedEmail });
-      if (emailService.outboxAllowed()) {
-        const link = emailService.buildVerificationLink(verificationToken);
-        emailResult = emailService.sendViaOutbox(normalizedEmail, name, link);
-        emailResult.smtpError = emailErr.message;
-      } else {
-        users = users.filter((u) => u.id !== pendingUser.id);
-        saveUsers();
-        return res.status(503).json({
-          error:
-            emailErr.message && /timeout/i.test(emailErr.message)
-              ? 'Invio email troppo lento: verifica SMTP su Render o imposta DATA_DIR e riprova.'
-              : 'Impossibile inviare l\'email di verifica. Verifica la configurazione SMTP.',
-        });
-      }
-    }
-
-    if (!emailResult.success) {
-      if (emailService.outboxAllowed()) {
-        const link = emailService.buildVerificationLink(verificationToken);
-        emailResult = emailService.sendViaOutbox(normalizedEmail, name, link);
-      }
-    }
-
-    if (!emailResult.success) {
-      users = users.filter((u) => u.id !== pendingUser.id);
-      saveUsers();
-      const smtpErr = emailResult.error || '';
-      return res.status(503).json({
-        error:
-          /timeout/i.test(smtpErr) || /connection/i.test(smtpErr)
-            ? 'Server email non raggiungibile (timeout). Controlla SMTP_HOST/PORT su Render o contatta il supporto.'
-            : smtpErr || 'Impossibile inviare l\'email di verifica. Configura SMTP nel file .env.',
-      });
-    }
+    const verificationLink = emailService.buildVerificationLink(verificationToken);
 
     auditLog.security('USER_REGISTERED_PENDING', { userId: pendingUser.id, email: normalizedEmail }, 'INFO');
 
     const payload = {
       status: 'success',
-      message: 'Controlla la tua email e clicca il link per attivare l\'account.',
+      message:
+        'Account creato. Controlla la email oppure usa il link di verifica nella pagina successiva.',
       requiresVerification: true,
       userId: pendingUser.id,
       email: normalizedEmail,
-      emailDelivery: emailResult.delivery || 'smtp',
-      emailHint: emailResult.hint || ''
+      verificationLink,
+      emailDelivery: 'pending',
+      emailHint:
+        'Se l\'email non arriva entro qualche minuto, apri il link di verifica mostrato nella pagina successiva.',
     };
 
-    const verifyLink = emailResult.actionLink || emailResult.verificationLink;
-    if (verifyLink) {
-      payload.verificationLink = verifyLink;
-      if (process.env.NODE_ENV !== 'production') {
-        payload.devVerificationLink = verifyLink;
-      }
-    }
-    if (emailResult.outboxFile) {
-      payload.outboxFile = emailResult.outboxFile;
-    }
-
     res.json(payload);
+
+    setImmediate(() => {
+      emailService
+        .sendRegistrationVerification(normalizedEmail, verificationToken, name)
+        .then((emailResult) => {
+          if (emailResult.success) {
+            logger.info('Email registrazione inviata in background', {
+              email: normalizedEmail,
+              delivery: emailResult.delivery,
+            });
+          } else {
+            logger.warn('Email registrazione fallita in background', {
+              email: normalizedEmail,
+              error: emailResult.error,
+            });
+          }
+        })
+        .catch((emailErr) => {
+          logger.warn('Email registrazione errore background', {
+            email: normalizedEmail,
+            error: emailErr.message,
+          });
+        });
+    });
   } catch (err) {
     logger.error('Registration error', { error: err.message });
     res.status(500).json({ error: 'Errore registrazione' });

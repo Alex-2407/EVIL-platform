@@ -183,6 +183,8 @@
           text = 'Con Mailtrap Sandbox l\'email NON arriva nella tua casella personale: aprila su https://mailtrap.io/sandboxes';
         } else if (delivery === 'outbox') {
           text = 'SMTP non configurato: usa il link qui sotto oppure apri data/email-outbox sul server.';
+        } else if (delivery === 'pending') {
+          text = 'L\'email di verifica viene inviata in background. Se non arriva, usa il link qui sotto.';
         } else if (delivery === 'live' || delivery === 'smtp') {
           text = 'Se non vedi nulla, controlla anche la cartella spam.';
         }
