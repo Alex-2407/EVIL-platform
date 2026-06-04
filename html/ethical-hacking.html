@@ -2,90 +2,80 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Tutorial Ethical Hacking - EVIL</title>
   
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260611">
+  <link rel="stylesheet" href="/css/responsive.css?v=20260717">
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260717">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+<script src="/js/load-header.js" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
 </head>
 <body class="evil-theme">
   <div id="fade-overlay"></div>
   <canvas id="matrix-canvas"></canvas>
   <header role="banner" aria-label="Intestazione principale">
     <div class="header-container">
-      <!-- LOGO E BOTTONE MATRIX -->
       <div class="logo-section">
-        <button class="img-btn" id="matrix-btn" aria-label="Attiva Matrix">
-          <img src="/public/evil-logo.svg" alt="Logo EVIL">
+        <button class="img-btn" id="matrix-btn" type="button" aria-label="Attiva effetto Matrix" aria-pressed="false">
+          <img src="/html/generated-image.png" alt="Logo EVIL">
         </button>
-        <div class="logo">EVIL</div>
+        <a href="/" class="header-evil-wordmark" aria-label="EVIL — torna alla home">EVIL</a>
       </div>
 
-      <!-- MENU -->
       <nav role="navigation" aria-label="Menu principale">
         <ul>
-          <li><a href="home.html">Home</a></li>
+          <li><a href="/">Home</a></li>
 
           <li>
-            <a href="#">Attacchi ?</a>
+            <a href="#">Didattica ▾</a>
             <div class="dropdown">
-              <a href="attacks-map.html">Mappa Attacchi in Tempo Reale</a>
               <a href="web-simulator.html">Simulatore Attacchi Web</a>
-              <a href="hacked-timeline.html">Timeline Sistema Hackerato</a>
-            </div>
-          </li>
-
-          <li>
-            <a href="#">Database ?</a>
-            <div class="dropdown">
-              <a href="malware-db.html">Database Malware</a>
-              <a href="malware-classification.html">Classificazione Malware</a>
-              <a href="malware-card-template.html">Template Scheda</a>
-              <a href="manipulation-techniques.html">Tecniche di Manipolazione</a>
-              <a href="historic-attacks.html">Attacchi Storici</a>
-            </div>
-          </li>
-
-          <li>
-            <a href="#">Strumenti</a>
-            <div class="dropdown">
-              <a href="security-check.html">URL / Website Security Check</a>
-              <a href="vulnerability-scanner.html">Scanner Vulnerabilit�</a>
-              <a href="dns-enumerator.html">DNS Records Enumerator</a>
-              <a href="subdomain-finder.html">Subdomain Finder</a>
-              <a href="ssl-analyzer.html">SSL Certificate Analyzer</a>
-              <a href="file-analysis.html">Analisi File Compromessi</a>
-              <a href="report-generator.html">Generazione Report</a>
-            </div>
-          </li>
-
-          <li>
-            <a href="#">Educazione ?</a>
-            <div class="dropdown">
-              <a href="ethical-hacking.html">Tutorial Ethical Hacking</a>
               <a href="virtual-lab.html">Lab Virtuale</a>
-              <a href="phishing-quiz.html">Quiz Phishing</a>
-              <a href="social-engineering.html">Simulatore Social Engineering</a>
+              <a href="crypto-studio.html">Studio Cifratura</a>
+              <a href="quiz-hub.html">Centro Quiz</a>
+              <a href="hacked-timeline.html">Timeline Incident Response</a>
             </div>
           </li>
 
           <li>
-            <a href="#">OSINT ?</a>
+            <a href="#">Intelligence ▾</a>
             <div class="dropdown">
-              <a href="social-profiling.html">Profilazione da Social</a>
-              <a href="public-info.html">Raccolta Info Pubbliche</a>
+              <a href="attacks-map.html">Mappa incidenti</a>
+              <a href="historic-attacks.html">Violazioni storiche</a>
+              <a href="malware-db.html">Catalogo malware</a>
+              <a href="malware-classification.html">Tassonomia malware</a>
+              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+            </div>
+          </li>
+
+          <li>
+            <a href="#">Strumenti ▾</a>
+            <div class="dropdown">
+              <a href="security-check.html">Check URL</a>
+              <a href="vulnerability-scanner.html">Header HTTP</a>
+              <a href="domain-recon.html">Ricognizione dominio</a>
+              <a href="file-analysis.html">Analisi file</a>
+              <a href="osint-hub.html">OSINT</a>
             </div>
           </li>
         </ul>
       </nav>
 
-      <!-- CTA E AUTH -->
-      <div class="header-cta-section">
-        <button class="cta" onclick="window.location.href='security-check.html';">🔍 Analizza un Sito</button>
+      <div class="header-actions">
         <div class="auth-buttons">
-          <button class="auth-btn login" onclick="window.location.href='login.html';">Log</button>
-          <button class="auth-btn account" onclick="window.location.href='account.html';">Acc</button>
+          <button class="auth-btn account" type="button" onclick="window.location.href='login.html';" aria-label="Accedi a EVIL">Accedi</button>
+          <button class="auth-btn login" type="button" onclick="window.location.href='account.html';" aria-label="Registrati su EVIL">Registrati</button>
         </div>
+        <button class="hamburger-btn" type="button" aria-label="Apri menu di navigazione" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
     </div>
   </header>
@@ -226,22 +216,32 @@
       }
     </script>
   </main>
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-left">
-        <div class="footer-label">EVIL Platform</div>
-        <div class="footer-text">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</div>
-      </div>
-      <div class="footer-center">
-        <div class="footer-label">Ambito</div>
-        <div class="footer-text">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</div>
-      </div>
-      <div class="footer-right">
-        <div class="footer-label">� 2026</div>
-        <div class="footer-text">EVIL Cybersecurity Platform | <a href="https://github.com" class="footer-github-link">GitHub</a></div>
-      </div>
-    </div>
-  </footer>
+  <footer class="evil-site-foot" id="site-footer">
+  <div class="evil-site-foot__glow" aria-hidden="true"></div>
+  <div class="evil-site-foot__grid">
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Piattaforma</p>
+      <h2 class="evil-site-foot__title">EVIL Platform</h2>
+      <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Ambito</p>
+      <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+    </section>
+    <section class="evil-site-foot__col">
+      <p class="evil-site-foot__tag">Legale</p>
+      <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+      <p class="evil-site-foot__copy">
+        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        ·
+        <a href="help.html" class="evil-site-foot__link">Help</a>
+        ·
+        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+      </p>
+    </section>
+  </div>
+  <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+</footer>
 
   <script>
     // Footer visibility on scroll

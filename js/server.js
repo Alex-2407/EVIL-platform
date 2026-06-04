@@ -69,12 +69,16 @@ const {
   sanitizeString,
   sanitizeUrl,
   sanitizeEmail,
-  sanitizeFilename
+  sanitizeFilename,
+  assertSafePublicUrl,
 } = require('../middleware/sanitization');
 const { upload: multerUpload, handleUploadError } = require('../middleware/upload');
 const { 
   globalLimiter,
   authLimiter,
+  registerLimiter,
+  passwordResetLimiter,
+  refreshTokenLimiter,
   scanLimiter,
   dnsLimiter,
   uploadLimiter,
@@ -90,6 +94,49 @@ const securityHeaders = require('../middleware/security-headers');
 const { logger, auditLog, httpLogger } = require('../middleware/logger');
 
 const app = express();
+
+function validateProductionEnvironment() {
+  if (process.env.NODE_ENV !== 'production') return;
+
+  const weakPatterns = ['your_super_secret', 'change_this', 'minimum_32', 'example'];
+  const secrets = [process.env.JWT_SECRET, process.env.JWT_SECRET_REFRESH].filter(Boolean);
+
+  for (const secret of secrets) {
+    if (secret.length < 32 || weakPatterns.some((p) => secret.includes(p))) {
+      console.error('❌ CRITICAL: JWT secrets must be 32+ chars and unique in production');
+      process.exit(1);
+    }
+  }
+
+  if (!process.env.BASE_URL || !/^https:\/\//i.test(process.env.BASE_URL)) {
+    console.warn('⚠️ BASE_URL should be https://your-domain in production');
+  }
+
+  if (process.env.EMAIL_DEV_OUTBOX === '1') {
+    console.warn('⚠️ EMAIL_DEV_OUTBOX=1 in production — emails will not reach users');
+  }
+
+  if (process.env.EVIL_TOOLS_PUBLIC === '1' || process.env.EVIL_TOOLS_PUBLIC === 'true') {
+    console.warn('⚠️ EVIL_TOOLS_PUBLIC enabled in production — scan/OSINT APIs are open to guests');
+  }
+
+  if (!process.env.REDIS_URL) {
+    console.warn('⚠️ REDIS_URL not set — refresh tokens and rate limits are per-process only');
+  }
+}
+
+validateProductionEnvironment();
+
+// Health checks (Railway/Render/load balancer)
+app.get(['/health', '/api/health'], (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    service: 'evil-platform',
+    env: process.env.NODE_ENV || 'development',
+    uptime: Math.round(process.uptime()),
+    timestamp: new Date().toISOString(),
+  });
+});
 
 // Dietro nginx/Cloudflare in produzione: IP reale per rate limit e sessioni lab
 if (process.env.TRUST_PROXY === '1' || process.env.NODE_ENV === 'production') {
@@ -224,7 +271,7 @@ app.use('/css', express.static(path.join(root, 'css'), {
     const alwaysFresh = /virtual-lab|web-simulator|crypto-studio|quiz-hub|hacked-timeline|attacks-map|historic-attacks|malware-db|malware-classification|manipulation-techniques|security-check|http-header-audit|tools-hub/i.test(base);
     const devFresh =
       process.env.NODE_ENV !== 'production' &&
-      /(home(\.bundle|\.css|-footer|-hero|-unified|-motion)?|site-footer|site-header)\.css$/i.test(base);
+      /(home(\.bundle|\.css|-footer|-hero|-unified|-motion)?|site-footer|site-header|evil-motion)\.css$/i.test(base);
     if (alwaysFresh || devFresh) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
       res.setHeader('Pragma', 'no-cache');
@@ -279,7 +326,19 @@ app.use('/public', express.static(path.join(root, 'public'), {
   etag: true,
   lastModified: true
 }));
-app.use('/html', express.static(path.join(root, 'html'))); // solo se serve html direttamente
+
+// HTML con asset injection (prima dello static /html, altrimenti bypass)
+app.get(/^\/html\/[^/]+\.html$/i, (req, res, next) => {
+  const rel = req.path.replace(/^\/html\//i, '');
+  const filePath = path.join(root, 'html', rel);
+  if (!fs.existsSync(filePath)) return next();
+  const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'));
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  return res.send(htmlContent);
+});
+
+app.use('/html', express.static(path.join(root, 'html'))); // asset non-html + fallback
 
 // ==================== APPLY SECURITY HEADERS ====================
 securityHeaders(app);
@@ -392,6 +451,19 @@ const HOME_STYLESHEETS = [
 
 const SITE_FOOTER_CSS = '/css/site-footer.css?v=20260606';
 const SITE_HEADER_CSS = '/css/site-header.css?v=20260611';
+const SYSTEM_THEME_CSS = '/css/system-theme.css?v=20260717';
+const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css?v=20260717';
+const RESPONSIVE_CSS = '/css/responsive.css?v=20260717';
+const EVIL_MOTION_CSS = '/css/evil-motion.css?v=20260626';
+const EVIL_MOTION_JS = '/js/evil-motion.js?v=20260626';
+
+function hasResponsiveCss(html) {
+  return /responsive\.css/i.test(html);
+}
+
+function hasLoadHeaderJs(html) {
+  return /load-header\.js/i.test(html);
+}
 
 function injectSiteChromeCss(html, href, marker) {
   if (html.includes(marker)) return html;
@@ -425,30 +497,63 @@ function injectHomeStyles(html) {
   return out;
 }
 
+function injectEvilMotion(html) {
+  if (!html.includes('evil-motion.css')) {
+    html = injectSiteChromeCss(html, EVIL_MOTION_CSS, 'evil-motion.css');
+  }
+  if (!html.includes('evil-motion.js')) {
+    html = html.replace(
+      '</head>',
+      `  <script src="${EVIL_MOTION_JS}" defer></script>\n</head>`
+    );
+  }
+  return html;
+}
+
 function injectPageAssets(htmlContent) {
   if (!htmlContent.includes('</head>')) return htmlContent;
   let html = htmlContent;
 
-  if (!html.includes('/css/responsive.css')) {
+  html = html
+    .replace(/href="\.\.\/css\//g, 'href="/css/')
+    .replace(/src="\.\.\/js\//g, 'src="/js/');
+
+  if (!html.includes('viewport-fit=cover')) {
+    html = html.replace(
+      /content="width=device-width, initial-scale=1\.0"/,
+      'content="width=device-width, initial-scale=1.0, viewport-fit=cover"'
+    );
+  }
+
+  if (!hasResponsiveCss(html)) {
     if (html.includes('/css/style.css')) {
       html = html.replace(
-        /<link rel="stylesheet" href="\/css\/style\.css">/,
-        '<link rel="stylesheet" href="/css/style.css">\n  <link rel="stylesheet" href="/css/responsive.css">'
+        /<link rel="stylesheet" href="(\/?\.\.\/)?css\/style\.css[^"]*">/,
+        (m) => `${m}\n  <link rel="stylesheet" href="${RESPONSIVE_CSS}">`
       );
     } else {
       html = html.replace(
         '</head>',
-        '  <link rel="stylesheet" href="/css/responsive.css">\n</head>'
+        `  <link rel="stylesheet" href="${RESPONSIVE_CSS}">\n</head>`
       );
     }
   }
 
-  if (!html.includes('load-header.js')) {
+  if (!html.includes('system-theme.css')) {
+    html = injectSiteChromeCss(html, SYSTEM_THEME_CSS, 'system-theme.css');
+  }
+
+  if (!html.includes('evil-scrollbar.css')) {
+    html = injectSiteChromeCss(html, EVIL_SCROLLBAR_CSS, 'evil-scrollbar.css');
+  }
+
+  if (!hasLoadHeaderJs(html) && /<header[\s>]/i.test(html)) {
     html = html.replace('</head>', '<script src="/js/load-header.js" defer></script>\n</head>');
   }
 
   html = injectSiteFooterCss(html);
   html = injectSiteHeaderCss(html);
+  html = injectEvilMotion(html);
   html = injectHomeStyles(html);
   return html;
 }
@@ -782,6 +887,8 @@ app.post('/api/scan',
       if (!domain || domain.length > 253) {
         throw new Error('Invalid domain length');
       }
+
+      await assertSafePublicUrl(fullUrl);
     } catch (err) {
       auditLog.security('SCAN_INVALID_DOMAIN', {
         userId: req.user.id,
@@ -1302,7 +1409,7 @@ app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
 // ========================
 
 // REGISTRAZIONE
-app.post('/api/auth/register', validateRegister, async (req, res) => {
+app.post('/api/auth/register', registerLimiter, validateRegister, async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const normalizedEmail = email.toLowerCase();
@@ -1566,7 +1673,7 @@ app.post('/api/auth/login', authLimiter, validateLogin, async (req, res) => {
 
 // REFRESH TOKEN
 // REFRESH TOKEN
-app.post('/api/auth/refresh-token', async (req, res) => {
+app.post('/api/auth/refresh-token', refreshTokenLimiter, async (req, res) => {
   try {
     const refreshToken = getRefreshTokenFromCookie(req) || req.body.refreshToken;
 
@@ -1626,7 +1733,7 @@ app.post('/api/auth/logout', authenticateToken, async (req, res) => {
 });
 
 // PASSWORD RESET REQUEST
-app.post('/api/auth/forgot-password', async (req, res) => {
+app.post('/api/auth/forgot-password', passwordResetLimiter, async (req, res) => {
   try {
     const { email } = req.body;
     const genericResponse = {
@@ -2153,8 +2260,8 @@ server.listen(PORT, '0.0.0.0', () => {
   }
   console.log(`🔧 Environment: ${nodeEnv}`);
   console.log(`🔐 CORS Origins: ${corsOrigins}`);
-  const toolsPublic = process.env.EVIL_TOOLS_PUBLIC !== '0' && process.env.EVIL_TOOLS_PUBLIC !== 'false';
-  console.log(`🛠️  Strumenti API: ${toolsPublic ? 'accesso pubblico (TEMP)' : 'login obbligatorio'}`);
+  const toolsPublic = process.env.EVIL_TOOLS_PUBLIC === '1' || process.env.EVIL_TOOLS_PUBLIC === 'true';
+  console.log(`🛠️  Strumenti API: ${toolsPublic ? 'accesso pubblico (EVIL_TOOLS_PUBLIC)' : 'login obbligatorio'}`);
   if (emailService.isConfigured()) {
     console.log(`📧 SMTP: ${emailService.smtpHost} (modalità ${emailService.resolveDeliveryMode()})`);
     emailService.verifyConnection().then((r) => {

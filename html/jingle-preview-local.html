@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Anteprima musichette trofei — EVIL</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth-pages.css?v=20260605">
+  <link rel="stylesheet" href="/css/trophy-system.css?v=20260605">
+  <link rel="stylesheet" href="/css/jingle-preview.css?v=20260716">
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+</head>
+<body class="evil-theme auth-page-body profile-page">
+  <div class="auth-scene" aria-hidden="true">
+    <div class="auth-scene__base"></div>
+    <div class="auth-scene__glow auth-scene__glow--one"></div>
+    <div class="auth-scene__glow auth-scene__glow--two"></div>
+  </div>
+  <div class="profile-mesh" aria-hidden="true"></div>
+
+  <main class="jingle-preview-page">
+    <h1>Musichette di sblocco</h1>
+    <p class="jingle-preview-page__sub">
+      50 fanfare sintetizzate (semplici, medie e complesse). Ascolta, assegna per rarità o per singolo trofeo.
+      Le scelte restano in <code>localStorage</code> e valgono anche nella cerimonia del profilo.
+    </p>
+
+    <p id="jingleStatus" class="jingle-status">Caricamento catalogo…</p>
+
+    <div class="trophy-preview-actions">
+      <button type="button" class="profile-trophy-tab is-active" id="btnExport">Esporta JSON</button>
+      <button type="button" class="profile-trophy-tab" id="btnImport">Importa JSON</button>
+      <button type="button" class="profile-trophy-tab" id="btnReset">Ripristina default</button>
+      <a href="trophy-preview-local.html" class="profile-trophy-tab" style="text-decoration:none;display:inline-flex;align-items:center;">← Anteprima trofei</a>
+      <a href="profile.html" class="profile-trophy-tab" style="text-decoration:none;display:inline-flex;align-items:center;">Profilo</a>
+    </div>
+
+    <section class="jingle-assign-panel" aria-label="Assegnazione per rarità">
+      <label>Bronzo
+        <select id="selBronze"></select>
+      </label>
+      <label>Argento
+        <select id="selSilver"></select>
+      </label>
+      <label>Oro
+        <select id="selGold"></select>
+      </label>
+      <label>Leggendario
+        <select id="selLegendary"></select>
+      </label>
+    </section>
+
+    <div class="jingle-preview-toolbar">
+      <input type="search" id="jingleSearch" placeholder="Cerca musichetta…" autocomplete="off">
+      <button type="button" class="jingle-filter is-active" data-filter="all">Tutte (50)</button>
+      <button type="button" class="jingle-filter" data-filter="simple">Semplici</button>
+      <button type="button" class="jingle-filter" data-filter="medium">Medie</button>
+      <button type="button" class="jingle-filter" data-filter="complex">Complesse</button>
+    </div>
+
+    <div class="jingle-grid" id="jingleGrid"></div>
+
+    <section class="jingle-ach-panel" id="achPanel" hidden>
+      <h2>Override per trofeo (opzionale)</h2>
+      <p class="jingle-preview-page__sub" style="margin-bottom:1rem;font-size:0.85rem;">
+        Se imposti una musica qui, ha priorità sulla rarità per quel trofeo.
+      </p>
+      <div id="achList"></div>
+    </section>
+  </main>
+
+  <footer class="evil-site-foot" id="site-footer">
+    <div class="evil-site-foot__glow" aria-hidden="true"></div>
+    <div class="evil-site-foot__grid">
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Piattaforma</p>
+        <h2 class="evil-site-foot__title">EVIL Platform</h2>
+        <p class="evil-site-foot__copy">Piattaforma integrata per ricerca, simulazione e analisi della cybersecurity.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Ambito</p>
+        <p class="evil-site-foot__copy">EVIL aggrega dati pubblicamente disponibili, CVE ufficiali e simulazioni controllate. Finalizzato a ricerca, formazione professionale e valutazione della sicurezza.</p>
+      </section>
+      <section class="evil-site-foot__col">
+        <p class="evil-site-foot__tag">Legale</p>
+        <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
+        <p class="evil-site-foot__copy">
+          <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+          ·
+          <a href="help.html" class="evil-site-foot__link">Help</a>
+          ·
+          <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+        </p>
+      </section>
+    </div>
+    <p class="evil-site-foot__brand" aria-hidden="true">Impara · Simula · Difendi</p>
+  </footer>
+
+  <script src="/js/trophy-audio.js"></script>
+  <script src="/js/trophy-jingles.js"></script>
+  <script src="/js/trophy-system.js"></script>
+  <script>
+    (function () {
+      const catalog = TrophyJingles.CATALOG;
+      const grid = document.getElementById('jingleGrid');
+      const status = document.getElementById('jingleStatus');
+      let filter = 'all';
+      let query = '';
+      let playingId = null;
+
+      function optionHtml(selectedId) {
+        return catalog
+          .map(
+            (j) =>
+              `<option value="${j.id}"${j.id === selectedId ? ' selected' : ''}>${j.id} — ${j.name}</option>`
+          )
+          .join('');
+      }
+
+      function fillRaritySelects() {
+        const map = TrophyJingles.loadRarityMap();
+        document.getElementById('selBronze').innerHTML = optionHtml(map.bronze);
+        document.getElementById('selSilver').innerHTML = optionHtml(map.silver);
+        document.getElementById('selGold').innerHTML = optionHtml(map.gold);
+        document.getElementById('selLegendary').innerHTML = optionHtml(map.legendary);
+      }
+
+      function updateStatus() {
+        const map = TrophyJingles.loadRarityMap();
+        status.innerHTML =
+          '<strong>50</strong> musichette · Bronzo: <code>' +
+          map.bronze +
+          '</code> · Argento: <code>' +
+          map.silver +
+          '</code> · Oro: <code>' +
+          map.gold +
+          '</code> · Leggendario: <code>' +
+          map.legendary +
+          '</code>';
+      }
+
+      function filtered() {
+        return catalog.filter((j) => {
+          if (filter !== 'all' && j.complexity !== filter) return false;
+          if (query && !j.name.toLowerCase().includes(query) && !j.id.includes(query)) return false;
+          return true;
+        });
+      }
+
+      function renderGrid() {
+        const rarityMap = TrophyJingles.loadRarityMap();
+        const assigned = new Set(Object.values(rarityMap));
+        grid.innerHTML = filtered()
+          .map((j) => {
+            const badge = TrophyJingles.COMPLEXITY_LABEL[j.complexity] || j.complexity;
+            const isDefault =
+              Object.entries(rarityMap).some(([, id]) => id === j.id) ? ' · rarità' : '';
+            return `
+          <article class="jingle-card${playingId === j.id ? ' is-playing' : ''}" data-id="${j.id}">
+            <div class="jingle-card__head">
+              <div>
+                <p class="jingle-card__id">${j.id}${isDefault}</p>
+                <h3 class="jingle-card__name">${j.name}</h3>
+              </div>
+              <span class="jingle-card__badge jingle-card__badge--${j.complexity}">${badge}</span>
+            </div>
+            <p class="jingle-card__meta">~${j.durationSec.toFixed(1)} s</p>
+            <div class="jingle-card__actions">
+              <button type="button" data-play="${j.id}">▶ Ascolta</button>
+              <button type="button" data-rarity="bronze" data-jingle="${j.id}">Bronzo</button>
+              <button type="button" data-rarity="silver" data-jingle="${j.id}">Argento</button>
+              <button type="button" data-rarity="gold" data-jingle="${j.id}">Oro</button>
+              <button type="button" data-rarity="legendary" data-jingle="${j.id}">Legg.</button>
+            </div>
+          </article>`;
+          })
+          .join('');
+      }
+
+      async function loadAchievements() {
+        for (const url of ['/api/achievements', '/achievements.json', '/html/achievements.json']) {
+          try {
+            const res = await fetch(url, { cache: 'no-store' });
+            if (!res.ok) continue;
+            const data = await res.json();
+            const list = data.achievements || data;
+            if (Array.isArray(list) && list.length) return list;
+          } catch {
+            /* next */
+          }
+        }
+        return TrophySystem?.loadCatalog?.() || [];
+      }
+
+      async function renderAchievements(list) {
+        if (!list.length) return;
+        const panel = document.getElementById('achPanel');
+        const achList = document.getElementById('achList');
+        panel.hidden = false;
+        const achMap = TrophyJingles.loadAchievementMap();
+
+        achList.innerHTML = list
+          .map((ach) => {
+            const cur = achMap[ach.id] || '';
+            return `
+          <div class="jingle-ach-row" data-ach="${ach.id}">
+            <span>${ach.name} <small style="color:#64748b">(${ach.rarity})</small></span>
+            <select data-ach-select="${ach.id}">
+              <option value="">— usa rarità —</option>
+              ${catalog.map((j) => `<option value="${j.id}"${cur === j.id ? ' selected' : ''}>${j.id} — ${j.name}</option>`).join('')}
+            </select>
+            <button type="button" class="profile-trophy-tab" data-ceremony="${ach.id}" style="padding:6px 10px;font-size:0.75rem;">Cerimonia</button>
+          </div>`;
+          })
+          .join('');
+
+        achList.addEventListener('change', (e) => {
+          const sel = e.target.closest('[data-ach-select]');
+          if (!sel) return;
+          const id = sel.getAttribute('data-ach-select');
+          const map = TrophyJingles.loadAchievementMap();
+          if (sel.value) map[id] = sel.value;
+          else delete map[id];
+          TrophyJingles.saveAchievementMap(map);
+        });
+
+        achList.addEventListener('click', async (e) => {
+          const btn = e.target.closest('[data-ceremony]');
+          if (!btn || !window.TrophySystem) return;
+          const ach = list.find((a) => a.id === btn.getAttribute('data-ceremony'));
+          if (ach) await TrophySystem.playCeremony(ach);
+        });
+      }
+
+      grid.addEventListener('click', (e) => {
+        const playBtn = e.target.closest('[data-play]');
+        if (playBtn) {
+          const id = playBtn.getAttribute('data-play');
+          playingId = id;
+          renderGrid();
+          TrophyJingles.playJingle(id);
+          setTimeout(() => {
+            playingId = null;
+            renderGrid();
+          }, (TrophyJingles.getJingle(id).durationSec + 0.3) * 1000);
+          return;
+        }
+
+        const rarityBtn = e.target.closest('[data-rarity]');
+        if (rarityBtn) {
+          const rarity = rarityBtn.getAttribute('data-rarity');
+          const jingleId = rarityBtn.getAttribute('data-jingle');
+          const map = TrophyJingles.loadRarityMap();
+          map[rarity] = jingleId;
+          TrophyJingles.saveRarityMap(map);
+          fillRaritySelects();
+          updateStatus();
+          renderGrid();
+          TrophyJingles.playJingle(jingleId);
+        }
+      });
+
+      document.querySelectorAll('.jingle-filter').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.jingle-filter').forEach((b) => b.classList.remove('is-active'));
+          btn.classList.add('is-active');
+          filter = btn.getAttribute('data-filter');
+          renderGrid();
+        });
+      });
+
+      document.getElementById('jingleSearch').addEventListener('input', (e) => {
+        query = e.target.value.trim().toLowerCase();
+        renderGrid();
+      });
+
+      ['selBronze', 'selSilver', 'selGold', 'selLegendary'].forEach((id, i) => {
+        const key = ['bronze', 'silver', 'gold', 'legendary'][i];
+        document.getElementById(id).addEventListener('change', (e) => {
+          const map = TrophyJingles.loadRarityMap();
+          map[key] = e.target.value;
+          TrophyJingles.saveRarityMap(map);
+          updateStatus();
+          renderGrid();
+        });
+      });
+
+      document.getElementById('btnExport').addEventListener('click', () => {
+        const blob = new Blob([TrophyJingles.exportConfig()], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'evil-trophy-jingles.json';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      document.getElementById('btnImport').addEventListener('click', () => {
+        const raw = prompt('Incolla il JSON esportato:');
+        if (!raw) return;
+        try {
+          TrophyJingles.importConfig(raw);
+          fillRaritySelects();
+          updateStatus();
+          renderGrid();
+          alert('Configurazione importata.');
+        } catch (err) {
+          alert('JSON non valido: ' + err.message);
+        }
+      });
+
+      document.getElementById('btnReset').addEventListener('click', () => {
+        if (!confirm('Ripristinare le musichette predefinite per rarità?')) return;
+        TrophyJingles.resetConfig();
+        fillRaritySelects();
+        updateStatus();
+        renderGrid();
+      });
+
+      fillRaritySelects();
+      updateStatus();
+      renderGrid();
+      loadAchievements().then(renderAchievements);
+    })();
+  </script>
+</body>
+</html>

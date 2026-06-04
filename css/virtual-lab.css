@@ -294,28 +294,6 @@
   overscroll-behavior-x: none;
   overscroll-behavior-y: contain;
   padding: 1rem 1.35rem 1.25rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(245, 158, 11, 0.45) rgba(255, 255, 255, 0.04);
-}
-
-.vlab-modal__body::-webkit-scrollbar {
-  width: 7px;
-}
-
-.vlab-modal__body::-webkit-scrollbar-track {
-  margin: 4px 0;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-}
-
-.vlab-modal__body::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(167, 139, 250, 0.55), rgba(245, 158, 11, 0.45));
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.vlab-modal__body::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(196, 181, 253, 0.7), rgba(251, 191, 36, 0.55));
 }
 
 .vlab-modal__intro,
@@ -611,28 +589,6 @@
   font-size: 0.78rem;
   line-height: 1.55;
   color: #cbd5e1;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(245, 158, 11, 0.45) rgba(255, 255, 255, 0.04);
-}
-
-.vlab-terminal__body::-webkit-scrollbar {
-  width: 7px;
-}
-
-.vlab-terminal__body::-webkit-scrollbar-track {
-  margin: 4px 0;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 999px;
-}
-
-.vlab-terminal__body::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, rgba(0, 255, 156, 0.35), rgba(167, 139, 250, 0.35));
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.vlab-terminal__body::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, rgba(0, 255, 156, 0.5), rgba(196, 181, 253, 0.45));
 }
 
 .vlab-line {

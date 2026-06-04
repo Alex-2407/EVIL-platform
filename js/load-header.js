@@ -96,6 +96,9 @@ function initializeHamburgerMenu() {
     window.__evilNavEscapeBound = true;
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Escape') return;
+      if (typeof window.isLogoEasterEggActive === 'function' && window.isLogoEasterEggActive()) {
+        return;
+      }
       const btn = document.querySelector('header .hamburger-btn');
       const menu = document.querySelector('header nav');
       if (!btn || !menu || !menu.classList.contains('active')) return;

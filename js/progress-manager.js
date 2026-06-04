@@ -50,6 +50,7 @@ function ensureTrophySystem() {
   }
 
   trophyLoadPromise = injectScript('/js/trophy-audio.js', 'evilTrophyAudio')
+    .then(() => injectScript('/js/trophy-jingles.js', 'evilTrophyJingles'))
     .then(() => injectScript('/js/trophy-system.js', 'evilTrophySystem'))
     .catch((err) => {
       trophyLoadPromise = null;

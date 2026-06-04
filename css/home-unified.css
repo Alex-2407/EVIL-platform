@@ -246,11 +246,19 @@
 .spotlight-deco {
   border-right: 1px dashed rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.28);
+  overflow: hidden;
 }
 
 .spotlight-deco--code {
+  position: relative;
+  min-height: 100%;
+  padding: 0;
   font-family: var(--home-mono);
   font-size: 0.68rem;
+}
+
+.spotlight-deco--code .dim {
+  color: #f87171;
 }
 
 .spotlight-deco--code .ok {
@@ -258,7 +266,10 @@
 }
 
 .spotlight-deco--map {
-  background: rgba(0, 0, 0, 0.28);
+  position: relative;
+  min-height: 100%;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.32);
 }
 
 .spotlight-deco--map .map-lines line {
@@ -547,5 +558,11 @@
   .spotlight-body {
     border-left: none;
     border-top: 3px solid var(--card-accent);
+  }
+
+  .spotlight-deco--map {
+    min-height: clamp(148px, 36vw, 200px);
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
   }
 }

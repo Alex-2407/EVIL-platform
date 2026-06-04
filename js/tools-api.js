@@ -1,16 +1,16 @@
 /**
  * EVIL Tools API — fetch uniforme per gli strumenti
- * TEMP: EVIL_TOOLS_PUBLIC=true → nessun login richiesto (allineato al backend)
+ * Login obbligatorio: iscrizione o accesso prima di usare scan/OSINT/DNS ecc.
  */
 (function () {
-  const TOOLS_PUBLIC = true;
+  const TOOLS_PUBLIC = false;
   const page = window.location.pathname.split('/').pop() || 'home.html';
   const LOGIN_URL = 'login.html?redirect=' + encodeURIComponent(page);
 
   function ensureToolAuth(silent) {
     if (TOOLS_PUBLIC) return true;
     if (typeof isAuthenticated === 'function' && isAuthenticated()) return true;
-    if (!silent && confirm('Accedi per usare questo strumento.\n\nVai al login?')) {
+    if (!silent) {
       window.location.href = LOGIN_URL;
     }
     return false;
@@ -18,9 +18,7 @@
 
   async function handleAuthResponse(response) {
     if (response.status === 401 && !TOOLS_PUBLIC) {
-      if (confirm('Sessione scaduta o non autenticato. Vai al login?')) {
-        window.location.href = LOGIN_URL;
-      }
+      window.location.href = LOGIN_URL;
       throw new Error('Autenticazione richiesta');
     }
     return response;
@@ -75,6 +73,12 @@
     link.click();
     URL.revokeObjectURL(url);
   }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (TOOLS_PUBLIC) return;
+    if (typeof isAuthenticated === 'function' && isAuthenticated()) return;
+    window.location.replace(LOGIN_URL);
+  });
 
   window.EvilTools = {
     ensureToolAuth,

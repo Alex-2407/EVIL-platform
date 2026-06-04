@@ -130,7 +130,7 @@
     resize();
     window.addEventListener('resize', debounce(resize, 200));
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && map) fixMapSize();
+      if (!document.hidden && map) scheduleMapResize();
     });
     draw();
   }
@@ -145,7 +145,7 @@
           if (e.isIntersecting) {
             e.target.classList.add('is-visible');
             if (e.target.classList.contains('am-map-section') || e.target.closest('.am-map-section')) {
-              fixMapSize();
+              scheduleMapResize();
             }
             io.unobserve(e.target);
           }
@@ -158,7 +158,7 @@
     if (mapFrame) {
       const mapIo = new IntersectionObserver(
         (entries) => {
-          if (entries[0]?.isIntersecting) fixMapSize();
+          if (entries[0]?.isIntersecting) scheduleMapResize();
         },
         { threshold: 0.1 }
       );
@@ -167,9 +167,14 @@
   }
 
   function fixMapSize() {
-    if (!map) return;
-    map.invalidateSize({ pan: false });
+    if (window.EvilLeafletMap) window.EvilLeafletMap.fixSize(map);
+    else if (map) map.invalidateSize({ animate: false, pan: false });
     syncMarkerPositions();
+  }
+
+  function scheduleMapResize() {
+    if (window.EvilLeafletMap) window.EvilLeafletMap.scheduleFixSize(map);
+    else fixMapSize();
   }
 
   /** Riposiziona i DivIcon dopo resize/zoom (evita drift con container arrotondato). */
@@ -185,46 +190,39 @@
     if (!el || typeof L === 'undefined' || map) return;
 
     const frame = el.closest('.am-map-frame');
-    if (frame) {
-      const h = frame.getBoundingClientRect().height;
-      if (h < 100) frame.style.height = '520px';
-    }
+    if (!frame) return;
 
-    map = L.map(el, {
-      center: [24, 10],
-      zoom: 2,
-      minZoom: 2,
-      maxZoom: 7,
-      worldCopyJump: false,
-      zoomAnimation: false,
-      fadeAnimation: false,
-      markerZoomAnimation: false,
-      zoomControl: true,
-      attributionControl: true,
-    });
+    const start = () => {
+      if (map) return;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19,
-    }).addTo(map);
+      map = L.map(el, {
+        center: [24, 10],
+        zoom: 2,
+        minZoom: 2,
+        maxZoom: 7,
+        worldCopyJump: false,
+        zoomAnimation: false,
+        fadeAnimation: false,
+        markerZoomAnimation: false,
+        zoomControl: false,
+        attributionControl: true,
+      });
 
-    layerGroup = L.layerGroup().addTo(map);
-    markerByCountry = {};
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
 
-    const onResize = debounce(fixMapSize, 150);
-    window.addEventListener('resize', onResize);
-    if (typeof ResizeObserver !== 'undefined' && frame) {
-      resizeObserver = new ResizeObserver(onResize);
-      resizeObserver.observe(frame);
-    }
+      layerGroup = L.layerGroup().addTo(map);
+      markerByCountry = {};
 
-    map.on('zoomend moveend resize', syncMarkerPositions);
+      if (window.EvilLeafletMap) window.EvilLeafletMap.bindAutoResize(map, frame);
 
-    map.whenReady(() => {
-      fixMapSize();
-      requestAnimationFrame(() => {
-        fixMapSize();
+      map.on('zoomend moveend resize', syncMarkerPositions);
+
+      map.whenReady(() => {
+        scheduleMapResize();
         mapReady = true;
         if (pendingRegions) {
           const regions = pendingRegions;
@@ -232,7 +230,13 @@
           renderRegions(regions);
         }
       });
-    });
+    };
+
+    if (window.EvilLeafletMap) {
+      window.EvilLeafletMap.waitForFrame(frame, start);
+    } else {
+      start();
+    }
   }
 
   function markerHtml(count, index) {
@@ -320,11 +324,7 @@
       }
     }
 
-    fixMapSize();
-    requestAnimationFrame(() => {
-      fixMapSize();
-      syncMarkerPositions();
-    });
+    scheduleMapResize();
   }
 
   function flyToCountry(country) {

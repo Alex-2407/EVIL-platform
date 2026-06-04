@@ -3,6 +3,8 @@
  */
 (function () {
   const $ = (id) => document.getElementById(id);
+  const page = window.location.pathname.split('/').pop() || 'security-check.html';
+  const LOGIN_URL = 'login.html?redirect=' + encodeURIComponent(page);
   let lastReport = null;
 
   function esc(s) {
@@ -193,6 +195,11 @@
   }
 
   async function runScan() {
+    if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+      window.location.href = LOGIN_URL;
+      return;
+    }
+
     const urlRaw = $('scUrl').value.trim();
     const authorized = $('scAuth').checked;
     if (!urlRaw || !authorized) {
@@ -234,6 +241,10 @@
         body: JSON.stringify({ url })
       });
       const data = await response.json();
+      if (response.status === 401) {
+        window.location.href = LOGIN_URL;
+        return;
+      }
       if (!response.ok) throw new Error(data.error || 'Errore server ' + response.status);
       log(`Completato — Grade ${data.grade} · Score ${data.security_score}`, 'ok');
       renderReport(data);
@@ -261,6 +272,11 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+      window.location.replace(LOGIN_URL);
+      return;
+    }
+
     const auth = $('scAuth');
     const input = $('scUrl');
     const btn = $('scScanBtn');

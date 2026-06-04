@@ -414,6 +414,92 @@
     }
   }
 
+  function initShowcaseLive() {
+    const section = document.getElementById('home-showcase');
+    if (!section || reduced) return;
+
+    const narrow = window.matchMedia('(max-width: 992px)').matches;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            section.classList.add('showcase-live');
+            obs.unobserve(section);
+          }
+        });
+      },
+      {
+        threshold: narrow ? 0.06 : 0.15,
+        rootMargin: narrow ? '0px 0px -8px 0px' : '0px 0px -40px 0px',
+      }
+    );
+    obs.observe(section);
+  }
+
+  function initSpotlightTilt() {
+    if (reduced) return;
+    document.querySelectorAll('.spotlight-card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        const y = ((e.clientY - r.top) / r.height) * 100;
+        card.style.setProperty('--spot-x', `${x}%`);
+        card.style.setProperty('--spot-y', `${y}%`);
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--spot-tilt-y', `${px * 7}deg`);
+        card.style.setProperty('--spot-tilt-x', `${-py * 5}deg`);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--spot-x', '50%');
+        card.style.setProperty('--spot-y', '50%');
+        card.style.setProperty('--spot-tilt-x', '0deg');
+        card.style.setProperty('--spot-tilt-y', '0deg');
+      });
+    });
+  }
+
+  function initStartersLive() {
+    const section = document.getElementById('home-starters');
+    if (!section || reduced) return;
+
+    const obs = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            section.classList.add('starters-live');
+            obs.unobserve(section);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+    );
+    obs.observe(section);
+  }
+
+  function initStarterGlow() {
+    if (reduced) return;
+    document.querySelectorAll('.home-starter-card').forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = ((e.clientX - r.left) / r.width) * 100;
+        const y = ((e.clientY - r.top) / r.height) * 100;
+        card.style.setProperty('--starter-x', `${x}%`);
+        card.style.setProperty('--starter-y', `${y}%`);
+        const px = (e.clientX - r.left) / r.width - 0.5;
+        const py = (e.clientY - r.top) / r.height - 0.5;
+        card.style.setProperty('--starter-tilt-y', `${px * 8}deg`);
+        card.style.setProperty('--starter-tilt-x', `${-py * 6}deg`);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--starter-x', '50%');
+        card.style.setProperty('--starter-y', '50%');
+        card.style.setProperty('--starter-tilt-x', '0deg');
+        card.style.setProperty('--starter-tilt-y', '0deg');
+      });
+    });
+  }
+
   function boot() {
     ensureFooterVisible();
     initSplash();
@@ -423,9 +509,13 @@
     initBackdropScroll();
     initAmbientParallax();
     initSpotlightGlow();
+    initSpotlightTilt();
+    initShowcaseLive();
     initPortalGlow();
     initPortalTilt();
     initPortalsLive();
+    initStartersLive();
+    initStarterGlow();
     initReveal();
     initPortalActive();
     initJumpNav();

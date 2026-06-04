@@ -48,7 +48,8 @@ function sanitizeUrl(url) {
   // Remove dangerous protocols
   if (sanitized.match(/^javascript:/i) ||
       sanitized.match(/^data:/i) ||
-      sanitized.match(/^vbscript:/i)) {
+      sanitized.match(/^vbscript:/i) ||
+      sanitized.match(/^file:/i)) {
     return '';
   }
 
@@ -66,6 +67,88 @@ function sanitizeUrl(url) {
   }
 
   return sanitized;
+}
+
+const BLOCKED_HOSTS = new Set([
+  'localhost',
+  '127.0.0.1',
+  '0.0.0.0',
+  '::1',
+  '[::1]',
+  'metadata.google.internal',
+  'metadata.google',
+]);
+
+function isBlockedHostname(hostname) {
+  if (!hostname) return true;
+  const host = hostname.toLowerCase().replace(/\.$/, '');
+  if (BLOCKED_HOSTS.has(host)) return true;
+  if (host.endsWith('.local') || host.endsWith('.internal') || host.endsWith('.localhost')) {
+    return true;
+  }
+  return false;
+}
+
+function isPrivateIp(ip) {
+  const version = require('net').isIP(ip);
+  if (version === 4) {
+    const parts = ip.split('.').map(Number);
+    if (parts[0] === 10) return true;
+    if (parts[0] === 127) return true;
+    if (parts[0] === 169 && parts[1] === 254) return true;
+    if (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) return true;
+    if (parts[0] === 192 && parts[1] === 168) return true;
+    if (parts[0] === 0) return true;
+    return false;
+  }
+  if (version === 6) {
+    const lower = ip.toLowerCase();
+    if (lower === '::1') return true;
+    if (lower.startsWith('fe80:')) return true;
+    if (lower.startsWith('fc') || lower.startsWith('fd')) return true;
+    return false;
+  }
+  return false;
+}
+
+/**
+ * Blocca SSRF verso reti private / metadata cloud
+ */
+async function assertSafePublicUrl(urlString) {
+  let parsed;
+  try {
+    parsed = new URL(urlString);
+  } catch {
+    throw new Error('URL non valido');
+  }
+
+  if (!['http:', 'https:'].includes(parsed.protocol)) {
+    throw new Error('Protocollo non consentito');
+  }
+
+  if (isBlockedHostname(parsed.hostname)) {
+    throw new Error('Host non consentito');
+  }
+
+  const dns = require('dns').promises;
+  let records;
+  try {
+    records = await dns.lookup(parsed.hostname, { all: true, verbatim: true });
+  } catch {
+    throw new Error('Dominio non risolvibile');
+  }
+
+  if (!records.length) {
+    throw new Error('Dominio non risolvibile');
+  }
+
+  for (const record of records) {
+    if (isPrivateIp(record.address)) {
+      throw new Error('Indirizzo di destinazione non consentito');
+    }
+  }
+
+  return urlString;
 }
 
 /**
@@ -125,5 +208,8 @@ module.exports = {
   sanitizeUrl,
   sanitizeEmail,
   sanitizeFilename,
-  checkRateLimit
+  checkRateLimit,
+  assertSafePublicUrl,
+  isBlockedHostname,
+  isPrivateIp,
 };

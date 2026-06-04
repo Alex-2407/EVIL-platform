@@ -8,6 +8,7 @@
     "dev": "node scripts/build-home-css.js && node js/server.js",
     "build:home-css": "node scripts/build-home-css.js",
     "test": "node js/verify-services.js",
+    "check:deploy": "node js/check-deployment.js",
     "build": "webpack --mode=production",
     "build:css": "webpack --mode=production --entry ./css/style.css --output-path ./public/dist --output-filename style.min.css",
     "build:js": "webpack --mode=production"

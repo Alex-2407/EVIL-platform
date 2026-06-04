@@ -26,6 +26,40 @@ header {
 
 .logo-section {
   margin-left: clamp(0.5rem, 2vw, 1.5rem);
+  display: flex;
+  align-items: center;
+  gap: clamp(0.45rem, 1.5vw, 0.75rem);
+}
+
+/* EVIL accanto al logo — stesso stile del titolo hero home (editorial, bianco) */
+.header-evil-wordmark,
+.header-evil-title,
+.logo-section .logo {
+  margin: 0;
+  font-size: clamp(1.65rem, 4.2vw, 2.35rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: #fff;
+  text-transform: uppercase;
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: opacity 0.25s ease, filter 0.25s ease;
+}
+
+.header-evil-wordmark:hover {
+  opacity: 0.92;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.35));
+}
+
+@media (max-width: 480px) {
+  .header-evil-wordmark,
+  .header-evil-title,
+  .logo-section .logo {
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
 }
 
 .img-btn img {
@@ -35,6 +69,22 @@ header {
 
 .img-btn:hover img {
   filter: drop-shadow(0 6px 22px rgba(0, 255, 156, 0.35));
+}
+
+.img-btn.is-matrix-active img {
+  filter: drop-shadow(0 0 16px rgba(0, 255, 156, 0.55)) drop-shadow(0 0 28px rgba(245, 158, 11, 0.25));
+  animation: headerLogoMatrixPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes headerLogoMatrixPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .img-btn.is-matrix-active img {
+    animation: none;
+  }
 }
 
 /* Nav — mono editoriale */

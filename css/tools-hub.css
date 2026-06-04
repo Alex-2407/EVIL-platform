@@ -113,12 +113,13 @@
   border-radius: 12px;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.25s, transform 0.25s;
+  transition: border-color 0.28s ease, transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease;
 }
 
 .st-hub-card:hover {
   border-color: rgba(34, 211, 238, 0.4);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.32), 0 0 28px rgba(52, 211, 153, 0.08);
 }
 
 .st-hub-card__tag {

@@ -12,7 +12,7 @@ const tests = [
   { name: 'Login Page', path: '/login.html', host: 'localhost' },
   { name: 'Progress Manager', path: '/js/progress-manager.js', host: 'localhost' },
   { name: 'Auth Manager', path: '/js/auth-manager.js', host: 'localhost' },
-  { name: 'CSS Resources', path: '/style.css', host: 'localhost' },
+  { name: 'CSS Resources', path: '/css/style.css', host: 'localhost' },
   { name: 'Security Check', path: '/security-check.html', host: 'localhost' },
   { name: 'Attacks Map', path: '/attacks-map.html', host: 'localhost' },
 ];

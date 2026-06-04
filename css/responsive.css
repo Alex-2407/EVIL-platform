@@ -19,11 +19,19 @@ body.evil-theme {
   max-width: 100%;
 }
 
-.evil-theme img,
+.evil-theme img:not(.leaflet-tile),
 .evil-theme video,
 .evil-theme svg:not(.leaflet-zoom-animated) {
   max-width: 100%;
   height: auto;
+}
+
+/* Leaflet: tile e layer devono mantenere dimensioni assolute (no height:auto del tema) */
+.evil-theme .leaflet-container img.leaflet-tile,
+.evil-theme .leaflet-container img.leaflet-marker-icon,
+.evil-theme .leaflet-container img.leaflet-image-layer {
+  max-width: none !important;
+  max-height: none !important;
 }
 
 .evil-theme table {
@@ -95,6 +103,12 @@ body.evil-theme {
   .header-actions .auth-buttons {
     display: flex;
     gap: 6px;
+  }
+
+  .header-actions .auth-btn {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.72rem;
+    min-height: 44px;
   }
 
   .hamburger-btn {
@@ -367,12 +381,40 @@ body.evil-theme {
 }
 
 /* ——— Mappe intelligence (attacks-map / historic-attacks) ——— */
+.am-page .am-map-section,
+.ha-page .ha-map-section {
+  max-width: 100%;
+}
+
+.am-page .am-map-frame,
+.ha-page .ha-map-frame,
+.attacks-page .map-frame {
+  overflow: hidden;
+}
+
+@media (max-width: 1024px) {
+  .am-page .am-map-frame {
+    height: clamp(260px, 38vh, 360px);
+  }
+
+  .ha-page .ha-map-frame {
+    height: clamp(260px, 36vh, 340px);
+  }
+}
+
+@media (max-width: 768px) {
+  .am-page .am-map-frame,
+  .ha-page .ha-map-frame,
+  .attacks-page .map-frame {
+    height: clamp(240px, 34vh, 300px);
+  }
+}
+
 @media (max-width: 576px) {
   .am-page .am-map-frame,
   .ha-page .ha-map-frame,
   .attacks-page .map-frame {
-    height: 340px;
-    min-height: 280px;
+    height: clamp(220px, 32vh, 260px);
   }
 
   .am-ticker,
@@ -431,5 +473,91 @@ body.evil-theme {
   .malware-card {
     width: 100% !important;
     max-width: 100% !important;
+  }
+}
+
+/* ——— iPad / tablet portrait & landscape ——— */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .auth-page__grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .profile-hero__grid,
+  .trophy-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .st-hub-grid,
+  .portal-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .am-stats-grid,
+  .ha-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ——— Telefoni landscape (altezza ridotta) ——— */
+@media (max-height: 500px) and (orientation: landscape) {
+  header nav.active {
+    max-height: min(55vh, 320px);
+  }
+
+  .auth-page {
+    margin-top: 2rem;
+  }
+
+  .am-map-frame,
+  .ha-map-frame {
+    height: clamp(180px, 55vh, 240px) !important;
+  }
+}
+
+/* ——— Schermi molto larghi / VR browser ——— */
+@media (min-width: 1600px) {
+  .header-container,
+  .evil-site-foot__grid,
+  .evil-site-foot__brand,
+  .am-wrap,
+  .ha-wrap,
+  .st-hub-wrap {
+    max-width: 1320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+/* ——— Touch: niente hover-only ——— */
+@media (hover: none) and (pointer: coarse) {
+  header nav li:hover .dropdown {
+    display: none;
+  }
+
+  .trophy-card:hover,
+  .st-hub-card:hover {
+    transform: none;
+  }
+}
+
+/* ——— Footer link su mobile stretto ——— */
+@media (max-width: 480px) {
+  .evil-site-foot__copy {
+    font-size: 0.82rem;
+  }
+
+  .evil-site-foot__link {
+    display: inline-block;
+    margin: 0.15rem 0.35rem 0.15rem 0;
+    min-height: 44px;
+    line-height: 44px;
+  }
+}
+
+/* ——— PWA standalone ——— */
+@media (display-mode: standalone) {
+  body.evil-theme {
+    padding-top: env(safe-area-inset-top, 0);
   }
 }

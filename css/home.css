@@ -1598,6 +1598,18 @@
     min-height: 72px;
   }
 
+  /* Mappa incidenti: spazio sufficiente per radar, griglia e punti amber */
+  .spotlight-deco--map {
+    min-height: clamp(148px, 36vw, 200px);
+    aspect-ratio: 16 / 9;
+    max-height: 220px;
+  }
+
+  .spotlight-deco--map .map-deco__grid,
+  .spotlight-deco--map .map-deco__radar {
+    opacity: 0.55;
+  }
+
   .spotlight-grid,
   .home-portal-grid {
     grid-template-columns: 1fr;

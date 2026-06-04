@@ -117,20 +117,17 @@
 .ha-map-frame {
   position: relative;
   width: 100%;
-  height: min(480px, 56vh);
-  min-height: 340px;
-  overflow: visible;
+  max-width: 100%;
+  height: clamp(280px, 42vh, 480px);
+  overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(251, 113, 133, 0.35);
   background: #050a12;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
-  isolation: isolate;
 }
 
 .ha-map-hud {
   position: absolute;
-  top: 12px;
-  left: 12px;
   z-index: 1000;
   padding: 0.65rem 0.9rem;
   border-radius: 10px;
@@ -153,34 +150,6 @@
   font-size: 1.35rem;
   color: var(--ha-rose);
   font-variant-numeric: tabular-nums;
-}
-
-.ha-page .ha-map-frame #historic-map,
-.ha-page .ha-map-frame .leaflet-container {
-  width: 100%;
-  height: 100%;
-  min-height: 340px;
-  background: #050a12;
-  z-index: 1;
-  border-radius: 14px;
-}
-
-.ha-page .leaflet-pane,
-.ha-page .leaflet-map-pane,
-.ha-page .leaflet-tile-pane,
-.ha-page .leaflet-overlay-pane {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.ha-page .leaflet-tile,
-.ha-page img.leaflet-tile {
-  position: absolute;
-  left: 0;
-  top: 0;
-  max-width: none !important;
-  max-height: none !important;
 }
 
 .ha-marker {
@@ -610,16 +579,12 @@
 
 .ha-reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 @media (max-width: 768px) {
   .ha-grid {
     grid-template-columns: 1fr;
-  }
-  .ha-map-frame {
-    min-height: 300px;
-    height: 360px;
   }
   .ha-compare {
     font-size: 0.8rem;

@@ -36,9 +36,14 @@
   }
 
   function fixMapSize() {
-    if (!map) return;
-    map.invalidateSize({ pan: false });
+    if (window.EvilLeafletMap) window.EvilLeafletMap.fixSize(map);
+    else if (map) map.invalidateSize({ animate: false, pan: false });
     syncMarkerPositions();
+  }
+
+  function scheduleMapResize() {
+    if (window.EvilLeafletMap) window.EvilLeafletMap.scheduleFixSize(map);
+    else fixMapSize();
   }
 
   function syncMarkerPositions() {
@@ -53,52 +58,51 @@
     if (!el || typeof L === 'undefined' || map) return;
 
     const frame = el.closest('.ha-map-frame');
-    if (frame) {
-      const h = frame.getBoundingClientRect().height;
-      if (h < 100) frame.style.height = '480px';
-    }
+    if (!frame) return;
 
-    map = L.map(el, {
-      center: [28, 12],
-      zoom: 2,
-      minZoom: 2,
-      maxZoom: 6,
-      worldCopyJump: false,
-      zoomAnimation: false,
-      fadeAnimation: false,
-      markerZoomAnimation: false,
-      zoomControl: true,
-      attributionControl: true,
-    });
+    const start = () => {
+      if (map) return;
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
-      subdomains: 'abcd',
-      maxZoom: 19,
-    }).addTo(map);
+      map = L.map(el, {
+        center: [28, 12],
+        zoom: 2,
+        minZoom: 2,
+        maxZoom: 6,
+        worldCopyJump: false,
+        zoomAnimation: false,
+        fadeAnimation: false,
+        markerZoomAnimation: false,
+        zoomControl: false,
+        attributionControl: true,
+      });
 
-    layerGroup = L.layerGroup().addTo(map);
-    markerById = {};
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(map);
 
-    const onResize = debounce(fixMapSize, 150);
-    window.addEventListener('resize', onResize);
-    if (typeof ResizeObserver !== 'undefined' && frame) {
-      resizeObserver = new ResizeObserver(onResize);
-      resizeObserver.observe(frame);
-    }
+      layerGroup = L.layerGroup().addTo(map);
+      markerById = {};
 
-    map.on('zoomend moveend resize', syncMarkerPositions);
+      if (window.EvilLeafletMap) window.EvilLeafletMap.bindAutoResize(map, frame);
 
-    map.whenReady(() => {
-      fixMapSize();
-      requestAnimationFrame(() => {
-        fixMapSize();
+      map.on('zoomend moveend resize', syncMarkerPositions);
+
+      map.whenReady(() => {
+        scheduleMapResize();
         mapReady = true;
         renderMarkers();
         fitAllMarkers();
       });
-    });
+    };
+
+    if (window.EvilLeafletMap) {
+      window.EvilLeafletMap.waitForFrame(frame, start);
+    } else {
+      start();
+    }
   }
 
   function orgMonogram(attack) {
@@ -168,7 +172,7 @@
     });
 
     $('ha-map-count').textContent = String(ATTACKS.length);
-    fixMapSize();
+    scheduleMapResize();
   }
 
   function fitAllMarkers() {
@@ -281,7 +285,7 @@
         entries.forEach((e) => {
           if (e.isIntersecting) {
             e.target.classList.add('is-visible');
-            if (e.target.closest('.ha-map-section')) fixMapSize();
+            if (e.target.closest('.ha-map-section')) scheduleMapResize();
             io.unobserve(e.target);
           }
         });
@@ -292,7 +296,7 @@
     if (mapFrame) {
       const mapIo = new IntersectionObserver(
         (entries) => {
-          if (entries[0]?.isIntersecting) fixMapSize();
+          if (entries[0]?.isIntersecting) scheduleMapResize();
         },
         { threshold: 0.1 }
       );

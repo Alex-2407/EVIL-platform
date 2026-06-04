@@ -280,6 +280,10 @@
 
   function playForAchievement(achievement) {
     if (!achievement) return;
+    if (global.TrophyJingles?.playForAchievement) {
+      global.TrophyJingles.playForAchievement(achievement);
+      return;
+    }
     if (achievement.id === 'master_collector') {
       playSupremeCollectorUnlock();
       return;
@@ -289,6 +293,9 @@
 
   function getCeremonyDurationMs(achievement) {
     if (!achievement) return 5500;
+    if (global.TrophyJingles?.getCeremonyDurationMs) {
+      return global.TrophyJingles.getCeremonyDurationMs(achievement);
+    }
     if (achievement.id === 'master_collector') return SUPREME_CEREMONY_MS;
     const map = { bronze: 5200, silver: 5800, gold: 6500 };
     return map[achievement.rarity] || 5500;
@@ -302,10 +309,15 @@
   global.TrophyAudio = {
     playForAchievement,
     playSupremeCollectorUnlock,
+    playBronzeUnlock,
+    playSilverUnlock,
+    playGoldUnlock,
+    playByRarity,
     getCeremonyDurationMs,
     isEnabled,
     setEnabled,
-    prime
+    prime,
+    engine: { tone, chord, noiseBurst, kick, timpani, cymbal, arpeggio, getContext }
   };
 
   if (typeof document !== 'undefined') {

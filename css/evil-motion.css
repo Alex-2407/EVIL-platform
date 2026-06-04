@@ -1,0 +1,355 @@
+/* ═══ EVIL — motion layer sito-wide (editorial dark / amber / emerald) ═══ */
+
+body.evil-theme {
+  --evil-amber: #f59e0b;
+  --evil-emerald: #00ff9c;
+  --evil-emerald-soft: #34d399;
+  --evil-mono: ui-monospace, "Cascadia Code", Consolas, monospace;
+  --evil-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ─── Ingresso pagina ─── */
+body.evil-theme.motion-on:not(.am-page):not(.ha-page) > header {
+  animation: evilHeaderEnter 0.6s var(--evil-ease) both;
+}
+
+body.evil-theme.motion-on:not(.am-page):not(.ha-page) > main {
+  animation: evilPageEnter 0.75s var(--evil-ease) 0.08s both;
+}
+
+@keyframes evilHeaderEnter {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes evilPageEnter {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Nav stagger leggero */
+body.evil-theme.motion-on header nav > ul > li {
+  animation: evilNavIn 0.5s var(--evil-ease) both;
+}
+
+body.evil-theme.motion-on header nav > ul > li:nth-child(1) { animation-delay: 0.12s; }
+body.evil-theme.motion-on header nav > ul > li:nth-child(2) { animation-delay: 0.18s; }
+body.evil-theme.motion-on header nav > ul > li:nth-child(3) { animation-delay: 0.24s; }
+body.evil-theme.motion-on header nav > ul > li:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes evilNavIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ─── Backdrop mesh animato ─── */
+[class*="-scene__mesh"],
+.st-hub-scene__mesh,
+.evil-scene__mesh {
+  animation: evilMeshDrift 30s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes evilMeshDrift {
+  0% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-2%, 1.5%) scale(1.03); }
+  100% { transform: translate(2%, -1%) scale(1.02); }
+}
+
+/* Orbs decorativi (iniettati da JS su scene vuote) */
+.evil-scene-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(40px);
+  opacity: 0.35;
+  animation: evilOrbFloat 18s ease-in-out infinite;
+}
+
+.evil-scene-orb--amber {
+  width: min(280px, 40vw);
+  height: min(280px, 40vw);
+  background: rgba(245, 158, 11, 0.12);
+  top: 12%;
+  right: 8%;
+  animation-delay: -4s;
+}
+
+.evil-scene-orb--emerald {
+  width: min(220px, 35vw);
+  height: min(220px, 35vw);
+  background: rgba(0, 255, 156, 0.1);
+  bottom: 18%;
+  left: 6%;
+  animation-delay: -9s;
+}
+
+@keyframes evilOrbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(12px, -18px); }
+  66% { transform: translate(-10px, 10px); }
+}
+
+/* ─── Kicker terminale ─── */
+[class*="-kicker"]:not(.evil-kicker-off)::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  margin-left: 0.4em;
+  vertical-align: -0.08em;
+  background: var(--evil-amber);
+  animation: evilKickerBlink 1.1s step-end infinite;
+}
+
+@keyframes evilKickerBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* ─── Scroll reveal ─── */
+.evil-reveal:not(.evil-reveal--footer):not(.is-visible) > *:not(.evil-reveal-skip) {
+  opacity: 0;
+  transform: translateY(22px);
+}
+
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:not(.evil-reveal-skip) {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.65s var(--evil-ease),
+    transform 0.65s var(--evil-ease);
+}
+
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:nth-child(1):not(.evil-reveal-skip) { transition-delay: 0.04s; }
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:nth-child(2):not(.evil-reveal-skip) { transition-delay: 0.1s; }
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:nth-child(3):not(.evil-reveal-skip) { transition-delay: 0.16s; }
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:nth-child(4):not(.evil-reveal-skip) { transition-delay: 0.22s; }
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:nth-child(5):not(.evil-reveal-skip) { transition-delay: 0.28s; }
+.evil-reveal:not(.evil-reveal--footer).is-visible > *:nth-child(6):not(.evil-reveal-skip) { transition-delay: 0.34s; }
+
+/* Griglie — stagger figli diretti */
+.evil-reveal--grid:not(.is-visible) > * {
+  opacity: 0;
+  transform: translateY(26px) scale(0.98);
+}
+
+.evil-reveal--grid.is-visible > * {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.6s var(--evil-ease),
+    transform 0.6s var(--evil-ease),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.evil-reveal--grid.is-visible > *:nth-child(1) { transition-delay: 0.06s; }
+.evil-reveal--grid.is-visible > *:nth-child(2) { transition-delay: 0.12s; }
+.evil-reveal--grid.is-visible > *:nth-child(3) { transition-delay: 0.18s; }
+.evil-reveal--grid.is-visible > *:nth-child(4) { transition-delay: 0.24s; }
+.evil-reveal--grid.is-visible > *:nth-child(5) { transition-delay: 0.3s; }
+.evil-reveal--grid.is-visible > *:nth-child(6) { transition-delay: 0.36s; }
+.evil-reveal--grid.is-visible > *:nth-child(n+7) { transition-delay: 0.42s; }
+
+/* Item singolo */
+.evil-reveal-item:not(.is-visible) {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.evil-reveal-item.is-visible {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--evil-ease), transform 0.6s var(--evil-ease);
+}
+
+/* Linea sezione al reveal */
+.evil-reveal.is-visible::before,
+.evil-reveal-item.is-visible::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin-bottom: 0.85rem;
+  background: linear-gradient(90deg, var(--evil-amber), var(--evil-emerald));
+  border-radius: 2px;
+  animation: evilRuleGrow 0.55s var(--evil-ease) both;
+}
+
+.evil-reveal--grid.is-visible::before,
+.st-hub-hero.evil-reveal.is-visible::before,
+.sc-hero.evil-reveal.is-visible::before,
+[class*="-hero"].evil-reveal.is-visible::before {
+  display: none;
+}
+
+@keyframes evilRuleGrow {
+  from { width: 0; opacity: 0; }
+  to { width: 48px; opacity: 1; }
+}
+
+/* ─── Card scan hover ─── */
+.st-hub-card,
+.feature-card,
+.mdb-vector,
+[class*="-card"]:not(.quiz-hub-card):not(.portal-card):not(.spotlight-card) {
+  position: relative;
+  overflow: hidden;
+}
+
+.st-hub-card::after,
+.feature-card::after,
+.mdb-vector::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(0, 255, 156, 0.07) 50%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.75s var(--evil-ease);
+  pointer-events: none;
+}
+
+.st-hub-card:hover::after,
+.feature-card:hover::after,
+.mdb-vector:hover::after {
+  transform: translateX(120%);
+}
+
+body.evil-theme.motion-on .st-hub-card,
+body.evil-theme.motion-on .feature-card {
+  transition:
+    border-color 0.28s ease,
+    transform 0.28s var(--evil-ease),
+    box-shadow 0.28s ease;
+}
+
+body.evil-theme.motion-on .st-hub-card:hover,
+body.evil-theme.motion-on .feature-card:hover {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 24px rgba(0, 255, 156, 0.06);
+}
+
+/* Stat pulse al reveal */
+.evil-reveal.is-visible .mdb-stat,
+.evil-reveal.is-visible .evil-stat {
+  animation: evilStatPop 0.55s var(--evil-ease) both;
+}
+
+.evil-reveal.is-visible .mdb-stat:nth-child(2),
+.evil-reveal.is-visible .evil-stat:nth-child(2) { animation-delay: 0.08s; }
+.evil-reveal.is-visible .mdb-stat:nth-child(3),
+.evil-reveal.is-visible .evil-stat:nth-child(3) { animation-delay: 0.16s; }
+.evil-reveal.is-visible .mdb-stat:nth-child(4),
+.evil-reveal.is-visible .evil-stat:nth-child(4) { animation-delay: 0.24s; }
+
+@keyframes evilStatPop {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Footer reveal */
+footer.evil-site-foot.evil-reveal:not(.is-visible) .evil-site-foot__col {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+footer.evil-site-foot.evil-reveal.is-visible .evil-site-foot__col {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.6s var(--evil-ease), transform 0.6s var(--evil-ease);
+}
+
+footer.evil-site-foot.evil-reveal.is-visible .evil-site-foot__col:nth-child(1) { transition-delay: 0.05s; }
+footer.evil-site-foot.evil-reveal.is-visible .evil-site-foot__col:nth-child(2) { transition-delay: 0.14s; }
+footer.evil-site-foot.evil-reveal.is-visible .evil-site-foot__col:nth-child(3) { transition-delay: 0.23s; }
+
+footer.evil-site-foot.evil-reveal.is-visible::before {
+  display: none;
+}
+
+/* Titoli hero — shimmer leggero */
+body.evil-theme.motion-on:not(.home-page):not(.quiz-hub-page):not(.crypto-page) .st-hub-hero h1,
+body.evil-theme.motion-on:not(.home-page):not(.quiz-hub-page):not(.crypto-page) .sc-hero h1,
+body.evil-theme.motion-on:not(.home-page):not(.quiz-hub-page):not(.crypto-page) [class*="-hero"] h1:first-of-type {
+  background: linear-gradient(
+    120deg,
+    #f8fafc 0%,
+    #e2e8f0 40%,
+    rgba(0, 255, 156, 0.85) 50%,
+    #e2e8f0 60%,
+    #f8fafc 100%
+  );
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: evilTitleShimmer 10s linear infinite;
+}
+
+@keyframes evilTitleShimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 220% center; }
+}
+
+/* Link footer / hub — freccia animata */
+.evil-site-foot__link,
+.st-hub-card__cta,
+.st-hub-back {
+  transition: color 0.2s ease, letter-spacing 0.25s ease;
+}
+
+.evil-site-foot__link:hover,
+.st-hub-card:hover .st-hub-card__cta {
+  letter-spacing: 0.04em;
+}
+
+/* Compatibilità reveal esistenti (quiz, crypto, mappe…) */
+.qh-reveal:not(.is-visible),
+.cs-reveal:not(.is-visible),
+.am-reveal:not(.is-visible),
+.ha-reveal:not(.is-visible),
+.policy-reveal:not(.is-visible),
+.home-reveal:not(.is-visible) {
+  /* gestiti dai CSS di pagina */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.evil-theme.motion-on > header,
+  body.evil-theme.motion-on > main,
+  body.evil-theme.motion-on header nav > ul > li,
+  [class*="-scene__mesh"],
+  .st-hub-scene__mesh,
+  .evil-scene-orb,
+  [class*="-kicker"]::after {
+    animation: none !important;
+  }
+
+  .evil-reveal:not(.is-visible) > *,
+  .evil-reveal--grid:not(.is-visible) > *,
+  .evil-reveal-item:not(.is-visible),
+  footer.evil-site-foot.evil-reveal:not(.is-visible) .evil-site-foot__col {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .st-hub-card::after,
+  .feature-card::after,
+  .mdb-vector::after {
+    display: none;
+  }
+
+  body.evil-theme.motion-on .st-hub-hero h1,
+  body.evil-theme.motion-on .sc-hero h1,
+  body.evil-theme.motion-on [class*="-hero"] h1:first-of-type {
+    animation: none !important;
+    color: #f8fafc !important;
+    background: none !important;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+}

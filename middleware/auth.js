@@ -53,18 +53,21 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-/** Utente guest quando gli strumenti sono in modalità pubblica (TEMP) */
+/** Utente guest solo se EVIL_TOOLS_PUBLIC=1 (modalità test) */
 const GUEST_USER = { id: 'guest', name: 'Guest', email: 'guest@evil.local' };
 
 /**
- * Auth strumenti: se EVIL_TOOLS_PUBLIC≠0 (default) consente uso senza login.
- * Con EVIL_TOOLS_PUBLIC=0 ripristina authenticateToken su tutte le API strumenti.
+ * Auth strumenti: login obbligatorio salvo EVIL_TOOLS_PUBLIC=1 esplicito (solo dev/test).
  */
-const TOOLS_PUBLIC_ACCESS = process.env.EVIL_TOOLS_PUBLIC !== '0';
+function toolsArePublic() {
+  const flag = process.env.EVIL_TOOLS_PUBLIC;
+  return flag === '1' || flag === 'true';
+}
+
+const TOOLS_PUBLIC_ACCESS = toolsArePublic();
 
 const authenticateTools = (req, res, next) => {
-  // TEMP: strumenti pubblici — imposta EVIL_TOOLS_PUBLIC=0 per richiedere login
-  const toolsPublic = process.env.EVIL_TOOLS_PUBLIC !== '0' && process.env.EVIL_TOOLS_PUBLIC !== 'false';
+  const toolsPublic = toolsArePublic();
 
   if (!toolsPublic) {
     return authenticateToken(req, res, next);
@@ -244,7 +247,8 @@ const verifyPassword = async (plainPassword, hashedPassword) => {
 module.exports = {
   authenticateToken,
   authenticateTools,
-  TOOLS_PUBLIC_ACCESS,
+  toolsArePublic,
+  TOOLS_PUBLIC_ACCESS: toolsArePublic(),
   validateRegister,
   validateLogin,
   validatePasswordReset,

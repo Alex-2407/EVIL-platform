@@ -150,9 +150,55 @@ const authLimiter = rateLimit({
 });
 
 /**
- * Register rate limiter — disabilitato (pass-through)
+ * Register rate limiter: 5 account / hour per IP
  */
-const registerLimiter = (req, res, next) => next();
+const registerLimiter = rateLimit({
+  store: redis ? createRedisLimiterStore() : undefined,
+  windowMs: parseInt(process.env.RATE_LIMIT_REGISTER_WINDOW_MS || 3600000),
+  max: parseInt(process.env.RATE_LIMIT_REGISTER_MAX || 5),
+  message: { error: 'Troppi tentativi di registrazione. Riprova più tardi.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip || 'unknown',
+  skip: (req) => !req.ip,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
+});
+
+/**
+ * Password reset rate limiter: 5 richieste / 15 min per IP+email
+ */
+const passwordResetLimiter = rateLimit({
+  store: redis ? createRedisLimiterStore() : undefined,
+  windowMs: parseInt(process.env.RATE_LIMIT_RESET_WINDOW_MS || 900000),
+  max: parseInt(process.env.RATE_LIMIT_RESET_MAX || 5),
+  message: { error: 'Troppe richieste di reset password. Riprova più tardi.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => `${req.body?.email || 'unknown'}:${req.ip || 'unknown'}`,
+  skip: (req) => !req.ip,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
+});
+
+/**
+ * Refresh token rate limiter
+ */
+const refreshTokenLimiter = rateLimit({
+  store: redis ? createRedisLimiterStore() : undefined,
+  windowMs: 15 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_REFRESH_MAX || 30),
+  message: { error: 'Troppi refresh token. Riprova più tardi.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => req.ip || 'unknown',
+  skip: (req) => !req.ip,
+  handler: (req, res, next, options) => {
+    res.status(options.statusCode).json(options.message);
+  },
+});
 
 /**
  * Scan rate limiter: 50 scans per hour per user
@@ -255,6 +301,8 @@ module.exports = {
   globalLimiter,
   authLimiter,
   registerLimiter,
+  passwordResetLimiter,
+  refreshTokenLimiter,
   scanLimiter,
   dnsLimiter,
   uploadLimiter,

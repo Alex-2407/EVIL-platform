@@ -1,7 +1,9 @@
 /**
- * Studio Cifratura EVIL — canvas scenico, hash lab, filtri, glossario
+ * Studio Cifratura EVIL — laboratorio, catalogo, schede modal
  */
 (function () {
+  const ALGORITHMS = window.CRYPTO_ALGORITHMS || [];
+
   const GLOSSARY = {
     hash: 'Funzione unidirezionale: da messaggio a digest fisso. Integrità, non segretezza.',
     sha256: 'SHA-256 (256 bit): standard odierno per integrità file, blockchain, certificati.',
@@ -17,33 +19,38 @@
     'end-to-end': 'Solo mittente e destinatario leggono il plaintext — nemmeno il server.',
   };
 
-  const ALGORITHMS = [
-    { cat: 'hash', name: 'SHA-256', desc: 'Integrità file, Git, Bitcoin. Output 64 hex chars.', pills: ['256 bit', 'NIST'] },
-    { cat: 'hash', name: 'SHA-512', desc: 'Variante più ampia di SHA-2 per hash ad alta sicurezza.', pills: ['512 bit', 'SHA-2'] },
-    { cat: 'hash', name: 'SHA-1', desc: 'Deprecato: collisioni SHAttered (2017). Evitare in nuovi sistemi.', pills: ['160 bit', 'Legacy'] },
-    { cat: 'hash', name: 'MD5', desc: 'Rotto per sicurezza critica. Ancora visto in checksum non critici.', pills: ['128 bit', 'Weak'] },
-    { cat: 'hash', name: 'bcrypt / Argon2', desc: 'Password hashing: cost factor e salt integrati. Argon2 vince PHC.', pills: ['KDF', 'Password'] },
-    { cat: 'hash', name: 'HMAC-SHA256', desc: 'MAC simmetrico: integrità + autenticità con chiave condivisa.', pills: ['MAC', 'API'] },
-    { cat: 'sym', name: 'AES-GCM', desc: 'Cifratura autenticata: riservatezza + rilevamento manomissioni.', pills: ['AEAD', 'TLS 1.3'] },
-    { cat: 'sym', name: 'ChaCha20-Poly1305', desc: 'Alternativa moderna ad AES, usata in TLS e Signal.', pills: ['Stream', 'Mobile'] },
-    { cat: 'sym', name: 'DES / 3DES', desc: 'Obsoleti: chiavi troppo corte. Solo legacy banking.', pills: ['56 bit', 'Deprecated'] },
-    { cat: 'asym', name: 'RSA', desc: 'Scambio chiavi, firme digitali. Chiavi 2048+ bit minimo.', pills: ['PKCS', 'Certificati'] },
-    { cat: 'asym', name: 'ECDSA / Ed25519', desc: 'Curve ellittiche: chiavi corte, veloci. Ed25519 in SSH moderno.', pills: ['ECC', 'EdDSA'] },
-    { cat: 'asym', name: 'Diffie-Hellman', desc: 'Scambio chiavi su canale pubblico — base di TLS e VPN.', pills: ['ECDHE', 'PFS'] },
-    { cat: 'tls', name: 'TLS 1.3', desc: 'Solo cipher sicuri, 0-RTT opzionale, depreca RSA key exchange.', pills: ['HTTPS', '2024+'] },
-    { cat: 'tls', name: 'Certificati X.509', desc: 'Legano dominio a chiave pubblica — firmati da CA trusted.', pills: ['PKI', 'EVIL ssl-analyzer'] },
-    { cat: 'tls', name: 'Perfect Forward Secrecy', desc: 'Compromissione chiave long-term non decifra sessioni passate (ECDHE).', pills: ['PFS', 'DHE'] },
-  ];
-
-  const canvas = document.getElementById('crypto-cipher-canvas');
   const grid = document.getElementById('crypto-algo-grid');
   const rail = document.getElementById('crypto-rail');
   const hashInput = document.getElementById('crypto-hash-input');
   const hashAlgo = document.getElementById('crypto-hash-algo');
   const hashOut = document.getElementById('crypto-hash-output');
+  const hashDiff = document.getElementById('cr-hash-diff');
+  const digestGrid = document.getElementById('cs-digest-grid');
+  const digestAlgoLabel = document.getElementById('cs-digest-algo-label');
+  const avalancheA = document.getElementById('cs-avalanche-a');
+  const avalancheB = document.getElementById('cs-avalanche-b');
+  const flipBtn = document.getElementById('cs-flip-bit');
   const tooltip = document.getElementById('crypto-term-tooltip');
-  let activeTerm = null;
+  const meshWrap = document.getElementById('cs-mesh-wrap');
+  const hero = document.getElementById('cs-hero');
+  const handshake = document.getElementById('cs-handshake');
+  const familyBtns = document.querySelectorAll('.cs-family');
+  const modal = document.getElementById('cs-algo-modal');
+  const modalClose = document.getElementById('cs-modal-close');
+  const modalBody = document.getElementById('cs-modal-body');
+  const modalTitle = document.getElementById('cs-modal-title');
+  const modalCat = document.getElementById('cs-modal-cat');
+  const modalRank = document.getElementById('cs-modal-rank');
+  const modalRankNum = document.getElementById('cs-modal-rank-num');
+
+  let prevHash = '';
   let forgeUsed = false;
+  let modalOpened = false;
+  let digestCells = [];
+  let lastFocus = null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const algoMap = Object.fromEntries(ALGORITHMS.map((a) => [a.id, a]));
 
   function escapeHtml(t) {
     return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -55,41 +62,231 @@
     return `<span class="crypto-term" tabindex="0" data-def="${escapeHtml(def)}">${escapeHtml(label || key)}</span>`;
   }
 
+  function catLabel(cat) {
+    if (cat === 'hash') return 'Hash / KDF';
+    if (cat === 'sym') return 'Simmetrica';
+    if (cat === 'asym') return 'Asimmetrica';
+    return 'TLS / PKI';
+  }
+
+  function rankClass(n) {
+    if (n <= 3) return 'cs-rank--low';
+    if (n <= 6) return 'cs-rank--mid';
+    if (n <= 8) return 'cs-rank--good';
+    return 'cs-rank--top';
+  }
+
+  function setFilter(filter) {
+    rail?.querySelectorAll('.cs-rail__btn').forEach((b) => {
+      b.classList.toggle('is-active', b.dataset.filter === filter);
+    });
+    familyBtns.forEach((f) => {
+      f.classList.toggle('is-selected', f.dataset.filter === filter);
+    });
+    renderCards(filter);
+  }
+
+  function matchFilter(a, filter) {
+    if (filter === 'all') return true;
+    if (filter === 'asym-tls') return a.cat === 'asym' || a.cat === 'tls';
+    return a.cat === filter;
+  }
+
   function renderCards(filter) {
     if (!grid) return;
-    grid.innerHTML = ALGORITHMS.map(
-      (a) => `
-      <article class="crypto-card${filter !== 'all' && filter !== a.cat ? ' is-hidden' : ''}" data-cat="${a.cat}">
-        <p class="crypto-card__tag">${a.cat === 'hash' ? 'Hash' : a.cat === 'sym' ? 'Simmetrica' : a.cat === 'asym' ? 'Asimmetrica' : 'TLS / PKI'}</p>
+    const items = ALGORITHMS.filter((a) => matchFilter(a, filter));
+    grid.innerHTML = items
+      .map(
+        (a, i) => `
+      <button type="button" class="cs-card" data-cat="${a.cat}" data-algo-id="${a.id}" style="--i:${i}" aria-label="Apri scheda ${escapeHtml(a.name)}">
+        <span class="cs-card__rank ${rankClass(a.securityRank)}" aria-hidden="true">${a.securityRank}</span>
+        <p class="cs-card__tag">${catLabel(a.cat)}</p>
         <h3>${escapeHtml(a.name)}</h3>
         <p>${escapeHtml(a.desc)}</p>
-        <div class="crypto-card__meta">${a.pills.map((p) => `<span class="crypto-card__pill">${escapeHtml(p)}</span>`).join('')}</div>
-      </article>`
-    ).join('');
+        <div class="cs-card__meta">${a.pills.map((p) => `<span class="cs-card__pill">${escapeHtml(p)}</span>`).join('')}</div>
+        <span class="cs-card__open">Scheda completa →</span>
+      </button>`
+      )
+      .join('');
+  }
+
+  function buildModalHtml(a) {
+    const pros = a.pros.map((p) => `<li>${escapeHtml(p)}</li>`).join('');
+    const cons = a.cons.map((c) => `<li>${escapeHtml(c)}</li>`).join('');
+    return `
+      <section class="cs-modal-section">
+        <h3>Cos'è</h3>
+        <p>${escapeHtml(a.what)}</p>
+      </section>
+      <section class="cs-modal-section">
+        <h3>Come funziona</h3>
+        <pre class="cs-modal-eq" aria-label="Formulazione">${escapeHtml(a.equation)}</pre>
+      </section>
+      <section class="cs-modal-section cs-modal-section--history">
+        <h3>Storia e origine</h3>
+        <dl class="cs-modal-dl">
+          <div><dt>Origine</dt><dd>${escapeHtml(a.history.origin)}</dd></div>
+          <div><dt>Perché serviva</dt><dd>${escapeHtml(a.history.need)}</dd></div>
+          <div><dt>Cosa risolveva</dt><dd>${escapeHtml(a.history.satisfied)}</dd></div>
+        </dl>
+      </section>
+      <div class="cs-modal-procon">
+        <section class="cs-modal-section cs-modal-section--pro">
+          <h3>Pro</h3>
+          <ul>${pros}</ul>
+        </section>
+        <section class="cs-modal-section cs-modal-section--con">
+          <h3>Contro</h3>
+          <ul>${cons}</ul>
+        </section>
+      </div>
+      <section class="cs-modal-section cs-modal-section--ranknote">
+        <h3>Rank sicurezza (2026)</h3>
+        <div class="cs-modal-rank-bar" role="img" aria-label="Livello ${a.securityRank} su 10">
+          ${Array.from({ length: 10 }, (_, i) => `<span class="${i < a.securityRank ? 'is-on' : ''}"></span>`).join('')}
+        </div>
+        <p class="cs-modal-rank-note">${escapeHtml(a.securityNote)}</p>
+      </section>`;
+  }
+
+  function openModal(id) {
+    const a = algoMap[id];
+    if (!a || !modal) return;
+
+    lastFocus = document.activeElement;
+    modalCat.textContent = catLabel(a.cat);
+    modalTitle.textContent = a.name;
+    modalRankNum.textContent = String(a.securityRank);
+    modalRank.className = `cs-modal__rank ${rankClass(a.securityRank)}`;
+    modalBody.innerHTML = buildModalHtml(a);
+
+    modal.hidden = false;
+    document.body.classList.add('cs-modal-open');
+    requestAnimationFrame(() => modal.classList.add('is-open'));
+    modalClose?.focus();
+
+    if (!modalOpened) {
+      modalOpened = true;
+      window.progressManager?.logActivity?.('crypto_study_completed', { section: 'catalog_detail' });
+    }
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    document.body.classList.remove('cs-modal-open');
+    setTimeout(() => {
+      modal.hidden = true;
+      modalBody.innerHTML = '';
+    }, 280);
+    lastFocus?.focus?.();
+  }
+
+  function initModal() {
+    grid?.addEventListener('click', (e) => {
+      const card = e.target.closest('.cs-card[data-algo-id]');
+      if (card) openModal(card.dataset.algoId);
+    });
+
+    modalClose?.addEventListener('click', closeModal);
+    modal?.querySelector('[data-cs-close]')?.addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.hidden) closeModal();
+    });
   }
 
   function initRail() {
-    if (!rail) return;
-    rail.querySelectorAll('.crypto-rail__btn').forEach((btn) => {
+    rail?.querySelectorAll('.cs-rail__btn').forEach((btn) => {
+      btn.addEventListener('click', () => setFilter(btn.dataset.filter || 'all'));
+    });
+    familyBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
-        rail.querySelectorAll('.crypto-rail__btn').forEach((b) => b.classList.remove('is-active'));
-        btn.classList.add('is-active');
-        renderCards(btn.dataset.filter || 'all');
+        setFilter(btn.dataset.filter || 'all');
+        document.getElementById('cs-catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+  }
+
+  function byteToColor(byte) {
+    const h = (byte * 1.41) % 360;
+    const s = 55 + (byte % 30);
+    const l = 38 + (byte % 22);
+    return `hsl(${h}, ${s}%, ${l}%)`;
+  }
+
+  function initDigestGrid() {
+    if (!digestGrid) return;
+    digestGrid.innerHTML = '';
+    digestCells = [];
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cs-digest-cell';
+      digestGrid.appendChild(cell);
+      digestCells.push(cell);
+    }
+  }
+
+  function updateDigestGrid(hex) {
+    if (!digestCells.length || !hex) return;
+    for (let i = 0; i < 64; i++) {
+      const pair = hex.slice(i * 2, i * 2 + 2);
+      if (pair.length < 2) break;
+      const byte = parseInt(pair, 16);
+      const cell = digestCells[i];
+      const color = byteToColor(byte);
+      cell.style.background = color;
+      cell.style.color = color;
+      if (!reducedMotion) {
+        cell.classList.add('is-updating');
+        setTimeout(() => cell.classList.remove('is-updating'), 350);
+      }
+    }
+  }
+
+  function renderHashHtml(hex, prev) {
+    if (!hashOut) return;
+    if (!prev) {
+      hashOut.textContent = hex;
+      return;
+    }
+    hashOut.innerHTML = [...hex]
+      .map((ch, i) => `<span class="cs-hash-char${prev[i] !== ch ? ' is-diff' : ''}">${ch}</span>`)
+      .join('');
+  }
+
+  function renderAvalanche(prev, next) {
+    if (!avalancheA || !avalancheB || !prev || !next || prev === next) return;
+    const fmt = (str, other) =>
+      [...str]
+        .map((ch, i) => (other[i] !== ch ? `<span class="diff">${ch}</span>` : ch))
+        .join('');
+    avalancheA.innerHTML = fmt(prev, next);
+    avalancheB.innerHTML = fmt(next, prev);
+  }
+
+  function showDiffStat(prev, next) {
+    if (!hashDiff || !prev || !next || prev === next) {
+      if (hashDiff) hashDiff.hidden = true;
+      return;
+    }
+    let changed = 0;
+    for (let i = 0; i < Math.max(prev.length, next.length); i++) {
+      if (prev[i] !== next[i]) changed++;
+    }
+    hashDiff.hidden = false;
+    hashDiff.innerHTML = `Valanga: <strong>${changed}</strong> caratteri su ${next.length} diversi (${Math.round((changed / next.length) * 100)}%)`;
   }
 
   async function computeHash() {
     if (!hashInput || !hashOut || !hashAlgo) return;
     const text = hashInput.value;
     hashOut.classList.add('is-computing');
-    hashOut.textContent = 'Calcolo in corso…';
+    hashOut.textContent = 'Calcolo…';
 
     if (!forgeUsed && text.trim()) {
       forgeUsed = true;
-      if (window.progressManager?.logActivity) {
-        window.progressManager.logActivity('crypto_study_completed', { section: 'forge' });
-      }
+      window.progressManager?.logActivity?.('crypto_study_completed', { section: 'forge' });
     }
 
     try {
@@ -99,24 +296,26 @@
         return;
       }
       if (hashAlgo.value === 'demo') {
-        hashOut.textContent = 'Demo avalanche: cambia una lettera e osserva come cambia tutto l\'hash.';
+        hashOut.textContent = 'Cambia una lettera o usa «Flip bit» per vedere l\'effetto valanga.';
         hashOut.classList.remove('is-computing');
         return;
       }
+
+      if (digestAlgoLabel) digestAlgoLabel.textContent = hashAlgo.value.replace('SHA-', 'SHA-');
+
       const enc = new TextEncoder();
       const buf = await crypto.subtle.digest(hashAlgo.value, enc.encode(text));
       const hex = [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
-      hashOut.textContent = hex;
+
+      showDiffStat(prevHash, hex);
+      renderAvalanche(prevHash, hex);
+      renderHashHtml(hex, prevHash);
+      updateDigestGrid(hex);
+      prevHash = hex;
     } catch (e) {
       hashOut.textContent = 'Errore: ' + e.message;
     }
     hashOut.classList.remove('is-computing');
-  }
-
-  function initForge() {
-    hashInput?.addEventListener('input', debounce(computeHash, 280));
-    hashAlgo?.addEventListener('change', computeHash);
-    computeHash();
   }
 
   function debounce(fn, ms) {
@@ -127,58 +326,63 @@
     };
   }
 
-  function initCipherCanvas() {
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const chars = '0123456789ABCDEFabcdef§λ∑⊕⊗';
-    let cols;
-    let drops;
+  function initForge() {
+    hashInput?.addEventListener('input', debounce(computeHash, 240));
+    hashAlgo?.addEventListener('change', computeHash);
+    flipBtn?.addEventListener('click', () => {
+      if (!hashInput?.value) return;
+      const chars = hashInput.value.split('');
+      const i = chars.length - 1;
+      const c = chars[i];
+      chars[i] = c === 'z' ? 'y' : c === 'Z' ? 'Y' : String.fromCharCode(c.charCodeAt(0) + 1);
+      hashInput.value = chars.join('');
+      hashInput.dispatchEvent(new Event('input'));
+    });
+    computeHash();
+  }
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      cols = Math.floor(canvas.width / 18);
-      drops = Array(cols).fill(0).map(() => Math.random() * canvas.height);
-    }
+  function initHero() {
+    requestAnimationFrame(() => hero?.classList.add('hero-ready'));
+  }
 
-    function draw() {
-      ctx.fillStyle = 'rgba(4, 8, 16, 0.08)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.font = '14px ui-monospace, Consolas, monospace';
-      for (let i = 0; i < cols; i++) {
-        const ch = chars[Math.floor(Math.random() * chars.length)];
-        const x = i * 18;
-        const y = drops[i] * 18;
-        const hue = 260 + (i % 3) * 40;
-        ctx.fillStyle = `hsla(${hue}, 70%, 65%, ${0.15 + Math.random() * 0.25})`;
-        ctx.fillText(ch, x, y);
-        if (y > canvas.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      }
-      requestAnimationFrame(draw);
-    }
+  function initParallax() {
+    if (reducedMotion || !meshWrap) return;
+    window.addEventListener(
+      'mousemove',
+      (e) => {
+        const px = (e.clientX / window.innerWidth - 0.5) * 24;
+        const py = (e.clientY / window.innerHeight - 0.5) * 16;
+        meshWrap.style.setProperty('--cs-mx', `${px}px`);
+        meshWrap.style.setProperty('--cs-my', `${py}px`);
+      },
+      { passive: true }
+    );
+  }
 
-    resize();
-    window.addEventListener('resize', resize, { passive: true });
-    draw();
+  function initHandshake() {
+    if (!handshake || reducedMotion) return;
+    const steps = handshake.querySelectorAll('li');
+    let idx = 0;
+    setInterval(() => {
+      steps.forEach((s, i) => {
+        s.classList.remove('is-active', 'is-done');
+        if (i < idx) s.classList.add('is-done');
+        if (i === idx) s.classList.add('is-active');
+      });
+      idx = (idx + 1) % steps.length;
+    }, 2200);
   }
 
   function initReveal() {
-    const sections = document.querySelectorAll('.crypto-section');
     const obs = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) e.target.classList.add('is-visible');
-        });
-      },
+      (entries) => entries.forEach((e) => e.isIntersecting && e.target.classList.add('is-visible')),
       { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
     );
-    sections.forEach((s) => obs.observe(s));
+    document.querySelectorAll('.cs-reveal').forEach((el) => obs.observe(el));
   }
 
   function positionTooltip(el) {
     if (!tooltip || !el?.dataset.def) return;
-    activeTerm = el;
     tooltip.textContent = el.dataset.def;
     tooltip.hidden = false;
     tooltip.style.left = '-9999px';
@@ -195,11 +399,8 @@
   }
 
   function hideTooltip() {
-    activeTerm = null;
-    if (tooltip) {
-      tooltip.classList.remove('is-visible');
-      tooltip.hidden = true;
-    }
+    tooltip?.classList.remove('is-visible');
+    if (tooltip) tooltip.hidden = true;
   }
 
   function initTerms() {
@@ -225,22 +426,25 @@
     const intro = document.getElementById('crypto-intro-text');
     if (intro) {
       intro.innerHTML = [
-        'Hash, simmetrica, asimmetrica e ',
+        term('hash', 'Hash'),
+        ', simmetrica, asimmetrica e ',
         term('tls', 'TLS'),
         ': la ',
         term('pki', 'PKI'),
-        ' tiene insieme la fiducia digitale. Qui esplori algoritmi reali e provi gli ',
-        term('hash', 'hash'),
-        ' nel browser.',
+        ' regola la fiducia digitale. Calcola digest reali, apri le schede tecniche nel catalogo.',
       ].join('');
     }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    initDigestGrid();
     renderCards('all');
     initRail();
     initForge();
-    initCipherCanvas();
+    initModal();
+    initHero();
+    initParallax();
+    initHandshake();
     initReveal();
     initTerms();
     enrichStaticTerms();

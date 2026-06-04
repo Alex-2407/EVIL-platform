@@ -245,20 +245,17 @@
 .am-map-frame {
   position: relative;
   width: 100%;
-  height: min(520px, 58vh);
-  min-height: 360px;
-  overflow: visible;
+  max-width: 100%;
+  height: clamp(280px, 45vh, 520px);
+  overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(0, 255, 156, 0.28);
   background: #050a12;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.45);
-  isolation: isolate;
 }
 
 .am-map-hud {
   position: absolute;
-  top: 12px;
-  left: 12px;
   z-index: 1000;
   padding: 0.65rem 0.9rem;
   border-radius: 10px;
@@ -292,34 +289,6 @@
   0% { transform: scale(1); }
   40% { transform: scale(1.12); }
   100% { transform: scale(1); }
-}
-
-.am-page .am-map-frame #attacks-map,
-.am-page .am-map-frame .leaflet-container {
-  width: 100%;
-  height: 100%;
-  min-height: 360px;
-  background: #050a12;
-  z-index: 1;
-  border-radius: 14px;
-}
-
-.am-page .leaflet-pane,
-.am-page .leaflet-map-pane,
-.am-page .leaflet-tile-pane,
-.am-page .leaflet-overlay-pane {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.am-page .leaflet-tile,
-.am-page img.leaflet-tile {
-  position: absolute;
-  left: 0;
-  top: 0;
-  max-width: none !important;
-  max-height: none !important;
 }
 
 .am-marker {
@@ -628,7 +597,7 @@
 
 .am-reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
 }
 
 .attacks-popup {
@@ -657,10 +626,6 @@
 @media (max-width: 768px) {
   .am-month-grid {
     grid-template-columns: repeat(4, 1fr);
-  }
-  .am-map-frame {
-    min-height: 300px;
-    height: 380px;
   }
 }
 

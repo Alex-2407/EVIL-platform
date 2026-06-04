@@ -333,21 +333,33 @@ header nav > ul {
   }
 }
 
-.logo {
-  font-size: 26px;
-  font-weight: bold;
-  color: #00ff9c;
+.logo,
+.header-evil-title,
+.header-evil-wordmark {
+  margin: 0;
+  font-size: clamp(1.65rem, 4.2vw, 2.35rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  color: #fff;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 @media (max-width: 768px) {
-  .logo {
-    font-size: 20px;
+  .logo,
+  .header-evil-title,
+  .header-evil-wordmark {
+    font-size: 1.5rem;
   }
 }
 
 @media (max-width: 480px) {
-  .logo {
-    font-size: 18px;
+  .logo,
+  .header-evil-title,
+  .header-evil-wordmark {
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -739,18 +751,22 @@ footer.visible {
   }
 }
 
-/* Overlays */
+/* Overlays — logo Matrix easter egg */
 #fade-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: #fff;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: 100%;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 42%, rgba(6, 8, 14, 0.97) 0%, rgba(3, 5, 8, 0.99) 100%);
   opacity: 0;
   pointer-events: none;
-  z-index: 2000;
-  transition: opacity 0.7s;
+  z-index: 10040;
+  transition: opacity 0.45s ease;
+  touch-action: none;
 }
 
 #matrix-canvas {
@@ -758,9 +774,27 @@ footer.visible {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: 3000;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: 100%;
+  z-index: 10050;
+  background: #06080e;
+  touch-action: none;
+}
+
+body.logo-easter-active {
+  overflow: hidden;
+  touch-action: none;
+  overscroll-behavior: none;
+}
+
+body.logo-easter-active header {
+  pointer-events: none;
+}
+
+body.logo-easter-active #splash-screen {
+  display: none !important;
 }
 
 /* Map Styles */
