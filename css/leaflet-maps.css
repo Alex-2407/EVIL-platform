@@ -17,15 +17,6 @@
   z-index: 1;
 }
 
-.leaflet-container.evil-map-locked,
-.leaflet-container.evil-map-locked .leaflet-pane {
-  cursor: default;
-}
-
-.leaflet-container.evil-map-locked .leaflet-marker-icon {
-  cursor: pointer;
-}
-
 .leaflet-container img.leaflet-tile,
 .leaflet-container img.leaflet-marker-icon,
 .leaflet-container img.leaflet-image-layer {
@@ -56,6 +47,16 @@
 .am-map-section,
 .ha-map-section {
   transform: none !important;
+}
+
+.ha-map-section.ha-reveal,
+.am-map-section.am-reveal {
+  transform: none !important;
+}
+
+.ha-map-section.ha-reveal:not(.is-visible),
+.am-map-section.am-reveal:not(.is-visible) {
+  opacity: 1;
 }
 
 .am-map-frame .leaflet-pane,

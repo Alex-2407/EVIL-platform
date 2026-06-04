@@ -6,6 +6,14 @@
 
   const API = '/api/realtime-incidents';
   const MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+  const OFFLINE_DEMO_INCIDENTS = [
+    { country: 'Stati Uniti', latitude: 38.9, longitude: -77.0, type: 'Ransomware', severity: 'critical' },
+    { country: 'Germania', latitude: 52.5, longitude: 13.4, type: 'Data Breach', severity: 'high' },
+    { country: 'Italia', latitude: 41.9, longitude: 12.5, type: 'Phishing', severity: 'medium' },
+    { country: 'Regno Unito', latitude: 51.5, longitude: -0.12, type: 'Malware', severity: 'high' },
+    { country: 'Giappone', latitude: 35.7, longitude: 139.7, type: 'Exploit', severity: 'critical' },
+    { country: 'Brasile', latitude: -15.8, longitude: -47.9, type: 'DDoS', severity: 'medium' },
+  ];
   const SEV = {
     critical: { color: '#f87171', cls: 'critical' },
     high: { color: '#fb923c', cls: 'high' },
@@ -324,12 +332,7 @@
           .map((r) => [Number(r.lat), Number(r.lon)])
       );
       if (bounds.isValid()) {
-        const fitOpts = {
-          maxZoom: regions.length > 1 ? 3 : 4,
-          animate: false,
-          padding: [24, 24],
-        };
-        map.fitBounds(regions.length > 1 ? bounds.pad(0.35) : bounds, fitOpts);
+        map.setView(bounds.getCenter(), 2, { animate: false });
         mapViewLocked = true;
       }
     }
@@ -586,6 +589,40 @@
     return Object.values(mapByCountry).filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon));
   }
 
+  function buildOfflinePayload() {
+    const incidents = OFFLINE_DEMO_INCIDENTS.map((row, i) => ({
+      id: `OFFLINE-${i}`,
+      timestamp: new Date(Date.now() - i * 3600000).toISOString(),
+      type: row.type,
+      country: row.country,
+      latitude: row.latitude,
+      longitude: row.longitude,
+      severity: row.severity,
+      source: 'Dati dimostrativi (server non raggiungibile)',
+      description: `${row.type} — esempio didattico offline per ${row.country}`,
+      is_simulated: true,
+    }));
+    const regions = aggregateClientSide(incidents);
+    return {
+      timestamp: new Date().toISOString(),
+      data_mode: 'simulated',
+      total_incidents: incidents.length,
+      incidents,
+      regions,
+      aggregated_stats: {
+        total_incidents: incidents.length,
+        ransomware: 1,
+        data_breaches: 1,
+        vulnerability_disclosures: 1,
+        countries_affected: regions.length,
+        critical_count: 2,
+      },
+      monthly_trends: [1, 2, 2, 3, 2, 4, 3, 2, 3, 2, 1, 2],
+      sources: ['Modalità offline — avvia npm start per il feed live'],
+      source: 'Dati dimostrativi locali',
+    };
+  }
+
   async function fetchIncidents(force) {
     const url = force ? `${API}?refresh=1` : API;
     const res = await fetch(url, { cache: 'no-store', credentials: 'same-origin' });
@@ -649,12 +686,16 @@
       applyPayload(data, { force: true });
     } catch (err) {
       console.warn('Mappa incidenti:', err.message);
-      setLivePill('error', 'Errore connessione — riprova');
+      setLivePill('error', 'Feed offline — dati dimostrativi');
       $('am-refresh-btn')?.removeAttribute('hidden');
-      if (!lastPayload && $('incidents-feed-empty')) {
-        $('incidents-feed-empty').hidden = false;
-        $('incidents-feed-empty').textContent =
-          'Impossibile caricare il feed. Avvia il server EVIL (porta 5000) e riprova.';
+      if (!lastPayload) {
+        applyPayload(buildOfflinePayload(), { force: true });
+        const help = $('incidents-feed-empty');
+        if (help) {
+          help.hidden = false;
+          help.textContent =
+            'Feed non raggiungibile: mappa con dati dimostrativi. Avvia il server EVIL (npm start) e ricarica.';
+        }
       }
     } finally {
       refreshInFlight = false;
@@ -708,11 +749,10 @@
 
     $('am-refresh-btn')?.addEventListener('click', () => refresh(true));
 
-    if (document.readyState === 'complete') {
-      setTimeout(run, 60);
-    } else {
-      window.addEventListener('load', () => setTimeout(run, 60), { once: true });
-    }
+    requestAnimationFrame(() => {
+      initMap();
+      setTimeout(run, 40);
+    });
   }
 
   if (document.readyState === 'loading') {

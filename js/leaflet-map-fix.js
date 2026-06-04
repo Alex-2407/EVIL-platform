@@ -10,16 +10,6 @@
     };
   }
 
-  function hasTransformAncestor(el) {
-    let node = el;
-    while (node && node !== document.body) {
-      const transform = getComputedStyle(node).transform;
-      if (transform && transform !== 'none') return true;
-      node = node.parentElement;
-    }
-    return false;
-  }
-
   function waitForFrame(frame, callback) {
     if (!frame || typeof callback !== 'function') return;
 
@@ -31,7 +21,6 @@
     };
 
     const measure = () => {
-      if (hasTransformAncestor(frame)) return false;
       const rect = frame.getBoundingClientRect();
       if (rect.width >= 80 && rect.height >= 80) finish(rect);
       return rect.width >= 80 && rect.height >= 80;
@@ -112,14 +101,8 @@
     map.doubleClickZoom.disable();
     map.scrollWheelZoom.disable();
     map.boxZoom.disable();
-    if (map.touchRotate) map.touchRotate.disable();
     if (map.keyboard) map.keyboard.disable();
     if (map.tap) map.tap.disable();
-    const container = map.getContainer();
-    if (container) {
-      container.style.touchAction = 'none';
-      container.classList.add('evil-map-locked');
-    }
     const zc = map.zoomControl;
     if (zc && map.removeControl) {
       try {

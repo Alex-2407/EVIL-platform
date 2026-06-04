@@ -13,12 +13,6 @@
       'Validation failed': 'Dati non validi. Controlla i campi e riprova.',
       'Something went wrong':
         'Errore server: verifica che il deploy usi npm start (API Node attive) e che SMTP/DATA_DIR siano configurati su Render.',
-      'Errore server temporaneo. Riprova tra qualche minuto.':
-        'Errore temporaneo del server. Riprova tra qualche minuto.',
-      'Servizio API non trovato. Il deploy deve eseguire npm start (server Node), non solo file statici.':
-        'Il sito online non espone le API: avvia il server Node (npm start) sul hosting, non solo file statici.',
-      "Impossibile salvare l'account sul server. Su Render configura DATA_DIR su un disco persistente e verifica i permessi di scrittura.":
-        'Impossibile creare l\'account: disco del server non scrivibile. Configura DATA_DIR persistente su Render.',
       'Servizio non disponibile. Verifica che il deploy esegua npm start e non solo file statici.':
         'Il sito online non espone le API: avvia il server Node (npm start) sul hosting, non solo file statici.',
       'Errore server temporaneo. Riprova tra qualche minuto.':
@@ -76,19 +70,38 @@
     const submitBtn = form.querySelector('button[type="submit"]');
     const defaultLabel = submitBtn ? submitBtn.textContent : 'Registrati';
 
-    function showError(message, html) {
+    function showError(message, html, extra) {
       if (!errorDiv) return;
-      if (html) errorDiv.innerHTML = message;
-      else errorDiv.textContent = message;
-      errorDiv.style.display = 'block';
       if (successDiv) successDiv.style.display = 'none';
-      errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      if (html) {
+        errorDiv.className = 'auth-message auth-message--error auth-error-panel auth-error-panel--open';
+        errorDiv.innerHTML = message;
+        errorDiv.style.display = 'block';
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        return;
+      }
+      if (window.EvilAuthFeedback) {
+        window.EvilAuthFeedback.showAuthError(errorDiv, {
+          action: 'register',
+          message,
+          status: extra?.status,
+          raw: extra?.raw,
+          hint: extra?.hint,
+        });
+      } else {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
 
     function hideMessages() {
       if (errorDiv) {
-        errorDiv.style.display = 'none';
-        errorDiv.textContent = '';
+        if (window.EvilAuthFeedback) window.EvilAuthFeedback.hideAuthError(errorDiv);
+        else {
+          errorDiv.style.display = 'none';
+          errorDiv.textContent = '';
+        }
       }
       if (successDiv) successDiv.style.display = 'none';
     }
@@ -156,7 +169,11 @@
               .join('<br>');
             showError(`<strong>Errore di validazione:</strong><br>${detailMessages}`, true);
           } else {
-            showError(mapRegisterError(data.error) || 'Errore di registrazione', false);
+            showError(mapRegisterError(data.error) || 'Errore di registrazione', false, {
+              status: response.status,
+              raw: data,
+              hint: 'Usa «Copia errore» e invialo al supporto.',
+            });
           }
           return;
         }
@@ -173,7 +190,11 @@
           err.name === 'AbortError'
             ? 'Il server non risponde (timeout). Su Render verifica SMTP e che il servizio Node sia attivo, non solo file statici.'
             : err.message || 'impossibile contattare il server';
-        showError('Errore di connessione: ' + msg, false);
+        showError('Errore di connessione: ' + msg, false, {
+          status: err.status,
+          raw: err.stack || err.message,
+          hint: 'Verifica npm start e che la pagina sia su http://localhost:5000',
+        });
       } finally {
         if (!succeeded && submitBtn) {
           submitBtn.disabled = false;

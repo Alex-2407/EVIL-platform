@@ -189,7 +189,7 @@
     if (!map || ATTACKS.length === 0) return;
     const bounds = L.latLngBounds(ATTACKS.map((a) => [a.lat, a.lon]));
     if (bounds.isValid()) {
-      map.fitBounds(bounds.pad(0.25), { maxZoom: 3, animate: false, padding: [28, 28] });
+      map.setView(bounds.getCenter(), 2, { animate: false });
     }
     syncMarkerPositions();
   }
@@ -203,7 +203,7 @@
     });
 
     if (fly) {
-      map.flyTo([entry.lat, entry.lon], 4, { duration: 0.75 });
+      map.setView([entry.lat, entry.lon], 2, { animate: true });
       setTimeout(() => entry.marker.openPopup(), 350);
     } else {
       entry.marker.openPopup();
@@ -317,13 +317,12 @@
   function boot() {
     renderCards();
     renderTable();
+    document.querySelector('.ha-map-section')?.classList.add('is-visible');
     initReveal();
-    const run = () => initMap();
-    if (document.readyState === 'complete') {
-      setTimeout(run, 60);
-    } else {
-      window.addEventListener('load', () => setTimeout(run, 60), { once: true });
-    }
+    requestAnimationFrame(() => {
+      initMap();
+      setTimeout(() => scheduleMapResize(), 120);
+    });
   }
 
   if (document.readyState === 'loading') {

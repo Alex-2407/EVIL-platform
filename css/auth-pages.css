@@ -273,6 +273,64 @@
   color: #bbf7d0;
 }
 
+.auth-error-panel--open {
+  display: block !important;
+}
+
+.auth-error-panel__title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.auth-error-panel__meta,
+.auth-error-panel__hint {
+  margin: 0.35rem 0;
+  font-size: 0.82rem;
+  color: #fca5a5;
+}
+
+.auth-error-panel__details {
+  margin: 0.65rem 0 0.5rem;
+  font-size: 0.8rem;
+}
+
+.auth-error-panel__details summary {
+  cursor: pointer;
+  color: #fecaca;
+}
+
+.auth-error-panel__pre {
+  margin: 0.5rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(248, 113, 113, 0.25);
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 10rem;
+  overflow: auto;
+}
+
+.auth-error-panel__copy {
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  background: rgba(127, 29, 29, 0.35);
+  color: #fecaca;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.auth-error-panel__copy:hover {
+  background: rgba(153, 27, 27, 0.5);
+}
+
 .auth-links {
   display: flex;
   flex-direction: column;
