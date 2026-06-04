@@ -479,7 +479,7 @@ const HOME_STYLESHEETS = [
 ];
 
 const SITE_FOOTER_CSS = '/css/site-footer.css?v=20260606';
-const SITE_HEADER_CSS = '/css/site-header.css?v=20260611b';
+const SITE_HEADER_CSS = '/css/site-header.css?v=20260612';
 const SYSTEM_THEME_CSS = '/css/system-theme.css?v=20260717';
 const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css?v=20260717';
 const RESPONSIVE_CSS = '/css/responsive.css?v=20260717';
@@ -495,23 +495,36 @@ function hasLoadHeaderJs(html) {
 }
 
 function injectSiteChromeCss(html, href, marker) {
-  if (html.includes(marker)) return html;
+  if (html.includes(marker) || html.includes(href)) return html;
   const link = `  <link rel="stylesheet" href="${href}">`;
-  if (html.includes('/css/style.css')) {
-    return html.replace(
-      /<link rel="stylesheet" href="(\/?\.\.\/)?css\/style\.css">/,
-      (m) => `${m}\n${link}`
-    );
+  const styleLinkRe = /<link rel="stylesheet" href="(\/?\.\.\/)?css\/style\.css[^"]*">/i;
+  if (styleLinkRe.test(html)) {
+    return html.replace(styleLinkRe, (m) => `${m}\n${link}`);
   }
   return html.replace('</head>', `${link}\n</head>`);
 }
 
+function upgradeSiteChromeCssLink(html, href) {
+  if (html.includes(href)) return html;
+  const base = href.split('?')[0];
+  const re = new RegExp(
+    `<link rel="stylesheet" href="[^"]*${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^"]*">`,
+    'i'
+  );
+  if (re.test(html)) {
+    return html.replace(re, `<link rel="stylesheet" href="${href}">`);
+  }
+  return html;
+}
+
 function injectSiteFooterCss(html) {
-  return injectSiteChromeCss(html, SITE_FOOTER_CSS, 'site-footer.css');
+  let out = upgradeSiteChromeCssLink(html, SITE_FOOTER_CSS);
+  return injectSiteChromeCss(out, SITE_FOOTER_CSS, 'evil-site-footer-injected');
 }
 
 function injectSiteHeaderCss(html) {
-  return injectSiteChromeCss(html, SITE_HEADER_CSS, 'site-header.css');
+  let out = upgradeSiteChromeCssLink(html, SITE_HEADER_CSS);
+  return injectSiteChromeCss(out, SITE_HEADER_CSS, 'evil-site-header-injected');
 }
 
 function injectHomeStyles(html) {

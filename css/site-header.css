@@ -42,17 +42,22 @@ header {
 /* EVIL accanto al logo — stesso stile del titolo hero home (editorial, bianco) */
 .header-evil-wordmark,
 .header-evil-title,
-.logo-section .logo {
+.logo-section .logo,
+header .logo-section a.header-evil-wordmark {
   margin: 0;
+  font-family: ui-sans-serif, system-ui, "Segoe UI Variable", "Segoe UI", Roboto, sans-serif;
   font-size: clamp(1.65rem, 4.2vw, 2.35rem);
   font-weight: 900;
+  font-synthesis: weight;
   line-height: 0.9;
   letter-spacing: -0.03em;
-  color: #fff;
+  color: #fff !important;
   text-transform: uppercase;
   white-space: nowrap;
   flex-shrink: 0;
-  text-decoration: none;
+  text-decoration: none !important;
+  display: inline-block;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
   transition: opacity 0.25s ease, filter 0.25s ease;
 }
 
