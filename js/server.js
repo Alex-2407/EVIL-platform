@@ -1542,25 +1542,45 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
 
     let emailResult;
     try {
-      emailResult = await emailService.sendVerificationLink(normalizedEmail, verificationToken, name);
+      emailResult = await emailService.sendRegistrationVerification(
+        normalizedEmail,
+        verificationToken,
+        name
+      );
     } catch (emailErr) {
       logger.error('Registration email send failed', { error: emailErr.message, email: normalizedEmail });
-      users = users.filter(u => u.id !== pendingUser.id);
-      saveUsers();
-      return res.status(503).json({
-        error:
-          emailErr.message && /timeout/i.test(emailErr.message)
-            ? 'Invio email troppo lento: controlla SMTP_HOST, SMTP_USER e SMTP_PASS su Render.'
-            : 'Impossibile inviare l\'email di verifica. Verifica la configurazione SMTP.'
-      });
+      if (emailService.outboxAllowed()) {
+        const link = emailService.buildVerificationLink(verificationToken);
+        emailResult = emailService.sendViaOutbox(normalizedEmail, name, link);
+        emailResult.smtpError = emailErr.message;
+      } else {
+        users = users.filter((u) => u.id !== pendingUser.id);
+        saveUsers();
+        return res.status(503).json({
+          error:
+            emailErr.message && /timeout/i.test(emailErr.message)
+              ? 'Invio email troppo lento: verifica SMTP su Render o imposta DATA_DIR e riprova.'
+              : 'Impossibile inviare l\'email di verifica. Verifica la configurazione SMTP.',
+        });
+      }
     }
-    const isDev = process.env.NODE_ENV !== 'production';
 
     if (!emailResult.success) {
-      users = users.filter(u => u.id !== pendingUser.id);
+      if (emailService.outboxAllowed()) {
+        const link = emailService.buildVerificationLink(verificationToken);
+        emailResult = emailService.sendViaOutbox(normalizedEmail, name, link);
+      }
+    }
+
+    if (!emailResult.success) {
+      users = users.filter((u) => u.id !== pendingUser.id);
       saveUsers();
-      return res.status(500).json({
-        error: emailResult.error || 'Impossibile inviare l\'email di verifica. Configura SMTP nel file .env.'
+      const smtpErr = emailResult.error || '';
+      return res.status(503).json({
+        error:
+          /timeout/i.test(smtpErr) || /connection/i.test(smtpErr)
+            ? 'Server email non raggiungibile (timeout). Controlla SMTP_HOST/PORT su Render o contatta il supporto.'
+            : smtpErr || 'Impossibile inviare l\'email di verifica. Configura SMTP nel file .env.',
       });
     }
 
@@ -1576,13 +1596,12 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       emailHint: emailResult.hint || ''
     };
 
-    const verifyLink =
-      emailResult.actionLink ||
-      emailResult.verificationLink ||
-      (isDev ? emailResult.verificationLink : null);
+    const verifyLink = emailResult.actionLink || emailResult.verificationLink;
     if (verifyLink) {
       payload.verificationLink = verifyLink;
-      if (isDev) payload.devVerificationLink = verifyLink;
+      if (process.env.NODE_ENV !== 'production') {
+        payload.devVerificationLink = verifyLink;
+      }
     }
     if (emailResult.outboxFile) {
       payload.outboxFile = emailResult.outboxFile;

@@ -175,8 +175,8 @@ const authLimiter = rateLimit({
 /**
  * Register rate limiter: 5 account / hour per IP
  */
+/** Registrazione: solo memoria (Redis può ritardare la risposta su hosting condiviso) */
 const registerLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
   windowMs: parseInt(process.env.RATE_LIMIT_REGISTER_WINDOW_MS || 3600000),
   max: parseInt(process.env.RATE_LIMIT_REGISTER_MAX || 5),
   message: { error: 'Troppi tentativi di registrazione. Riprova più tardi.' },

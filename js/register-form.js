@@ -5,7 +5,7 @@
   'use strict';
 
   const API_URL = '/api';
-  const REGISTER_TIMEOUT_MS = 25000;
+  const REGISTER_TIMEOUT_MS = 35000;
 
   function mapRegisterError(message) {
     const map = {
@@ -19,7 +19,12 @@
         'Errore temporaneo del server. Riprova tra qualche minuto.',
       'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env (vedi SETUP_EMAIL_VERIFICATION.md).':
         'Il server non può inviare l\'email di verifica. Contatta l\'amministratore o configura SMTP su Render.',
+      'Connection timeout':
+        'Il server email non risponde in tempo. Se compare un link di verifica nella pagina successiva, usalo; altrimenti configura SMTP su Render.',
     };
+    if (/connection timeout|timeout/i.test(message)) {
+      return 'Il server email non risponde in tempo. Dopo la registrazione controlla se compare il link di verifica diretto.';
+    }
     return map[message] || message;
   }
 

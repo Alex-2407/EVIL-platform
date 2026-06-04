@@ -28,17 +28,26 @@ class EmailService {
     this.smtpMode = (process.env.SMTP_MODE || 'auto').toLowerCase();
     this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@evil-platform.com';
     this.baseUrl = (process.env.BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
-    this.outboxDir = path.resolve(process.env.EMAIL_OUTBOX_DIR || path.join(process.cwd(), 'data', 'email-outbox'));
+    const dataRoot = process.env.DATA_DIR
+      ? path.resolve(process.env.DATA_DIR)
+      : path.join(process.cwd(), 'data');
+    this.outboxDir = path.resolve(
+      process.env.EMAIL_OUTBOX_DIR || path.join(dataRoot, 'email-outbox')
+    );
 
     this.smtpSendTimeoutMs = parseInt(process.env.SMTP_SEND_TIMEOUT_MS || '15000', 10);
+    this.registerSmtpTimeoutMs = parseInt(
+      process.env.REGISTER_SMTP_TIMEOUT_MS || '6000',
+      10
+    );
 
     if (this.isConfigured()) {
       this.transporter = nodemailer.createTransport({
         host: this.smtpHost,
         port: this.smtpPort,
         secure: this.smtpSecure,
-        connectionTimeout: 10000,
-        greetingTimeout: 10000,
+        connectionTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
+        greetingTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
         socketTimeout: this.smtpSendTimeoutMs,
         auth: {
           user: this.smtpUser,
@@ -431,13 +440,78 @@ class EmailService {
     }
   }
 
+  outboxAllowed() {
+    return process.env.EMAIL_DEV_OUTBOX !== '0';
+  }
+
+  /**
+   * Registrazione: timeout SMTP breve + fallback outbox (evita hang su projectevil.it)
+   */
+  async sendRegistrationVerification(email, token, name = 'Utente') {
+    const verificationLink = this.buildVerificationLink(token);
+    const mail = this.buildVerificationMail(name, verificationLink);
+    const allowOutbox = this.outboxAllowed();
+    const skipSmtp = process.env.EMAIL_REGISTER_SKIP_SMTP === '1';
+
+    if (!this.isConfigured() || skipSmtp) {
+      if (allowOutbox) {
+        return this.sendViaOutbox(email, name, verificationLink);
+      }
+      return {
+        success: false,
+        error:
+          'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS oppure EMAIL_REGISTER_SKIP_SMTP=1 con DATA_DIR scrivibile.',
+      };
+    }
+
+    try {
+      const info = await this.withTimeout(
+        this.transporter.sendMail({
+          from: this.fromEmail,
+          to: email,
+          subject: mail.subject,
+          text: mail.text,
+          html: mail.html,
+          attachments: mail.attachments || [],
+        }),
+        this.registerSmtpTimeoutMs,
+        'Invio email registrazione'
+      );
+      const delivery = this.resolveDeliveryMode();
+      logger.info('Email verifica registrazione inviata via SMTP', {
+        messageId: info.messageId,
+        recipient: email,
+        delivery,
+        host: this.smtpHost,
+      });
+      return {
+        success: true,
+        delivery,
+        messageId: info.messageId,
+        actionLink: verificationLink,
+        hint: this.getDeliveryHint(delivery),
+      };
+    } catch (err) {
+      logger.error('Errore SMTP registrazione', {
+        error: err.message,
+        recipient: email,
+        host: this.smtpHost,
+      });
+      if (allowOutbox) {
+        const outbox = this.sendViaOutbox(email, name, verificationLink);
+        outbox.smtpError = err.message;
+        outbox.hint =
+          `L'invio email non è riuscito (${err.message}). Usa il link di verifica mostrato nella pagina successiva.`;
+        return outbox;
+      }
+      return { success: false, error: err.message };
+    }
+  }
+
   async sendVerificationLink(email, token, name = 'Utente') {
     const verificationLink = this.buildVerificationLink(token);
     const mail = this.buildVerificationMail(name, verificationLink);
-    const isDev = process.env.NODE_ENV !== 'production';
-    const allowOutbox =
-      process.env.EMAIL_DEV_OUTBOX !== '0' &&
-      (isDev || process.env.EMAIL_FALLBACK_OUTBOX === '1' || !this.isConfigured());
+    const allowOutbox = this.outboxAllowed();
 
     if (!this.isConfigured()) {
       if (allowOutbox) {
@@ -473,6 +547,7 @@ class EmailService {
         success: true,
         delivery,
         messageId: info.messageId,
+        actionLink: verificationLink,
         hint: this.getDeliveryHint(delivery)
       };
     } catch (err) {
