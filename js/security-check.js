@@ -195,7 +195,9 @@
   }
 
   async function runScan() {
-    if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+    if (typeof ensureAuthenticatedOrRedirect === 'function') {
+      if (!(await ensureAuthenticatedOrRedirect(page))) return;
+    } else if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
       window.location.href = LOGIN_URL;
       return;
     }
@@ -271,8 +273,10 @@
     lastReport = null;
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
+  document.addEventListener('DOMContentLoaded', async () => {
+    if (typeof ensureAuthenticatedOrRedirect === 'function') {
+      if (!(await ensureAuthenticatedOrRedirect(page))) return;
+    } else if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
       window.location.replace(LOGIN_URL);
       return;
     }

@@ -94,17 +94,6 @@
     URL.revokeObjectURL(url);
   }
 
-  document.addEventListener('DOMContentLoaded', async function () {
-    if (TOOLS_PUBLIC) return;
-    await waitForChrome();
-    if (typeof isAuthenticated === 'function' && isAuthenticated()) return;
-    if (typeof syncUserFromServer === 'function') {
-      const user = await syncUserFromServer();
-      if (user) return;
-    }
-    window.location.replace(LOGIN_URL);
-  });
-
   window.EvilTools = {
     ensureToolAuth,
     postToolJson,

@@ -9,6 +9,11 @@
 
   let logoutInProgress = false;
   let authHeaderInitPromise = null;
+  let authReadyResolve;
+
+  window.__evilAuthReady = new Promise((resolve) => {
+    authReadyResolve = resolve;
+  });
 
   const AUTH_STORAGE = {
     setUser(user) {
@@ -241,12 +246,21 @@
     `;
   }
 
+  function markAuthUiReady() {
+    document.documentElement.classList.remove('evil-auth-pending');
+    document.documentElement.classList.add('evil-auth-ready');
+  }
+
   async function initAuthHeader() {
     const authButtons = document.querySelector('header .auth-buttons') || document.querySelector('.auth-buttons');
     if (!authButtons) return;
 
     const cached = getCurrentUser();
-    if (cached) renderUserAuthButtons(authButtons, cached);
+    if (cached) {
+      renderUserAuthButtons(authButtons, cached);
+    } else {
+      authButtons.innerHTML = '';
+    }
 
     const serverUser = await syncUserFromServer();
     if (serverUser) {
@@ -254,6 +268,17 @@
       return;
     }
     if (!cached) renderGuestAuthButtons(authButtons);
+  }
+
+  async function ensureAuthenticatedOrRedirect(redirectPage) {
+    await window.__evilAuthReady;
+    const user = await syncUserFromServer();
+    if (user) return true;
+    if (isAuthenticated()) return true;
+
+    const page = redirectPage || window.location.pathname.split('/').pop() || 'home.html';
+    window.location.replace(`login.html?redirect=${encodeURIComponent(page)}`);
+    return false;
   }
 
   function scheduleInitAuthHeader() {
@@ -296,28 +321,43 @@
     await scheduleInitAuthHeader();
   }
 
-  function loadHeaderComponent() {
+  async function loadHeaderComponent() {
     if (!hasEmbeddedHeader()) {
-      fetch('/html/components/header.html')
-        .then((r) => (r.ok ? r.text() : Promise.reject(new Error(String(r.status)))))
-        .then((html) => {
-          const headerElement = document.querySelector('header');
-          const mainElement = document.querySelector('main');
-          if (headerElement) headerElement.outerHTML = html;
-          else if (mainElement) mainElement.insertAdjacentHTML('beforebegin', html);
-          else document.body.insertAdjacentHTML('afterbegin', html);
-          return initEvilNavigation();
-        })
-        .catch((err) => console.error('[EVIL chrome]', err));
-      return;
+      const r = await fetch('/html/components/header.html');
+      if (!r.ok) throw new Error(String(r.status));
+      const html = await r.text();
+      const headerElement = document.querySelector('header');
+      const mainElement = document.querySelector('main');
+      if (headerElement) headerElement.outerHTML = html;
+      else if (mainElement) mainElement.insertAdjacentHTML('beforebegin', html);
+      else document.body.insertAdjacentHTML('afterbegin', html);
     }
-    initEvilNavigation();
+    await initEvilNavigation();
   }
 
-  function bootSiteChrome() {
+  async function bootSiteChrome() {
+    if (window.__evilSiteChromeBooting) {
+      await window.__evilAuthReady;
+      return;
+    }
     if (window.__evilSiteChromeBooted) return;
-    window.__evilSiteChromeBooted = true;
-    loadHeaderComponent();
+
+    window.__evilSiteChromeBooting = true;
+    document.documentElement.classList.add('evil-auth-pending');
+
+    try {
+      await loadHeaderComponent();
+    } catch (err) {
+      console.error('[EVIL chrome]', err);
+      try {
+        await initEvilNavigation();
+      } catch (_) { /* ignore */ }
+    } finally {
+      markAuthUiReady();
+      window.__evilSiteChromeBooted = true;
+      window.__evilSiteChromeBooting = false;
+      if (authReadyResolve) authReadyResolve();
+    }
   }
 
   // API globale (compatibilità)
@@ -331,6 +371,7 @@
   window.notifyAuthVerified = notifyAuthVerified;
   window.scheduleInitAuthHeader = scheduleInitAuthHeader;
   window.initEvilNavigation = initEvilNavigation;
+  window.ensureAuthenticatedOrRedirect = ensureAuthenticatedOrRedirect;
 
   window.addEventListener('storage', (e) => {
     if (e.key === 'user') scheduleInitAuthHeader();

@@ -17,8 +17,9 @@
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
-
-  <script src="/js/evil-site-chrome.js?v=20260608" defer></script>
+  <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>
+  <script>document.documentElement.classList.add("evil-auth-pending");</script>
+  <script src="/js/evil-site-chrome.js?v=20260609" defer></script>
 </head>
 <body class="evil-theme sc-page de-page">
   <div id="fade-overlay"></div>
@@ -41,33 +42,33 @@
           <li>
             <a href="#">Didattica ▾</a>
             <div class="dropdown">
-              <a href="web-simulator.html">Simulatore Attacchi Web</a>
-              <a href="virtual-lab.html">Lab Virtuale</a>
-              <a href="crypto-studio.html">Studio Cifratura</a>
-              <a href="quiz-hub.html">Centro Quiz</a>
-              <a href="hacked-timeline.html">Timeline Incident Response</a>
+              <a href="/web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="/virtual-lab.html">Lab Virtuale</a>
+              <a href="/crypto-studio.html">Studio Cifratura</a>
+              <a href="/quiz-hub.html">Centro Quiz</a>
+              <a href="/hacked-timeline.html">Timeline Incident Response</a>
             </div>
           </li>
 
           <li>
             <a href="#">Intelligence ▾</a>
             <div class="dropdown">
-              <a href="attacks-map.html">Mappa incidenti</a>
-              <a href="historic-attacks.html">Violazioni storiche</a>
-              <a href="malware-db.html">Catalogo malware</a>
-              <a href="malware-classification.html">Tassonomia malware</a>
-              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+              <a href="/attacks-map.html">Mappa incidenti</a>
+              <a href="/historic-attacks.html">Violazioni storiche</a>
+              <a href="/malware-db.html">Catalogo malware</a>
+              <a href="/malware-classification.html">Tassonomia malware</a>
+              <a href="/manipulation-techniques.html">Persistenza ed evasione</a>
             </div>
           </li>
 
           <li>
             <a href="#">Strumenti ▾</a>
             <div class="dropdown">
-              <a href="security-check.html">Check URL</a>
-              <a href="vulnerability-scanner.html">Header HTTP</a>
-              <a href="domain-recon.html">Ricognizione dominio</a>
-              <a href="file-analysis.html">Analisi file</a>
-              <a href="osint-hub.html">OSINT</a>
+              <a href="/security-check.html">Check URL</a>
+              <a href="/vulnerability-scanner.html">Header HTTP</a>
+              <a href="/domain-recon.html">Ricognizione dominio</a>
+              <a href="/file-analysis.html">Analisi file</a>
+              <a href="/osint-hub.html">OSINT</a>
             </div>
           </li>
         </ul>
@@ -89,7 +90,7 @@
 
   <main>
     <section class="sc-hero">
-      <p class="de-parent-link"><a href="domain-recon.html">← Ricognizione dominio</a></p>
+      <p class="de-parent-link"><a href="/domain-recon.html">← Ricognizione dominio</a></p>
       <p class="sc-kicker">Strumenti · DNS</p>
       <h1>DNS Records Enumerator</h1>
       <p class="sc-hero__lead">
@@ -144,9 +145,9 @@
       <p class="evil-site-foot__tag">Legale</p>
       <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
-        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        <a href="/site-policies.html" class="evil-site-foot__link">Policy del sito</a>
         ·
-        <a href="help.html" class="evil-site-foot__link">Help</a>
+        <a href="/help.html" class="evil-site-foot__link">Help</a>
         ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>

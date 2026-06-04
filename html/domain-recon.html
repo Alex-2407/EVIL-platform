@@ -15,8 +15,9 @@
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
-
-  <script src="/js/evil-site-chrome.js?v=20260608" defer></script>
+  <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>
+  <script>document.documentElement.classList.add("evil-auth-pending");</script>
+  <script src="/js/evil-site-chrome.js?v=20260609" defer></script>
 </head>
 <body class="evil-theme st-hub-page">
   <div id="fade-overlay"></div>
@@ -39,33 +40,33 @@
           <li>
             <a href="#">Didattica ▾</a>
             <div class="dropdown">
-              <a href="web-simulator.html">Simulatore Attacchi Web</a>
-              <a href="virtual-lab.html">Lab Virtuale</a>
-              <a href="crypto-studio.html">Studio Cifratura</a>
-              <a href="quiz-hub.html">Centro Quiz</a>
-              <a href="hacked-timeline.html">Timeline Incident Response</a>
+              <a href="/web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="/virtual-lab.html">Lab Virtuale</a>
+              <a href="/crypto-studio.html">Studio Cifratura</a>
+              <a href="/quiz-hub.html">Centro Quiz</a>
+              <a href="/hacked-timeline.html">Timeline Incident Response</a>
             </div>
           </li>
 
           <li>
             <a href="#">Intelligence ▾</a>
             <div class="dropdown">
-              <a href="attacks-map.html">Mappa incidenti</a>
-              <a href="historic-attacks.html">Violazioni storiche</a>
-              <a href="malware-db.html">Catalogo malware</a>
-              <a href="malware-classification.html">Tassonomia malware</a>
-              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+              <a href="/attacks-map.html">Mappa incidenti</a>
+              <a href="/historic-attacks.html">Violazioni storiche</a>
+              <a href="/malware-db.html">Catalogo malware</a>
+              <a href="/malware-classification.html">Tassonomia malware</a>
+              <a href="/manipulation-techniques.html">Persistenza ed evasione</a>
             </div>
           </li>
 
           <li>
             <a href="#">Strumenti ▾</a>
             <div class="dropdown">
-              <a href="security-check.html">Check URL</a>
-              <a href="vulnerability-scanner.html">Header HTTP</a>
-              <a href="domain-recon.html">Ricognizione dominio</a>
-              <a href="file-analysis.html">Analisi file</a>
-              <a href="osint-hub.html">OSINT</a>
+              <a href="/security-check.html">Check URL</a>
+              <a href="/vulnerability-scanner.html">Header HTTP</a>
+              <a href="/domain-recon.html">Ricognizione dominio</a>
+              <a href="/file-analysis.html">Analisi file</a>
+              <a href="/osint-hub.html">OSINT</a>
             </div>
           </li>
         </ul>
@@ -91,9 +92,9 @@
       <h1>Ricognizione dominio</h1>
       <p class="st-hub-hero__lead">
         Tre analisi complementari su un target DNS: record, superficie subdomain e certificato TLS.
-        Per una valutazione rapida completa usa anche <a href="security-check.html">Check URL</a>.
+        Per una valutazione rapida completa usa anche <a href="/security-check.html">Check URL</a>.
       </p>
-      <a class="st-hub-back" href="security-check.html">← Check URL (panoramica)</a>
+      <a class="st-hub-back" href="/security-check.html">← Check URL (panoramica)</a>
     </section>
 
     <div class="st-hub-wrap">
@@ -103,19 +104,19 @@
       </aside>
 
       <div class="st-hub-grid">
-        <a class="st-hub-card" href="dns-enumerator.html">
+        <a class="st-hub-card" href="/dns-enumerator.html">
           <span class="st-hub-card__tag">DNS</span>
           <h2 class="st-hub-card__title">Record DNS</h2>
           <p class="st-hub-card__desc">Enumerazione A, AAAA, MX, NS, TXT, CNAME, SOA e lookup WHOIS per mappare l’infrastruttura del dominio.</p>
           <span class="st-hub-card__cta">Apri enumeratore →</span>
         </a>
-        <a class="st-hub-card" href="subdomain-finder.html">
+        <a class="st-hub-card" href="/subdomain-finder.html">
           <span class="st-hub-card__tag">Superficie</span>
           <h2 class="st-hub-card__title">Subdomain</h2>
           <p class="st-hub-card__desc">Scoperta sottodomini comuni e risoluzione IP per ampliare la superficie d’attacco documentata.</p>
           <span class="st-hub-card__cta">Apri subdomain finder →</span>
         </a>
-        <a class="st-hub-card" href="ssl-analyzer.html">
+        <a class="st-hub-card" href="/ssl-analyzer.html">
           <span class="st-hub-card__tag">TLS</span>
           <h2 class="st-hub-card__title">Certificato SSL</h2>
           <p class="st-hub-card__desc">Validità, issuer, SAN e scadenza del certificato — utile per audit HTTPS approfondito.</p>
@@ -125,9 +126,9 @@
 
       <p class="st-hub-footer-links">
         Altri strumenti:
-        <a href="vulnerability-scanner.html">Scanner CVE</a> ·
-        <a href="file-analysis.html">Analisi file</a> ·
-        <a href="report-generator.html">Export report PDF</a>
+        <a href="/vulnerability-scanner.html">Scanner CVE</a> ·
+        <a href="/file-analysis.html">Analisi file</a> ·
+        <a href="/report-generator.html">Export report PDF</a>
       </p>
     </div>
   </main>
@@ -148,9 +149,9 @@
       <p class="evil-site-foot__tag">Legale</p>
       <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
-        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        <a href="/site-policies.html" class="evil-site-foot__link">Policy del sito</a>
         ·
-        <a href="help.html" class="evil-site-foot__link">Help</a>
+        <a href="/help.html" class="evil-site-foot__link">Help</a>
         ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>

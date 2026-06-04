@@ -494,21 +494,30 @@ function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
 }
 
-const AUTH_CHROME_VERSION = '20260608';
+const AUTH_CHROME_VERSION = '20260609';
 
 /** Un solo script defer: menu + auth (evita doppio init e header "Accedi" con JWT valido) */
 function injectAuthChromeScripts(html) {
   if (!/<header[\s>]/i.test(html) || !html.includes('</head>')) return html;
 
-  const block = `  <script src="/js/evil-site-chrome.js?v=${AUTH_CHROME_VERSION}" defer></script>\n`;
+  const block =
+    `  <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>\n` +
+    `  <script>document.documentElement.classList.add("evil-auth-pending");</script>\n` +
+    `  <script src="/js/evil-site-chrome.js?v=${AUTH_CHROME_VERSION}" defer></script>\n`;
   const stripRe =
     /\s*<script[^>]*src="[^"]*(?:auth-manager|load-header|evil-site-chrome)\.js[^"]*"[^>]*>\s*<\/script>\s*/gi;
 
   let out = html.replace(stripRe, '\n');
+  out = out.replace(/<style id="evil-auth-pending-style">[\s\S]*?<\/style>\s*/gi, '');
   if (!out.includes('evil-site-chrome.js')) {
     out = out.replace('</head>', `${block}</head>`);
   }
   return out;
+}
+
+/** Link menu sempre dalla root (/pagina.html) — evita doppio caricamento da path /html/ misti */
+function normalizeSiteNavLinks(html) {
+  return html.replace(/href="([a-z][a-z0-9-]*\.html)"/gi, (match, file) => `href="/${file}"`);
 }
 
 function sendInjectedHtml(res, relativeName) {
@@ -630,6 +639,7 @@ function injectPageAssets(htmlContent) {
   }
 
   html = injectAuthChromeScripts(html);
+  html = normalizeSiteNavLinks(html);
 
   html = injectSiteFooterCss(html);
   html = injectEvilMotion(html);

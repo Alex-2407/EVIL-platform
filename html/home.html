@@ -54,8 +54,9 @@
     .home-hero--editorial .home-hero-punch em { color: #00ff9c; font-style: normal; }
   </style>
   <script src="/js/evil-motion.js?v=20260626" defer></script>
-
-  <script src="/js/evil-site-chrome.js?v=20260608" defer></script>
+  <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>
+  <script>document.documentElement.classList.add("evil-auth-pending");</script>
+  <script src="/js/evil-site-chrome.js?v=20260609" defer></script>
 </head>
 
 <body class="evil-theme home-page home-v6 splash-type-1">
@@ -96,33 +97,33 @@
           <li>
             <a href="#">Didattica ▾</a>
             <div class="dropdown">
-              <a href="web-simulator.html">Simulatore Attacchi Web</a>
-              <a href="virtual-lab.html">Lab Virtuale</a>
-              <a href="crypto-studio.html">Studio Cifratura</a>
-              <a href="quiz-hub.html">Centro Quiz</a>
-              <a href="hacked-timeline.html">Timeline Incident Response</a>
+              <a href="/web-simulator.html">Simulatore Attacchi Web</a>
+              <a href="/virtual-lab.html">Lab Virtuale</a>
+              <a href="/crypto-studio.html">Studio Cifratura</a>
+              <a href="/quiz-hub.html">Centro Quiz</a>
+              <a href="/hacked-timeline.html">Timeline Incident Response</a>
             </div>
           </li>
 
           <li>
             <a href="#">Intelligence ▾</a>
             <div class="dropdown">
-              <a href="attacks-map.html">Mappa incidenti</a>
-              <a href="historic-attacks.html">Violazioni storiche</a>
-              <a href="malware-db.html">Catalogo malware</a>
-              <a href="malware-classification.html">Tassonomia malware</a>
-              <a href="manipulation-techniques.html">Persistenza ed evasione</a>
+              <a href="/attacks-map.html">Mappa incidenti</a>
+              <a href="/historic-attacks.html">Violazioni storiche</a>
+              <a href="/malware-db.html">Catalogo malware</a>
+              <a href="/malware-classification.html">Tassonomia malware</a>
+              <a href="/manipulation-techniques.html">Persistenza ed evasione</a>
             </div>
           </li>
 
           <li>
             <a href="#">Strumenti ▾</a>
             <div class="dropdown">
-              <a href="security-check.html">Check URL</a>
-              <a href="vulnerability-scanner.html">Header HTTP</a>
-              <a href="domain-recon.html">Ricognizione dominio</a>
-              <a href="file-analysis.html">Analisi file</a>
-              <a href="osint-hub.html">OSINT</a>
+              <a href="/security-check.html">Check URL</a>
+              <a href="/vulnerability-scanner.html">Header HTTP</a>
+              <a href="/domain-recon.html">Ricognizione dominio</a>
+              <a href="/file-analysis.html">Analisi file</a>
+              <a href="/osint-hub.html">OSINT</a>
             </div>
           </li>
         </ul>
@@ -175,8 +176,8 @@
           </p>
 
           <div class="home-cta-row">
-            <a class="home-cta home-cta--primary" href="web-simulator.html">Laboratorio web</a>
-            <a class="home-cta home-cta--secondary" href="attacks-map.html">Mappa incidenti</a>
+            <a class="home-cta home-cta--primary" href="/web-simulator.html">Laboratorio web</a>
+            <a class="home-cta home-cta--secondary" href="/attacks-map.html">Mappa incidenti</a>
           </div>
         </div>
       </div>
@@ -198,7 +199,7 @@
       </header>
 
       <div class="spotlight-grid">
-        <a class="spotlight-card spotlight-card--lab" href="web-simulator.html">
+        <a class="spotlight-card spotlight-card--lab" href="/web-simulator.html">
           <span class="spotlight-shine" aria-hidden="true"></span>
           <div class="spotlight-deco spotlight-deco--code" aria-hidden="true">
             <span class="code-deco__grid" aria-hidden="true"></span>
@@ -226,7 +227,7 @@
           </div>
         </a>
 
-        <a class="spotlight-card spotlight-card--map" href="attacks-map.html">
+        <a class="spotlight-card spotlight-card--map" href="/attacks-map.html">
           <span class="spotlight-shine" aria-hidden="true"></span>
           <div class="spotlight-deco spotlight-deco--map" aria-hidden="true">
             <span class="map-deco__grid" aria-hidden="true"></span>
@@ -296,12 +297,12 @@
               <span class="pv-progress" role="presentation"><span style="width: 50%"></span></span>
             </div>
             <ul class="portal-links">
-              <li><a href="web-simulator.html">Simulatore Attacchi Web</a></li>
-              <li><a href="virtual-lab.html">Lab Virtuale</a></li>
-              <li><a href="quiz-hub.html">Centro Quiz</a></li>
-              <li><a href="crypto-studio.html">Studio Cifratura</a></li>
+              <li><a href="/web-simulator.html">Simulatore Attacchi Web</a></li>
+              <li><a href="/virtual-lab.html">Lab Virtuale</a></li>
+              <li><a href="/quiz-hub.html">Centro Quiz</a></li>
+              <li><a href="/crypto-studio.html">Studio Cifratura</a></li>
             </ul>
-            <a class="portal-enter" href="web-simulator.html">Vai a didattica</a>
+            <a class="portal-enter" href="/web-simulator.html">Vai a didattica</a>
           </div>
         </article>
 
@@ -339,12 +340,12 @@
               </div>
             </div>
             <ul class="portal-links">
-              <li><a href="attacks-map.html">Mappa Incidenti</a></li>
-              <li><a href="malware-db.html">Database Malware</a></li>
-              <li><a href="historic-attacks.html">Violazioni Storiche</a></li>
-              <li><a href="manipulation-techniques.html">Tecniche di Manipolazione</a></li>
+              <li><a href="/attacks-map.html">Mappa Incidenti</a></li>
+              <li><a href="/malware-db.html">Database Malware</a></li>
+              <li><a href="/historic-attacks.html">Violazioni Storiche</a></li>
+              <li><a href="/manipulation-techniques.html">Tecniche di Manipolazione</a></li>
             </ul>
-            <a class="portal-enter" href="attacks-map.html">Apri il catalogo intelligence</a>
+            <a class="portal-enter" href="/attacks-map.html">Apri il catalogo intelligence</a>
           </div>
         </article>
 
@@ -372,12 +373,12 @@
               <span class="pv-check pv-check--wait">DNS · enumerazione…</span>
             </div>
             <ul class="portal-links">
-              <li><a href="security-check.html">Check URL</a></li>
-              <li><a href="domain-recon.html">Ricognizione dominio</a></li>
-              <li><a href="vulnerability-scanner.html">Header HTTP</a></li>
-              <li><a href="osint-hub.html">OSINT</a></li>
+              <li><a href="/security-check.html">Check URL</a></li>
+              <li><a href="/domain-recon.html">Ricognizione dominio</a></li>
+              <li><a href="/vulnerability-scanner.html">Header HTTP</a></li>
+              <li><a href="/osint-hub.html">OSINT</a></li>
             </ul>
-            <a class="portal-enter" href="security-check.html">Vai agli strumenti</a>
+            <a class="portal-enter" href="/security-check.html">Vai agli strumenti</a>
           </div>
         </article>
       </div>
@@ -391,7 +392,7 @@
       </header>
 
       <div class="home-starter-grid">
-        <a class="home-starter-card home-starter-card--learn" href="web-simulator.html">
+        <a class="home-starter-card home-starter-card--learn" href="/web-simulator.html">
           <span class="home-starter-num" aria-hidden="true">01</span>
           <div class="home-starter-body">
             <p class="home-starter-pillar">Impara</p>
@@ -401,7 +402,7 @@
           </div>
         </a>
 
-        <a class="home-starter-card home-starter-card--sim" href="attacks-map.html">
+        <a class="home-starter-card home-starter-card--sim" href="/attacks-map.html">
           <span class="home-starter-num" aria-hidden="true">02</span>
           <div class="home-starter-body">
             <p class="home-starter-pillar">Simula</p>
@@ -411,7 +412,7 @@
           </div>
         </a>
 
-        <a class="home-starter-card home-starter-card--def" href="security-check.html">
+        <a class="home-starter-card home-starter-card--def" href="/security-check.html">
           <span class="home-starter-num" aria-hidden="true">03</span>
           <div class="home-starter-body">
             <p class="home-starter-pillar">Difendi</p>
@@ -421,7 +422,7 @@
           </div>
         </a>
 
-        <a class="home-starter-card home-starter-card--intel" href="quiz-hub.html">
+        <a class="home-starter-card home-starter-card--intel" href="/quiz-hub.html">
           <span class="home-starter-num" aria-hidden="true">04</span>
           <div class="home-starter-body">
             <p class="home-starter-pillar">Metti alla prova</p>
@@ -436,7 +437,7 @@
     <aside class="home-ethics home-reveal" id="home-ethics">
       <p>
         EVIL è per <strong>studio e difesa</strong>, non per abusi. Test su sistemi reali solo con autorizzazione scritta.
-        <a href="site-policies.html">Policy del sito →</a>
+        <a href="/site-policies.html">Policy del sito →</a>
       </p>
     </aside>
   </main>
@@ -457,9 +458,9 @@
       <p class="evil-site-foot__tag">Legale</p>
       <p class="evil-site-foot__copy evil-site-foot__meta">© 2026 · EVIL Cybersecurity Platform</p>
       <p class="evil-site-foot__copy">
-        <a href="site-policies.html" class="evil-site-foot__link">Policy del sito</a>
+        <a href="/site-policies.html" class="evil-site-foot__link">Policy del sito</a>
         ·
-        <a href="help.html" class="evil-site-foot__link">Help</a>
+        <a href="/help.html" class="evil-site-foot__link">Help</a>
         ·
         <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
       </p>
