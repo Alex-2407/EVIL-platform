@@ -1,6 +1,6 @@
 @echo off
 title EVIL - Sviluppo locale
-cd /d "%~dp0"
+cd /d "%~dp0.."
 
 echo.
 echo =========================================
@@ -35,11 +35,11 @@ if errorlevel 1 (
 
 echo.
 echo [*] Server in avvio su http://localhost:5000
-echo [*] Apri SOLO questo indirizzo (non projectevil.it in locale).
-echo [*] Dopo l'avvio: Ctrl+Shift+R per ricaricare senza cache.
-echo [*] Chiudi questa finestra o premi Ctrl+C per fermare.
+echo [*] Apri SOLO questo indirizzo nel browser.
+echo [*] Ctrl+Shift+R per ricaricare senza cache.
+echo [*] Ctrl+C per fermare.
 echo.
 
-start "" cmd /c "timeout /t 3 /nobreak >nul && start http://localhost:5000/?nocache=20260603"
+start "" cmd /c "timeout /t 3 /nobreak >nul && start http://localhost:5000/"
 
 npm start
