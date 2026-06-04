@@ -744,6 +744,23 @@
   color: #64748b;
 }
 
+.vlab-load-error {
+  text-align: center;
+  padding: 2rem 1rem;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.vlab-loading--hint {
+  padding-top: 0.5rem;
+  font-size: 0.68rem;
+  color: #94a3b8;
+}
+
+.vlab-load-error .vlab-card__btn {
+  margin-top: 1.25rem;
+}
+
 .vlab-catalog.is-hidden {
   display: none;
 }

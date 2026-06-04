@@ -86,7 +86,6 @@ const {
   incidentsPublicLimiter,
   virtualLabSessionLimiter,
   virtualLabLimiter,
-  helpLimiter,
 } = require('../middleware/limiter');
 
 const tokenManager = require('../services/token-manager');
@@ -137,22 +136,12 @@ validateProductionEnvironment();
 
 // Health checks (Railway/Render/load balancer)
 app.get(['/health', '/api/health'], (req, res) => {
-  let usersWritable = false;
-  try {
-    fs.accessSync(path.dirname(usersFile), fs.constants.W_OK);
-    usersWritable = true;
-  } catch (_) {
-    usersWritable = false;
-  }
   res.status(200).json({
     status: 'ok',
     service: 'evil-platform',
     env: process.env.NODE_ENV || 'development',
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
-    smtpConfigured: emailService.isConfigured(),
-    dataDir: dataRoot,
-    usersWritable,
   });
 });
 
@@ -462,7 +451,7 @@ app.use((req, res, next) => {
         callback(null, true);
       } else {
         logger.warn('CORS blocked', { origin, host: req.get('host') });
-        callback(null, false);
+        callback(new Error('CORS non consentito: ' + origin));
       }
     },
     credentials: true,
@@ -704,22 +693,12 @@ const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
 // NEW CONFIG: Uses middleware/upload.js with security hardening
 // See: middleware/upload.js for MIME whitelist, UUID generation, user isolation
 
-// Dati persistenti (Render: imposta DATA_DIR su disco montato)
-const dataRoot = process.env.DATA_DIR
-  ? path.resolve(process.env.DATA_DIR)
-  : root;
-if (process.env.DATA_DIR) {
-  try {
-    fs.mkdirSync(dataRoot, { recursive: true });
-  } catch (err) {
-    console.warn('⚠️ DATA_DIR non creabile:', err.message);
-  }
-}
-
-const usersFile = path.join(dataRoot, 'users.json');
+// Database utenti (salvataggio file)
+const usersFile = path.join(root, 'users.json');
 let users = [];
 
-const cacheFile = path.join(dataRoot, '.incidents-cache.json');
+// Cache file per persistenza incidenti fra riavvii
+const cacheFile = path.join(root, '.incidents-cache.json');
 
 // Carica cache dal disco se esiste
 function loadIncidentsCacheFromDisk() {
@@ -761,12 +740,9 @@ function loadUsers() {
 // Salva utenti nel file
 function saveUsers() {
   try {
-    fs.mkdirSync(path.dirname(usersFile), { recursive: true });
-    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf8');
-    return true;
+    fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
   } catch (err) {
     console.error('Errore salvataggio utenti:', err.message);
-    throw err;
   }
 }
 
@@ -1203,13 +1179,18 @@ app.get('/api/realtime-incidents', incidentsPublicLimiter, async (req, res) => {
 // ==================== LABORATORIO VIRTUALE (VM isolate simulate) ====================
 const vlabAuth = optionalAuthenticate;
 
-app.get('/api/virtual-lab/catalog', vlabAuth, incidentsPublicLimiter, (req, res) => {
-  res.json({
-    labs: virtualLabService.catalogForClient(),
-    attacker: virtualLabService.ATTACKER,
-    disclaimer: 'Ambienti simulati EVIL — rete 10.42.x.x isolata, solo scopo didattico.',
-    storage: process.env.REDIS_URL ? 'redis' : 'memory',
-  });
+app.get('/api/virtual-lab/catalog', vlabAuth, (req, res) => {
+  try {
+    res.json({
+      labs: virtualLabService.catalogForClient(),
+      attacker: virtualLabService.ATTACKER,
+      disclaimer: 'Ambienti simulati EVIL — rete 10.42.x.x isolata, solo scopo didattico.',
+      storage: process.env.REDIS_URL ? 'redis' : 'memory',
+    });
+  } catch (err) {
+    logger.error('Virtual lab catalog error', { error: err.message });
+    res.status(500).json({ error: 'Impossibile caricare il catalogo lab' });
+  }
 });
 
 app.post('/api/virtual-lab/sessions', vlabAuth, virtualLabSessionLimiter, async (req, res) => {
@@ -1487,58 +1468,6 @@ app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
 });
 
 // ========================
-// HELP / CONTATTI
-// ========================
-app.post(
-  '/api/help',
-  helpLimiter,
-  [
-    body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Nome non valido'),
-    body('email').trim().normalizeEmail().isEmail().withMessage('Email non valida'),
-    body('subject').trim().isLength({ min: 3, max: 120 }).withMessage('Oggetto non valido'),
-    body('message').trim().isLength({ min: 10, max: 4000 }).withMessage('Messaggio troppo corto'),
-    body('page').optional({ values: 'falsy' }).trim().isLength({ max: 300 }),
-  ],
-  async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        error: 'Dati non validi',
-        details: errors.array().map((e) => ({ field: e.path, message: e.msg })),
-      });
-    }
-
-    const { name, email, subject, message, page } = req.body;
-    try {
-      const result = await emailService.sendHelpRequest({
-        name,
-        email,
-        subject,
-        message,
-        page: page || req.get('referer') || req.originalUrl,
-      });
-
-      if (!result.success) {
-        return res.status(503).json({
-          error: result.error || 'Invio email non riuscito. Verifica SMTP sul server.',
-          hint: result.hint || '',
-        });
-      }
-
-      return res.json({
-        status: 'success',
-        message: 'Richiesta inviata. Controlla la tua email per la conferma di ricezione.',
-        confirmationSent: !!result.confirmationSent,
-        confirmationHint: result.confirmationHint || '',
-      });
-    } catch (err) {
-      logger.error('Help request failed', { error: err.message });
-      return res.status(500).json({ error: 'Errore invio richiesta help' });
-    }
-  }
-);
-
-// ========================
 // ENDPOINT AUTENTICAZIONE
 // ========================
 
@@ -1584,16 +1513,7 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     };
 
     users.push(pendingUser);
-    try {
-      saveUsers();
-    } catch (saveErr) {
-      users = users.filter((u) => u.id !== pendingUser.id);
-      logger.error('Registration save failed', { error: saveErr.message });
-      return res.status(503).json({
-        error:
-          'Impossibile salvare l\'account sul server. Su Render configura DATA_DIR su un disco persistente e verifica i permessi di scrittura.',
-      });
-    }
+    saveUsers();
 
     let emailResult;
     try {
@@ -2334,24 +2254,10 @@ app.use((error, req, res, next) => {
     timestamp: new Date().toISOString()
   });
 
+  // Don't leak error details in production
   const isDevelopment = process.env.NODE_ENV !== 'production';
-  let clientMessage = message;
-  if (!isDevelopment) {
-    if (req.originalUrl && req.originalUrl.startsWith('/api/')) {
-      if (statusCode === 404) {
-        clientMessage =
-          'Servizio API non trovato. Il deploy deve eseguire npm start (server Node), non solo file statici.';
-      } else if (/CORS non consentito/i.test(message)) {
-        clientMessage = message;
-      } else {
-        clientMessage = 'Errore server temporaneo. Riprova tra qualche minuto.';
-      }
-    } else {
-      clientMessage = 'Something went wrong';
-    }
-  }
   const errorResponse = {
-    error: clientMessage,
+    error: isDevelopment ? message : 'Something went wrong',
     status: 'error',
     timestamp: new Date().toISOString()
   };

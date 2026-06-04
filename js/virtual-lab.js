@@ -185,18 +185,30 @@
     }, 1000);
   }
 
+  const API_TIMEOUT_MS = 12000;
+
   async function api(path, options = {}) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
     let res;
     try {
       res = await fetch(path, {
         headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
         credentials: 'include',
+        signal: controller.signal,
         ...options,
       });
     } catch (networkErr) {
+      if (networkErr.name === 'AbortError') {
+        throw new Error(
+          'Timeout: il server lab non risponde. Avvia il sito con npm start (non solo file statici) e riprova.'
+        );
+      }
       throw new Error(
-        'Impossibile contattare il server lab. Verifica la connessione e che il sito sia avviato (HTTPS).'
+        'Impossibile contattare il server lab. Verifica la connessione e che il sito sia avviato con npm start.'
       );
+    } finally {
+      clearTimeout(timeoutId);
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -222,12 +234,26 @@
   }
 
   async function loadCatalog() {
+    if (!gridEl) return;
     gridEl.innerHTML = '<p class="vlab-loading">Caricamento ambienti lab…</p>';
     try {
       const data = await api('/api/virtual-lab/catalog');
-      renderCatalog(data.labs || []);
+      const labs = data.labs || [];
+      if (!labs.length) {
+        gridEl.innerHTML =
+          '<p class="vlab-loading">Nessun ambiente lab disponibile sul server.</p>';
+        return;
+      }
+      renderCatalog(labs);
     } catch (err) {
-      gridEl.innerHTML = `<p class="vlab-loading">${escapeHtml(err.message)}</p>`;
+      console.error('[Virtual Lab] catalog:', err);
+      gridEl.innerHTML = `
+        <div class="vlab-load-error">
+          <p class="vlab-loading">${escapeHtml(err.message)}</p>
+          <p class="vlab-loading vlab-loading--hint">Serve il server Node (npm start). L’API è <code>/api/virtual-lab/catalog</code>.</p>
+          <button type="button" class="vlab-card__btn vlab-card__btn--start" id="vlab-retry-catalog">Riprova</button>
+        </div>`;
+      document.getElementById('vlab-retry-catalog')?.addEventListener('click', loadCatalog);
     }
   }
 

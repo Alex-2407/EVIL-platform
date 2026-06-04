@@ -63,9 +63,10 @@ class RedisStore {
       }
 
       const ttl = await redis.ttl(key);
+      const ttlMs = ttl > 0 ? ttl * 1000 : windowMs;
       return {
         totalHits: current,
-        resetTime: Date.now() + (ttl * 1000)
+        resetTime: Date.now() + ttlMs,
       };
     } catch (err) {
       console.error('Redis increment error:', err);
@@ -74,34 +75,56 @@ class RedisStore {
   }
 }
 
+const REDIS_RATE_LIMIT_MS = 2500;
+
+function withRedisTimeout(promise, ms = REDIS_RATE_LIMIT_MS) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Redis rate limit timeout')), ms);
+    }),
+  ]);
+}
+
 const redisStore = new RedisStore();
 
 /**
- * Custom store for express-rate-limit
+ * Store express-rate-limit v7 (increment → { totalHits, resetTime: Date })
  */
-const createRedisLimiterStore = () => {
+const createRedisLimiterStore = (windowMs = 15 * 60 * 1000) => {
   return {
-    incr: async (key) => {
-      const data = await redisStore.increment(key, 15 * 60 * 1000);
-      return data.totalHits;
-    },
-    
-    resetKey: async (key) => {
+    async increment(key) {
       try {
-        if (redis) await redis.del(key);
+        const data = await withRedisTimeout(redisStore.increment(key, windowMs));
+        return {
+          totalHits: Math.max(1, Number(data.totalHits) || 1),
+          resetTime: new Date(data.resetTime || Date.now() + windowMs),
+        };
+      } catch (err) {
+        console.warn('⚠️ Rate limit Redis, uso fallback in-memory:', err.message);
+        return {
+          totalHits: 1,
+          resetTime: new Date(Date.now() + windowMs),
+        };
+      }
+    },
+
+    async decrement(key) {
+      try {
+        if (!redis) return;
+        await withRedisTimeout(redis.decr(key));
+      } catch (err) {
+        console.error('Redis decrement error:', err);
+      }
+    },
+
+    async resetKey(key) {
+      try {
+        if (redis) await withRedisTimeout(redis.del(key));
       } catch (err) {
         console.error('Redis reset error:', err);
       }
     },
-    
-    decrement: async (key) => {
-      try {
-        if (!redis) return;
-        await redis.decr(key);
-      } catch (err) {
-        console.error('Redis decrement error:', err);
-      }
-    }
   };
 };
 
@@ -327,19 +350,10 @@ const virtualLabLimiter = (req, res, next) => {
     });
 };
 
-const helpLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_HELP_MAX || 8, 10),
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: 'Troppe richieste help inviate. Riprova tra un\'ora.' },
-});
-
 module.exports = {
   globalLimiter,
   authLimiter,
   registerLimiter,
-  helpLimiter,
   passwordResetLimiter,
   refreshTokenLimiter,
   scanLimiter,
