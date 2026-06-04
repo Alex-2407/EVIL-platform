@@ -53,7 +53,14 @@ Risposta `ok: true` → SMTP raggiungibile. Se `hints` contiene avvisi, correggi
 
 ## `EMAIL_DEV_OUTBOX=0`
 
-In produzione le email devono uscire solo via SMTP. Se la registrazione va in timeout, correggi SMTP (sopra); non disattivare SMTP senza aver configurato Mailtrap Live.
+In produzione le email di registrazione partono **solo via SMTP**. Nessun link di verifica viene mostrato sul sito: serve a dimostrare che l’utente controlla la casella email inserita.
+
+Se la registrazione fallisce, correggi SMTP (`/api/health/smtp?verify=1` deve dare `ok: true`) prima di riprovare.
+
+Variabili consigliate:
+
+- `SMTP_USER=api` (con token Mailtrap in `SMTP_PASS`)
+- `REGISTER_SMTP_TIMEOUT_MS=25000`
 
 ## Sicurezza
 

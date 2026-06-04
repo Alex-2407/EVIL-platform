@@ -37,26 +37,15 @@ class EmailService {
 
     this.smtpSendTimeoutMs = parseInt(process.env.SMTP_SEND_TIMEOUT_MS || '15000', 10);
     this.registerSmtpTimeoutMs = parseInt(
-      process.env.REGISTER_SMTP_TIMEOUT_MS || '12000',
+      process.env.REGISTER_SMTP_TIMEOUT_MS || '25000',
       10
     );
 
     this.applyProviderDefaults();
+    this.smtpAuth = this.resolveSmtpAuth();
 
     if (this.isConfigured()) {
-      this.transporter = nodemailer.createTransport({
-        host: this.smtpHost,
-        port: this.smtpPort,
-        secure: this.smtpSecure,
-        requireTLS: this.smtpPort === 587 && !this.smtpSecure,
-        connectionTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
-        greetingTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
-        socketTimeout: this.smtpSendTimeoutMs,
-        auth: {
-          user: this.smtpUser,
-          pass: this.smtpPass
-        }
-      });
+      this.transporter = this.createSmtpTransporter(this.smtpSendTimeoutMs);
     } else {
       this.transporter = null;
     }
@@ -82,6 +71,34 @@ class EmailService {
       !this.isPlaceholder(this.smtpUser) &&
       !this.isPlaceholder(this.smtpPass)
     );
+  }
+
+  resolveSmtpAuth() {
+    const host = this.smtpHost.toLowerCase();
+    const pass = String(this.smtpPass || '');
+    if (
+      (host.includes('mailtrap') || host.includes('live.smtp')) &&
+      /^[a-f0-9]{20,}$/i.test(pass)
+    ) {
+      return { user: 'api', pass };
+    }
+    return { user: this.smtpUser, pass: this.smtpPass };
+  }
+
+  createSmtpTransporter(socketTimeoutMs) {
+    const ms = socketTimeoutMs || this.smtpSendTimeoutMs;
+    return nodemailer.createTransport({
+      host: this.smtpHost,
+      port: this.smtpPort,
+      secure: this.smtpSecure,
+      requireTLS: this.smtpPort === 587 && !this.smtpSecure,
+      connectionTimeout: Math.min(20000, ms),
+      greetingTimeout: Math.min(20000, ms),
+      socketTimeout: ms,
+      pool: false,
+      maxConnections: 1,
+      auth: this.smtpAuth,
+    });
   }
 
   /** Mailtrap Live: 587 + STARTTLS; Gmail: 465 + SSL */
@@ -488,34 +505,33 @@ class EmailService {
     return process.env.EMAIL_DEV_OUTBOX !== '0';
   }
 
-  /** Fallback registrazione se SMTP lento (anche con EMAIL_DEV_OUTBOX=0) */
-  registrationFallbackEnabled() {
-    return process.env.EMAIL_REGISTER_FALLBACK !== '0';
-  }
-
   /**
-   * Registrazione: timeout SMTP breve + fallback outbox (evita hang su projectevil.it)
+   * Registrazione: email obbligatoria via SMTP (nessun link in pagina / outbox in produzione).
    */
   async sendRegistrationVerification(email, token, name = 'Utente') {
     const verificationLink = this.buildVerificationLink(token);
     const mail = this.buildVerificationMail(name, verificationLink);
-    const allowOutbox = this.outboxAllowed() || this.registrationFallbackEnabled();
-    const skipSmtp = process.env.EMAIL_REGISTER_SKIP_SMTP === '1';
 
-    if (!this.isConfigured() || skipSmtp) {
-      if (allowOutbox) {
-        return this.sendViaOutbox(email, name, verificationLink);
-      }
+    if (!this.isConfigured()) {
       return {
         success: false,
         error:
-          'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS oppure EMAIL_REGISTER_SKIP_SMTP=1 con DATA_DIR scrivibile.',
+          'SMTP non configurato su Render. Imposta SMTP_HOST, SMTP_USER, SMTP_PASS e SMTP_FROM_EMAIL.',
       };
     }
 
+    const isDev = process.env.NODE_ENV !== 'production';
+    const allowDevOutbox = isDev && this.outboxAllowed();
+
+    if (allowDevOutbox && process.env.EMAIL_REGISTER_SKIP_SMTP === '1') {
+      return this.sendViaOutbox(email, name, verificationLink);
+    }
+
+    const transport = this.createSmtpTransporter(this.registerSmtpTimeoutMs);
+
     try {
       const info = await this.withTimeout(
-        this.transporter.sendMail({
+        transport.sendMail({
           from: this.fromEmail,
           to: email,
           subject: mail.subject,
@@ -532,12 +548,12 @@ class EmailService {
         recipient: email,
         delivery,
         host: this.smtpHost,
+        user: this.smtpAuth.user,
       });
       return {
         success: true,
         delivery,
         messageId: info.messageId,
-        actionLink: verificationLink,
         hint: this.getDeliveryHint(delivery),
       };
     } catch (err) {
@@ -545,15 +561,22 @@ class EmailService {
         error: err.message,
         recipient: email,
         host: this.smtpHost,
+        user: this.smtpAuth.user,
       });
-      if (allowOutbox) {
+      if (allowDevOutbox) {
         const outbox = this.sendViaOutbox(email, name, verificationLink);
         outbox.smtpError = err.message;
-        outbox.hint =
-          `L'invio email non è riuscito (${err.message}). Usa il link di verifica mostrato nella pagina successiva.`;
         return outbox;
       }
       return { success: false, error: err.message };
+    } finally {
+      if (transport.close) {
+        try {
+          transport.close();
+        } catch (_) {
+          /* ignore */
+        }
+      }
     }
   }
 

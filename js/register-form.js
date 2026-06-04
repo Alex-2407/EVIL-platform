@@ -168,6 +168,14 @@
         }
 
         if (!response.ok) {
+          if (data.details && typeof data.details === 'string') {
+            showError(mapRegisterError(data.error) || 'Errore di registrazione', false, {
+              status: response.status,
+              raw: { error: data.error, details: data.details, smtpHint: data.smtpHint },
+              hint: data.smtpHint || 'Verifica SMTP su Render e /api/health/smtp?verify=1',
+            });
+            return;
+          }
           if (data.details && Array.isArray(data.details)) {
             const detailMessages = data.details
               .map((d) => `• ${d.field || d.path || 'campo'}: ${d.message}`)
@@ -191,10 +199,7 @@
         if (data.emailHint) {
           sessionStorage.setItem('evil_email_hint', data.emailHint);
         }
-        const verifyLink = data.verificationLink || data.devVerificationLink;
-        if (verifyLink) {
-          sessionStorage.setItem('evil_verify_link', verifyLink);
-        }
+        sessionStorage.removeItem('evil_verify_link');
         if (data.emailHint) {
           sessionStorage.setItem('evil_email_hint', data.emailHint);
         }

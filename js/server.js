@@ -1607,48 +1607,60 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
       });
     }
 
-    const verificationLink = emailService.buildVerificationLink(verificationToken);
+    let emailResult;
+    try {
+      emailResult = await emailService.sendRegistrationVerification(
+        normalizedEmail,
+        verificationToken,
+        name
+      );
+    } catch (emailErr) {
+      logger.error('Registration email send failed', {
+        error: emailErr.message,
+        email: normalizedEmail,
+      });
+      users = users.filter((u) => u.id !== pendingUser.id);
+      saveUsers();
+      return res.status(503).json({
+        error:
+          'Impossibile inviare l\'email di verifica. L\'account non è stato creato. Controlla SMTP su Render (vedi /api/health/smtp?verify=1).',
+        details: emailErr.message,
+      });
+    }
+
+    if (!emailResult.success) {
+      users = users.filter((u) => u.id !== pendingUser.id);
+      saveUsers();
+      const smtpErr = emailResult.error || '';
+      return res.status(503).json({
+        error:
+          'Impossibile inviare l\'email di verifica. L\'account non è stato creato finché la mail non parte.',
+        details: smtpErr,
+        smtpHint:
+          'Su Render: SMTP_HOST=live.smtp.mailtrap.io, SMTP_PORT=587, SMTP_SECURE=false, SMTP_USER=api, SMTP_PASS=token Mailtrap, SMTP_FROM_EMAIL=noreply@projectevil.it',
+      });
+    }
 
     auditLog.security('USER_REGISTERED_PENDING', { userId: pendingUser.id, email: normalizedEmail }, 'INFO');
 
     const payload = {
       status: 'success',
       message:
-        'Account creato. Controlla la email oppure usa il link di verifica nella pagina successiva.',
+        'Controlla la tua casella email (anche spam) e clicca il link EVIL per attivare l\'account.',
       requiresVerification: true,
       userId: pendingUser.id,
       email: normalizedEmail,
-      verificationLink,
-      emailDelivery: 'pending',
-      emailHint:
-        'Se l\'email non arriva entro qualche minuto, apri il link di verifica mostrato nella pagina successiva.',
+      emailDelivery: emailResult.delivery || 'smtp',
+      emailHint: emailResult.hint || 'Se non vedi l\'email, controlla la cartella spam.',
     };
 
-    res.json(payload);
+    const exposeDevLink =
+      process.env.NODE_ENV !== 'production' && process.env.EMAIL_EXPOSE_VERIFY_LINK === '1';
+    if (exposeDevLink && emailResult.actionLink) {
+      payload.devVerificationLink = emailResult.actionLink;
+    }
 
-    setImmediate(() => {
-      emailService
-        .sendRegistrationVerification(normalizedEmail, verificationToken, name)
-        .then((emailResult) => {
-          if (emailResult.success) {
-            logger.info('Email registrazione inviata in background', {
-              email: normalizedEmail,
-              delivery: emailResult.delivery,
-            });
-          } else {
-            logger.warn('Email registrazione fallita in background', {
-              email: normalizedEmail,
-              error: emailResult.error,
-            });
-          }
-        })
-        .catch((emailErr) => {
-          logger.warn('Email registrazione errore background', {
-            email: normalizedEmail,
-            error: emailErr.message,
-          });
-        });
-    });
+    res.json(payload);
   } catch (err) {
     logger.error('Registration error', { error: err.message });
     res.status(500).json({ error: 'Errore registrazione' });
