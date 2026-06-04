@@ -1,5 +1,7 @@
 // ==================== ENVIRONMENT & SECURITY ====================
 require('dotenv').config();
+const { bootstrapBaseUrlEnv } = require('../utils/resolve-base-url');
+bootstrapBaseUrlEnv();
 
 const express = require('express');
 const cors = require('cors');
@@ -140,9 +142,36 @@ app.get(['/health', '/api/health'], (req, res) => {
     status: 'ok',
     service: 'evil-platform',
     env: process.env.NODE_ENV || 'development',
+    baseUrl: process.env.BASE_URL || null,
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/health/smtp', async (req, res) => {
+  try {
+    const configured = emailService.isConfigured();
+    const mode = emailService.resolveDeliveryMode();
+    const verify = configured ? await emailService.verifyConnection() : { ok: false, error: 'SMTP non configurato' };
+    res.status(verify.ok ? 200 : 503).json({
+      configured,
+      mode,
+      host: process.env.SMTP_HOST || null,
+      port: process.env.SMTP_PORT || null,
+      from: process.env.SMTP_FROM_EMAIL || null,
+      baseUrl: emailService.baseUrl,
+      registerSmtpTimeoutMs: emailService.registerSmtpTimeoutMs,
+      verify,
+      hint:
+        mode === 'sandbox'
+          ? 'Mailtrap Sandbox: le email sono solo su mailtrap.io/sandboxes, non in Gmail.'
+          : mode === 'live'
+            ? 'Mailtrap Sending: usa SMTP_FROM_EMAIL sul dominio verificato (es. @projectevil.it).'
+            : null,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Dietro nginx/Cloudflare in produzione: IP reale per rate limit e sessioni lab

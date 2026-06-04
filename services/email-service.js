@@ -8,6 +8,7 @@ const path = require('path');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const { logger } = require('../middleware/logger');
+const { resolvePublicBaseUrl } = require('../utils/resolve-base-url');
 
 const SMTP_PLACEHOLDERS = new Set([
   '',
@@ -26,8 +27,8 @@ class EmailService {
     this.smtpUser = (process.env.SMTP_USER || '').trim();
     this.smtpPass = (process.env.SMTP_PASS || '').trim();
     this.smtpMode = (process.env.SMTP_MODE || 'auto').toLowerCase();
-    this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@evil-platform.com';
-    this.baseUrl = (process.env.BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
+    this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@projectevil.it';
+    this.baseUrl = (resolvePublicBaseUrl() || 'http://localhost:5000').replace(/\/$/, '');
     const dataRoot = process.env.DATA_DIR
       ? path.resolve(process.env.DATA_DIR)
       : path.join(process.cwd(), 'data');
@@ -36,8 +37,9 @@ class EmailService {
     );
 
     this.smtpSendTimeoutMs = parseInt(process.env.SMTP_SEND_TIMEOUT_MS || '15000', 10);
+    const onRender = Boolean(process.env.RENDER || process.env.RENDER_EXTERNAL_URL);
     this.registerSmtpTimeoutMs = parseInt(
-      process.env.REGISTER_SMTP_TIMEOUT_MS || '6000',
+      process.env.REGISTER_SMTP_TIMEOUT_MS || (onRender ? '12000' : '6000'),
       10
     );
 
@@ -46,16 +48,26 @@ class EmailService {
         host: this.smtpHost,
         port: this.smtpPort,
         secure: this.smtpSecure,
-        connectionTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
-        greetingTimeout: Math.min(8000, this.registerSmtpTimeoutMs),
+        connectionTimeout: Math.min(12000, this.registerSmtpTimeoutMs),
+        greetingTimeout: Math.min(12000, this.registerSmtpTimeoutMs),
         socketTimeout: this.smtpSendTimeoutMs,
         auth: {
           user: this.smtpUser,
           pass: this.smtpPass
         }
       });
+      logger.info('SMTP email service ready', {
+        host: this.smtpHost,
+        port: this.smtpPort,
+        mode: this.resolveDeliveryMode(),
+        baseUrl: this.baseUrl,
+        from: this.fromEmail,
+      });
     } else {
       this.transporter = null;
+      logger.warn('SMTP non configurato — registrazione userà outbox se EMAIL_DEV_OUTBOX≠0', {
+        baseUrl: this.baseUrl,
+      });
     }
   }
 
