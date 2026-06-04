@@ -17,6 +17,15 @@
   z-index: 1;
 }
 
+.leaflet-container.evil-map-locked,
+.leaflet-container.evil-map-locked .leaflet-pane {
+  cursor: default;
+}
+
+.leaflet-container.evil-map-locked .leaflet-marker-icon {
+  cursor: pointer;
+}
+
 .leaflet-container img.leaflet-tile,
 .leaflet-container img.leaflet-marker-icon,
 .leaflet-container img.leaflet-image-layer {

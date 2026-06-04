@@ -112,8 +112,14 @@
     map.doubleClickZoom.disable();
     map.scrollWheelZoom.disable();
     map.boxZoom.disable();
+    if (map.touchRotate) map.touchRotate.disable();
     if (map.keyboard) map.keyboard.disable();
     if (map.tap) map.tap.disable();
+    const container = map.getContainer();
+    if (container) {
+      container.style.touchAction = 'none';
+      container.classList.add('evil-map-locked');
+    }
     const zc = map.zoomControl;
     if (zc && map.removeControl) {
       try {

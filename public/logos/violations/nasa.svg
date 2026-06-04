@@ -1,10 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="NASA">
-  <circle cx="120" cy="120" r="115" fill="#0B3D91"/>
-  <circle cx="120" cy="120" r="108" fill="none" stroke="#fff" stroke-width="2" opacity="0.35"/>
-  <path fill="#FC3D21" d="M48 168c18-52 48-78 72-78s54 26 72 78H48z"/>
-  <path fill="#fff" d="M72 92c8-4 16-6 24-6 18 0 34 10 48 28-6 2-12 3-18 3-20 0-38-10-54-25z" opacity="0.9"/>
-  <circle cx="95" cy="88" r="3" fill="#fff"/>
-  <circle cx="120" cy="82" r="2.5" fill="#fff"/>
-  <circle cx="145" cy="90" r="2.5" fill="#fff"/>
-  <text x="120" y="198" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="28" font-weight="700" letter-spacing="0.12em">NASA</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 272 272" role="img" aria-label="NASA">
+  <circle cx="136" cy="136" r="132" fill="#0B3D91"/>
+  <circle cx="136" cy="136" r="126" fill="none" stroke="#fff" stroke-width="3" opacity="0.2"/>
+  <path fill="#FC3D21" d="M58 198c32-88 72-118 118-118 36 0 66 14 90 42-22 6-40 20-54 40-20 28-34 58-42 76-38-18-72-32-112-40z"/>
+  <path fill="#fff" d="M88 108c10-18 28-30 48-30 22 0 40 12 52 32-8 2-16 4-24 4-22 0-42-10-58-26-6 8-12 16-18 20z" opacity="0.95"/>
+  <circle cx="108" cy="92" r="5" fill="#fff"/>
+  <circle cx="136" cy="84" r="4" fill="#fff"/>
+  <circle cx="164" cy="94" r="4.5" fill="#fff"/>
+  <circle cx="182" cy="118" r="3.5" fill="#fff"/>
+  <circle cx="96" cy="122" r="3" fill="#fff"/>
+  <path fill="#fff" d="M78 168h18l4-28h14l-4 28h18l2-14h-14l3-18h14l-2 14h18l-6 46H96l-2-14zm52-32h18l-10 60h-18l10-60zm34 0c14 0 24 8 24 22 0 16-12 26-30 26h-20l10-60h16zm-2 38c6 0 10-4 10-10 0-6-4-10-10-10h-6l-4 20h10z" opacity="0.92"/>
 </svg>

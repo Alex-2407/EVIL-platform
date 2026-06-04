@@ -983,19 +983,63 @@
 }
 
 @media (min-width: 768px) and (max-width: 1100px) {
-  .cs-card {
-    padding-right: 0.25rem;
+  .cs-catalog .cs-section-head h2 {
+    padding-right: 0;
+    line-height: 1.2;
   }
 
-  .cs-card h3 {
-    padding-right: 2.5rem;
-    font-size: 0.98rem;
-    line-height: 1.25;
+  .cs-catalog-hint {
+    display: block;
+    margin-top: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .cs-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto auto auto auto;
+    align-items: start;
+    column-gap: 0.65rem;
+    padding-right: 0.85rem;
   }
 
   .cs-card__rank {
-    top: 0.65rem;
-    right: 0.65rem;
+    position: static;
+    grid-column: 2;
+    grid-row: 1 / 3;
+    align-self: start;
+    justify-self: end;
+    margin-top: 0.1rem;
+  }
+
+  .cs-card__tag {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: 100%;
+  }
+
+  .cs-card h3 {
+    grid-column: 1;
+    grid-row: 2;
+    padding-right: 0;
+    font-size: 0.98rem;
+    line-height: 1.3;
+    margin-bottom: 0.35rem;
+  }
+
+  .cs-card > p:not(.cs-card__tag) {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .cs-card__meta {
+    grid-column: 1 / -1;
+    grid-row: 4;
+  }
+
+  .cs-card__open {
+    grid-column: 1 / -1;
+    grid-row: 5;
   }
 
   .cs-modal__head {

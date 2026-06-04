@@ -86,6 +86,7 @@ const {
   incidentsPublicLimiter,
   virtualLabSessionLimiter,
   virtualLabLimiter,
+  helpLimiter,
 } = require('../middleware/limiter');
 
 const tokenManager = require('../services/token-manager');
@@ -136,12 +137,22 @@ validateProductionEnvironment();
 
 // Health checks (Railway/Render/load balancer)
 app.get(['/health', '/api/health'], (req, res) => {
+  let usersWritable = false;
+  try {
+    fs.accessSync(path.dirname(usersFile), fs.constants.W_OK);
+    usersWritable = true;
+  } catch (_) {
+    usersWritable = false;
+  }
   res.status(200).json({
     status: 'ok',
     service: 'evil-platform',
     env: process.env.NODE_ENV || 'development',
     uptime: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
+    smtpConfigured: emailService.isConfigured(),
+    dataDir: dataRoot,
+    usersWritable,
   });
 });
 
@@ -451,7 +462,7 @@ app.use((req, res, next) => {
         callback(null, true);
       } else {
         logger.warn('CORS blocked', { origin, host: req.get('host') });
-        callback(new Error('CORS non consentito: ' + origin));
+        callback(null, false);
       }
     },
     credentials: true,
@@ -693,22 +704,22 @@ const REFRESH_TOKEN_EXPIRY = process.env.JWT_REFRESH_EXPIRY || '7d';
 // NEW CONFIG: Uses middleware/upload.js with security hardening
 // See: middleware/upload.js for MIME whitelist, UUID generation, user isolation
 
-// Database utenti (salvataggio file — DATA_DIR per Render/disk persistente)
-const dataDir = process.env.DATA_DIR
+// Dati persistenti (Render: imposta DATA_DIR su disco montato)
+const dataRoot = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
   : root;
-try {
-  fs.mkdirSync(dataDir, { recursive: true });
-} catch (_) {
-  /* ignore */
+if (process.env.DATA_DIR) {
+  try {
+    fs.mkdirSync(dataRoot, { recursive: true });
+  } catch (err) {
+    console.warn('⚠️ DATA_DIR non creabile:', err.message);
+  }
 }
-const usersFile = process.env.DB_FILE && path.isAbsolute(process.env.DB_FILE)
-  ? process.env.DB_FILE
-  : path.join(dataDir, path.basename(process.env.DB_FILE || 'users.json'));
+
+const usersFile = path.join(dataRoot, 'users.json');
 let users = [];
 
-// Cache file per persistenza incidenti fra riavvii
-const cacheFile = path.join(root, '.incidents-cache.json');
+const cacheFile = path.join(dataRoot, '.incidents-cache.json');
 
 // Carica cache dal disco se esiste
 function loadIncidentsCacheFromDisk() {
@@ -754,8 +765,8 @@ function saveUsers() {
     fs.writeFileSync(usersFile, JSON.stringify(users, null, 2), 'utf8');
     return true;
   } catch (err) {
-    console.error('Errore salvataggio utenti:', err.message, usersFile);
-    return false;
+    console.error('Errore salvataggio utenti:', err.message);
+    throw err;
   }
 }
 
@@ -1476,59 +1487,60 @@ app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
 });
 
 // ========================
-// ENDPOINT AUTENTICAZIONE
+// HELP / CONTATTI
 // ========================
-
-// HELP — modulo contatti (email staff + conferma utente)
-app.post('/api/help/contact', globalLimiter, async (req, res) => {
-  try {
-    const name = sanitizeString(req.body?.name, { maxLength: 100 });
-    const email = sanitizeEmail(req.body?.email);
-    const subject = sanitizeString(req.body?.subject, { maxLength: 120 });
-    const message = sanitizeString(req.body?.message, { maxLength: 4000, escapeHtml: false });
-    const page = sanitizeString(req.body?.page, { maxLength: 200 });
-
-    if (!name || name.length < 2) {
-      return res.status(400).json({ error: 'Inserisci il nome (minimo 2 caratteri).' });
-    }
-    if (!email) {
-      return res.status(400).json({ error: 'Indirizzo email non valido.' });
-    }
-    if (!subject || subject.length < 3) {
-      return res.status(400).json({ error: 'Inserisci un oggetto (minimo 3 caratteri).' });
-    }
-    if (!message || message.length < 10) {
-      return res.status(400).json({ error: 'Descrivi la richiesta (minimo 10 caratteri).' });
-    }
-
-    const result = await emailService.sendHelpRequest({
-      name,
-      email,
-      subject,
-      message,
-      page: page || req.get('Referer') || ''
-    });
-
-    if (!result.success) {
-      return res.status(503).json({
-        error: result.error || 'Impossibile inviare la richiesta. Verifica SMTP su Render.'
+app.post(
+  '/api/help',
+  helpLimiter,
+  [
+    body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Nome non valido'),
+    body('email').trim().normalizeEmail().isEmail().withMessage('Email non valida'),
+    body('subject').trim().isLength({ min: 3, max: 120 }).withMessage('Oggetto non valido'),
+    body('message').trim().isLength({ min: 10, max: 4000 }).withMessage('Messaggio troppo corto'),
+    body('page').optional({ values: 'falsy' }).trim().isLength({ max: 300 }),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: 'Dati non validi',
+        details: errors.array().map((e) => ({ field: e.path, message: e.msg })),
       });
     }
 
-    auditLog.security('HELP_REQUEST_SENT', { email }, 'INFO');
+    const { name, email, subject, message, page } = req.body;
+    try {
+      const result = await emailService.sendHelpRequest({
+        name,
+        email,
+        subject,
+        message,
+        page: page || req.get('referer') || req.originalUrl,
+      });
 
-    res.json({
-      status: 'success',
-      message: 'Richiesta inviata. Controlla la tua email per la conferma di ricezione.',
-      emailDelivery: result.delivery,
-      emailHint: result.hint || '',
-      confirmationSent: !!result.confirmationSent
-    });
-  } catch (err) {
-    logger.error('Help contact error', { error: err.message });
-    res.status(500).json({ error: 'Errore invio richiesta supporto' });
+      if (!result.success) {
+        return res.status(503).json({
+          error: result.error || 'Invio email non riuscito. Verifica SMTP sul server.',
+          hint: result.hint || '',
+        });
+      }
+
+      return res.json({
+        status: 'success',
+        message: 'Richiesta inviata. Controlla la tua email per la conferma di ricezione.',
+        confirmationSent: !!result.confirmationSent,
+        confirmationHint: result.confirmationHint || '',
+      });
+    } catch (err) {
+      logger.error('Help request failed', { error: err.message });
+      return res.status(500).json({ error: 'Errore invio richiesta help' });
+    }
   }
-});
+);
+
+// ========================
+// ENDPOINT AUTENTICAZIONE
+// ========================
 
 // REGISTRAZIONE
 app.post('/api/auth/register', registerLimiter, validateRegister, async (req, res) => {
@@ -1572,11 +1584,14 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     };
 
     users.push(pendingUser);
-    if (!saveUsers()) {
+    try {
+      saveUsers();
+    } catch (saveErr) {
       users = users.filter((u) => u.id !== pendingUser.id);
+      logger.error('Registration save failed', { error: saveErr.message });
       return res.status(503).json({
         error:
-          'Impossibile salvare l\'account sul server. In produzione configura DATA_DIR su un volume persistente.'
+          'Impossibile salvare l\'account sul server. Su Render configura DATA_DIR su un disco persistente e verifica i permessi di scrittura.',
       });
     }
 
@@ -2297,12 +2312,6 @@ app.post('/api/report-generator', authenticateTools, (req, res) => {
 
 // Catch 404 errors
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({
-      error:
-        'Endpoint API non trovato. Avvia il sito con npm start (server Node) e usa lo stesso dominio per HTML e API.'
-    });
-  }
   const error = new Error(`Route ${req.originalUrl} not found`);
   error.statusCode = 404;
   next(error);
@@ -2326,14 +2335,19 @@ app.use((error, req, res, next) => {
   });
 
   const isDevelopment = process.env.NODE_ENV !== 'production';
-  const isApi = req.path.startsWith('/api/');
-  let clientMessage = isDevelopment ? message : 'Something went wrong';
-  if (!isDevelopment && isApi) {
-    if (statusCode === 404) {
-      clientMessage =
-        'Servizio non disponibile. Verifica che il deploy esegua npm start e non solo file statici.';
-    } else if (statusCode >= 500) {
-      clientMessage = 'Errore server temporaneo. Riprova tra qualche minuto.';
+  let clientMessage = message;
+  if (!isDevelopment) {
+    if (req.originalUrl && req.originalUrl.startsWith('/api/')) {
+      if (statusCode === 404) {
+        clientMessage =
+          'Servizio API non trovato. Il deploy deve eseguire npm start (server Node), non solo file statici.';
+      } else if (/CORS non consentito/i.test(message)) {
+        clientMessage = message;
+      } else {
+        clientMessage = 'Errore server temporaneo. Riprova tra qualche minuto.';
+      }
+    } else {
+      clientMessage = 'Something went wrong';
     }
   }
   const errorResponse = {

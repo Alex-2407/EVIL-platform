@@ -327,10 +327,19 @@ const virtualLabLimiter = (req, res, next) => {
     });
 };
 
+const helpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: parseInt(process.env.RATE_LIMIT_HELP_MAX || 8, 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Troppe richieste help inviate. Riprova tra un\'ora.' },
+});
+
 module.exports = {
   globalLimiter,
   authLimiter,
   registerLimiter,
+  helpLimiter,
   passwordResetLimiter,
   refreshTokenLimiter,
   scanLimiter,
