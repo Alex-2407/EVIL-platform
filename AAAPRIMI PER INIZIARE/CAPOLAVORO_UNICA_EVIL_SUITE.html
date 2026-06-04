@@ -3,403 +3,924 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Capolavoro — EVIL Suite | Portfolio UNICA</title>
+  <title>Capolavoro — EVIL Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style>
     :root {
-      --bg: #06080e;
-      --panel: #0f1419;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --accent: #00ff9c;
-      --accent2: #7dd3fc;
-      --warn: #f59e0b;
-      --line: rgba(125, 211, 252, 0.18);
+      --evil-bg: #06080e;
+      --evil-surface: rgba(9, 14, 24, 0.92);
+      --evil-panel: #0c1018;
+      --evil-border: rgba(255, 255, 255, 0.1);
+      --evil-accent: #00ff9c;
+      --evil-amber: #f59e0b;
+      --evil-sky: #7dd3fc;
+      --evil-rose: #f87171;
+      --evil-violet: #a78bfa;
+      --evil-text: #e2e8f0;
+      --evil-muted: #94a3b8;
+      --evil-serif: Georgia, "Palatino Linotype", "Times New Roman", serif;
+      --evil-mono: ui-monospace, Consolas, "Courier New", monospace;
+      --evil-max: 920px;
     }
-    * { box-sizing: border-box; }
-    body {
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body.evil-capolavoro {
       margin: 0;
-      font-family: "Segoe UI", system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.65;
-      font-size: 11pt;
+      font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+      font-size: 10.5pt;
+      line-height: 1.62;
+      color: var(--evil-text);
+      background: var(--evil-bg);
+      -webkit-font-smoothing: antialiased;
     }
-    .print-hint {
-      background: #1e293b;
-      border-bottom: 1px solid var(--line);
-      padding: 0.75rem 1.5rem;
-      font-size: 0.9rem;
-      color: var(--accent2);
-      text-align: center;
+
+    /* ── Scene (come help / policy) ── */
+    .cap-scene {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
     }
-    @media print {
-      .print-hint, .no-print { display: none !important; }
-      body { background: #fff; color: #111; font-size: 10.5pt; }
-      .cover { page-break-after: always; background: #0a0a0a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      section { page-break-inside: avoid; }
-      a { color: #0d47a1; }
-      .fig img { max-width: 100%; border: 1px solid #ccc; }
+    .cap-scene__mesh {
+      position: absolute;
+      inset: -15%;
+      background:
+        radial-gradient(ellipse 50% 42% at 12% 8%, rgba(0, 255, 156, 0.09), transparent 55%),
+        radial-gradient(ellipse 45% 38% at 92% 85%, rgba(245, 158, 11, 0.08), transparent 50%),
+        radial-gradient(ellipse 40% 35% at 50% 100%, rgba(125, 211, 252, 0.06), transparent 45%);
     }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
-    .cover {
-      min-height: 92vh;
+    .cap-scene__grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 44px 44px;
+      mask-image: radial-gradient(ellipse 75% 65% at 50% 25%, black 15%, transparent 78%);
+      opacity: 0.55;
+    }
+
+    /* ── Toolbar stampa ── */
+    .cap-toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem 1.25rem;
+      padding: 0.65rem 1rem;
+      background: rgba(6, 8, 14, 0.95);
+      border-bottom: 1px dashed rgba(245, 158, 11, 0.35);
+      backdrop-filter: blur(12px);
+      font-size: 0.82rem;
+      color: var(--evil-muted);
+    }
+    .cap-toolbar strong { color: var(--evil-sky); }
+    .cap-toolbar button {
+      font: inherit;
+      cursor: pointer;
+      border: 1px solid rgba(0, 255, 156, 0.4);
+      background: rgba(0, 255, 156, 0.08);
+      color: var(--evil-accent);
+      padding: 0.35rem 0.9rem;
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+    .cap-toolbar button:hover { background: rgba(0, 255, 156, 0.18); }
+
+    /* ── Cover ── */
+    .cap-cover {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       text-align: center;
-      padding: 3rem 1.5rem;
-      background: radial-gradient(ellipse at 50% 0%, rgba(0,255,156,0.08), transparent 55%),
-                  radial-gradient(ellipse at 80% 80%, rgba(125,211,252,0.06), transparent 50%),
-                  var(--bg);
-      border-bottom: 1px solid var(--line);
+      padding: 3rem 1.5rem 4rem;
+      border-bottom: 1px dashed var(--evil-border);
     }
-    .cover img.logo { width: 120px; height: 120px; margin-bottom: 1.5rem; }
-    .cover h1 {
-      font-size: clamp(1.8rem, 5vw, 2.6rem);
-      margin: 0 0 0.5rem;
-      letter-spacing: 0.04em;
+    .cap-emblem {
+      position: relative;
+      width: 132px;
+      height: 132px;
+      margin-bottom: 1.75rem;
     }
-    .cover h1 em { color: var(--accent); font-style: normal; }
-    .cover .sub { font-size: 1.15rem; color: var(--muted); max-width: 36rem; margin: 0 auto 1.5rem; }
-    .cover .meta { color: var(--muted); font-size: 0.95rem; }
-    .cover .meta strong { color: var(--accent2); }
-    h2 {
-      color: var(--accent);
-      font-size: 1.35rem;
-      margin: 2.5rem 0 1rem;
-      padding-bottom: 0.35rem;
-      border-bottom: 1px solid var(--line);
-    }
-    h3 { color: var(--accent2); font-size: 1.05rem; margin: 1.5rem 0 0.6rem; }
-    p { margin: 0 0 1rem; }
-    ul, ol { margin: 0 0 1rem; padding-left: 1.4rem; }
-    li { margin-bottom: 0.35rem; }
-    .lead {
-      font-size: 1.05rem;
-      color: var(--muted);
-      border-left: 3px solid var(--accent);
-      padding-left: 1rem;
-      margin: 1.5rem 0;
-    }
-    .grid2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-      margin: 1rem 0;
-    }
-    @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 1rem 1.15rem;
-    }
-    .card h4 { margin: 0 0 0.5rem; color: var(--warn); font-size: 0.95rem; }
-    .timeline { position: relative; padding-left: 1.5rem; border-left: 2px solid var(--line); margin: 1rem 0; }
-    .timeline .item { margin-bottom: 1.25rem; position: relative; }
-    .timeline .item::before {
-      content: "";
+    .cap-emblem__ring {
       position: absolute;
-      left: -1.65rem;
-      top: 0.35rem;
-      width: 10px;
-      height: 10px;
+      inset: 0;
       border-radius: 50%;
-      background: var(--accent);
+      border: 1px solid rgba(0, 255, 156, 0.35);
+      box-shadow: 0 0 40px rgba(0, 255, 156, 0.12);
     }
-    .timeline .when { font-size: 0.85rem; color: var(--warn); font-weight: 600; }
-    .fig {
-      margin: 1.25rem 0;
-      text-align: center;
+    .cap-emblem__ring--2 {
+      inset: 10px;
+      border-color: rgba(245, 158, 11, 0.25);
     }
-    .fig img {
-      max-width: 100%;
-      border-radius: 10px;
-      border: 1px solid var(--line);
-      background: #000;
+    .cap-emblem img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.5));
     }
-    .fig figcaption {
-      font-size: 0.85rem;
-      color: var(--muted);
-      margin-top: 0.5rem;
-      font-style: italic;
-    }
-    .arch {
-      font-family: Consolas, "Courier New", monospace;
+    .cap-kicker {
       font-size: 0.72rem;
-      line-height: 1.35;
-      background: #0a0e14;
-      border: 1px solid var(--line);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--evil-amber);
+      margin: 0 0 0.75rem;
+      font-weight: 600;
+    }
+    .cap-title {
+      margin: 0;
+      font-size: clamp(2.4rem, 8vw, 3.6rem);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      line-height: 0.95;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 0 2px 0 rgba(0,0,0,0.4);
+    }
+    .cap-title span { color: var(--evil-accent); }
+    .cap-punch {
+      font-family: var(--evil-serif);
+      font-size: clamp(1.05rem, 2.5vw, 1.35rem);
+      color: var(--evil-muted);
+      max-width: 34rem;
+      margin: 1.25rem auto 0;
+      line-height: 1.5;
+    }
+    .cap-punch em { color: var(--evil-accent); font-style: normal; }
+    .cap-meta-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.65rem;
+      margin-top: 2rem;
+      max-width: 36rem;
+    }
+    .cap-meta-chip {
+      background: var(--evil-surface);
+      border: 1px solid var(--evil-border);
       border-radius: 10px;
-      padding: 1rem;
-      overflow-x: auto;
-      white-space: pre;
-      color: #cbd5e1;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--evil-muted);
     }
-    .links a {
-      color: var(--accent2);
-      word-break: break-all;
+    .cap-meta-chip b { display: block; color: var(--evil-sky); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.15rem; }
+    .cap-meta-chip a { color: var(--evil-accent); text-decoration: none; }
+
+    /* ── KPI strip ── */
+    .cap-kpi {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.75rem;
+      max-width: var(--evil-max);
+      margin: -2rem auto 0;
+      padding: 0 1.25rem;
     }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
-    .badge {
-      background: rgba(0,255,156,0.1);
-      border: 1px solid rgba(0,255,156,0.25);
-      color: var(--accent);
-      padding: 0.25rem 0.65rem;
-      border-radius: 999px;
-      font-size: 0.8rem;
-    }
-    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
-    th, td { border: 1px solid var(--line); padding: 0.5rem 0.65rem; text-align: left; }
-    th { background: var(--panel); color: var(--accent2); }
-    footer.doc-foot {
-      margin-top: 3rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--line);
-      font-size: 0.85rem;
-      color: var(--muted);
+    @media (max-width: 640px) { .cap-kpi { grid-template-columns: repeat(2, 1fr); } }
+    .cap-kpi__item {
+      background: var(--evil-surface);
+      border: 1px solid var(--evil-border);
+      border-radius: 14px;
+      padding: 1rem 0.75rem;
       text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+    }
+    .cap-kpi__num {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--evil-accent);
+      line-height: 1;
+      margin-bottom: 0.25rem;
+    }
+    .cap-kpi__label { font-size: 0.72rem; color: var(--evil-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Main layout ── */
+    .cap-main {
+      position: relative;
+      z-index: 1;
+      max-width: var(--evil-max);
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 4rem;
+    }
+
+    /* ── TOC ── */
+    .cap-toc {
+      background: var(--evil-surface);
+      border: 1px solid var(--evil-border);
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 2.5rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .cap-toc h2 {
+      margin: 0 0 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--evil-amber);
+    }
+    .cap-toc ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      columns: 2;
+      column-gap: 1.5rem;
+    }
+    @media (max-width: 560px) { .cap-toc ol { columns: 1; } }
+    .cap-toc li { margin-bottom: 0.4rem; break-inside: avoid; }
+    .cap-toc a {
+      color: var(--evil-text);
+      text-decoration: none;
+      font-size: 0.88rem;
+      border-bottom: 1px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .cap-toc a:hover { color: var(--evil-accent); border-bottom-color: rgba(0,255,156,0.4); }
+    .cap-toc a span { color: var(--evil-sky); font-weight: 600; margin-right: 0.35rem; }
+
+    /* ── Sections ── */
+    .cap-section {
+      margin-bottom: 2.75rem;
+      scroll-margin-top: 3rem;
+    }
+    .cap-section__head {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      margin-bottom: 1.15rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px dashed rgba(255,255,255,0.12);
+    }
+    .cap-section__icon {
+      flex-shrink: 0;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: rgba(0, 255, 156, 0.1);
+      border: 1px solid rgba(0, 255, 156, 0.25);
+      color: var(--evil-accent);
+      font-size: 1rem;
+    }
+    .cap-section__head h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -0.02em;
+    }
+    .cap-section__head p {
+      margin: 0.2rem 0 0;
+      font-size: 0.85rem;
+      color: var(--evil-muted);
+    }
+
+    .cap-lead {
+      font-family: var(--evil-serif);
+      font-size: 1.08rem;
+      color: var(--evil-muted);
+      border-left: 3px solid var(--evil-accent);
+      padding: 0.15rem 0 0.15rem 1.1rem;
+      margin: 0 0 1.15rem;
+      line-height: 1.55;
+    }
+    .cap-lead strong { color: var(--evil-text); }
+
+    p { margin: 0 0 0.9rem; color: var(--evil-text); }
+    ul, ol { margin: 0 0 0.9rem; padding-left: 1.25rem; }
+    li { margin-bottom: 0.3rem; color: var(--evil-text); }
+    code {
+      font-family: var(--evil-mono);
+      font-size: 0.88em;
+      background: rgba(125, 211, 252, 0.1);
+      border: 1px solid rgba(125, 211, 252, 0.2);
+      padding: 0.1em 0.35em;
+      border-radius: 4px;
+      color: var(--evil-sky);
+    }
+
+    /* ── Badges ── */
+    .cap-badges { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 1rem 0; }
+    .cap-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(0, 255, 156, 0.08);
+      border: 1px solid rgba(0, 255, 156, 0.22);
+      color: var(--evil-accent);
+    }
+    .cap-badge--amber { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--evil-amber); }
+    .cap-badge--sky { background: rgba(125,211,252,0.1); border-color: rgba(125,211,252,0.25); color: var(--evil-sky); }
+
+    /* ── Cards grid ── */
+    .cap-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin: 1rem 0; }
+    .cap-grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 1rem 0; }
+    @media (max-width: 720px) { .cap-grid2, .cap-grid3 { grid-template-columns: 1fr; } }
+
+    .cap-card {
+      background: var(--evil-surface);
+      border: 1px solid var(--evil-border);
+      border-radius: 14px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
+    }
+    .cap-card h4 {
+      margin: 0 0 0.5rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--evil-amber);
+    }
+    .cap-card ul { margin: 0; padding-left: 1.1rem; font-size: 0.92rem; }
+
+    /* ── Module tiles (8 moduli brand) ── */
+    .cap-modules {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.65rem;
+      margin: 1.25rem 0;
+    }
+    @media (max-width: 800px) { .cap-modules { grid-template-columns: repeat(2, 1fr); } }
+    .cap-mod {
+      border-radius: 12px;
+      padding: 0.85rem 0.75rem;
+      border: 1px solid var(--evil-border);
+      background: var(--evil-panel);
+      text-align: center;
+    }
+    .cap-mod__icon { font-size: 1.35rem; margin-bottom: 0.35rem; }
+    .cap-mod__name { font-size: 0.78rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+    .cap-mod__desc { font-size: 0.68rem; color: var(--evil-muted); line-height: 1.35; }
+    .cap-mod--core { border-color: rgba(125,211,252,0.3); box-shadow: inset 0 0 20px rgba(125,211,252,0.05); }
+    .cap-mod--shield { border-color: rgba(248,113,113,0.3); }
+    .cap-mod--forge { border-color: rgba(245,158,11,0.3); }
+    .cap-mod--scout { border-color: rgba(167,139,250,0.3); }
+    .cap-mod--intel { border-color: rgba(0,255,156,0.25); }
+    .cap-mod--academy { border-color: rgba(52,211,153,0.3); }
+    .cap-mod--archive { border-color: rgba(148,163,184,0.3); }
+    .cap-mod--vault { border-color: rgba(251,191,36,0.35); }
+
+    /* ── Timeline ── */
+    .cap-timeline { display: flex; flex-direction: column; gap: 0.65rem; margin: 1.15rem 0; }
+    .cap-phase {
+      display: grid;
+      grid-template-columns: 7.5rem 1fr;
+      gap: 0.85rem;
+      align-items: start;
+      background: var(--evil-surface);
+      border: 1px solid var(--evil-border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      border-left: 3px solid var(--evil-accent);
+    }
+    @media (max-width: 520px) { .cap-phase { grid-template-columns: 1fr; } }
+    .cap-phase__num {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--evil-amber);
+    }
+    .cap-phase__title { font-weight: 600; color: #fff; margin-bottom: 0.25rem; font-size: 0.92rem; }
+    .cap-phase p { margin: 0; font-size: 0.88rem; color: var(--evil-muted); }
+
+    /* ── Architecture visual ── */
+    .cap-arch {
+      background: linear-gradient(145deg, #0a0e16 0%, #06080e 100%);
+      border: 1px solid var(--evil-border);
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin: 1.15rem 0;
+      text-align: center;
+      overflow: hidden;
+    }
+    .cap-arch__hub {
+      display: inline-block;
+      padding: 0.5rem 1.25rem;
+      border-radius: 999px;
+      background: rgba(0,255,156,0.12);
+      border: 1px solid rgba(0,255,156,0.35);
+      color: var(--evil-accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+    }
+    .cap-arch__row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    .cap-arch__node {
+      font-size: 0.72rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      background: var(--evil-panel);
+      border: 1px solid var(--evil-border);
+      color: var(--evil-sky);
+    }
+    .cap-arch__connector { color: var(--evil-muted); font-size: 0.85rem; margin: 0.35rem 0; }
+
+    /* ── Table ── */
+    .cap-table-wrap { overflow-x: auto; margin: 1rem 0; border-radius: 12px; border: 1px solid var(--evil-border); }
+    table.cap-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+    .cap-table th {
+      background: rgba(125, 211, 252, 0.08);
+      color: var(--evil-sky);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid var(--evil-border);
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .cap-table td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--evil-text);
+    }
+    .cap-table tr:last-child td { border-bottom: none; }
+    .cap-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+
+    /* ── Results highlight ── */
+    .cap-result {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .cap-result:last-child { border-bottom: none; }
+    .cap-result__dot {
+      flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--evil-accent);
+      margin-top: 0.45rem;
+      box-shadow: 0 0 8px rgba(0,255,156,0.5);
+    }
+    .cap-result strong { color: #fff; }
+
+    /* ── Callout ── */
+    .cap-callout {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    .cap-callout strong { color: var(--evil-amber); }
+
+    /* ── Figure ── */
+    .cap-fig {
+      margin: 1.25rem 0;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--evil-border);
+      background: #000;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.45);
+    }
+    .cap-fig img { display: block; width: 100%; height: auto; }
+    .cap-fig figcaption {
+      padding: 0.6rem 0.85rem;
+      font-size: 0.78rem;
+      color: var(--evil-muted);
+      background: var(--evil-panel);
+      border-top: 1px solid var(--evil-border);
+    }
+
+    /* ── Footer ── */
+    .cap-foot {
+      margin-top: 3rem;
+      padding: 2rem 1.25rem;
+      text-align: center;
+      border-top: 1px dashed rgba(255,255,255,0.12);
+      background: linear-gradient(180deg, transparent, rgba(9,14,24,0.6));
+    }
+    .cap-foot__brand {
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--evil-muted);
+      margin-bottom: 0.5rem;
+    }
+    .cap-foot__tagline {
+      font-family: var(--evil-serif);
+      font-size: 1rem;
+      color: var(--evil-accent);
+    }
+    .cap-foot a { color: var(--evil-sky); }
+
+    /* ── PRINT: mantieni tema scuro EVIL ── */
+    @media print {
+      .no-print { display: none !important; }
+      .cap-scene { position: absolute; }
+      body.evil-capolavoro {
+        background: var(--evil-bg) !important;
+        color: var(--evil-text) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .cap-cover {
+        min-height: auto;
+        padding: 4rem 1.5rem;
+        page-break-after: always;
+      }
+      .cap-kpi { margin-top: 0; page-break-after: avoid; }
+      .cap-section { page-break-inside: avoid; }
+      .cap-phase { page-break-inside: avoid; }
+      .cap-card, .cap-toc, .cap-mod, .cap-table-wrap { page-break-inside: avoid; }
+      a { color: var(--evil-sky) !important; }
+      @page {
+        size: A4;
+        margin: 14mm 16mm;
+      }
     }
   </style>
 </head>
-<body>
+<body class="evil-capolavoro evil-theme">
 
-<p class="print-hint no-print">
-  <strong>Per caricare su UNICA:</strong> apri questo file nel browser → Ctrl+P → «Salva come PDF».
-  Allega anche la relazione tecnica (<code>RELAZIONE_TECNICA_EVIL_SUITE.txt</code>) se richiesto.
-</p>
+<div class="cap-scene" aria-hidden="true">
+  <div class="cap-scene__mesh"></div>
+  <div class="cap-scene__grid"></div>
+</div>
 
-<section class="cover">
-  <img class="logo" src="../public/evil-logo.svg" alt="Logo EVIL" width="120" height="120">
-  <h1><em>EVIL</em> Suite</h1>
-  <p class="sub">
-    Educational Vulnerability &amp; Intelligence Lab —<br>
-    Piattaforma web integrata per formazione, strumenti difensivi e threat intelligence
+<div class="cap-toolbar no-print">
+  <span><strong>Export UNICA:</strong> Ctrl+P → Salva come PDF · Abilita «Grafica di sfondo»</span>
+  <button type="button" onclick="window.print()">Stampa / PDF</button>
+</div>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<section class="cap-cover">
+  <div class="cap-emblem">
+    <div class="cap-emblem__ring"></div>
+    <div class="cap-emblem__ring cap-emblem__ring--2"></div>
+    <img src="../public/evil-logo.svg" alt="Logo EVIL" width="132" height="132">
+  </div>
+  <p class="cap-kicker">Capolavoro · Cybersecurity Platform</p>
+  <h1 class="cap-title"><span>EVIL</span> Suite</h1>
+  <p class="cap-punch">
+    <em>Educational Vulnerability &amp; Intelligence Lab</em> — piattaforma web integrata
+    per formazione, strumenti difensivi e threat intelligence
   </p>
-  <p class="meta">
-    <strong>Capolavoro / Progetto di percorso</strong><br>
-    Autore: Alex-2407 · Giugno 2026<br>
-    Deploy: <a href="https://www.projectevil.it" style="color:#7dd3fc">www.projectevil.it</a><br>
-    Codice: repository GitHub privato (Alex-2407/EVIL-platform)
-  </p>
+  <div class="cap-meta-grid">
+    <div class="cap-meta-chip"><b>Autore</b> Alex-2407</div>
+    <div class="cap-meta-chip"><b>Data</b> Giugno 2026</div>
+    <div class="cap-meta-chip"><b>Sito live</b> <a href="https://www.projectevil.it">projectevil.it</a></div>
+    <div class="cap-meta-chip"><b>Repository</b> GitHub privato</div>
+  </div>
 </section>
 
-<div class="wrap">
-
-  <h2>1. Sintesi del capolavoro</h2>
-  <p class="lead">
-    Ho progettato e sviluppato <strong>EVIL Suite</strong>, un ecosistema software completo
-    che unisce didattica della cybersecurity, strumenti di analisi difensiva autorizzata,
-    mappe di threat intelligence e gamification del percorso formativo — tutto in un unico
-    prodotto web deployato in produzione, con codice sorgente su repository GitHub
-    privato e autenticazione reale.
-  </p>
-  <p>
-    Il progetto nasce da un'esigenza concreta: online trovi scanner, corsi e mappe incidenti
-    separati, spesso con interfacce incoerenti e senza tracciamento dei progressi. EVIL risponde
-    integrando <strong>otto moduli brandizzati</strong> (Core, Shield, Forge, Scout, Intel Map,
-    Academy, Archive, Vault) sotto un'unica identità visiva e un unico account utente.
-  </p>
-
-  <div class="badge-row">
-    <span class="badge">38 pagine web</span>
-    <span class="badge">Node.js + Express</span>
-    <span class="badge">API REST + WebSocket</span>
-    <span class="badge">Deploy Render</span>
-    <span class="badge">GitHub privato</span>
-    <span class="badge">Uso etico documentato</span>
-  </div>
-
-  <h2>2. Obiettivi e competenze dimostrate</h2>
-  <div class="grid2">
-    <div class="card">
-      <h4>Obiettivi didattici</h4>
-      <ul>
-        <li>Formare l'utente su ethical hacking e difesa</li>
-        <li>Offrire strumenti reali solo con dichiarazione di autorizzazione</li>
-        <li>Visualizzare threat intel da fonti pubbliche (CISA, NVD)</li>
-        <li>Motivare l'apprendimento con trofei e progressi misurabili</li>
-      </ul>
-    </div>
-    <div class="card">
-      <h4>Competenze tecniche</h4>
-      <ul>
-        <li>Architettura client-server e API REST</li>
-        <li>Sicurezza applicativa (JWT, SSRF guard, rate limit)</li>
-        <li>Frontend vanilla responsive (38 pagine)</li>
-        <li>DevOps: deploy cloud, dominio, email transazionale</li>
-        <li>Documentazione tecnica e relazione di progetto</li>
-      </ul>
-    </div>
-  </div>
-
-  <h2>3. Il percorso di realizzazione</h2>
-  <p>
-    Il capolavoro non è nato in un solo step: è il risultato di un percorso iterativo
-    che ha alternato progettazione, implementazione, test in locale e deploy in produzione,
-    con correzioni guidate da problemi reali (encoding, auth, email su hosting free tier).
-  </p>
-
-  <div class="timeline">
-    <div class="item">
-      <div class="when">Fase 1 — Concept e architura</div>
-      <p>Definizione del brand EVIL, scelta del modello «suite modulare», mappa delle 38 pagine
-      e separazione in sottosistemi nominati (Forge, Academy, Vault…). Progettazione stack:
-      Node.js 18, Express, JWT, JSON persistence, Leaflet per mappe.</p>
-    </div>
-    <div class="item">
-      <div class="when">Fase 2 — Core e strumenti (EVIL Forge)</div>
-      <p>Implementazione backend <code>server.js</code> e servizi di scan: URL security check,
-      DNS enum, SSL, subdomain, header audit, file analysis. Gateway client unificato
-      (<code>tools-api.js</code>) e policy anti-SSRF su ogni URL scansionato.</p>
-    </div>
-    <div class="item">
-      <div class="when">Fase 3 — Formazione e contenuti (EVIL Academy + Archive)</div>
-      <p>Virtual lab con sessioni server-side, quiz hub, phishing quiz, crypto studio,
-      simulatore attacchi web. Knowledge base malware (~1000 voci), classificazione famiglie,
-      tecniche di manipolazione documentate.</p>
-    </div>
-    <div class="item">
-      <div class="when">Fase 4 — Threat intel (EVIL Intel Map)</div>
-      <p>Aggregator proprietario su feed CISA KEV e NIST NVD: normalizzazione, geocodifica,
-      cache, mappa Leaflet interattiva, aggiornamenti WebSocket, timeline storica incidenti.</p>
-    </div>
-    <div class="item">
-      <div class="when">Fase 5 — Gamification (EVIL Vault)</div>
-      <p>Sistema 16 trofei SVG con rarità, cerimonia di sblocco, audio Web API, profilo operatore,
-      sync progressi via API autenticate. Collegamento cross-modulo: ogni attività può sbloccare achievement.</p>
-    </div>
-    <div class="item">
-      <div class="when">Fase 6 — Sicurezza e auth (EVIL Shield + Chrome)</div>
-      <p>Registrazione con verifica email reale, cookie httpOnly, rate limit per endpoint,
-      login obbligatorio per strumenti. Consolidamento UI in <code>evil-site-chrome.js</code>:
-      header unificato, sessione sincronizzata, gate auth centralizzato su pagine protette.</p>
-    </div>
-    <div class="item">
-      <div class="when">Fase 7 — Produzione su projectevil.it</div>
-      <p>Deploy su Render, dominio custom, Mailtrap Live via API HTTPS (SMTP bloccato su free tier),
-      modulo Help con invio email al team, hardening auth su tutte le pagine strumenti,
-      documentazione in «AAAPRIMI PER INIZIARE».</p>
-    </div>
-  </div>
-
-  <h2>4. Architettura del sistema</h2>
-  <figure class="fig">
-    <img src="https://www.projectevil.it/html/generated-image.png" alt="Interfaccia EVIL Platform — home" width="800" height="450" onerror="this.style.display='none'">
-    <figcaption>Figura 1 — Identità visiva EVIL (logo e home su projectevil.it). Se l'immagine non carica offline, visita il sito live.</figcaption>
-  </figure>
-
-  <div class="arch">                    ┌─────────────────────────────────────┐
-                    │         EVIL SUITE (projectevil.it)  │
-                    └──────────────────┬──────────────────┘
-                                       │
-         ┌─────────────────────────────┼─────────────────────────────┐
-         │                             │                             │
-    ┌────▼────┐                   ┌────▼────┐                   ┌────▼────┐
-    │EVIL Core│◄──────────────────│EVIL     │──────────────────►│EVIL     │
-    │ server  │   tutte le API     │ Shield  │   JWT, SSRF, RL   │ Chrome  │
-    └────┬────┘                    └─────────┘                   └────┬────┘
-         │                                                              │
-    Forge · Scout · Intel Map · Academy · Archive · Vault  (moduli web+API)</div>
-
-  <h3>Moduli principali</h3>
-  <table>
-    <thead>
-      <tr><th>Modulo</th><th>Ruolo</th><th>Esempio pagina</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>EVIL Forge</td><td>Strumenti scan e analisi</td><td>security-check.html</td></tr>
-      <tr><td>EVIL Scout</td><td>OSINT fonti pubbliche</td><td>social-profiling.html</td></tr>
-      <tr><td>EVIL Intel Map</td><td>Mappa incidenti live</td><td>attacks-map.html</td></tr>
-      <tr><td>EVIL Academy</td><td>Lab, quiz, simulatori</td><td>virtual-lab.html</td></tr>
-      <tr><td>EVIL Archive</td><td>Database malware</td><td>malware-db.html</td></tr>
-      <tr><td>EVIL Vault</td><td>Trofei e profilo</td><td>profile.html</td></tr>
-    </tbody>
-  </table>
-
-  <h2>5. Risultati tangibili</h2>
-  <ul>
-    <li><strong>Sito live:</strong> <a href="https://www.projectevil.it">https://www.projectevil.it</a> — piattaforma accessibile da browser, mobile-responsive.</li>
-    <li><strong>Repository privato:</strong> codice completo su GitHub (Alex-2407/EVIL-platform), accessibile solo al titolare e ai collaboratori invitati; segreti e dati utenti esclusi via <code>.gitignore</code>.</li>
-    <li><strong>Autenticazione end-to-end:</strong> registrazione, verifica email, login, profilo, strumenti protetti.</li>
-    <li><strong>Threat intelligence reale:</strong> dati aggregati da CISA/NVD, non mock statici.</li>
-    <li><strong>Gamification:</strong> 16 achievement con feedback visivo e sonoro.</li>
-    <li><strong>Documentazione:</strong> relazione tecnica 20 capitoli + avviatori locali in AAAPRIMI PER INIZIARE.</li>
-  </ul>
-
-  <figure class="fig">
-    <img src="https://www.projectevil.it/html/generated-image.png" alt="Logo EVIL" width="200" height="200" style="max-width:200px">
-    <figcaption>Figura 2 — Marchio EVIL Suite (Educational Vulnerability &amp; Intelligence Lab)</figcaption>
-  </figure>
-
-  <h2>6. Scelte progettuali rilevanti</h2>
-  <h3>Sicurezza by design (EVIL Shield)</h3>
-  <p>Ogni scan passa da validazione URL anti-SSRF; le API strumenti richiedono JWT;
-  rate limit differenziati per login, scan, upload e modulo Help. In produzione
-  <code>EVIL_TOOLS_PUBLIC=0</code>: nessuno strumento operativo senza account verificato.</p>
-
-  <h3>Esperienza utente unificata (EVIL Chrome)</h3>
-  <p>Un solo script (<code>evil-site-chrome.js</code>) gestisce menu, dropdown mobile e stato
-  utente loggato su tutte le pagine, evitando flash «Accedi» e doppi caricamenti —
-  problema risolto con boot in capture phase, script defer e gate auth centralizzato.</p>
-
-  <h3>Deploy su cloud free tier</h3>
-  <p>Render free tier blocca SMTP: ho integrato Mailtrap Sending via API HTTPS per email
-  di verifica, reset password e modulo Help — soluzione documentata in relazione tecnica.</p>
-
-  <h2>7. Conformità etica e limiti</h2>
-  <p>
-    EVIL è esplicitamente pensato per <strong>formazione e ricerca autorizzata</strong>.
-    Gli strumenti di scan richiedono checkbox di autorizzazione sul target; l'OSINT usa
-    solo fonti pubbliche; le policy sono in <code>site-policies.html</code>. Non vi sono
-    claim di impenetrabilità: il valore è nell'integrazione didattica e nella qualità
-    dell'implementazione software.
-  </p>
-
-  <h2>8. Difficoltà affrontate e soluzioni</h2>
-  <table>
-    <thead>
-      <tr><th>Problema</th><th>Soluzione adottata</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>Email non inviata su Render</td><td>Mailtrap API HTTPS al posto di SMTP</td></tr>
-      <tr><td>Header «Accedi» su pagine strumenti</td><td>evil-site-chrome unificato + session API</td></tr>
-      <tr><td>Doppio caricamento pagine</td><td>Link assoluti /pagina.html, script defer</td></tr>
-      <tr><td>Utenti persi al redeploy</td><td>DATA_DIR su volume persistente (roadmap)</td></tr>
-      <tr><td>Modulo Help non funzionante</td><td>Endpoint POST /api/help + rate limit</td></tr>
-    </tbody>
-  </table>
-
-  <h2>9. Materiali allegabili su UNICA</h2>
-  <ul class="links">
-    <li><strong>Questo documento</strong> — salvare come PDF dal browser</li>
-    <li><strong>RELAZIONE_TECNICA_EVIL_SUITE.txt</strong> — relazione tecnica completa (20 capitoli)</li>
-    <li><strong>Sito demo:</strong> <a href="https://www.projectevil.it">https://www.projectevil.it</a></li>
-    <li><strong>Codice sorgente:</strong> <a href="https://github.com/Alex-2407/EVIL-platform">github.com/Alex-2407/EVIL-platform</a> (repository privato — demo verificabile sul sito live)</li>
-    <li><strong>Screenshot consigliati:</strong> home, mappa incidenti, profilo trofei, scan URL (catturare dal sito live)</li>
-  </ul>
-
-  <h2>10. Conclusioni</h2>
-  <p>
-    EVIL Suite dimostra la capacità di concepire, implementare e mettere in produzione
-    una piattaforma software articolata: non un singolo script o una pagina statica,
-    ma un <strong>ecosistema modulare</strong> con backend, frontend, sicurezza, deploy
-    e documentazione. Il percorso — dalla prima idea di brand alla risoluzione dei bug
-    di produzione — riflette un approccio ingegneristico reale: iterazione, test,
-    hardening e comunicazione tecnica (relazione + portfolio).
-  </p>
-  <p>
-    Il capolavoro è verificabile: basta visitare projectevil.it, registrarsi,
-    esplorare strumenti e moduli formativi sul sito live; il codice backend resta
-    nel repository GitHub privato, documentato nella relazione tecnica allegata.
-  </p>
-
-  <footer class="doc-foot">
-    EVIL Suite — Capolavoro portfolio · Giugno 2026 · Alex-2407<br>
-    Educational Vulnerability &amp; Intelligence Lab · www.projectevil.it
-  </footer>
+<!-- KPI -->
+<div class="cap-kpi">
+  <div class="cap-kpi__item"><div class="cap-kpi__num">38</div><div class="cap-kpi__label">Pagine web</div></div>
+  <div class="cap-kpi__item"><div class="cap-kpi__num">8</div><div class="cap-kpi__label">Moduli brand</div></div>
+  <div class="cap-kpi__item"><div class="cap-kpi__num">16</div><div class="cap-kpi__label">Trofei Vault</div></div>
+  <div class="cap-kpi__item"><div class="cap-kpi__num">1</div><div class="cap-kpi__label">Deploy produzione</div></div>
 </div>
+
+<main class="cap-main">
+
+  <!-- TOC -->
+  <nav class="cap-toc" aria-label="Indice">
+    <h2>Indice</h2>
+    <ol>
+      <li><a href="#s1"><span>01</span>Sintesi</a></li>
+      <li><a href="#s2"><span>02</span>Obiettivi e competenze</a></li>
+      <li><a href="#s3"><span>03</span>Perimetro moduli EVIL</a></li>
+      <li><a href="#s4"><span>04</span>Percorso di sviluppo</a></li>
+      <li><a href="#s5"><span>05</span>Architettura</a></li>
+      <li><a href="#s6"><span>06</span>Risultati</a></li>
+      <li><a href="#s7"><span>07</span>Scelte progettuali</a></li>
+      <li><a href="#s8"><span>08</span>Etica e limiti</a></li>
+      <li><a href="#s9"><span>09</span>Problemi risolti</a></li>
+      <li><a href="#s10"><span>10</span>Allegati UNICA</a></li>
+      <li><a href="#s11"><span>11</span>Conclusioni</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1 -->
+  <section class="cap-section" id="s1">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">◈</div>
+      <div>
+        <h2>Sintesi del capolavoro</h2>
+        <p>Cosa ho costruito e perché conta</p>
+      </div>
+    </div>
+    <p class="cap-lead">
+      Ho progettato e sviluppato <strong>EVIL Suite</strong>: un ecosistema software completo che unisce
+      didattica cybersecurity, strumenti di analisi difensiva autorizzata, mappe threat intelligence
+      e gamification — deployato in produzione su <strong>projectevil.it</strong>, con autenticazione reale
+      e codice su repository GitHub privato.
+    </p>
+    <p>
+      Il problema: online scanner, corsi e mappe incidenti sono sparsi, con UI incoerenti e zero tracciamento
+      formativo. La risposta: <strong>otto moduli cooperanti</strong> sotto un unico brand, un unico account,
+      un'unica esperienza visiva (EVIL Chrome).
+    </p>
+    <div class="cap-badges">
+      <span class="cap-badge">Node.js 18 + Express</span>
+      <span class="cap-badge cap-badge--sky">API REST + WebSocket</span>
+      <span class="cap-badge cap-badge--amber">Render · Mailtrap API</span>
+      <span class="cap-badge">JWT httpOnly</span>
+      <span class="cap-badge cap-badge--sky">Repo privato</span>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="cap-section" id="s2">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">◎</div>
+      <div>
+        <h2>Obiettivi e competenze</h2>
+        <p>Cosa dimostra il progetto</p>
+      </div>
+    </div>
+    <div class="cap-grid2">
+      <div class="cap-card">
+        <h4>Obiettivi didattici</h4>
+        <ul>
+          <li>Formare su ethical hacking e difesa attiva</li>
+          <li>Strumenti reali solo con autorizzazione dichiarata</li>
+          <li>Threat intel da fonti pubbliche (CISA, NVD)</li>
+          <li>Motivazione tramite trofei e progressi misurabili</li>
+        </ul>
+      </div>
+      <div class="cap-card">
+        <h4>Competenze tecniche</h4>
+        <ul>
+          <li>Architettura client-server, API REST, WebSocket</li>
+          <li>Sicurezza: JWT, anti-SSRF, rate limit, Helmet</li>
+          <li>Frontend vanilla responsive (38 pagine)</li>
+          <li>DevOps: cloud, dominio, email transazionale</li>
+          <li>Documentazione e relazione tecnica strutturata</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="cap-section" id="s3">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">▣</div>
+      <div>
+        <h2>Perimetro moduli EVIL</h2>
+        <p>La suite brandizzata in 8 sottosistemi</p>
+      </div>
+    </div>
+    <div class="cap-modules">
+      <div class="cap-mod cap-mod--core"><div class="cap-mod__icon">⚙</div><div class="cap-mod__name">EVIL Core</div><div class="cap-mod__desc">Server, API, auth, deploy</div></div>
+      <div class="cap-mod cap-mod--shield"><div class="cap-mod__icon">🛡</div><div class="cap-mod__name">EVIL Shield</div><div class="cap-mod__desc">JWT, SSRF, rate limit</div></div>
+      <div class="cap-mod cap-mod--forge"><div class="cap-mod__icon">⚡</div><div class="cap-mod__name">EVIL Forge</div><div class="cap-mod__desc">Scan URL, DNS, SSL, file</div></div>
+      <div class="cap-mod cap-mod--scout"><div class="cap-mod__icon">🔍</div><div class="cap-mod__name">EVIL Scout</div><div class="cap-mod__desc">OSINT fonti pubbliche</div></div>
+      <div class="cap-mod cap-mod--intel"><div class="cap-mod__icon">🌐</div><div class="cap-mod__name">Intel Map</div><div class="cap-mod__desc">CISA/NVD, mappa live</div></div>
+      <div class="cap-mod cap-mod--academy"><div class="cap-mod__icon">🎓</div><div class="cap-mod__name">EVIL Academy</div><div class="cap-mod__desc">Lab, quiz, simulatori</div></div>
+      <div class="cap-mod cap-mod--archive"><div class="cap-mod__icon">📚</div><div class="cap-mod__name">EVIL Archive</div><div class="cap-mod__desc">~1000 voci malware</div></div>
+      <div class="cap-mod cap-mod--vault"><div class="cap-mod__icon">🏆</div><div class="cap-mod__name">EVIL Vault</div><div class="cap-mod__desc">16 trofei, profilo</div></div>
+    </div>
+    <p style="text-align:center;font-size:0.85rem;color:var(--evil-muted);margin-top:0.5rem;">
+      + <strong style="color:var(--evil-sky)">EVIL Chrome</strong> — layer UI unificato su tutte le pagine
+    </p>
+  </section>
+
+  <!-- 4 -->
+  <section class="cap-section" id="s4">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">◇</div>
+      <div>
+        <h2>Percorso di sviluppo</h2>
+        <p>7 fasi — da concept a produzione</p>
+      </div>
+    </div>
+    <div class="cap-timeline">
+      <div class="cap-phase"><div class="cap-phase__num">Fase 01</div><div><div class="cap-phase__title">Concept e architettura</div><p>Brand EVIL, mappa 38 pagine, stack Node/Express/JWT, moduli nominati.</p></div></div>
+      <div class="cap-phase"><div class="cap-phase__num">Fase 02</div><div><div class="cap-phase__title">EVIL Forge — strumenti</div><p>URL scan, DNS, SSL, subdomain, header audit, file analysis, gateway <code>tools-api.js</code>.</p></div></div>
+      <div class="cap-phase"><div class="cap-phase__num">Fase 03</div><div><div class="cap-phase__title">Academy + Archive</div><p>Virtual lab, quiz hub, simulatore web, database malware e tecniche documentate.</p></div></div>
+      <div class="cap-phase"><div class="cap-phase__num">Fase 04</div><div><div class="cap-phase__title">EVIL Intel Map</div><p>Aggregator CISA/NVD, geocodifica, cache, mappa Leaflet, WebSocket incidenti.</p></div></div>
+      <div class="cap-phase"><div class="cap-phase__num">Fase 05</div><div><div class="cap-phase__title">EVIL Vault</div><p>16 trofei SVG, cerimonia sblocco, audio, profilo, sync progressi API.</p></div></div>
+      <div class="cap-phase"><div class="cap-phase__num">Fase 06</div><div><div class="cap-phase__title">Shield + Chrome</div><p>Verifica email, cookie httpOnly, <code>evil-site-chrome.js</code>, gate auth centralizzato.</p></div></div>
+      <div class="cap-phase"><div class="cap-phase__num">Fase 07</div><div><div class="cap-phase__title">Produzione projectevil.it</div><p>Render, dominio, Mailtrap API HTTPS, modulo Help, documentazione AAAPRIMI.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="cap-section" id="s5">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">⬡</div>
+      <div>
+        <h2>Architettura del sistema</h2>
+        <p>Client-server · API · moduli cooperanti</p>
+      </div>
+    </div>
+
+    <figure class="cap-fig">
+      <img src="https://www.projectevil.it/html/generated-image.png" alt="EVIL Platform — identità visiva" onerror="this.parentElement.style.display='none'">
+      <figcaption>Identità visiva EVIL — projectevil.it (screenshot consigliato in allegato UNICA)</figcaption>
+    </figure>
+
+    <div class="cap-arch">
+      <div class="cap-arch__hub">EVIL SUITE · projectevil.it</div>
+      <div class="cap-arch__row">
+        <span class="cap-arch__node">EVIL Core</span>
+        <span class="cap-arch__connector">↔</span>
+        <span class="cap-arch__node">EVIL Shield</span>
+        <span class="cap-arch__connector">↔</span>
+        <span class="cap-arch__node">EVIL Chrome</span>
+      </div>
+      <div class="cap-arch__connector">↓ moduli applicativi ↓</div>
+      <div class="cap-arch__row">
+        <span class="cap-arch__node">Forge</span>
+        <span class="cap-arch__node">Scout</span>
+        <span class="cap-arch__node">Intel Map</span>
+        <span class="cap-arch__node">Academy</span>
+        <span class="cap-arch__node">Archive</span>
+        <span class="cap-arch__node">Vault</span>
+      </div>
+    </div>
+
+    <div class="cap-table-wrap">
+      <table class="cap-table">
+        <thead><tr><th>Modulo</th><th>Funzione</th><th>Pagina esempio</th></tr></thead>
+        <tbody>
+          <tr><td>EVIL Forge</td><td>Scan e analisi autorizzata</td><td>security-check.html</td></tr>
+          <tr><td>EVIL Scout</td><td>OSINT pubblico</td><td>social-profiling.html</td></tr>
+          <tr><td>EVIL Intel Map</td><td>Mappa incidenti live</td><td>attacks-map.html</td></tr>
+          <tr><td>EVIL Academy</td><td>Lab e quiz</td><td>virtual-lab.html</td></tr>
+          <tr><td>EVIL Archive</td><td>Knowledge base malware</td><td>malware-db.html</td></tr>
+          <tr><td>EVIL Vault</td><td>Trofei e profilo</td><td>profile.html</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="cap-section" id="s6">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">★</div>
+      <div>
+        <h2>Risultati tangibili</h2>
+        <p>Cosa è verificabile oggi</p>
+      </div>
+    </div>
+    <div class="cap-card">
+      <div class="cap-result"><div class="cap-result__dot"></div><div><strong>Sito live</strong> — <a href="https://www.projectevil.it">www.projectevil.it</a> responsive, 38 moduli navigabili.</div></div>
+      <div class="cap-result"><div class="cap-result__dot"></div><div><strong>Auth end-to-end</strong> — registrazione, verifica email, login, profilo, strumenti protetti.</div></div>
+      <div class="cap-result"><div class="cap-result__dot"></div><div><strong>Threat intel reale</strong> — feed CISA/NVD aggregati, non dati fittizi.</div></div>
+      <div class="cap-result"><div class="cap-result__dot"></div><div><strong>Gamification</strong> — 16 achievement con cerimonia visiva e audio.</div></div>
+      <div class="cap-result"><div class="cap-result__dot"></div><div><strong>Repository privato</strong> — backend protetto; demo via sito + relazione tecnica.</div></div>
+      <div class="cap-result"><div class="cap-result__dot"></div><div><strong>Modulo Help</strong> — supporto via <code>POST /api/help</code> con email al team.</div></div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="cap-section" id="s7">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">◆</div>
+      <div>
+        <h2>Scelte progettuali chiave</h2>
+        <p>Decisioni che definiscono la qualità del lavoro</p>
+      </div>
+    </div>
+    <div class="cap-grid3">
+      <div class="cap-card">
+        <h4>EVIL Shield</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--evil-muted);">Anti-SSRF su ogni scan, JWT httpOnly, rate limit per endpoint, login obbligatorio strumenti (<code>EVIL_TOOLS_PUBLIC=0</code>).</p>
+      </div>
+      <div class="cap-card">
+        <h4>EVIL Chrome</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--evil-muted);">Un solo script gestisce header, menu mobile e sessione su 38 pagine — niente flash «Accedi», niente doppio load.</p>
+      </div>
+      <div class="cap-card">
+        <h4>Email su Render</h4>
+        <p style="margin:0;font-size:0.88rem;color:var(--evil-muted);">Mailtrap Sending via API HTTPS: SMTP bloccato su free tier, verifica email e Help funzionanti lo stesso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="cap-section" id="s8">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">⚖</div>
+      <div>
+        <h2>Etica e limiti</h2>
+        <p>Uso responsabile documentato</p>
+      </div>
+    </div>
+    <div class="cap-callout">
+      <strong>Finalità:</strong> formazione e ricerca autorizzata. Ogni scan richiede checkbox di autorizzazione;
+      OSINT solo fonti pubbliche; policy in <code>site-policies.html</code>. Nessuna claim di impenetrabilità.
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="cap-section" id="s9">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">🔧</div>
+      <div>
+        <h2>Problemi affrontati</h2>
+        <p>Debug reale in produzione</p>
+      </div>
+    </div>
+    <div class="cap-table-wrap">
+      <table class="cap-table">
+        <thead><tr><th>Problema</th><th>Soluzione</th></tr></thead>
+        <tbody>
+          <tr><td>Email non inviata su Render</td><td>Mailtrap API HTTPS</td></tr>
+          <tr><td>Header «Accedi» su strumenti</td><td>evil-site-chrome + session API</td></tr>
+          <tr><td>Doppio caricamento pagine</td><td>Link assoluti, script defer</td></tr>
+          <tr><td>Help non funzionante</td><td>POST /api/help + rate limit</td></tr>
+          <tr><td>Utenti persi al redeploy</td><td>DATA_DIR volume (roadmap)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="cap-section" id="s10">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">📎</div>
+      <div>
+        <h2>Allegati per UNICA</h2>
+        <p>Cosa caricare sulla piattaforma</p>
+      </div>
+    </div>
+    <div class="cap-grid2">
+      <div class="cap-card">
+        <h4>Documenti</h4>
+        <ul>
+          <li>Questo portfolio → <strong>PDF</strong> (Ctrl+P)</li>
+          <li><code>RELAZIONE_TECNICA_EVIL_SUITE.txt</code></li>
+        </ul>
+      </div>
+      <div class="cap-card">
+        <h4>Link e demo</h4>
+        <ul>
+          <li><a href="https://www.projectevil.it">projectevil.it</a></li>
+          <li>GitHub privato (invito docente se richiesto)</li>
+          <li>Screenshot: home, mappa, profilo, scan URL</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="cap-section" id="s11">
+    <div class="cap-section__head">
+      <div class="cap-section__icon">✦</div>
+      <div>
+        <h2>Conclusioni</h2>
+        <p>Il valore del capolavoro</p>
+      </div>
+    </div>
+    <p class="cap-lead">
+      EVIL Suite non è una pagina statica: è un <strong>ecosistema modulare</strong> con backend, frontend,
+      sicurezza, deploy cloud e documentazione — verificabile su projectevil.it e descritto nella relazione tecnica.
+    </p>
+    <p>
+      Il percorso — dalla definizione del brand alla risoluzione dei bug di produzione — riflette un approccio
+      ingegneristico: iterazione, test, hardening e comunicazione chiara. Il capolavoro dimostra capacità di
+      progettare, implementare e mantenere software reale, non solo prototipi.
+    </p>
+  </section>
+
+</main>
+
+<footer class="cap-foot">
+  <p class="cap-foot__brand">EVIL Suite · Capolavoro 2026</p>
+  <p class="cap-foot__tagline">Impara · Simula · Difendi</p>
+  <p style="margin:0.75rem 0 0;font-size:0.82rem;color:var(--evil-muted);">
+    <a href="https://www.projectevil.it">www.projectevil.it</a> · Alex-2407
+  </p>
+</footer>
 
 </body>
 </html>

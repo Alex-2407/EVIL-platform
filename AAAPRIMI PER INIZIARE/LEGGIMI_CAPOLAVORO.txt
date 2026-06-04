@@ -18,12 +18,13 @@ CONTENUTI DI QUESTA CARTELLA
 
 CARICAMENTO SU UNICA — CHECKLIST
 --------------------------------
-[ ] Esporta CAPOLAVORO_UNICA_EVIL_SUITE.html come PDF
-[ ] Allega RELAZIONE_TECNICA_EVIL_SUITE.txt (se richiesto dal docente)
+[ ] Apri CAPOLAVORO_UNICA_EVIL_SUITE.html nel browser (Chrome/Edge)
+[ ] Ctrl+P → Salva come PDF
+[ ] IMPORTANTE: attiva «Grafica di sfondo» / «Background graphics» per mantenere il tema scuro EVIL
+[ ] Allega RELAZIONE_TECNICA_EVIL_SUITE.txt se richiesto
 [ ] Inserisci link sito: https://www.projectevil.it
-[ ] Indica repo GitHub PRIVATO (Alex-2407/EVIL-platform) — demo via sito live + relazione
-[ ] Opzionale: invita il docente come collaboratore GitHub se richiede accesso al codice
-[ ] Opzionale: 3–5 screenshot (home, mappa, profilo, scan URL, quiz)
+[ ] Aggiungi 3–5 screenshot dal sito live (home, mappa, profilo, scan)
+[ ] Repo GitHub PRIVATO — invita il docente solo se chiede accesso al codice
 
 REPOSITORY GITHUB
 -----------------
