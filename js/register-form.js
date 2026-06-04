@@ -5,6 +5,17 @@
   'use strict';
 
   const API_URL = '/api';
+  const REGISTER_TIMEOUT_MS = 25000;
+
+  function mapRegisterError(message) {
+    const map = {
+      'Email already registered': 'Questa email è già registrata. Prova ad accedere.',
+      'Validation failed': 'Dati non validi. Controlla i campi e riprova.',
+      'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env (vedi SETUP_EMAIL_VERIFICATION.md).':
+        'Il server non può inviare l\'email di verifica. Contatta l\'amministratore o configura SMTP su Render.',
+    };
+    return map[message] || message;
+  }
 
   function validatePasswordStrength(password) {
     if (!password || password.length < 12) {
@@ -86,18 +97,34 @@
         return;
       }
 
+      if (window.location.protocol === 'file:') {
+        showError(
+          'Apri il sito tramite il server Node (npm start) su http://localhost:5000 — non aprire il file HTML direttamente dal disco.',
+          false
+        );
+        return;
+      }
+
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.textContent = 'Registrazione in corso…';
       }
 
+      let succeeded = false;
+
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REGISTER_TIMEOUT_MS);
+
         const response = await fetch(`${API_URL}/auth/register`, {
           method: 'POST',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password, confirmPassword })
+          body: JSON.stringify({ name, email, password, confirmPassword }),
+          signal: controller.signal
         });
+
+        clearTimeout(timeoutId);
 
         let data;
         try {
@@ -117,19 +144,26 @@
               .join('<br>');
             showError(`<strong>Errore di validazione:</strong><br>${detailMessages}`, true);
           } else {
-            showError(data.error || 'Errore di registrazione', false);
+            showError(mapRegisterError(data.error) || 'Errore di registrazione', false);
           }
           return;
         }
 
+        succeeded = true;
+        if (submitBtn) submitBtn.textContent = 'Reindirizzamento…';
         window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}&delivery=${encodeURIComponent(data.emailDelivery || '')}`;
         if (data.emailHint) {
           sessionStorage.setItem('evil_email_hint', data.emailHint);
         }
+        return;
       } catch (err) {
-        showError('Errore di connessione: ' + (err.message || 'impossibile contattare il server'), false);
+        const msg =
+          err.name === 'AbortError'
+            ? 'Il server non risponde (timeout). Su Render verifica SMTP e che il servizio Node sia attivo, non solo file statici.'
+            : err.message || 'impossibile contattare il server';
+        showError('Errore di connessione: ' + msg, false);
       } finally {
-        if (submitBtn) {
+        if (!succeeded && submitBtn) {
           submitBtn.disabled = false;
           submitBtn.textContent = defaultLabel;
         }

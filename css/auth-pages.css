@@ -200,6 +200,23 @@
   box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.12);
 }
 
+.auth-field input::placeholder {
+  color: rgba(148, 163, 184, 0.42);
+  opacity: 1;
+}
+
+.auth-field input:not(:placeholder-shown) {
+  color: #f8fafc;
+}
+
+.auth-field input:-webkit-autofill,
+.auth-field input:-webkit-autofill:hover,
+.auth-field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f8fafc;
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.35) inset;
+  transition: background-color 99999s ease-out 0s;
+}
+
 .auth-field small {
   display: block;
   margin-top: 0.55rem;

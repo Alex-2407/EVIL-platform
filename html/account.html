@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/css/galaxy-btn.css?v=20260609">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/auth-pages.css?v=20260604">
+  <link rel="stylesheet" href="/css/auth-pages.css?v=20260604b">
   <script src="/js/load-header.js" defer></script>
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
@@ -106,14 +106,14 @@
         <section class="auth-panel" aria-labelledby="register-title">
           <p class="auth-panel__kicker">Nuovo utente</p>
           <h1 id="register-title">Crea un account</h1>
-          <form id="registerForm" novalidate action="#" method="post" onsubmit="event.preventDefault();">
+          <form id="registerForm" novalidate>
             <div class="auth-field">
               <label for="name">Nome completo</label>
               <input type="text" id="name" name="name" placeholder="Mario Rossi" autocomplete="name" required>
             </div>
             <div class="auth-field">
               <label for="email">Email</label>
-              <input type="email" id="email" name="email" placeholder="nome@esempio.it" autocomplete="email" required>
+              <input type="email" id="email" name="email" placeholder="Inserisci la tua email" autocomplete="email" required>
             </div>
             <div class="auth-field">
               <label for="password">Password</label>

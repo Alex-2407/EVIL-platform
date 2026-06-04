@@ -29,6 +29,14 @@ header {
   display: flex;
   align-items: center;
   gap: clamp(0.45rem, 1.5vw, 0.75rem);
+  flex-shrink: 0;
+  min-width: min-content;
+  overflow: visible;
+}
+
+/* Zip/HTML vecchi: nasconde doppio "EVIL" se presenti wordmark + .logo */
+.logo-section:has(.header-evil-wordmark) .logo {
+  display: none !important;
 }
 
 /* EVIL accanto al logo — stesso stile del titolo hero home (editorial, bianco) */

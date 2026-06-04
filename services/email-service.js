@@ -30,11 +30,16 @@ class EmailService {
     this.baseUrl = (process.env.BASE_URL || 'http://localhost:5000').replace(/\/$/, '');
     this.outboxDir = path.resolve(process.env.EMAIL_OUTBOX_DIR || path.join(process.cwd(), 'data', 'email-outbox'));
 
+    this.smtpSendTimeoutMs = parseInt(process.env.SMTP_SEND_TIMEOUT_MS || '15000', 10);
+
     if (this.isConfigured()) {
       this.transporter = nodemailer.createTransport({
         host: this.smtpHost,
         port: this.smtpPort,
         secure: this.smtpSecure,
+        connectionTimeout: 10000,
+        greetingTimeout: 10000,
+        socketTimeout: this.smtpSendTimeoutMs,
         auth: {
           user: this.smtpUser,
           pass: this.smtpPass
@@ -47,6 +52,15 @@ class EmailService {
 
   isPlaceholder(value) {
     return SMTP_PLACEHOLDERS.has(String(value || '').trim());
+  }
+
+  withTimeout(promise, ms, label) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error(`${label} (timeout ${ms}ms)`)), ms);
+      })
+    ]);
   }
 
   isConfigured() {
@@ -434,14 +448,18 @@ class EmailService {
     }
 
     try {
-      const info = await this.transporter.sendMail({
-        from: this.fromEmail,
-        to: email,
-        subject: mail.subject,
-        text: mail.text,
-        html: mail.html,
-        attachments: mail.attachments || []
-      });
+      const info = await this.withTimeout(
+        this.transporter.sendMail({
+          from: this.fromEmail,
+          to: email,
+          subject: mail.subject,
+          text: mail.text,
+          html: mail.html,
+          attachments: mail.attachments || []
+        }),
+        this.smtpSendTimeoutMs,
+        'Invio email verifica'
+      );
       const delivery = this.resolveDeliveryMode();
       logger.info('Email verifica inviata via SMTP', {
         messageId: info.messageId,

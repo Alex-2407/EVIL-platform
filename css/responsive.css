@@ -87,8 +87,16 @@ body.evil-theme {
   }
 
   .logo-section {
-    flex: 1 1 auto;
-    min-width: 0;
+    flex: 0 1 auto;
+    min-width: min-content;
+    overflow: visible;
+  }
+
+  .logo-section .header-evil-wordmark,
+  .logo-section .header-evil-title,
+  .logo-section .logo {
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .header-actions {

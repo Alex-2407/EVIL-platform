@@ -479,7 +479,7 @@ const HOME_STYLESHEETS = [
 ];
 
 const SITE_FOOTER_CSS = '/css/site-footer.css?v=20260606';
-const SITE_HEADER_CSS = '/css/site-header.css?v=20260611';
+const SITE_HEADER_CSS = '/css/site-header.css?v=20260611b';
 const SYSTEM_THEME_CSS = '/css/system-theme.css?v=20260717';
 const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css?v=20260717';
 const RESPONSIVE_CSS = '/css/responsive.css?v=20260717';
@@ -1450,7 +1450,7 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     const existingUser = users.find(u => u.email === normalizedEmail);
     if (existingUser) {
       return res.status(400).json({
-        error: 'Email already registered'
+        error: 'Questa email è già registrata. Prova ad accedere.'
       });
     }
 
@@ -1485,7 +1485,20 @@ app.post('/api/auth/register', registerLimiter, validateRegister, async (req, re
     users.push(pendingUser);
     saveUsers();
 
-    const emailResult = await emailService.sendVerificationLink(normalizedEmail, verificationToken, name);
+    let emailResult;
+    try {
+      emailResult = await emailService.sendVerificationLink(normalizedEmail, verificationToken, name);
+    } catch (emailErr) {
+      logger.error('Registration email send failed', { error: emailErr.message, email: normalizedEmail });
+      users = users.filter(u => u.id !== pendingUser.id);
+      saveUsers();
+      return res.status(503).json({
+        error:
+          emailErr.message && /timeout/i.test(emailErr.message)
+            ? 'Invio email troppo lento: controlla SMTP_HOST, SMTP_USER e SMTP_PASS su Render.'
+            : 'Impossibile inviare l\'email di verifica. Verifica la configurazione SMTP.'
+      });
+    }
     const isDev = process.env.NODE_ENV !== 'production';
 
     if (!emailResult.success) {
