@@ -2471,11 +2471,15 @@ server.listen(PORT, '0.0.0.0', () => {
       );
     }
     const smtpHints = emailService.getSmtpDiagnostics();
-    smtpHints.forEach((h) => console.warn(`⚠️ SMTP config: ${h}`));
-    emailService.verifyConnection().then((r) => {
-      if (r.ok) console.log('📧 SMTP connessione OK');
-      else console.warn(`⚠️ SMTP non raggiungibile: ${r.error}`);
-    });
+    smtpHints.forEach((h) => console.warn(`⚠️ Email: ${h}`));
+    if (transport === 'mailtrap_api') {
+      console.log('📧 Verifica invio: registrati con una email di test (SMTP disabilitato su Render free).');
+    } else {
+      emailService.verifyConnection().then((r) => {
+        if (r.ok) console.log('📧 SMTP connessione OK');
+        else console.warn(`⚠️ SMTP non raggiungibile: ${r.error}`);
+      });
+    }
   } else {
     console.warn('⚠️ SMTP non configurato — in sviluppo le email vanno in data/email-outbox/');
   }
