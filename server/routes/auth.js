@@ -9,7 +9,8 @@ module.exports = function registerAuth(app, ctx) {
     db, logger, auditLog, emailService, tokenManager,
     authenticateToken, optionalAuthenticate, validateRegister, validateLogin,
     verifyPassword, validatePasswordStrength,
-    registerLimiter, authLimiter, refreshTokenLimiter, passwordResetLimiter,
+    registerLimiter, authLimiter, loginIpLimiter, refreshTokenLimiter, passwordResetLimiter,
+    passwordResetEmailLimiter, verificationLimiter, verificationStatusLimiter,
     setTokenCookies, clearAuthCookies, getRefreshTokenFromCookie,
     JWT_SECRET,
   } = ctx;
@@ -181,7 +182,7 @@ module.exports = function registerAuth(app, ctx) {
   });
 
   // VERIFICA CODICE EMAIL
-  app.post('/api/auth/verify-email-code', async (req, res) => {
+  app.post('/api/auth/verify-email-code', verificationLimiter, async (req, res) => {
     try {
       const { userId, code } = req.body;
 
@@ -232,7 +233,7 @@ module.exports = function registerAuth(app, ctx) {
   });
 
   // LOGIN
-  app.post('/api/auth/login', authLimiter, validateLogin, async (req, res) => {
+  app.post('/api/auth/login', loginIpLimiter, authLimiter, validateLogin, async (req, res) => {
     try {
       const { email, password } = req.body;
       const normalizedEmail = email.toLowerCase();
@@ -379,7 +380,7 @@ module.exports = function registerAuth(app, ctx) {
   });
 
   // PASSWORD RESET REQUEST
-  app.post('/api/auth/forgot-password', passwordResetLimiter, async (req, res) => {
+  app.post('/api/auth/forgot-password', passwordResetLimiter, passwordResetEmailLimiter, async (req, res) => {
     try {
       const { email } = req.body;
       const genericResponse = {
@@ -435,7 +436,7 @@ module.exports = function registerAuth(app, ctx) {
   });
 
   // RESET PASSWORD
-  app.post('/api/auth/reset-password', async (req, res) => {
+  app.post('/api/auth/reset-password', passwordResetLimiter, async (req, res) => {
     try {
       const { token, resetToken, newPassword, confirmPassword } = req.body;
       const rawToken = token || resetToken;
@@ -516,7 +517,7 @@ module.exports = function registerAuth(app, ctx) {
   });
 
   // Stato verifica email (polling da pagina "in attesa" — anche altro dispositivo)
-  app.get('/api/auth/verification-status', async (req, res) => {
+  app.get('/api/auth/verification-status', verificationStatusLimiter, async (req, res) => {
     try {
       const { userId } = req.query;
       if (!userId || typeof userId !== 'string') {
@@ -567,7 +568,7 @@ module.exports = function registerAuth(app, ctx) {
   });
 
   // REINVIA CODICE DI VERIFICA EMAIL
-  app.post('/api/auth/resend-verification-code', async (req, res) => {
+  app.post('/api/auth/resend-verification-code', verificationLimiter, async (req, res) => {
     try {
       const { userId } = req.body;
 

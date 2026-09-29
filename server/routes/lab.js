@@ -4,7 +4,7 @@
 module.exports = function registerLab(app, ctx) {
   const {
     logger, optionalAuthenticate, sanitizeString, virtualLabService,
-    virtualLabSessionLimiter, virtualLabLimiter, incidentsPublicLimiter,
+    virtualLabSessionLimiter, virtualLabLimiter, virtualLabIpLimiter, incidentsPublicLimiter,
   } = ctx;
 
   // ==================== LABORATORIO VIRTUALE (VM isolate simulate) ====================
@@ -24,7 +24,7 @@ module.exports = function registerLab(app, ctx) {
     }
   });
 
-  app.post('/api/virtual-lab/sessions', vlabAuth, virtualLabSessionLimiter, async (req, res) => {
+  app.post('/api/virtual-lab/sessions', vlabAuth, virtualLabIpLimiter, virtualLabSessionLimiter, async (req, res) => {
     try {
       const labId = virtualLabService.validateLabId(req.body?.labId || '');
       if (!labId) {
@@ -38,7 +38,7 @@ module.exports = function registerLab(app, ctx) {
     }
   });
 
-  app.get('/api/virtual-lab/sessions/:id', vlabAuth, incidentsPublicLimiter, async (req, res) => {
+  app.get('/api/virtual-lab/sessions/:id', vlabAuth, virtualLabIpLimiter, async (req, res) => {
     try {
       const ownerKey = virtualLabService.ownerKeyFromRequest(req);
       const session = await virtualLabService.getSession(req.params.id, ownerKey);
@@ -49,7 +49,7 @@ module.exports = function registerLab(app, ctx) {
     }
   });
 
-  app.post('/api/virtual-lab/sessions/:id/exec', vlabAuth, virtualLabLimiter, async (req, res) => {
+  app.post('/api/virtual-lab/sessions/:id/exec', vlabAuth, virtualLabIpLimiter, virtualLabLimiter, async (req, res) => {
     try {
       const command = sanitizeString(req.body?.command || '', { escapeHtml: false });
       if (!command) {
@@ -63,7 +63,7 @@ module.exports = function registerLab(app, ctx) {
     }
   });
 
-  app.delete('/api/virtual-lab/sessions/:id', vlabAuth, incidentsPublicLimiter, async (req, res) => {
+  app.delete('/api/virtual-lab/sessions/:id', vlabAuth, virtualLabIpLimiter, async (req, res) => {
     try {
       const ownerKey = virtualLabService.ownerKeyFromRequest(req);
       await virtualLabService.stopSession(req.params.id, ownerKey);

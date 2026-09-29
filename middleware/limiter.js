@@ -1,383 +1,301 @@
-// ==================== RATE LIMITING MIDDLEWARE ====================
-// Redis-backed rate limiting with per-user and per-IP tracking
+// ==================== RATE LIMITING ====================
+// Tutti i limiter usano express-rate-limit. Con REDIS_URL i contatori sono
+// condivisi tra istanze; se Redis non risponde si ripiega su un contatore in
+// memoria (i limiti restano attivi, solo per singolo processo).
+//
+// Prima: scan/dns/upload/lab usavano uno store scritto a mano che non bloccava
+// mai (senza Redis getKey restituiva null, con Redis leggeva un numero dove si
+// aspettava un oggetto), e tutti i limiter condividevano le stesse chiavi Redis.
 
-const rateLimit = require('express-rate-limit');
+const { rateLimit, MemoryStore } = require('express-rate-limit');
 const Redis = require('ioredis');
+const jwt = require('jsonwebtoken');
 
-// Initialize Redis client for rate limiting
+const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
+
+function envInt(name, fallback) {
+  const v = parseInt(process.env[name] || '', 10);
+  return Number.isFinite(v) && v > 0 ? v : fallback;
+}
+
+// ---------------------------------------------------------------- Redis (opzionale)
 let redis = null;
-const redisUrl = process.env.REDIS_URL && process.env.REDIS_URL.trim();
-
-if (redisUrl) {
-  try {
-    redis = new Redis(redisUrl);
-    // log only first connection error to reduce log spam
-    let redisLogged = false;
-    redis.on('error', (err) => {
-      if (!redisLogged) {
-        console.warn('⚠️ Redis connection warning:', err.message);
-        redisLogged = true;
-      }
-      // fallback to memory-based limiting automatically happens
-    });
-  } catch (err) {
-    console.warn('⚠️ Redis initialization failed, using memory-based rate limiting');
-    redis = null;
-  }
-} else {
-  console.info('ℹ️ Redis disabled for rate limiting (no REDIS_URL)');
+const redisUrl = (process.env.REDIS_URL || '').trim();
+if (redisUrl && process.env.NODE_ENV !== 'test') {
+  redis = new Redis(redisUrl, { maxRetriesPerRequest: 1, enableOfflineQueue: false, lazyConnect: false });
+  let logged = false;
+  redis.on('error', (err) => {
+    if (!logged) {
+      console.warn('⚠️ Redis rate limit non raggiungibile, uso contatori in memoria:', err.message);
+      logged = true;
+    }
+  });
 }
 
-
-/**
- * Custom store for Redis-backed rate limiting
- */
-class RedisStore {
-  async getKey(key) {
-    try {
-      if (!redis) return null;
-      const data = await redis.get(key);
-      return data ? JSON.parse(data) : { totalHits: 0, resetTime: Date.now() + 60000 };
-    } catch (err) {
-      console.error('Redis get error:', err);
-      return null;
-    }
-  }
-
-  async setKey(key, value, windowMs) {
-    try {
-      if (!redis) return;
-      await redis.setex(key, Math.ceil(windowMs / 1000), JSON.stringify(value));
-    } catch (err) {
-      console.error('Redis set error:', err);
-    }
-  }
-
-  async increment(key, windowMs) {
-    try {
-      if (!redis) return { totalHits: 1, resetTime: Date.now() + windowMs };
-
-      const current = await redis.incr(key);
-      if (current === 1) {
-        await redis.expire(key, Math.ceil(windowMs / 1000));
-      }
-
-      const ttl = await redis.ttl(key);
-      const ttlMs = ttl > 0 ? ttl * 1000 : windowMs;
-      return {
-        totalHits: current,
-        resetTime: Date.now() + ttlMs,
-      };
-    } catch (err) {
-      console.error('Redis increment error:', err);
-      return { totalHits: 1, resetTime: Date.now() + windowMs };
-    }
-  }
-}
-
-const REDIS_RATE_LIMIT_MS = 2500;
-
-function withRedisTimeout(promise, ms = REDIS_RATE_LIMIT_MS) {
+function withTimeout(promise, ms) {
+  let t;
   return Promise.race([
     promise,
     new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Redis rate limit timeout')), ms);
+      t = setTimeout(() => reject(new Error('Redis timeout')), ms);
     }),
-  ]);
+  ]).finally(() => clearTimeout(t));
 }
 
-const redisStore = new RedisStore();
-
-/**
- * Store express-rate-limit v7 (increment → { totalHits, resetTime: Date })
- */
-const createRedisLimiterStore = (windowMs = 15 * 60 * 1000) => {
-  return {
-    async increment(key) {
-      try {
-        const data = await withRedisTimeout(redisStore.increment(key, windowMs));
-        return {
-          totalHits: Math.max(1, Number(data.totalHits) || 1),
-          resetTime: new Date(data.resetTime || Date.now() + windowMs),
-        };
-      } catch (err) {
-        console.warn('⚠️ Rate limit Redis, uso fallback in-memory:', err.message);
-        return {
-          totalHits: 1,
-          resetTime: new Date(Date.now() + windowMs),
-        };
-      }
-    },
-
-    async decrement(key) {
-      try {
-        if (!redis) return;
-        await withRedisTimeout(redis.decr(key));
-      } catch (err) {
-        console.error('Redis decrement error:', err);
-      }
-    },
-
-    async resetKey(key) {
-      try {
-        if (redis) await withRedisTimeout(redis.del(key));
-      } catch (err) {
-        console.error('Redis reset error:', err);
-      }
-    },
-  };
-};
-
-// ==================== RATE LIMITERS ====================
-
-/**
- * Global rate limiter: 100 requests per 15 minutes per IP
- */
-const globalLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: parseInt(process.env.RATE_LIMIT_GLOBAL_WINDOW_MS || 900000),
-  max: parseInt(process.env.RATE_LIMIT_GLOBAL_MAX || 100),
-  message: {
-    error: 'Too many requests from this IP, please try again after 15 minutes.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req, res) => req.ip,
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
+/** Store Redis per express-rate-limit v7, con ripiego automatico in memoria */
+class ResilientRedisStore {
+  constructor(name) {
+    this.prefix = `rl:${name}:`;
+    this.fallback = new MemoryStore();
+    this.windowMs = MINUTE;
+    this.localKeys = false;
   }
-});
 
-/**
- * Login rate limiter: 5 attempts per 15 minutes per IP
- * Skips if successful (200 status)
- */
-const authLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: parseInt(process.env.RATE_LIMIT_LOGIN_WINDOW_MS || 900000),
-  max: parseInt(process.env.RATE_LIMIT_LOGIN_MAX || 5),
-  message: {
-    error: 'Too many login attempts, please try again after 15 minutes.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req, res) => {
-    // Rate limit by email + IP to prevent enumeration
-    return `${req.body.email || 'unknown'}:${req.ip}`;
-  },
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
+  init(options) {
+    this.windowMs = options.windowMs;
+    this.fallback.init(options);
   }
-});
 
-/**
- * Register rate limiter: 5 account / hour per IP
- */
-/** Registrazione: solo memoria (Redis può ritardare la risposta su hosting condiviso) */
-const registerLimiter = rateLimit({
-  windowMs: parseInt(process.env.RATE_LIMIT_REGISTER_WINDOW_MS || 3600000),
-  max: parseInt(process.env.RATE_LIMIT_REGISTER_MAX || 5),
-  message: { error: 'Troppi tentativi di registrazione. Riprova più tardi.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.ip || 'unknown',
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
-  },
-});
-
-/**
- * Password reset rate limiter: 5 richieste / 15 min per IP+email
- */
-const passwordResetLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: parseInt(process.env.RATE_LIMIT_RESET_WINDOW_MS || 900000),
-  max: parseInt(process.env.RATE_LIMIT_RESET_MAX || 5),
-  message: { error: 'Troppe richieste di reset password. Riprova più tardi.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => `${req.body?.email || 'unknown'}:${req.ip || 'unknown'}`,
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
-  },
-});
-
-/**
- * Modulo Help: 5 invii / 15 min per IP+email
- */
-const helpLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: parseInt(process.env.RATE_LIMIT_HELP_WINDOW_MS || 900000),
-  max: parseInt(process.env.RATE_LIMIT_HELP_MAX || 5),
-  message: { error: 'Troppe richieste dal modulo Help. Riprova più tardi.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => `${req.body?.email || 'unknown'}:${req.ip || 'unknown'}`,
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
-  },
-});
-
-/**
- * Refresh token rate limiter
- */
-const refreshTokenLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_REFRESH_MAX || 30),
-  message: { error: 'Troppi refresh token. Riprova più tardi.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.ip || 'unknown',
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
-  },
-});
-
-/**
- * Scan rate limiter: 50 scans per hour per user
- */
-const scanLimiter = (req, res, next) => {
-  const key = `scan:${req.user?.id || req.ip}`;
-  const maxAttempts = parseInt(process.env.RATE_LIMIT_SCAN_MAX || 50);
-  const windowMs = parseInt(process.env.RATE_LIMIT_SCAN_WINDOW_MS || 3600000);
-
-  redisStore.getKey(key).then((data) => {
-    if (data && data.totalHits >= maxAttempts) {
-      return res.status(429).json({
-        error: `Too many scan requests. Limit: ${maxAttempts} per hour.`,
-        retryAfter: Math.ceil((data.resetTime - Date.now()) / 1000)
-      });
+  async increment(key) {
+    const k = this.prefix + key;
+    try {
+      const res = await withTimeout(redis.multi().incr(k).pttl(k).exec(), 1500);
+      const hits = Number(res[0][1]);
+      let ttl = Number(res[1][1]);
+      if (ttl < 0) {
+        await withTimeout(redis.pexpire(k, this.windowMs), 1500);
+        ttl = this.windowMs;
+      }
+      return { totalHits: hits, resetTime: new Date(Date.now() + ttl) };
+    } catch {
+      return this.fallback.increment(key);
     }
-
-    redisStore.increment(key, windowMs).then(() => next());
-  });
-};
-
-/**
- * DNS enumeration rate limiter: 100 requests per hour per user
- */
-const dnsLimiter = (req, res, next) => {
-  const key = `dns:${req.user?.id || req.ip}`;
-  const maxAttempts = parseInt(process.env.RATE_LIMIT_DNS_MAX || 100);
-  const windowMs = parseInt(process.env.RATE_LIMIT_DNS_WINDOW_MS || 3600000);
-
-  redisStore.getKey(key).then((data) => {
-    if (data && data.totalHits >= maxAttempts) {
-      return res.status(429).json({
-        error: `Too many DNS requests. Limit: ${maxAttempts} per hour.`,
-        retryAfter: Math.ceil((data.resetTime - Date.now()) / 1000)
-      });
-    }
-
-    redisStore.increment(key, windowMs).then(() => next());
-  });
-};
-
-/**
- * Public incidents feed: 120 requests per 15 minutes per IP (no auth required)
- */
-const incidentsPublicLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: 15 * 60 * 1000,
-  max: 120,
-  message: { error: 'Too many requests to incidents feed. Retry in a few minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => req.ip,
-  skip: (req) => !req.ip,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
-  },
-});
-
-/**
- * Upload rate limiter: 50 files per 24 hours per user
- */
-const uploadLimiter = (req, res, next) => {
-  const key = `upload:${req.user?.id || req.ip}`;
-  const maxAttempts = parseInt(process.env.RATE_LIMIT_UPLOAD_MAX || 50);
-  const windowMs = parseInt(process.env.RATE_LIMIT_UPLOAD_WINDOW_MS || 86400000);
-
-  redisStore.getKey(key).then((data) => {
-    if (data && data.totalHits >= maxAttempts) {
-      return res.status(429).json({
-        error: `Too many upload requests. Limit: ${maxAttempts} per 24 hours.`,
-        retryAfter: Math.ceil((data.resetTime - Date.now()) / 1000)
-      });
-    }
-
-    redisStore.increment(key, windowMs).then(() => next());
-  });
-};
-
-/**
- * Virtual lab: 300 command exec per hour per IP/user
- */
-function resolveLimiterClientKey(req) {
-  if (req.user?.id) return `user:${req.user.id}`;
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) {
-    const ip = String(forwarded).split(',')[0].trim();
-    if (ip) return `ip:${ip}`;
   }
-  if (req.ip) return `ip:${req.ip}`;
-  return 'ip:unknown';
+
+  async decrement(key) {
+    try {
+      await withTimeout(redis.decr(this.prefix + key), 1500);
+    } catch {
+      await this.fallback.decrement(key);
+    }
+  }
+
+  async resetKey(key) {
+    try {
+      await withTimeout(redis.del(this.prefix + key), 1500);
+    } catch {
+      /* ignora */
+    }
+    await this.fallback.resetKey(key);
+  }
 }
 
-const virtualLabSessionLimiter = rateLimit({
-  store: redis ? createRedisLimiterStore() : undefined,
-  windowMs: 15 * 60 * 1000,
-  max: parseInt(process.env.RATE_LIMIT_VLAB_SESSION_MAX || 30, 10),
-  message: { error: 'Troppi avvii lab. Riprova tra qualche minuto.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  keyGenerator: (req) => `vlab-start:${resolveLimiterClientKey(req)}`,
-  skip: () => false,
-  handler: (req, res, next, options) => {
-    res.status(options.statusCode).json(options.message);
-  },
+// ---------------------------------------------------------------- chiavi
+/** Utente autenticato (se il middleware di auth è già passato) oppure IP */
+function userOrIpKey(req) {
+  if (req.user?.id && req.user.id !== 'guest') return `u:${req.user.id}`;
+  return `ip:${req.ip || 'unknown'}`;
+}
+
+/**
+ * Per il limite globale (eseguito prima dell'autenticazione): se il cookie di
+ * accesso è valido conta per utente, così una classe dietro lo stesso IP non
+ * si blocca a vicenda.
+ */
+function globalKey(req) {
+  const token = req.cookies?.accessToken || String(req.headers.authorization || '').replace(/^Bearer\s+/i, '');
+  if (token && process.env.JWT_SECRET) {
+    try {
+      const payload = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
+      if (payload?.id) return `u:${payload.id}`;
+    } catch {
+      /* token scaduto o non valido: conta per IP */
+    }
+  }
+  return `ip:${req.ip || 'unknown'}`;
+}
+
+function emailKey(req) {
+  return String(req.body?.email || '').trim().toLowerCase().slice(0, 254) || 'none';
+}
+
+// ---------------------------------------------------------------- fabbrica
+function makeLimiter(name, { windowMs, max, message, keyGenerator = userOrIpKey, skip, skipSuccessfulRequests = false }) {
+  return rateLimit({
+    windowMs,
+    limit: max,
+    standardHeaders: 'draft-7',
+    legacyHeaders: false,
+    skipSuccessfulRequests,
+    store: redis ? new ResilientRedisStore(name) : undefined,
+    keyGenerator,
+    skip,
+    handler: (req, res, next, options) => {
+      const retryAfter = Math.ceil(options.windowMs / 1000);
+      res.status(429).json({ error: message, code: 'RATE_LIMITED', retryAfter });
+    },
+  });
+}
+
+// Letture leggere e frequenti che non devono consumare il limite globale
+const GLOBAL_EXEMPT = new Set([
+  '/api/health',
+  '/api/health/ping',
+  '/api/auth/session',
+  '/api/achievements',
+  '/api/virtual-lab/catalog',
+]);
+
+const globalLimiter = makeLimiter('global', {
+  windowMs: envInt('RATE_LIMIT_GLOBAL_WINDOW_MS', 15 * MINUTE),
+  max: envInt('RATE_LIMIT_GLOBAL_MAX', 1000),
+  message: 'Troppe richieste in poco tempo. Riprova tra qualche minuto.',
+  keyGenerator: globalKey,
+  skip: (req) => GLOBAL_EXEMPT.has(req.path) || GLOBAL_EXEMPT.has(req.baseUrl + req.path),
 });
 
-const virtualLabLimiter = (req, res, next) => {
-  const key = `vlab:${resolveLimiterClientKey(req)}`;
-  const maxAttempts = parseInt(process.env.RATE_LIMIT_VLAB_MAX || 300, 10);
-  const windowMs = parseInt(process.env.RATE_LIMIT_VLAB_WINDOW_MS || 3600000, 10);
+// Login: contano solo i tentativi falliti, per coppia email+IP e per IP
+const authLimiter = makeLimiter('login', {
+  windowMs: envInt('RATE_LIMIT_LOGIN_WINDOW_MS', 15 * MINUTE),
+  max: envInt('RATE_LIMIT_LOGIN_MAX', 10),
+  message: 'Troppi tentativi di accesso con questa email. Riprova tra 15 minuti.',
+  keyGenerator: (req) => `${emailKey(req)}|${req.ip || 'unknown'}`,
+  skipSuccessfulRequests: true,
+});
 
-  redisStore
-    .getKey(key)
-    .then((data) => {
-      if (data && data.totalHits >= maxAttempts) {
-        return res.status(429).json({
-          error: `Limite comandi lab raggiunto (${maxAttempts}/ora).`,
-          retryAfter: Math.ceil((data.resetTime - Date.now()) / 1000),
-        });
-      }
-      return redisStore.increment(key, windowMs).then(() => next());
-    })
-    .catch((err) => {
-      console.error('virtualLabLimiter error:', err.message);
-      next();
-    });
-};
+const loginIpLimiter = makeLimiter('login-ip', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_LOGIN_IP_MAX', 50),
+  message: 'Troppi tentativi di accesso da questa rete. Riprova tra 15 minuti.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+  skipSuccessfulRequests: true,
+});
+
+const registerLimiter = makeLimiter('register', {
+  windowMs: envInt('RATE_LIMIT_REGISTER_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_REGISTER_MAX', 5),
+  message: 'Troppi tentativi di registrazione. Riprova più tardi.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+const passwordResetLimiter = makeLimiter('reset', {
+  windowMs: envInt('RATE_LIMIT_RESET_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_RESET_MAX', 10),
+  message: 'Troppe richieste di reset password. Riprova più tardi.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+// Per email: evita di tempestare una casella con email di reset da IP diversi
+const passwordResetEmailLimiter = makeLimiter('reset-email', {
+  windowMs: HOUR,
+  max: envInt('RATE_LIMIT_RESET_EMAIL_MAX', 3),
+  message: 'Abbiamo già inviato alcune email di reset a questo indirizzo. Controlla la casella o riprova tra un\'ora.',
+  keyGenerator: emailKey,
+});
+
+const verificationLimiter = makeLimiter('verify', {
+  windowMs: HOUR,
+  max: envInt('RATE_LIMIT_VERIFY_MAX', 5),
+  message: 'Troppe richieste di invio email di verifica. Riprova più tardi.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+const verificationStatusLimiter = makeLimiter('verify-status', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_VERIFY_STATUS_MAX', 200),
+  message: 'Troppe richieste di stato verifica. Riprova tra qualche minuto.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+const refreshTokenLimiter = makeLimiter('refresh', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_REFRESH_MAX', 60),
+  message: 'Troppi rinnovi di sessione. Riprova più tardi.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+const helpLimiter = makeLimiter('help', {
+  windowMs: envInt('RATE_LIMIT_HELP_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_HELP_MAX', 5),
+  message: 'Troppe richieste dal modulo Help. Riprova più tardi.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+// Strumenti che generano traffico verso terzi: per utente
+const scanLimiter = makeLimiter('scan', {
+  windowMs: envInt('RATE_LIMIT_SCAN_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_SCAN_MAX', 50),
+  message: 'Hai raggiunto il limite di scansioni per quest\'ora. Riprova più tardi.',
+});
+
+const dnsLimiter = makeLimiter('dns', {
+  windowMs: envInt('RATE_LIMIT_DNS_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_DNS_MAX', 100),
+  message: 'Hai raggiunto il limite di interrogazioni DNS/WHOIS per quest\'ora.',
+});
+
+const uploadLimiter = makeLimiter('upload', {
+  windowMs: envInt('RATE_LIMIT_UPLOAD_WINDOW_MS', 24 * HOUR),
+  max: envInt('RATE_LIMIT_UPLOAD_MAX', 50),
+  message: 'Hai raggiunto il limite di file analizzati per oggi.',
+});
+
+const incidentsPublicLimiter = makeLimiter('incidents', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_INCIDENTS_MAX', 120),
+  message: 'Troppe richieste al feed incidenti. Riprova tra qualche minuto.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+/** Laboratorio: per utente o per ospite (cookie anonimo impostato dal servizio lab) */
+function labKey(req) {
+  if (req.user?.id) return `u:${req.user.id}`;
+  const anon = req.cookies?.evil_lab_anon;
+  if (anon && /^[a-f0-9-]{16,64}$/i.test(anon)) return `a:${anon}`;
+  return `ip:${req.ip || 'unknown'}`;
+}
+
+const virtualLabSessionLimiter = makeLimiter('lab-start', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_VLAB_SESSION_MAX', 30),
+  message: 'Troppi avvii di laboratorio. Riprova tra qualche minuto.',
+  keyGenerator: labKey,
+});
+
+const virtualLabLimiter = makeLimiter('lab-exec', {
+  windowMs: envInt('RATE_LIMIT_VLAB_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_VLAB_MAX', 600),
+  message: 'Limite comandi del laboratorio raggiunto per quest\'ora.',
+  keyGenerator: labKey,
+});
+
+// Tetto per IP sul laboratorio, indipendente dai cookie (che un abuso può azzerare)
+const virtualLabIpLimiter = makeLimiter('lab-ip', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_VLAB_IP_MAX', 3000),
+  message: 'Troppe richieste al laboratorio da questa rete. Riprova tra qualche minuto.',
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
 
 module.exports = {
   globalLimiter,
   authLimiter,
+  loginIpLimiter,
   registerLimiter,
   passwordResetLimiter,
-  helpLimiter,
+  passwordResetEmailLimiter,
+  verificationLimiter,
+  verificationStatusLimiter,
   refreshTokenLimiter,
+  helpLimiter,
   scanLimiter,
   dnsLimiter,
   uploadLimiter,
   incidentsPublicLimiter,
   virtualLabSessionLimiter,
   virtualLabLimiter,
+  virtualLabIpLimiter,
+  ResilientRedisStore,
+  _internals: { userOrIpKey, globalKey, labKey, GLOBAL_EXEMPT },
 };

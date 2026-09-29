@@ -53,42 +53,11 @@ function createApp(ctx) {
 
   pages.mountStatic(app);
 
-  // ==================== APPLY RATE LIMITING ====================
-  // Rate limit NON si applica ai file statici e HTML, solo alle API /api/*
-  app.use((req, res, next) => {
-    const path = req.path.toLowerCase();
-    // skip rate limit per:
-    // - pagine HTML (root, .html files)
-    // - file statici (css, js, immagini, assets, fonts, public)
-    const isStaticFile = path === '/' || 
-      path.endsWith('.html') || 
-      path.endsWith('.css') || 
-      path.endsWith('.js') ||
-      path.endsWith('.png') || 
-      path.endsWith('.jpg') || 
-      path.endsWith('.jpeg') ||
-      path.endsWith('.gif') || 
-      path.endsWith('.svg') || 
-      path.endsWith('.ico') ||
-      path.endsWith('.woff') || 
-      path.endsWith('.woff2') || 
-      path.endsWith('.ttf') ||
-      path.startsWith('/css') || 
-      path.startsWith('/js') || 
-      path.startsWith('/assets') || 
-      path.startsWith('/public') ||
-      path.startsWith('/fonts') ||
-      path.startsWith('/images');
-  
-    if (isStaticFile) {
-      return next(); // bypass rate limit per file statici
-    }
-    if (path.startsWith('/api/health')) {
-      return next();
-    }
-    // applica rate limit solo alle API
-    globalLimiter(req, res, next);
-  });
+  // Cookie letti anche dal limite globale (conteggio per utente autenticato)
+  app.use(cookieParser());
+
+  // Limite globale solo sulle API: statici e pagine non passano di qui
+  app.use('/api', globalLimiter);
 
   // ==================== APPLY LOGGING MIDDLEWARE ====================
   app.use(httpLogger);
@@ -183,7 +152,6 @@ function createApp(ctx) {
       allowedHeaders: ['Content-Type', 'Authorization']
     })(req, res, next);
   });
-  app.use(cookieParser());
   app.use(express.json());
 
   pages.mountPageRoutes(app);
