@@ -2,7 +2,8 @@
  * EVIL Public Info Registry — elenco persone da Wikidata (fonte pubblica, persone documentate)
  * NON è anagrafe nazionale: solo individui presenti in Wikidata/Wikipedia.
  */
-const axios = require('axios');
+// Client HTTP con protezione SSRF (anche i redirect vengono verificati)
+const { axios } = require('../../server/lib/safe-http');
 const {
   buildTerritorySearch,
   applyRegistryPostFilters,

@@ -2,7 +2,8 @@
  * EVIL Subdomain Finder — wordlist + Certificate Transparency (crt.sh)
  */
 const dns = require('dns').promises;
-const axios = require('axios');
+// Client HTTP con protezione SSRF (anche i redirect vengono verificati)
+const { axios } = require('../../server/lib/safe-http');
 const { normalizeDomain } = require('./dns-enumerator-service');
 
 const WORDLIST = [
@@ -94,7 +95,7 @@ async function fetchCrtShNames(domain) {
   try {
     const response = await axios.get(
       `https://crt.sh/?q=%25.${encodeURIComponent(domain)}&output=json`,
-      { timeout: 18000, validateStatus: () => true }
+      { timeout: 18000, validateStatus: () => true, maxContentLength: 20 * 1024 * 1024 }
     );
     if (!Array.isArray(response.data)) return names;
     for (const entry of response.data.slice(0, 300)) {

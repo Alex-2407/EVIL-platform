@@ -1,7 +1,7 @@
 /**
  * EVIL SSL Certificate Analyzer — TLS handshake + analisi certificato
  */
-const tls = require('tls');
+const { connectTls, assertPublicDestination } = require('../../server/lib/safe-http');
 const { normalizeDomain } = require('./dns-enumerator-service');
 
 const OBSOLETE_PROTOCOLS = ['SSLv2', 'SSLv3', 'TLSv1', 'TLSv1.1'];
@@ -75,23 +75,25 @@ function hostnameMatches(domain, cn, sans) {
 
 function fetchTlsCertificate(domain) {
   return new Promise((resolve) => {
-    const socket = tls.connect(
-      443,
-      domain,
-      { servername: domain, rejectUnauthorized: false, timeout: 12000 },
-      function onConnect() {
-        const cert = socket.getPeerCertificate(true);
-        const result = {
-          protocol: socket.getProtocol?.() || null,
-          cipher: socket.getCipher?.() || null,
-          authorized: socket.authorized,
-          authorizationError: socket.authorizationError || null,
-          cert
-        };
-        socket.end();
-        resolve(result);
-      }
-    );
+    let socket;
+    try {
+      socket = connectTls(domain, 443, { rejectUnauthorized: false, timeout: 12000 });
+    } catch (err) {
+      resolve({ error: err.message });
+      return;
+    }
+    socket.once('secureConnect', function onConnect() {
+      const cert = socket.getPeerCertificate(true);
+      const result = {
+        protocol: socket.getProtocol?.() || null,
+        cipher: socket.getCipher?.() || null,
+        authorized: socket.authorized,
+        authorizationError: socket.authorizationError || null,
+        cert
+      };
+      socket.end();
+      resolve(result);
+    });
 
     socket.on('error', (err) => resolve({ error: err.message }));
     socket.setTimeout(12000, () => {
@@ -309,6 +311,7 @@ function computeScore(analysis, findings) {
 async function runSslAnalysis(inputDomain) {
   const started = Date.now();
   const domain = normalizeDomain(inputDomain);
+  await assertPublicDestination(`https://${domain}/`);
 
   const raw = await fetchTlsCertificate(domain);
   if (raw.error) {

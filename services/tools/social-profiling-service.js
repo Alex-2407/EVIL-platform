@@ -1,7 +1,8 @@
 /**
  * EVIL Social Profiling — OSINT passivo su username (fonti pubbliche)
  */
-const axios = require('axios');
+// Client HTTP con protezione SSRF (anche i redirect vengono verificati)
+const { axios } = require('../../server/lib/safe-http');
 
 const USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]{0,30}[a-zA-Z0-9])?$/;
 

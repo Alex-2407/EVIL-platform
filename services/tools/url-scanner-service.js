@@ -3,8 +3,7 @@
  * DNS · TLS · HTTP headers · redirect · discovery · scoring ponderato
  */
 const dns = require('dns').promises;
-const tls = require('tls');
-const axios = require('axios');
+const { axios, connectTls, assertPublicDestination } = require('../../server/lib/safe-http');
 
 const THREAT_DB = {
   'phishing-domain.xyz': { threat: 'phishing', score: 15 },
@@ -148,40 +147,42 @@ async function lookupGeo(ip) {
 
 function getTlsProfile(domain) {
   return new Promise((resolve) => {
-    const socket = tls.connect(
-      443,
-      domain,
-      { servername: domain, rejectUnauthorized: false },
-      function () {
-        const cert = socket.getPeerCertificate(true);
-        const sans = cert.subjectaltname
-          ? cert.subjectaltname.split(',').map(s => s.trim().replace(/^DNS:/i, ''))
-          : [];
-        const daysUntilExpiry = cert.valid_to
-          ? Math.floor((new Date(cert.valid_to) - new Date()) / 86400000)
-          : null;
-        resolve({
-          protocol: socket.getProtocol(),
-          cipher: socket.getCipher(),
-          authorized: socket.authorized,
-          authorizationError: socket.authorizationError || null,
-          subject: parseCertSubject(cert.subject),
-          issuer: parseCertSubject(cert.issuer),
-          validFrom: cert.valid_from,
-          validTo: cert.valid_to,
-          daysUntilExpiry,
-          isExpired: cert.valid_to ? new Date(cert.valid_to) < new Date() : false,
-          fingerprintSha1: cert.fingerprint,
-          fingerprintSha256: cert.fingerprint256 || null,
-          serialNumber: cert.serialNumber || null,
-          subjectAltNames: sans,
-          keyBits: cert.bits || null,
-          signatureAlgorithm: cert.sigalg || null,
-          status: cert.valid_to && new Date(cert.valid_to) >= new Date() ? 'valid' : 'expired'
-        });
-        socket.destroy();
-      }
-    );
+    let socket;
+    try {
+      socket = connectTls(domain, 443, { rejectUnauthorized: false });
+    } catch (err) {
+      resolve({ error: err.message, status: 'failed' });
+      return;
+    }
+    socket.once('secureConnect', function () {
+      const cert = socket.getPeerCertificate(true);
+      const sans = cert.subjectaltname
+        ? cert.subjectaltname.split(',').map(s => s.trim().replace(/^DNS:/i, ''))
+        : [];
+      const daysUntilExpiry = cert.valid_to
+        ? Math.floor((new Date(cert.valid_to) - new Date()) / 86400000)
+        : null;
+      resolve({
+        protocol: socket.getProtocol(),
+        cipher: socket.getCipher(),
+        authorized: socket.authorized,
+        authorizationError: socket.authorizationError || null,
+        subject: parseCertSubject(cert.subject),
+        issuer: parseCertSubject(cert.issuer),
+        validFrom: cert.valid_from,
+        validTo: cert.valid_to,
+        daysUntilExpiry,
+        isExpired: cert.valid_to ? new Date(cert.valid_to) < new Date() : false,
+        fingerprintSha1: cert.fingerprint,
+        fingerprintSha256: cert.fingerprint256 || null,
+        serialNumber: cert.serialNumber || null,
+        subjectAltNames: sans,
+        keyBits: cert.bits || null,
+        signatureAlgorithm: cert.sigalg || null,
+        status: cert.valid_to && new Date(cert.valid_to) >= new Date() ? 'valid' : 'expired'
+      });
+      socket.destroy();
+    });
     socket.on('error', (err) => resolve({ error: err.message, status: 'failed' }));
     setTimeout(() => {
       socket.destroy();
@@ -464,6 +465,8 @@ function buildFindings(ctx) {
 async function runUrlScan(fullUrl, domain, isHttps) {
   const started = Date.now();
   const modules = [];
+
+  await assertPublicDestination(fullUrl);
 
   const ip = await withTimeout(resolveIp(domain), 8000, 'DNS');
   const [dnsIntel, geo, redirectData] = await Promise.all([

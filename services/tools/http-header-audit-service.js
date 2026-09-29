@@ -1,7 +1,7 @@
 /**
  * EVIL HTTP Header Audit — analisi passiva header di sicurezza
  */
-const axios = require('axios');
+const { axios, assertPublicDestination } = require('../../server/lib/safe-http');
 
 const HEADER_CHECKS = [
   {
@@ -544,6 +544,7 @@ async function runHttpHeaderAudit(inputUrl) {
   if (!/^https?:\/\//i.test(fullUrl)) fullUrl = 'https://' + fullUrl;
 
   const parsed = new URL(fullUrl);
+  await assertPublicDestination(parsed); // errore chiaro subito; il controllo vale comunque a ogni connessione
   const probe = await probeHeaders(fullUrl);
   if (probe.error) throw new Error(probe.error);
 

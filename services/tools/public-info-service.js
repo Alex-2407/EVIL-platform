@@ -1,7 +1,8 @@
 /**
  * EVIL Public Info — OSINT su persone fisiche (solo fonti pubbliche, disambiguazione rigorosa)
  */
-const axios = require('axios');
+// Client HTTP con protezione SSRF (anche i redirect vengono verificati)
+const { axios } = require('../../server/lib/safe-http');
 const { probeGithub, probeReddit } = require('./social-profiling-service');
 const {
   buildAugmentedSearch,

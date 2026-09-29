@@ -1,8 +1,7 @@
 /**
  * EVIL WHOIS — RDAP (HTTPS) + fallback TCP :43 (senza CLI di sistema)
  */
-const axios = require('axios');
-const net = require('net');
+const { axios, connectTcp } = require('../../server/lib/safe-http');
 
 const TLD_WHOIS = {
   com: 'whois.verisign-grs.com',
@@ -131,9 +130,15 @@ async function lookupRdap(domain) {
 function tcpWhoisQuery(host, query, timeoutMs = 12000) {
   return new Promise((resolve, reject) => {
     let buf = '';
-    const socket = net.createConnection({ port: 43, host }, () => {
-      socket.write(`${query}\r\n`);
-    });
+    let socket;
+    try {
+      socket = connectTcp(host, 43, () => {
+        socket.write(`${query}\r\n`);
+      });
+    } catch (err) {
+      reject(err);
+      return;
+    }
     socket.setTimeout(timeoutMs);
     socket.on('data', (chunk) => {
       buf += chunk.toString('utf8');

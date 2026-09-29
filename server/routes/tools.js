@@ -2,11 +2,12 @@
 // Endpoint degli strumenti (estratto da js/server.js)
 const { body, validationResult } = require('express-validator');
 const PDFDocument = require('pdfkit');
+const { assertPublicDestination, isBlockedError, blockedMessage } = require('../lib/safe-http');
 
 module.exports = function registerTools(app, ctx) {
   const {
     db, logger, auditLog,
-    authenticateTools, sanitizeUrl, assertSafePublicUrl,
+    authenticateTools, sanitizeUrl,
     scanLimiter, dnsLimiter, uploadLimiter,
     scanUpload, handleScanUploadError,
     tools,
@@ -60,7 +61,7 @@ module.exports = function registerTools(app, ctx) {
           throw new Error('Invalid domain length');
         }
 
-        await assertSafePublicUrl(fullUrl);
+        await assertPublicDestination(fullUrl);
       } catch (err) {
         auditLog.security('SCAN_INVALID_DOMAIN', {
           userId: req.user.id,
@@ -68,7 +69,7 @@ module.exports = function registerTools(app, ctx) {
           error: err.message
         }, 'WARN');
         return res.status(400).json({
-          error: 'Invalid domain in URL',
+          error: isBlockedError(err) ? blockedMessage(err) : 'Dominio non valido o non risolvibile',
           status: 'error'
         });
       }
@@ -120,7 +121,10 @@ module.exports = function registerTools(app, ctx) {
         let statusCode = 500;
         let errorMessage = 'Scan failed due to internal error';
 
-        if (err.message.includes('timeout')) {
+        if (isBlockedError(err)) {
+          statusCode = 400;
+          errorMessage = blockedMessage(err);
+        } else if (err.message.includes('timeout')) {
           statusCode = 408;
           errorMessage = 'Scan timeout - please try again';
         } else if (err.message.includes('ENOTFOUND') || err.message.includes('DNS')) {
@@ -209,8 +213,8 @@ module.exports = function registerTools(app, ctx) {
       }
       res.json(result);
     } catch (err) {
-      const status = /non valido/i.test(err.message) ? 400 : 500;
-      res.status(status).json({ error: err.message, status: 'error' });
+      const status = isBlockedError(err) || /non valido/i.test(err.message) ? 400 : 500;
+      res.status(status).json({ error: isBlockedError(err) ? blockedMessage(err) : err.message, status: 'error' });
     }
   });
 
@@ -230,6 +234,9 @@ module.exports = function registerTools(app, ctx) {
       ]);
       res.json(result);
     } catch (err) {
+      if (isBlockedError(err)) {
+        return res.status(400).json({ error: blockedMessage(err), status: 'error' });
+      }
       const status = err.message.includes('timeout') ? 408 : err.message.includes('Invalid URL') ? 400 : 500;
       res.status(status).json({ error: err.message, status: 'error' });
     }
