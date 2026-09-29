@@ -1,0 +1,9 @@
+# Normalizza i fine riga nel repository e marca i binari
+* text=auto eol=lf
+*.bat text eol=crlf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.pdf binary
