@@ -1,104 +1,78 @@
 // ==================== SECURITY HEADERS MIDDLEWARE ====================
-// Implements comprehensive security headers (helmet + custom)
+// Header di sicurezza per TUTTE le risposte (pagine, statici e API).
+// Va registrato prima di express.static e delle route HTML: una route che
+// risponde chiude la catena e i middleware successivi non vengono eseguiti.
 
 const helmet = require('helmet');
 const { isSecureRequest, shouldEnforceHttps } = require('./https-enforce');
 
-/**
- * Configure security headers with helmet and custom middleware
- */
-const securityHeaders = (app) => {
-  // ==================== HELMET CORE HEADERS ====================
-  
-  app.use(helmet({
-    // X-Frame-Options: DENY (prevent clickjacking)
-    frameguard: {
-      action: 'deny'
-    },
-    
-    // X-Content-Type-Options: nosniff (prevent MIME sniffing)
-    noSniff: true,
-    
-    // X-XSS-Protection: 1; mode=block (legacy XSS protection)
-    xssFilter: true,
-    
-    // Referrer-Policy: strict-origin (send referrer only for same-origin HTTPS)
-    referrerPolicy: {
-      policy: 'strict-origin'
-    },
-    
-    // Permissions-Policy (Feature-Policy)
-    permittedCrossDomainPolicies: false,
-    
-    // Disable X-Powered-By header
-    hidePoweredBy: true
-  }));
+const CDN = 'https://cdnjs.cloudflare.com';
 
-  // ==================== HSTS (solo su connessioni HTTPS reali) ====================
+/**
+ * Content-Security-Policy.
+ * 'unsafe-inline' resta per script e stili perché le pagine usano ancora
+ * <script> inline e ~100 attributi onclick: rimuoverlo richiede prima di
+ * spostarli in file .js (vedi README, sezione sicurezza).
+ */
+function buildCsp(req) {
+  const host = req.get('host') || '';
+  const wsOrigin = host ? `${isSecureRequest(req) ? 'wss' : 'ws'}://${host}` : '';
+  const directives = [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline' ${CDN}`,
+    `style-src 'self' 'unsafe-inline' ${CDN}`,
+    "img-src 'self' data: blob: https:",
+    "font-src 'self' data:",
+    `connect-src 'self' ${CDN}${wsOrigin ? ' ' + wsOrigin : ''}`,
+    "media-src 'self' data: blob:",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ];
+  if (shouldEnforceHttps() && process.env.NODE_ENV === 'production') {
+    directives.push('upgrade-insecure-requests');
+  }
+  return directives.join('; ');
+}
+
+const securityHeaders = (app) => {
+  app.use(
+    helmet({
+      contentSecurityPolicy: false, // impostata sotto, per richiesta
+      frameguard: { action: 'deny' },
+      hsts: false, // gestita sotto, solo su richieste HTTPS reali
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      crossOriginEmbedderPolicy: false,
+      crossOriginResourcePolicy: false, // impostata sotto: stretta per le API, aperta per gli asset
+      // X-XSS-Protection: 0 (default helmet): il filtro XSS dei browser è deprecato
+    })
+  );
+
   app.use((req, res, next) => {
+    if (process.env.CSP_ENABLED !== 'false') {
+      res.setHeader('Content-Security-Policy', buildCsp(req));
+    }
+
     if (shouldEnforceHttps() && isSecureRequest(req)) {
       const maxAge = parseInt(process.env.HSTS_MAX_AGE || 31536000, 10);
-      const includeSubDomains = process.env.HSTS_INCLUDE_SUBDOMAINS !== 'false';
-      let hstsHeader = `max-age=${maxAge}`;
-      if (includeSubDomains) hstsHeader += '; includeSubDomains';
-      if (process.env.HSTS_PRELOAD === '1') hstsHeader += '; preload';
-      res.setHeader('Strict-Transport-Security', hstsHeader);
+      let hsts = `max-age=${maxAge}`;
+      if (process.env.HSTS_INCLUDE_SUBDOMAINS !== 'false') hsts += '; includeSubDomains';
+      if (process.env.HSTS_PRELOAD === '1') hsts += '; preload';
+      res.setHeader('Strict-Transport-Security', hsts);
     }
-    next();
-  });
 
-  // ==================== CONTENT SECURITY POLICY (CSP) ====================
-  if (process.env.CSP_ENABLED !== 'false') {
-    app.use((req, res, next) => {
-      const isDev = process.env.NODE_ENV !== 'production';
-      const upgradeInsecure = shouldEnforceHttps() && !isDev;
-
-      const csp = [
-        "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com",
-        "img-src 'self' data: https:",
-        isDev ? "connect-src 'self' https: http://localhost:5000 ws://localhost:5000" : "connect-src 'self' https:",
-        "frame-ancestors 'none'",
-        "base-uri 'self'",
-        "form-action 'self'"
-      ];
-      if (upgradeInsecure) {
-        csp.push('upgrade-insecure-requests');
-      }
-      
-      res.setHeader('Content-Security-Policy', csp.join('; '));
-      next();
-    });
-  }
-
-  // ==================== CUSTOM SECURITY HEADERS ====================
-  
-  app.use((req, res, next) => {
-    // X-Content-Type-Options
-    res.setHeader('X-Content-Type-Options', process.env.X_CONTENT_TYPE_OPTIONS || 'nosniff');
-    
-    // X-Frame-Options
-    res.setHeader('X-Frame-Options', process.env.FRAME_GUARD || 'DENY');
-    
-    // X-UA-Compatible
-    res.setHeader('X-UA-Compatible', 'IE=edge');
-    
-    // Disable unnecessary headers
+    // Le risposte API (dati dell'utente) non devono essere leggibili da altri siti;
+    // immagini, CSS e JS pubblici sì (per esempio il logo nelle email).
+    res.setHeader(
+      'Cross-Origin-Resource-Policy',
+      req.path.startsWith('/api/') ? 'same-origin' : 'cross-origin'
+    );
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=(), payment=(), usb=()');
     res.removeHeader('X-Powered-By');
-    res.removeHeader('Server');
-    
-    // Add security tagging headers
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    
-    // Additional privacy headers
-    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-    
     next();
   });
 };
 
 module.exports = securityHeaders;
+module.exports.buildCsp = buildCsp;

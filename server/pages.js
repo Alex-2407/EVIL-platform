@@ -245,11 +245,14 @@ function injectPageAssets(htmlContent, pageName) {
   html = injectSiteHeaderCss(html);
   html = ensureSiteHeaderCssLast(html);
 
+  // Canonical = URL della pagina stessa. Prima tutte le pagine dichiaravano la home
+  // come canonica, invitando i motori di ricerca a non indicizzarle.
   const canonical = getCanonicalOrigin();
   if (canonical && !html.includes('rel="canonical"')) {
+    const pagePath = pageName ? `/${String(pageName).replace(/^\/+/, '')}` : '/';
     html = html.replace(
       '</head>',
-      `  <link rel="canonical" href="${canonical}">\n</head>`
+      `  <link rel="canonical" href="${canonical}${pagePath}">\n</head>`
     );
   }
 

@@ -47,10 +47,11 @@ function createApp(ctx) {
   // HTTP → HTTPS + host canonico (BASE_URL); vedi middleware/https-enforce.js
   app.use(httpsRedirectMiddleware);
 
-  pages.mountStatic(app);
-
-  // ==================== APPLY SECURITY HEADERS ====================
+  // Header di sicurezza PRIMA degli statici e delle pagine: prima erano registrati
+  // dopo, e le pagine HTML uscivano senza CSP, X-Frame-Options e nosniff.
   securityHeaders(app);
+
+  pages.mountStatic(app);
 
   // ==================== APPLY RATE LIMITING ====================
   // Rate limit NON si applica ai file statici e HTML, solo alle API /api/*
