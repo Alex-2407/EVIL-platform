@@ -27,16 +27,16 @@ const compression = require('compression'); // Added for gzip compression
 const cookieParser = require('cookie-parser');
 
 const execFileAsync = promisify(execFile);
-const { runUrlScan } = require('./url-scanner-service');
-const { runHttpHeaderAudit } = require('./http-header-audit-service');
-const { runDnsEnumeration } = require('./dns-enumerator-service');
-const { runWhoisLookup } = require('./whois-service');
-const { runSubdomainFinder } = require('./subdomain-finder-service');
-const { runSslAnalysis } = require('./ssl-analyzer-service');
-const { runFileScan } = require('./file-scanner-service');
-const { runSocialProfiling } = require('./social-profiling-service');
-const { runPublicInfoPersonSearch, runPublicInfoDomainSearch } = require('./public-info-service');
-const { runPublicInfoRegistrySearch, runPublicInfoPersonDetail } = require('./public-info-registry-service');
+const { runUrlScan } = require('../services/tools/url-scanner-service');
+const { runHttpHeaderAudit } = require('../services/tools/http-header-audit-service');
+const { runDnsEnumeration } = require('../services/tools/dns-enumerator-service');
+const { runWhoisLookup } = require('../services/tools/whois-service');
+const { runSubdomainFinder } = require('../services/tools/subdomain-finder-service');
+const { runSslAnalysis } = require('../services/tools/ssl-analyzer-service');
+const { runFileScan } = require('../services/tools/file-scanner-service');
+const { runSocialProfiling } = require('../services/tools/social-profiling-service');
+const { runPublicInfoPersonSearch, runPublicInfoDomainSearch } = require('../services/tools/public-info-service');
+const { runPublicInfoRegistrySearch, runPublicInfoPersonDetail } = require('../services/tools/public-info-registry-service');
 const { scanUpload, handleScanUploadError } = require('../middleware/file-scanner-upload');
 
 const {
