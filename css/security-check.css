@@ -368,3 +368,20 @@
   flex-wrap: wrap;
   margin-top: 1rem;
 }
+
+/* Limiti dell'analisi mostrati sotto il voto */
+.sc-callout--limits {
+  margin: 1rem 0;
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.sc-callout--limits ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+  line-height: 1.55;
+}
+
+.sc-callout--limits li + li {
+  margin-top: 0.35rem;
+}

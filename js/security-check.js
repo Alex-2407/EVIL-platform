@@ -103,6 +103,16 @@
 
     const sans = (tls.subjectAltNames || []).slice(0, 12).map((s) => esc(s)).join(', ') || '—';
 
+    const limitsHtml = (data.limitations || [])
+      .map((l) => {
+        const links = (l.links || [])
+          .filter((k) => /^https:\/\//.test(k.url))
+          .map((k) => `<a href="${esc(k.url)}" target="_blank" rel="noopener noreferrer">${esc(k.label)}</a>`)
+          .join(' · ');
+        return `<li><strong>${esc(l.title)}.</strong> ${esc(l.detail)}${links ? ` ${links}` : ''}</li>`;
+      })
+      .join('');
+
     $('scResults').innerHTML = `
       <div class="sc-summary">
         <div class="sc-score-ring ${ringClass}">
@@ -124,6 +134,8 @@
           </div>
         </div>
       </div>
+
+      ${limitsHtml ? `<div class="sc-callout sc-callout--limits"><strong>Cosa non dice questo voto</strong><ul>${limitsHtml}</ul></div>` : ''}
 
       <div class="sc-section">
         <div class="sc-section__head"><h2>Findings prioritizzati</h2><span class="sc-badge sc-badge--info">${(data.findings || []).length}</span></div>

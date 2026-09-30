@@ -5,11 +5,27 @@
 const dns = require('dns').promises;
 const { axios, connectTls, assertPublicDestination } = require('../../server/lib/safe-http');
 
-const THREAT_DB = {
-  'phishing-domain.xyz': { threat: 'phishing', score: 15 },
-  'malware-host.net': { threat: 'malware', score: 10 },
-  'scam-site.ru': { threat: 'scam', score: 20 }
-};
+// Cosa questa analisi NON verifica: mostrato nel report, così il voto non viene
+// scambiato per un giudizio di affidabilità del sito.
+// (Prima c'era un elenco "threat intelligence" di tre domini inventati: rimosso, EVL-12.)
+const LIMITATIONS = [
+  {
+    id: 'reputation',
+    title: 'Reputazione del dominio non verificata',
+    detail:
+      'Il voto misura la configurazione tecnica (HTTPS, certificato, header), non se il sito è di phishing o distribuisce malware. ' +
+      'Un sito truffa può avere un voto alto. Per la reputazione usa Google Safe Browsing o VirusTotal.',
+    links: [
+      { label: 'Google Safe Browsing', url: 'https://transparencyreport.google.com/safe-browsing/search' },
+      { label: 'VirusTotal', url: 'https://www.virustotal.com/gui/home/url' }
+    ]
+  },
+  {
+    id: 'passive',
+    title: 'Solo controlli passivi',
+    detail: 'Nessun test di vulnerabilità: vengono lette solo le risposte pubbliche del server (come farebbe un browser).'
+  }
+];
 
 const HEADER_CHECKS = [
   {
@@ -356,14 +372,6 @@ async function fetchDiscovery(domain) {
   return results;
 }
 
-function checkThreat(domain) {
-  const d = domain.toLowerCase();
-  for (const [needle, data] of Object.entries(THREAT_DB)) {
-    if (d.includes(needle)) return data;
-  }
-  return null;
-}
-
 function gradeFromScore(score) {
   if (score >= 90) return 'A';
   if (score >= 80) return 'B';
@@ -420,11 +428,6 @@ function computeScore(ctx) {
   const secTxt = ctx.discovery?.find(d => d.found && d.id.includes('security'));
   if (secTxt) add('security_txt_bonus', 'security.txt presente', +3, 'info');
 
-  if (ctx.threat) {
-    score = Math.min(score, ctx.threat.score);
-    breakdown.push({ id: 'threat_intel', label: `Threat intel: ${ctx.threat.threat}`, delta: ctx.threat.score - 100, severity: 'critical' });
-  }
-
   score = Math.max(0, Math.min(100, Math.round(score)));
   return { score, grade: gradeFromScore(score), breakdown };
 }
@@ -446,9 +449,6 @@ function buildFindings(ctx) {
     for (const h of ctx.http.headerAudit.filter(x => !x.present && (x.severity === 'high' || x.severity === 'medium'))) {
       push(h.severity === 'high' ? 'high' : 'medium', `${h.label} mancante`, h.recommendation, 'headers');
     }
-  }
-  if (ctx.threat) {
-    push('critical', 'Match threat intelligence', `Categoria: ${ctx.threat.threat}`, 'intel');
   }
   if (!findings.length) {
     push('info', 'Nessuna criticità immediata', 'Controlli passivi completati senza alert ad alta priorità.', 'summary');
@@ -496,8 +496,7 @@ async function runUrlScan(fullUrl, domain, isHttps) {
     { id: 'discovery', name: 'Surface Discovery', status: 'complete' }
   );
 
-  const threat = checkThreat(domain);
-  const scoreCtx = { isHttps: isHttps || probeUrl.startsWith('https'), tls, http, redirects: redirectData, discovery, threat };
+  const scoreCtx = { isHttps: isHttps || probeUrl.startsWith('https'), tls, http, redirects: redirectData, discovery };
   const { score, grade, breakdown } = computeScore(scoreCtx);
   const findings = buildFindings(scoreCtx);
 
@@ -520,10 +519,9 @@ async function runUrlScan(fullUrl, domain, isHttps) {
       http,
       redirects: redirectData.chain,
       redirectMeta: { finalUrl: redirectData.finalUrl, hopCount: redirectData.hopCount },
-      discovery,
-      threat: threat || null
+      discovery
     },
-    threatData: threat ? { threat: threat.threat, score: threat.score } : null,
+    limitations: LIMITATIONS,
     status: 'success'
   };
 }
