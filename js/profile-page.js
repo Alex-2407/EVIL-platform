@@ -56,6 +56,11 @@
    */
   async function loadProfile() {
     if (window.__evilAuthReady) await window.__evilAuthReady;
+    // l'header ha già chiesto la sessione al server: senza utente si va al login senza altre chiamate
+    if (typeof getCurrentUser === 'function' && !getCurrentUser()) {
+      goToLogin();
+      return null;
+    }
     try {
       const res = await fetch(`${API_URL}/auth/profile`, { credentials: 'include', cache: 'no-store' });
       if (res.status === 401) {
