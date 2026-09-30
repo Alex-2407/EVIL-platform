@@ -335,12 +335,12 @@
   <main class="report-container">
     <section class="hero-section">
       <p class="st-tool-parent"><a href="/security-check.html">← Strumenti</a></p>
-      <h1>?? Generazione Report</h1>
+      <h1>📋 Generazione report</h1>
       <p>Crea rapporti completi e personalizzati su attacchi, vulnerabilità e incidenti di sicurezza. Esporta in PDF o JSON per la comunicazione con stakeholder.</p>
     </section>
 
     <section class="form-section">
-      <h2 style="color: #4dabe7; margin-bottom: 30px;">?? Configurazione Report</h2>
+      <h2 style="color: #4dabe7; margin-bottom: 30px;">⚙️ Configurazione report</h2>
 
       <div class="form-group">
         <label for="reportTitle">Titolo Report</label>
@@ -355,10 +355,10 @@
         <div class="form-group">
           <label for="reportSeverity">Severità</label>
           <select id="reportSeverity">
-            <option value="critical">?? Critica</option>
-            <option value="high">?? Alta</option>
-            <option value="medium" selected>?? Media</option>
-            <option value="low">?? Bassa</option>
+            <option value="critical">🔴 Critica</option>
+            <option value="high">🟠 Alta</option>
+            <option value="medium" selected>🟡 Media</option>
+            <option value="low">🟢 Bassa</option>
           </select>
         </div>
       </div>
@@ -427,8 +427,8 @@
       </div>
 
       <div class="button-group">
-        <button class="btn btn-primary" onclick="generateReport()">?? Genera Report</button>
-        <button class="btn btn-secondary" onclick="resetForm()">?? Cancella Form</button>
+        <button class="btn btn-primary" onclick="generateReport()">📄 Genera report</button>
+        <button class="btn btn-secondary" onclick="resetForm()">🗑️ Svuota modulo</button>
       </div>
     </section>
 
@@ -442,12 +442,12 @@
       </div>
 
       <div class="report-section">
-        <h3>?? Riepilogo Esecutivo</h3>
+        <h3>📌 Riepilogo esecutivo</h3>
         <div class="report-content" id="previewSummary"></div>
       </div>
 
       <div class="report-section">
-        <h3>?? Dettagli Incidente</h3>
+        <h3>🔎 Dettagli incidente</h3>
         <div class="report-content">
           <strong>Organizzazione:</strong> <span id="previewOrg"></span><br>
           <strong>Data Incidente:</strong> <span id="previewIncidentDate"></span><br>
@@ -458,23 +458,23 @@
       </div>
 
       <div class="report-section">
-        <h3>?? Descrizione Minaccia</h3>
+        <h3>⚠️ Descrizione della minaccia</h3>
         <div class="report-content" id="previewDescription"></div>
       </div>
 
       <div class="report-section">
-        <h3>?? Impatto</h3>
+        <h3>💥 Impatto</h3>
         <div class="report-content" id="previewImpact"></div>
       </div>
 
       <div class="report-section">
-        <h3>?? Raccomandazioni</h3>
+        <h3>✅ Raccomandazioni</h3>
         <ul class="report-list" id="previewRecommendations"></ul>
       </div>
 
       <div class="export-buttons">
-        <button class="btn-export" onclick="exportPDF()">?? Scarica PDF</button>
-        <button class="btn-export" onclick="exportJSON()">?? Scarica JSON</button>
+        <button class="btn-export" onclick="exportPDF()">⬇️ Scarica PDF</button>
+        <button class="btn-export" onclick="exportJSON()">⬇️ Scarica JSON</button>
         <button class="btn-export" onclick="printReport()">??? Stampa</button>
       </div>
     </section>
@@ -511,19 +511,19 @@
       const title = document.getElementById('reportTitle').value || 'EVIL Cybersecurity Report';
       const date = document.getElementById('reportDate').value;
       const severity = document.getElementById('reportSeverity').value;
-      const org = document.getElementById('reportOrg').value || 'Organization';
-      const author = document.getElementById('reportAuthor').value || 'Security Team';
-      const description = document.getElementById('description').value || 'No description provided.';
-      const impact = document.getElementById('impact').value || 'No impact details provided.';
-      const systems = document.getElementById('systemsAffected').value || 'Not specified';
+      const org = document.getElementById('reportOrg').value || 'Organizzazione';
+      const author = document.getElementById('reportAuthor').value || 'Team di sicurezza';
+      const description = document.getElementById('description').value || 'Nessuna descrizione.';
+      const impact = document.getElementById('impact').value || 'Nessun dettaglio sull\'impatto.';
+      const systems = document.getElementById('systemsAffected').value || 'Non specificato';
       const users = document.getElementById('usersAffected').value || '0';
-      const recommendations = document.getElementById('recommendations').value || 'Under investigation';
+      const recommendations = document.getElementById('recommendations').value || 'In corso di analisi';
 
       const severityLabels = {
-        critical: '?? CRITICA',
-        high: '?? ALTA',
-        medium: '?? MEDIA',
-        low: '?? BASSA'
+        critical: '🔴 CRITICA',
+        high: '🟠 ALTA',
+        medium: '🟡 MEDIA',
+        low: '🟢 BASSA'
       };
 
       const checkedIncidents = Array.from(document.querySelectorAll('input[name="incident"]:checked'))
@@ -536,16 +536,20 @@
       document.getElementById('previewSummary').textContent = `Incidente di sicurezza classificato come ${severityLabels[severity]}. Tipo: ${checkedIncidents}. ${description.substring(0, 200)}...`;
       document.getElementById('previewOrg').textContent = org;
       document.getElementById('previewIncidentDate').textContent = date || 'N/A';
-      document.getElementById('previewSeverityLabel').innerHTML = severityLabels[severity];
+      document.getElementById('previewSeverityLabel').textContent = severityLabels[severity];
       document.getElementById('previewSystems').textContent = systems;
       document.getElementById('previewUsers').textContent = users;
       document.getElementById('previewDescription').textContent = description;
       document.getElementById('previewImpact').textContent = impact;
       
+      // textContent: il testo inserito non viene interpretato come HTML
       const recList = recommendations.split('\n').filter(r => r.trim());
-      document.getElementById('previewRecommendations').innerHTML = recList
-        .map(r => `<li>${r.trim()}</li>`)
-        .join('');
+      const recEl = document.getElementById('previewRecommendations');
+      recEl.replaceChildren(...recList.map((r) => {
+        const li = document.createElement('li');
+        li.textContent = r.trim();
+        return li;
+      }));
 
       document.getElementById('reportPreview').classList.add('active');
       document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });

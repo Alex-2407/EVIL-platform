@@ -393,12 +393,17 @@ async function initProgressManager() {
 
 document.addEventListener('DOMContentLoaded', initProgressManager);
 
-window.logActivity = (...args) => window.progressManager?.logActivity?.(...args);
+// Nota: in uno script classico "async function logActivity" È già window.logActivity.
+// Qui prima c'era window.logActivity = (...args) => window.progressManager.logActivity(...args):
+// riassegnava la stessa variabile globale, quindi progressManager.logActivity puntava al
+// wrapper, che chiamava sé stesso all'infinito ("Maximum call stack size exceeded") e
+// nessun trofeo legato alle attività si sbloccava più.
+const logActivityImpl = logActivity;
 
 window.progressManager = {
   loadUserProgress,
   saveUserProgress,
-  logActivity,
+  logActivity: logActivityImpl,
   incrementScans,
   checkAchievements,
   showAchievementNotification,

