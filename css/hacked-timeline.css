@@ -137,7 +137,7 @@
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ir-field select,
@@ -197,7 +197,7 @@
 .ir-scenario-head p {
   margin: 0;
   font-size: 0.88rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ir-phases {
@@ -399,7 +399,7 @@
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
   margin: 0.75rem 0 0.25rem;
 }
 
@@ -439,7 +439,7 @@
   font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
   margin-bottom: 0.35rem;
 }
 

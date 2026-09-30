@@ -367,7 +367,7 @@
   font-family: var(--vlab-mono);
   font-size: 0.62rem;
   letter-spacing: 0.04em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .vlab-modal__launch {
@@ -527,7 +527,7 @@
   font-family: var(--vlab-mono);
   font-size: 0.62rem;
   letter-spacing: 0.06em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .vlab-session-meta strong {
@@ -581,7 +581,7 @@
   font-family: var(--vlab-mono);
   font-size: 0.62rem;
   letter-spacing: 0.06em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .vlab-terminal__body {
@@ -604,7 +604,7 @@
 }
 
 .vlab-line--system {
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .vlab-line--success {
@@ -694,7 +694,7 @@
   font-family: var(--vlab-mono);
   font-size: 0.72rem;
   line-height: 1.7;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .vlab-network code {
@@ -741,7 +741,7 @@
   padding: 2rem;
   font-family: var(--vlab-mono);
   font-size: 0.75rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .vlab-load-error {

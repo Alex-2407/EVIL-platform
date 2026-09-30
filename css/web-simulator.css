@@ -156,7 +156,7 @@
   font-size: 0.72rem;
   line-height: 1.65;
   letter-spacing: 0.03em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .sim-ethics--compact strong {
@@ -243,7 +243,7 @@
 .phase-card p {
   margin: 0;
   font-size: 0.82rem;
-  color: #64748b;
+  color: #7c8aa0;
   line-height: 1.55;
 }
 
@@ -282,7 +282,7 @@
   font-size: 0.68rem;
   font-weight: 400;
   letter-spacing: 0.02em;
-  color: #64748b;
+  color: #7c8aa0;
   text-transform: none;
 }
 
@@ -394,7 +394,7 @@
 
 .panel-hint {
   font-size: 0.84rem;
-  color: #64748b;
+  color: #7c8aa0;
   margin: -0.5rem 0 1.1rem;
   line-height: 1.55;
 }
@@ -419,7 +419,7 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
   margin-bottom: 0.4rem;
 }
 
@@ -623,7 +623,7 @@
 }
 
 .sim-page .status-bar__sep {
-  color: #64748b;
+  color: #7c8aa0;
   flex-shrink: 0;
   user-select: none;
 }

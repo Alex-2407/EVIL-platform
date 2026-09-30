@@ -130,6 +130,46 @@ function escapeAttr(value) {
   return String(value).replace(/&(?!(?:[a-z]+|#\d+|#x[0-9a-f]+);)/gi, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
+/** Icone del sito: prima solo la home dichiarava la favicon, le altre pagine chiedevano /favicon.ico (404). */
+function injectIcons(html) {
+  if (/rel="(?:shortcut )?icon"/i.test(html)) return html;
+  const links = [
+    '<link rel="icon" href="/assets/favicon.ico" sizes="32x32">',
+    '<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">',
+    '<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">',
+  ];
+  return html.replace('</head>', `${links.map((l) => `  ${l}`).join('\n')}\n</head>`);
+}
+
+// Pagine pubbliche per la sitemap (le pagine con login rimandano al login: escluse)
+const SITEMAP_PAGES = [
+  ['/', '1.0', 'weekly'],
+  ['/virtual-lab.html', '0.9', 'monthly'],
+  ['/web-simulator.html', '0.9', 'monthly'],
+  ['/crypto-studio.html', '0.9', 'monthly'],
+  ['/quiz-hub.html', '0.9', 'monthly'],
+  ['/hacked-timeline.html', '0.8', 'monthly'],
+  ['/attacks-map.html', '0.8', 'daily'],
+  ['/historic-attacks.html', '0.8', 'monthly'],
+  ['/malware-db.html', '0.7', 'monthly'],
+  ['/malware-classification.html', '0.7', 'monthly'],
+  ['/manipulation-techniques.html', '0.7', 'monthly'],
+  ['/domain-recon.html', '0.6', 'monthly'],
+  ['/osint-hub.html', '0.6', 'monthly'],
+  ['/report-generator.html', '0.5', 'yearly'],
+  ['/account.html', '0.4', 'yearly'],
+  ['/login.html', '0.3', 'yearly'],
+  ['/help.html', '0.4', 'yearly'],
+  ['/site-policies.html', '0.3', 'yearly'],
+];
+
+function buildSitemap(origin) {
+  const base = origin || 'https://www.projectevil.it';
+  const urls = SITEMAP_PAGES.filter(([p]) => p === '/' || fs.existsSync(path.join(root, 'html', p.slice(1))))
+    .map(([p, priority, freq]) => `  <url>\n    <loc>${base}${p}</loc>\n    <changefreq>${freq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`);
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+}
+
 /** Anteprima dei link (WhatsApp, Telegram, social) per le pagine che non la dichiarano. */
 function injectSocialMeta(html, pagePath, origin) {
   let out = html;
@@ -363,6 +403,7 @@ function injectPageAssets(htmlContent, pageName) {
     );
   }
   html = injectSocialMeta(html, pagePath, canonical);
+  html = injectIcons(html);
 
   // I meta http-equiv sulla cache non servono (decidono gli header HTTP) e confondono
   html = html.replace(/\s*<meta http-equiv="(?:Cache-Control|Pragma|Expires)"[^>]*>/gi, '');
@@ -373,6 +414,25 @@ function injectPageAssets(htmlContent, pageName) {
 
 function mountStatic(app) {
   syncAchievementsToHtml();
+
+  // File che i motori di ricerca e i browser cercano nella radice del sito
+  // (prima /robots.txt, /sitemap.xml e /favicon.ico rispondevano 404)
+  app.get('/robots.txt', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.sendFile(path.join(root, 'public', 'robots.txt'));
+  });
+  app.get('/sitemap.xml', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.type('application/xml').send(buildSitemap(getCanonicalOrigin()));
+  });
+  app.get('/favicon.ico', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+    res.sendFile(path.join(root, 'assets', 'favicon.ico'));
+  });
+  app.get('/apple-touch-icon.png', (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=604800');
+    res.sendFile(path.join(root, 'assets', 'apple-touch-icon.png'));
+  });
 
   // controlli solo in sviluppo, possono essere rimossi in produzione
   if (isDevelopment()) {

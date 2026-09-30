@@ -53,7 +53,7 @@
           "Oggetto: \"Importante: Azione Richiesta Urgente\". Qual è il segnale di allarme?",
           "L'urgenza forzata bypassa il pensiero critico: tattica comune nei messaggi fraudolenti.",
           [
-        { text: "È un email importante", correct: false },
+        { text: "È un'email importante", correct: false },
         { text: "Tono urgente per farti agire senza riflettere", correct: true },
         { text: "È in maiuscolo", correct: false },
         { text: "Mittente aziendale", correct: false }
@@ -90,7 +90,7 @@
           ]
         ),
         Q(
-          "Cosa fare con un'email di phishing ricevuto in azienda?",
+          "Cosa fare con un'email di phishing ricevuta in azienda?",
           "Segnalare al SOC/IT e non interagire evita escalation e aiuta a bloccare campagne.",
           [
         { text: "Rispondere per capire chi è", correct: false },
@@ -350,7 +350,7 @@
           ]
         ),
         Q(
-          "Pretest telefonico in ufficio: sconosciuto chiede nomi reparto. Risposta:",
+          "Pretesto telefonico in ufficio: uno sconosciuto chiede i nomi del reparto. Risposta:",
           "Non divulgare struttura interna a sconosciuti; usare canali ufficiali.",
           [
         { text: "Elencare tutti i reparti", correct: false },
@@ -684,7 +684,7 @@
           "Rendere rainbow table inefficaci con valore casuale per utente.",
           [
         { text: "Rendere password più corte", correct: false },
-        { text: "Impedire attacchi con tabelle precompute", correct: true },
+        { text: "Impedire attacchi con tabelle precalcolate (rainbow table)", correct: true },
         { text: "Eliminare MFA", correct: false },
         { text: "Pubblicare hash", correct: false }
           ]
@@ -850,8 +850,8 @@
           ]
         ),
         Q(
-          "CSRF protegge principalmente contro:",
-          "Azioni non volute su sito dove la vittima è autenticata.",
+          "La protezione anti-CSRF difende principalmente da:",
+          "Impedisce che un altro sito faccia compiere azioni non volute a un utente già autenticato (token anti-CSRF, cookie SameSite).",
           [
         { text: "Brute force offline", correct: false },
         { text: "Richieste forgiate che sfruttano sessione attiva", correct: true },

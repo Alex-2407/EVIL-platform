@@ -1,23 +1,10 @@
-# Robots.txt for EVIL Cybersecurity Platform
-# Allow all crawlers to access the site
+# robots.txt — EVIL Cybersecurity Platform
 
 User-agent: *
 Allow: /
 
-# Disallow sensitive areas
+# API e file caricati non sono pagine da indicizzare
 Disallow: /api/
-Disallow: /admin/
-Disallow: /private/
 Disallow: /uploads/
 
-# Allow access to CSS, JS, and images
-Allow: /css/
-Allow: /js/
-Allow: /assets/
-Allow: /public/
-
-# Sitemap location
 Sitemap: https://www.projectevil.it/sitemap.xml
-
-# Crawl delay (be nice to the server)
-Crawl-delay: 1

@@ -14,7 +14,7 @@
     'phishing-email': [
       Q(
         "Header SPF/DKIM/DMARC falliti in un'email apparentemente aziendale:",
-        "Indicano possibile spoofing: non fidarsi solo al mittente visualizzato.",
+        "Indicano possibile spoofing: non fidarsi solo del mittente visualizzato.",
         [
           { text: "Garantiscono autenticità", correct: false },
           { text: "Segnalano possibile falsificazione del mittente", correct: true },

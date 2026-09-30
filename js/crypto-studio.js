@@ -79,6 +79,7 @@
   function setFilter(filter) {
     rail?.querySelectorAll('.cs-rail__btn').forEach((b) => {
       b.classList.toggle('is-active', b.dataset.filter === filter);
+      b.setAttribute('aria-selected', String(b.dataset.filter === filter));
     });
     familyBtns.forEach((f) => {
       f.classList.toggle('is-selected', f.dataset.filter === filter);

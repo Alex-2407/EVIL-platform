@@ -142,7 +142,7 @@
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ha-map-hud__val {
@@ -208,7 +208,7 @@
 .ha-map-help {
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #7c8aa0;
   line-height: 1.5;
 }
 
@@ -288,7 +288,7 @@
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ha-card__headline {
@@ -303,7 +303,7 @@
 .ha-card__title-sub {
   margin: 0;
   font-size: 0.78rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ha-logo-wrap {
@@ -368,7 +368,7 @@
   font-family: var(--ha-mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ha-compare__org {
@@ -454,7 +454,7 @@
   margin: 0.85rem 0 0;
   font-size: 0.72rem;
   font-family: var(--ha-mono);
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .ha-compare {

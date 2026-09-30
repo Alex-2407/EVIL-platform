@@ -178,7 +178,7 @@
   margin-top: 0.85rem;
   font-family: var(--sc-mono);
   font-size: 0.72rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .sc-callout {
@@ -206,7 +206,7 @@
 
 .sc-log.is-active { display: block; }
 
-.sc-log__line { padding: 0.25rem 0; color: #64748b; }
+.sc-log__line { padding: 0.25rem 0; color: #7c8aa0; }
 .sc-log__line--ok { color: var(--sc-emerald); }
 .sc-log__line--run { color: var(--sc-cyan); }
 .sc-log__line--err { color: var(--sc-rose); }
@@ -262,7 +262,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .sc-kv__val {
@@ -317,7 +317,7 @@
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .sc-badge {

@@ -117,7 +117,7 @@
 .jingle-card__id {
   font-family: ui-monospace, Consolas, monospace;
   font-size: 0.68rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .jingle-card__name {
@@ -156,7 +156,7 @@
 
 .jingle-card__meta {
   font-size: 0.78rem;
-  color: #64748b;
+  color: #7c8aa0;
   margin-bottom: 10px;
 }
 

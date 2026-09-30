@@ -51,6 +51,8 @@
     uiMode = mode;
     $('piTabRegistry')?.classList.toggle('is-active', mode === 'registry');
     $('piTabDossier')?.classList.toggle('is-active', mode === 'dossier');
+    $('piTabRegistry')?.setAttribute('aria-selected', String(mode === 'registry'));
+    $('piTabDossier')?.setAttribute('aria-selected', String(mode === 'dossier'));
     $('piPanelRegistry').hidden = mode !== 'registry';
     $('piPanelDossier').hidden = mode !== 'dossier';
     $('piScanBtn').textContent = mode === 'registry' ? 'Carica elenco' : 'Avvia dossier OSINT';

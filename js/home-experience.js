@@ -18,23 +18,30 @@
     const el = document.getElementById('splash-screen');
     if (!el) return;
 
-    if (new URLSearchParams(location.search).get('reset-splash') === 'true') {
-      localStorage.removeItem(key);
-    }
-    if (localStorage.getItem(key)) {
+    const store = {
+      get() { try { return localStorage.getItem(key); } catch { return 'true'; } },
+      set() { try { localStorage.setItem(key, 'true'); } catch { /* ignore */ } },
+      clear() { try { localStorage.removeItem(key); } catch { /* ignore */ } }
+    };
+
+    if (new URLSearchParams(location.search).get('reset-splash') === 'true') store.clear();
+    // Solo alla prima visita, e mai a chi ha chiesto al sistema di ridurre le animazioni
+    if (store.get() || reduced) {
+      store.set();
       el.style.display = 'none';
       return;
     }
 
-    localStorage.setItem(key, 'true');
+    store.set();
     el.innerHTML = `
       <div class="splash-matrix" id="splash-matrix"></div>
       <div class="scan-lines"></div>
       <div id="splash-content">
         <div class="glitch-text">EVIL</div>
-        <div class="splash-text" id="splash-status">Caricamento...</div>
+        <div class="splash-text" id="splash-status" role="status">Caricamento...</div>
         <div class="splash-progress"><div class="splash-progress-bar"></div></div>
-      </div>`;
+      </div>
+      <button type="button" class="splash-skip" id="splash-skip">Salta ›</button>`;
 
     const matrix = document.getElementById('splash-matrix');
     if (matrix) {
@@ -50,19 +57,35 @@
       }
     }
 
-    const status = document.getElementById('splash-status');
-    ['Avvio piattaforma...', 'Pronto.'].forEach((t, i) => {
-      setTimeout(() => {
-        if (status) status.textContent = t;
-      }, i * 900);
-    });
-
-    setTimeout(() => {
+    const timers = [];
+    let closed = false;
+    function close(fast) {
+      if (closed) return;
+      closed = true;
+      timers.forEach(clearTimeout);
       el.classList.add('hidden');
       setTimeout(() => {
         el.style.display = 'none';
-      }, 900);
-    }, 2200);
+      }, fast ? 250 : 900);
+      document.removeEventListener('keydown', onKey);
+    }
+    function onKey() {
+      close(true);
+    }
+
+    // Clic, tocco o un tasto qualsiasi chiudono subito la schermata di avvio
+    el.addEventListener('click', () => close(true));
+    document.addEventListener('keydown', onKey);
+    document.getElementById('splash-skip')?.focus({ preventScroll: true });
+
+    const status = document.getElementById('splash-status');
+    ['Avvio piattaforma...', 'Pronto.'].forEach((t, i) => {
+      timers.push(setTimeout(() => {
+        if (status) status.textContent = t;
+      }, i * 900));
+    });
+
+    timers.push(setTimeout(() => close(false), 2200));
   }
 
   function initHeroCanvas() {

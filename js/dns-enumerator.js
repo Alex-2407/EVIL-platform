@@ -47,6 +47,8 @@
     lookupMode = mode;
     document.getElementById('tab-dns')?.classList.toggle('is-active', mode === 'dns');
     document.getElementById('tab-whois')?.classList.toggle('is-active', mode === 'whois');
+    document.getElementById('tab-dns')?.setAttribute('aria-selected', String(mode === 'dns'));
+    document.getElementById('tab-whois')?.setAttribute('aria-selected', String(mode === 'whois'));
     $('deScanBtn').textContent = mode === 'dns' ? 'Enumera record DNS' : 'Lookup WHOIS';
   }
 

@@ -3872,6 +3872,31 @@ main {
   pointer-events: none;
 }
 
+/* Pulsante per saltare la schermata di avvio (anche clic ovunque o un tasto) */
+.splash-type-1 #splash-screen {
+  cursor: pointer;
+}
+
+.splash-skip {
+  position: absolute;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(0, 255, 156, 0.45);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #00ff9c;
+  font: 600 0.9rem/1 'Courier New', monospace;
+  cursor: pointer;
+}
+
+.splash-skip:hover,
+.splash-skip:focus-visible {
+  background: rgba(0, 255, 156, 0.12);
+  outline: 2px solid #00ff9c;
+  outline-offset: 2px;
+}
+
 @keyframes splashOut {
   0% { opacity: 1; }
   100% { opacity: 0; }

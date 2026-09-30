@@ -481,7 +481,7 @@
 
 .pv-case-detail {
   font-size: 0.62rem;
-  color: #64748b;
+  color: #7c8aa0;
   line-height: 1.45;
 }
 
@@ -526,7 +526,7 @@
   font-family: var(--home-mono);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .spotlight-grid,

@@ -319,7 +319,7 @@
           <h4>${escapeHtml(region.country)}</h4>
           <p><strong>${count}</strong> segnalazioni aggregate</p>
           <ul style="margin:6px 0;padding-left:16px;font-size:12px;color:#94a3b8">${typesHtml || '<li>Advisory / CVE</li>'}</ul>
-          <p style="font-size:11px;color:#64748b">Coordinate regionali — non vittime reali</p>
+          <p style="font-size:11px;color:#7c8aa0">Coordinate regionali — non vittime reali</p>
         </div>`;
 
       const icon = L.divIcon({

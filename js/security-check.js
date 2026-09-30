@@ -168,7 +168,7 @@
         <div class="sc-section__head"><h2>HTTP security headers</h2></div>
         <div class="sc-section__body">
           ${a.http?.error ? `<p class="sc-pre">${esc(a.http.error)}</p>` : `
-          <p style="font-size:0.82rem;color:#64748b;margin:0 0 0.75rem;">HTTP ${esc(a.http.status)} · Server: ${esc(a.http.server || '—')} · Title: ${esc(a.http.title || '—')}</p>
+          <p style="font-size:0.82rem;color:#7c8aa0;margin:0 0 0.75rem;">HTTP ${esc(a.http.status)} · Server: ${esc(a.http.server || '—')} · Title: ${esc(a.http.title || '—')}</p>
           <table class="sc-table"><thead><tr><th>Header</th><th>Stato</th><th>Severità</th><th>Valore</th></tr></thead><tbody>${headerRows}</tbody></table>`}
         </div>
       </div>

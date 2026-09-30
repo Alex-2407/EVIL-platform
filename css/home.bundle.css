@@ -361,7 +361,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
   opacity: 0;
 }
 
@@ -970,7 +970,7 @@
 
 .pv-case-detail {
   font-size: 0.62rem;
-  color: #64748b;
+  color: #7c8aa0;
   line-height: 1.45;
 }
 
@@ -1015,7 +1015,7 @@
   font-family: var(--home-mono);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .spotlight-grid,
@@ -1550,7 +1550,7 @@
   margin: 0;
   font-size: 0.62rem;
   line-height: 1.45;
-  color: #64748b;
+  color: #7c8aa0;
   white-space: nowrap;
   overflow: hidden;
   opacity: 0;

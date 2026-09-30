@@ -524,7 +524,7 @@
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .home-scroll-hint span {
@@ -684,7 +684,7 @@
   font-family: Consolas, 'Courier New', monospace;
   font-size: 0.72rem;
   line-height: 1.5;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .spotlight-deco--code .dim { color: #f87171; opacity: 0.9; }
@@ -775,7 +775,7 @@
 
 .spotlight-points li {
   font-size: 0.78rem;
-  color: #64748b;
+  color: #7c8aa0;
   padding-left: 1rem;
   position: relative;
   line-height: 1.7;
@@ -862,7 +862,7 @@
 
 .home-section-sub {
   text-align: center;
-  color: #64748b;
+  color: #7c8aa0;
   font-size: 0.88rem;
   margin: 0 0 1.75rem;
 }
@@ -1137,7 +1137,7 @@
 }
 
 .pv-line.dim {
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .pv-prompt {
@@ -1208,7 +1208,7 @@
 .pv-caption {
   margin-top: 0.35rem;
   font-size: 0.62rem;
-  color: #64748b;
+  color: #7c8aa0;
   text-align: center;
 }
 
@@ -1449,7 +1449,7 @@
   margin: 1.25rem auto 0;
   max-width: 36em;
   font-size: 0.88rem;
-  color: #64748b;
+  color: #7c8aa0;
   line-height: 1.6;
 }
 

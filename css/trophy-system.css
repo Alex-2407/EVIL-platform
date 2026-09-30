@@ -237,7 +237,7 @@
   display: block;
   margin-top: 10px;
   font-size: 0.72rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .profile-activity {
@@ -262,7 +262,7 @@
   color: #cbd5e1;
 }
 
-.activity-feed__time { color: #64748b; font-size: 0.8rem; }
+.activity-feed__time { color: #7c8aa0; font-size: 0.8rem; }
 
 /* Ceremony overlay */
 .evil-trophy-ceremony {

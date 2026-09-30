@@ -19,6 +19,15 @@ body.evil-theme {
   max-width: 100%;
 }
 
+/* Sul body overflow-x viene passato alla finestra e non taglia nulla: le decorazioni e le
+   schede ancora ruotate dall'animazione di comparsa allargavano la pagina sul telefono
+   (413 px su 390 in home), che "ballava" di lato. Il taglio va sui contenitori. */
+body.evil-theme > main,
+body.evil-theme > .auth-scene,
+body.evil-theme > .profile-scene {
+  overflow-x: clip;
+}
+
 .evil-theme img:not(.leaflet-tile),
 .evil-theme video,
 .evil-theme svg:not(.leaflet-zoom-animated) {
@@ -34,11 +43,21 @@ body.evil-theme {
   max-height: none !important;
 }
 
-.evil-theme table {
-  display: block;
-  max-width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+/* Tabelle larghe: sul telefono scorrono in orizzontale. Su schermi grandi restano tabelle
+   vere: con display:block le righe si fermavano alla larghezza del contenuto (catalogo
+   malware: circa 780 px in un riquadro da 1080, un terzo vuoto a destra). */
+@media (max-width: 768px) {
+  .evil-theme table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Lo scorrimento verso un elemento (quiz, ancore) si ferma sotto l'header fisso */
+html {
+  scroll-padding-top: calc(var(--evil-header-h, 96px) + 12px);
 }
 
 .evil-theme pre,

@@ -229,7 +229,7 @@
   font-family: var(--qh-mono);
   font-size: 0.62rem;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
   transition: transform 0.3s, border-color 0.3s;
   animation: qhStatFloat 4s ease-in-out infinite;
 }
@@ -420,7 +420,7 @@
   align-items: center;
   font-family: var(--qh-mono);
   font-size: 0.58rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .quiz-hub-card__bar {
@@ -493,7 +493,7 @@
   justify-content: space-between;
   font-family: var(--qh-mono);
   font-size: 0.58rem;
-  color: #64748b;
+  color: #7c8aa0;
   margin-bottom: 0.35rem;
 }
 

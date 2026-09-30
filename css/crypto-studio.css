@@ -98,7 +98,7 @@
   margin: 0.5rem 0 0;
   font-size: 0.9rem;
   line-height: 1.65;
-  color: #64748b;
+  color: #7c8aa0;
   max-width: 40em;
 }
 
@@ -166,7 +166,7 @@
   font-size: 0.58rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-hero-brand-col > *,
@@ -319,7 +319,7 @@
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
   text-decoration: none;
   transition: border-color 0.2s, color 0.2s;
 }
@@ -393,7 +393,7 @@
   font-family: var(--cs-mono);
   font-size: 0.58rem;
   letter-spacing: 0.1em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-lab-body {
@@ -465,7 +465,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-hash-out {
@@ -481,7 +481,7 @@
   min-height: 2.8rem;
 }
 
-.cs-hash-out.is-computing { color: #64748b; }
+.cs-hash-out.is-computing { color: #7c8aa0; }
 
 .cs-hash-char.is-diff {
   color: var(--cs-rose);
@@ -493,7 +493,7 @@
   margin: 0;
   font-size: 0.78rem;
   line-height: 1.55;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-lab-note strong { color: var(--cs-rose); }
@@ -518,7 +518,7 @@
   font-size: 0.58rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-digest-algo {
@@ -563,7 +563,7 @@
   display: block;
   font-family: var(--cs-mono);
   font-size: 0.62rem;
-  color: #64748b;
+  color: #7c8aa0;
   word-break: break-all;
   line-height: 1.5;
 }
@@ -659,7 +659,7 @@
   font-size: 0.65rem;
 }
 
-.cs-hex-stream { color: #64748b; }
+.cs-hex-stream { color: #7c8aa0; }
 .cs-hex-stream--alt { color: var(--cs-rose); animation: csHexPulse 3s ease-in-out infinite; }
 
 @keyframes csHexPulse {
@@ -705,7 +705,7 @@
 
 .cs-key--pub { color: var(--cs-cyan); border-color: rgba(56, 189, 248, 0.35); }
 .cs-key--priv { color: var(--cs-violet); border-color: rgba(167, 139, 250, 0.35); }
-.cs-key-arrow { color: #64748b; animation: csKeySwap 2.5s ease-in-out infinite; }
+.cs-key-arrow { color: #7c8aa0; animation: csKeySwap 2.5s ease-in-out infinite; }
 
 @keyframes csKeySwap {
   0%, 100% { transform: translateX(0); opacity: 0.5; }
@@ -821,7 +821,7 @@
 }
 
 .cs-handshake li.is-done {
-  color: #64748b;
+  color: #7c8aa0;
   border-left-color: rgba(0, 255, 156, 0.3);
 }
 
@@ -853,7 +853,7 @@
 .cs-catalog-hint {
   margin: 0.35rem 0 0;
   font-size: 0.82rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-rail {
@@ -1036,7 +1036,7 @@
   padding: 0.18rem 0.45rem;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.04);
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 /* ─── Guida pratica ─── */
@@ -1103,7 +1103,7 @@
   content: '·';
   position: absolute;
   left: 0;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-guide-list strong {
@@ -1208,7 +1208,7 @@ body.cs-modal-open {
 .cs-modal__rank-label {
   font-family: var(--cs-mono);
   font-size: 0.5rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .cs-modal__close {
@@ -1368,7 +1368,7 @@ body.cs-modal-open {
 .cs-modal-rank-note {
   font-size: 0.82rem !important;
   font-style: italic;
-  color: #64748b !important;
+  color: #7c8aa0 !important;
 }
 
 .cs-modal__rank.cs-rank--low .cs-modal__rank-num { color: #fca5a5; }

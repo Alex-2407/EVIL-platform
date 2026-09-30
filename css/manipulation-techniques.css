@@ -145,7 +145,7 @@
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .mt-toolbar {
@@ -218,7 +218,7 @@
 
 .mt-empty {
   text-align: center;
-  color: #64748b;
+  color: #7c8aa0;
   padding: 2rem;
   grid-column: 1 / -1;
 }
@@ -283,7 +283,7 @@
 .mt-card__mitre-name {
   margin: 0 0 0.65rem;
   font-size: 0.78rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .mt-card__desc {
@@ -383,7 +383,7 @@
   display: block;
   font-size: 0.68rem;
   font-weight: 400;
-  color: #64748b;
+  color: #7c8aa0;
   margin-top: 0.15rem;
 }
 

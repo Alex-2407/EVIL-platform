@@ -136,7 +136,7 @@
 
 .am-updated {
   font-size: 0.85rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .am-updated strong {
@@ -270,7 +270,7 @@
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .am-map-hud__val {
@@ -356,7 +356,7 @@
 .am-map-help {
   margin-top: 0.75rem;
   font-size: 0.85rem;
-  color: #64748b;
+  color: #7c8aa0;
   line-height: 1.5;
 }
 
@@ -442,7 +442,7 @@
   font-size: 0.62rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .am-sparkline {
@@ -492,7 +492,7 @@
 
 .am-month-cell__lbl {
   font-size: 0.65rem;
-  color: #64748b;
+  color: #7c8aa0;
   text-transform: uppercase;
 }
 
@@ -557,7 +557,7 @@
   flex-shrink: 0;
   font-family: var(--am-mono);
   font-size: 0.72rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .am-incident__tags {
@@ -590,7 +590,7 @@
 .am-incident__source {
   margin-top: 0.5rem;
   font-size: 0.78rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .am-incident__source a {
@@ -604,7 +604,7 @@
 
 .am-feed-empty {
   text-align: center;
-  color: #64748b;
+  color: #7c8aa0;
   padding: 2rem;
 }
 
