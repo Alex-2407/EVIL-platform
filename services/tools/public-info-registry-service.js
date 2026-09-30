@@ -6,8 +6,7 @@
 const { axios } = require('../../server/lib/safe-http');
 const {
   buildTerritorySearch,
-  applyRegistryPostFilters,
-  textMatch
+  applyRegistryPostFilters
 } = require('./public-info-filters');
 
 const HTTP = {
@@ -290,12 +289,6 @@ async function resolvePersonLabelsBatch(qids) {
     map[id] = entity.labels?.it?.value || entity.labels?.en?.value || id;
   }
   return map;
-}
-
-async function resolvePersonLabel(qid, fallback) {
-  if (fallback && !/^Q\d+$/i.test(fallback)) return fallback;
-  const batch = await resolvePersonLabelsBatch([qid]);
-  return batch[qid] || fallback;
 }
 
 function isQidLabel(name) {

@@ -363,7 +363,7 @@
   };
 
   window.toggleMatrix = function toggleMatrix() {
-    playLogoEasterEgg();
+    window.playLogoEasterEgg();
   };
 
   window.stopMatrixRain = function stopMatrixRainPublic() {
@@ -378,7 +378,7 @@
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      playLogoEasterEgg();
+      window.playLogoEasterEgg();
     });
   }
 

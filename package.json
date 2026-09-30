@@ -8,7 +8,7 @@
     "dev": "node scripts/build-home-css.js && node --watch-path=server --watch-path=middleware --watch-path=services --watch-path=utils js/server.js",
     "build": "node scripts/build-home-css.js",
     "build:home-css": "node scripts/build-home-css.js",
-    "test": "node --test --test-concurrency=1 tests/",
+    "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",
     "lint": "eslint .",
     "check:encoding": "node scripts/find-encoding-issues.js",
     "check:deploy": "node scripts/check-deployment.js",
@@ -58,6 +58,9 @@
     "path-to-regexp": "0.1.13"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.12.0",
     "supertest": "^7.3.0"
   }
 }

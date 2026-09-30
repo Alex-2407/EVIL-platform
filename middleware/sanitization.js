@@ -15,6 +15,7 @@ function sanitizeString(input, options = {}) {
   let sanitized = input.trim();
 
   // Remove null bytes and control characters
+  // eslint-disable-next-line no-control-regex -- i caratteri di controllo vanno proprio tolti
   sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '');
 
   // Escape HTML entities
@@ -117,9 +118,10 @@ function sanitizeFilename(filename) {
   if (typeof filename !== 'string') return '';
 
   // Remove path separators and dangerous characters
-  let sanitized = filename.replace(/[\/\\:*?"<>|]/g, '_');
+  let sanitized = filename.replace(/[/\\:*?"<>|]/g, '_');
 
   // Remove null bytes and control characters
+  // eslint-disable-next-line no-control-regex -- i caratteri di controllo vanno proprio tolti
   sanitized = sanitized.replace(/[\x00-\x1F\x7F]/g, '');
 
   // Limit length

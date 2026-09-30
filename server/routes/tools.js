@@ -367,6 +367,7 @@ module.exports = function registerTools(app, ctx) {
   function cleanText(value, max = 4000) {
     if (value == null) return '';
     return String(value)
+      // eslint-disable-next-line no-control-regex -- i caratteri di controllo vanno proprio tolti
       .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
       .trim()
       .slice(0, max);

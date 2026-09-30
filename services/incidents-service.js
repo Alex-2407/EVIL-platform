@@ -264,8 +264,6 @@ function alertToIncident(alert, index) {
       : hashPickCountry(alert.id || index);
   const jitter = () => (Math.random() - 0.5) * 4;
 
-  const typeLower = (alert.type || '').toLowerCase();
-  const descLower = (alert.description || '').toLowerCase();
   let impact = 50;
   if (alert.cvss) impact = Math.round(alert.cvss * 10);
   else if (alert.severity === 'critical') impact = 85;

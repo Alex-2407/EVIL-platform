@@ -142,7 +142,6 @@ function createApp(ctx) {
   });
 
   // ==================== ERRORI ====================
-  // eslint-disable-next-line no-unused-vars
   app.use((error, req, res, next) => {
     const statusCode = Number(error.statusCode || error.status) || 500;
 

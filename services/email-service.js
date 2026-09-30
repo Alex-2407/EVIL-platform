@@ -895,9 +895,9 @@ class EmailService {
       `Ciao ${name},`,
       ``,
       `Abbiamo ricevuto la tua richiesta di supporto su EVIL Platform.`,
-      `Il team la esaminerà e ti risponderà all\'indirizzo indicato entro 2–5 giorni lavorativi.`,
+      `Il team la esaminerà e ti risponderà all'indirizzo indicato entro 2–5 giorni lavorativi.`,
       ``,
-      `Per urgenze su account compromessi, indicalo nell\'oggetto delle prossime comunicazioni.`,
+      `Per urgenze su account compromessi, indicalo nell'oggetto delle prossime comunicazioni.`,
       ``,
       '— EVIL Platform'
     ].join('\n');
@@ -905,7 +905,7 @@ class EmailService {
     const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"></head><body style="font-family:system-ui,sans-serif;background:#06080e;color:#e2e8f0;padding:24px;">
       <h2 style="color:#7dd3fc;margin:0 0 12px;">Richiesta ricevuta</h2>
       <p>Ciao <strong>${safeName}</strong>,</p>
-      <p>Abbiamo ricevuto la tua richiesta di supporto. Ti risponderemo all\'indirizzo email indicato entro <strong>2–5 giorni lavorativi</strong>.</p>
+      <p>Abbiamo ricevuto la tua richiesta di supporto. Ti risponderemo all'indirizzo email indicato entro <strong>2–5 giorni lavorativi</strong>.</p>
       <p style="color:#64748b;font-size:13px;">Messaggio automatico — non rispondere a questa email.</p>
     </body></html>`;
 

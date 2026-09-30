@@ -418,7 +418,7 @@
           { text: 'Pubblicare indirizzo casa', correct: false },
           { text: 'Disattivare 2FA', correct: false },
         ]),
-        Q('LinkedIn \"ricerca lavoro\" da profilo falso HR:', 'Pretexting comune per malware o furto credenziali.', [
+        Q('LinkedIn "ricerca lavoro" da profilo falso HR:', 'Pretexting comune per malware o furto credenziali.', [
           { text: 'Sempre legittimo', correct: false },
           { text: 'Verificare identità su canali ufficiali prima di clic/link', correct: true },
           { text: 'Richiesto da NIST', correct: false },
@@ -610,7 +610,7 @@
           { text: 'Solo per grafica', correct: false },
           { text: 'Protocolli TLS', correct: false },
         ]),
-        Q('Alert \"PowerShell -enc\" su endpoint:', 'Spesso indicatore esecuzione script offuscato — da investigare.', [
+        Q('Alert "PowerShell -enc" su endpoint:', 'Spesso indicatore esecuzione script offuscato — da investigare.', [
           { text: 'Sempre benigno', correct: false },
           { text: 'Comportamento sospetto comune in attacchi', correct: true },
           { text: 'Richiesto da marketing', correct: false },

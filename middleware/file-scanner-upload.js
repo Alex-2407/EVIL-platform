@@ -15,6 +15,7 @@ const ALLOWED_EXT = new Set(
     .filter(Boolean)
 );
 
+// eslint-disable-next-line no-control-regex -- il byte nullo nei nomi di file va bloccato
 const BLOCKED_NAME = /(\.\.|\/|\\|\x00|%00|^\s|\.$|<|>|:|"|\||\?|\*)/;
 
 function fileFilter(req, file, cb) {

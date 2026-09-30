@@ -125,7 +125,7 @@ function applyDossierFilters(candidates, query) {
 
 function applyRegistryPostFilters(people, query) {
   let out = [...people];
-  const { profession, municipality, region, province, country } = query;
+  const { profession, municipality } = query; // regione, provincia e nazione sono già filtrate da Wikidata
 
   if (profession) {
     out = out.filter((p) => textMatch(JSON.stringify({ occupation: p.occupation, name: p.name }), profession));

@@ -75,7 +75,7 @@ function analyzeSpf(spf) {
     issues.push({ severity: 'high', title: 'SPF permissivo (+all)', detail: 'Qualsiasi server può inviare mail per il dominio.' });
   } else if (/\?all/i.test(spf)) {
     issues.push({ severity: 'medium', title: 'SPF neutro (?all)', detail: 'Protezione anti-spoofing debole.' });
-  } else if (/\~all/i.test(spf)) {
+  } else if (/~all/i.test(spf)) {
     issues.push({ severity: 'low', title: 'SPF soft fail (~all)', detail: 'Accettabile; preferibile -all in produzione.' });
   }
   if (/include:[^;]+/gi.test(spf) && spf.split('include:').length > 6) {

@@ -1,0 +1,64 @@
+# Controlli automatici a ogni push e pull request: lint, test, codifica dei file, dipendenze.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: evil
+          POSTGRES_PASSWORD: evil
+          POSTGRES_DB: evil_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U evil"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Dipendenze
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Caratteri corrotti nei file del sito
+        run: npm run check:encoding
+
+      - name: CSS della home generato
+        run: |
+          npm run build
+          git diff --exit-code css/home.bundle.css || (echo "css/home.bundle.css non è aggiornato: esegui npm run build e fai commit" && exit 1)
+
+      - name: Test
+        run: npm test
+        env:
+          TEST_DATABASE_URL: postgres://evil:evil@localhost:5432/evil_test
+
+      - name: Vulnerabilità note nelle dipendenze di produzione
+        run: npm audit --omit=dev --audit-level=high
