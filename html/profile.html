@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Profilo — EVIL Cybersecurity Platform</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Il tuo profilo EVIL: progressi, trofei sbloccati e registro delle attività.">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
@@ -160,7 +162,7 @@
           <span class="profile-action-card__hint">Esplora tutte le sezioni</span>
         </a>
         <button type="button" class="profile-action-card profile-action-card--danger" id="logoutBtn" style="border:none;font:inherit;text-align:left;width:100%;">
-          <span class="profile-action-card__icon">?</span>
+          <span class="profile-action-card__icon" aria-hidden="true">🚪</span>
           <span class="profile-action-card__label">Esci dall'account</span>
           <span class="profile-action-card__hint">Logout sicuro</span>
         </button>
@@ -192,7 +194,8 @@
         <div class="profile-detail-line"><span>Nome</span><span id="userNameDetail">—</span></div>
         <div class="profile-detail-line"><span>Email</span><span id="userEmailDetail">—</span></div>
         <div class="profile-detail-line"><span>Iscritto</span><span id="userCreatedDetail">—</span></div>
-        <div class="profile-detail-line"><span>Email</span><span id="userVerifiedDetail">—</span></div>
+        <div class="profile-detail-line"><span>Verifica email</span><span id="userVerifiedDetail">—</span></div>
+        <div class="profile-detail-line"><span>Dispositivi collegati</span><span id="userSessionsDetail">—</span></div>
       </div>
       <div class="profile-detail-panel">
         <h3>Prossimo obiettivo</h3>
@@ -209,15 +212,17 @@
           <h2>Vetrina trofei</h2>
           <p class="profile-section-sub">SVG animati · rarità bronzo → leggendario</p>
         </div>
-        <div class="profile-trophy-tabs" role="tablist">
-          <button type="button" class="profile-trophy-tab is-active" data-filter="all" role="tab">Tutti</button>
-          <button type="button" class="profile-trophy-tab" data-filter="unlocked" role="tab">Sbloccati</button>
-          <button type="button" class="profile-trophy-tab" data-filter="locked" role="tab">Da conquistare</button>
+        <div class="profile-trophy-tabs">
+          <div class="profile-trophy-tabs__group" role="tablist" aria-label="Filtra i trofei">
+            <button type="button" class="profile-trophy-tab is-active" data-filter="all" role="tab" id="trophyTabAll" aria-selected="true" aria-controls="achievementsGrid">Tutti</button>
+            <button type="button" class="profile-trophy-tab" data-filter="unlocked" role="tab" id="trophyTabUnlocked" aria-selected="false" aria-controls="achievementsGrid" tabindex="-1">Sbloccati</button>
+            <button type="button" class="profile-trophy-tab" data-filter="locked" role="tab" id="trophyTabLocked" aria-selected="false" aria-controls="achievementsGrid" tabindex="-1">Da conquistare</button>
+          </div>
           <a href="/html/trophy-preview-local.html" class="profile-trophy-tab" style="text-decoration:none;display:inline-flex;align-items:center;">Anteprima trofei</a>
           <a href="/html/jingle-preview-local.html" class="profile-trophy-tab" style="text-decoration:none;display:inline-flex;align-items:center;">Musichette</a>
         </div>
       </div>
-      <div class="trophy-grid" id="achievementsGrid"></div>
+      <div class="trophy-grid" id="achievementsGrid" role="tabpanel" aria-labelledby="trophyTabAll" aria-live="polite"></div>
     </section>
 
     <section class="profile-activity">
@@ -247,7 +252,7 @@
         ·
         <a href="/help.html" class="evil-site-foot__link">Help</a>
         ·
-        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/Alex-2407/evil-platform" class="evil-site-foot__link" rel="noopener noreferrer">Codice su GitHub</a>
       </p>
     </section>
   </div>

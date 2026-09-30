@@ -29,10 +29,12 @@
 
   const AUTH_STORAGE = {
     setUser(user) {
-      localStorage.setItem(
-        'user',
-        JSON.stringify({ id: user.id, name: user.name, email: user.email })
-      );
+      try {
+        localStorage.setItem(
+          'user',
+          JSON.stringify({ id: user.id, name: user.name, email: user.email, emailVerified: Boolean(user.emailVerified) })
+        );
+      } catch { /* storage non disponibile */ }
     },
     getUser() {
       try {
@@ -43,7 +45,9 @@
       }
     },
     clearUser() {
-      localStorage.removeItem('user');
+      try {
+        localStorage.removeItem('user');
+      } catch { /* ignore */ }
     },
     clear() {
       this.clearUser();
@@ -59,13 +63,19 @@
     return !!(header && header.querySelector('.hamburger-btn') && header.querySelector('nav ul'));
   }
 
+  function setDropdownState(li, open) {
+    li.classList.toggle('dropdown-open', open);
+    const d = li.querySelector('.dropdown');
+    if (d) d.style.display = open ? 'block' : 'none';
+    const trigger = li.querySelector(':scope > a[aria-haspopup]');
+    if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
   function closeAllDropdowns(nav, exceptLi) {
     if (!nav) return;
     nav.querySelectorAll(':scope > ul > li').forEach((li) => {
       if (li === exceptLi) return;
-      li.classList.remove('dropdown-open');
-      const d = li.querySelector('.dropdown');
-      if (d) d.style.display = 'none';
+      setDropdownState(li, false);
     });
   }
 
@@ -74,29 +84,52 @@
     if (!nav || nav.dataset.evilNavBound === '1') return;
     nav.dataset.evilNavBound = '1';
 
-    nav.querySelectorAll(':scope > ul > li > a[href="#"], :scope > ul > li > a[href=""]').forEach((trigger) => {
+    nav.querySelectorAll(':scope > ul > li > a[href="#"], :scope > ul > li > a[href=""]').forEach((trigger, index) => {
       const li = trigger.closest('li');
       const dropdown = trigger.nextElementSibling;
       if (!dropdown || !dropdown.classList.contains('dropdown')) return;
 
+      // Per i lettori di schermo: è un pulsante che apre un sottomenu, non un link
+      if (!dropdown.id) dropdown.id = `evil-nav-dropdown-${index + 1}`;
+      trigger.setAttribute('role', 'button');
+      trigger.setAttribute('aria-haspopup', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
+      trigger.setAttribute('aria-controls', dropdown.id);
+      const label = trigger.textContent.replace(/\s*▾\s*$/, '').trim();
+      if (label && /▾/.test(trigger.textContent)) {
+        trigger.textContent = `${label} `;
+        const caret = document.createElement('span');
+        caret.setAttribute('aria-hidden', 'true');
+        caret.textContent = '▾';
+        trigger.appendChild(caret);
+      }
+
       trigger.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const willOpen = !li.classList.contains('dropdown-open');
+        // Con il mouse il menu si apre già al passaggio: il clic subito dopo non deve richiuderlo
+        // (e.detail === 0: clic da tastiera, Invio o spazio: vale sempre come apri/chiudi)
+        const justHovered = e.detail > 0 && Date.now() - Number(li.dataset.hoverOpenedAt || 0) < 700;
+        const willOpen = justHovered || !li.classList.contains('dropdown-open');
         closeAllDropdowns(nav, willOpen ? li : null);
-        li.classList.toggle('dropdown-open', willOpen);
-        dropdown.style.display = willOpen ? 'block' : 'none';
+        setDropdownState(li, willOpen);
+      });
+      trigger.addEventListener('keydown', (e) => {
+        if (e.key === ' ') {
+          e.preventDefault();
+          trigger.click();
+        }
       });
 
       if (!isMobileNav()) {
         li.addEventListener('mouseenter', () => {
           closeAllDropdowns(nav, li);
-          li.classList.add('dropdown-open');
-          dropdown.style.display = 'block';
+          if (!li.classList.contains('dropdown-open')) li.dataset.hoverOpenedAt = String(Date.now());
+          setDropdownState(li, true);
         });
         li.addEventListener('mouseleave', () => {
-          li.classList.remove('dropdown-open');
-          dropdown.style.display = 'none';
+          delete li.dataset.hoverOpenedAt;
+          setDropdownState(li, false);
         });
       }
     });
@@ -160,61 +193,50 @@
     }
   }
 
+  /**
+   * Stato della sessione dal server. /api/auth/session rinnova da solo l'accesso scaduto
+   * se il cookie di sessione è valido: non serve più chiamare /api/auth/refresh-token
+   * (per gli ospiti falliva sempre con 401, a ogni pagina, e consumava il limite).
+   * @returns {Promise<{reachable: boolean, user: object|null}>}
+   */
   async function fetchSession() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT);
     try {
       const response = await fetch(`${AUTH_API_URL}/auth/session`, {
         credentials: 'include',
+        cache: 'no-store',
         signal: controller.signal
       });
       clearTimeout(timeoutId);
-      if (!response.ok) return null;
+      if (!response.ok) return { reachable: response.status < 500 && response.status !== 429, user: null };
       const data = await response.json();
       if (data.authenticated && data.user?.id && data.user?.email) {
         const name = data.user.name || data.user.email.split('@')[0] || 'Utente';
-        return { id: data.user.id, name, email: data.user.email };
+        return {
+          reachable: true,
+          user: { id: data.user.id, name, email: data.user.email, emailVerified: Boolean(data.user.emailVerified) }
+        };
       }
-      return null;
+      return { reachable: true, user: null };
     } catch {
       clearTimeout(timeoutId);
-      return null;
+      return { reachable: false, user: null };
     }
   }
 
-  async function refreshAccessToken() {
-    try {
-      const response = await fetch(`${AUTH_API_URL}/auth/refresh-token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({})
-      });
-      if (!response.ok) return false;
-      const data = await response.json();
-      if (data.status === 'success' && data.user) {
-        AUTH_STORAGE.setUser(data.user);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  }
+  let lastSessionReachable = true;
 
   async function syncUserFromServer() {
-    let user = await fetchSession();
+    const { reachable, user } = await fetchSession();
+    lastSessionReachable = reachable;
     if (user) {
       AUTH_STORAGE.setUser(user);
       return user;
     }
-    if (await refreshAccessToken()) {
-      user = await fetchSession();
-      if (user) {
-        AUTH_STORAGE.setUser(user);
-        return user;
-      }
-    }
+    // Il server dice "non collegato": la copia locale è vecchia e va tolta.
+    // Se invece il server non risponde, la copia locale resta (rete assente, riavvio).
+    if (reachable) AUTH_STORAGE.clearUser();
     return null;
   }
 
@@ -224,7 +246,7 @@
       user.name ||
       (typeof user.email === 'string' ? user.email.split('@')[0] : '') ||
       'Utente';
-    return { id: user.id, name, email: user.email };
+    return { id: user.id, name, email: user.email, emailVerified: Boolean(user.emailVerified) };
   }
 
   function isAuthenticated() {
@@ -241,33 +263,46 @@
     return AUTH_REQUIRED_PAGES.has(page);
   }
 
-  function escapeHtml(text) {
-    return String(text).replace(/[&<>"']/g, (m) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
-    })[m]);
-  }
-
   function getInitials(fullName) {
     if (!fullName || typeof fullName !== 'string') return 'U';
     return fullName.trim().split(/\s+/).map((w) => w.charAt(0).toUpperCase()).join('').substring(0, 3);
   }
 
+  function navButton(className, label, ariaLabel, onClick) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `auth-btn ${className}`;
+    btn.textContent = label;
+    if (ariaLabel) btn.setAttribute('aria-label', ariaLabel);
+    btn.addEventListener('click', onClick);
+    return btn;
+  }
+
   function renderGuestAuthButtons(authButtons) {
-    authButtons.innerHTML = `
-      <button class="auth-btn account" type="button" onclick="window.location.href='/login.html';" aria-label="Accedi a EVIL">Accedi</button>
-      <button class="auth-btn login" type="button" onclick="window.location.href='/account.html';" aria-label="Registrati su EVIL">Registrati</button>
-    `;
+    authButtons.replaceChildren(
+      navButton('account', 'Accedi', 'Accedi a EVIL', () => { window.location.href = loginUrl(); }),
+      navButton('login', 'Registrati', 'Crea un account EVIL', () => { window.location.href = '/account.html'; })
+    );
   }
 
   function renderUserAuthButtons(authButtons, user) {
-    authButtons.innerHTML = `
-      <div class="user-menu">
-        <a href="/profile.html" class="user-name" title="👤 ${escapeHtml(user.name || 'Utente')}">
-          👤 ${escapeHtml(getInitials(user.name))}
-        </a>
-        <button class="auth-btn logout" type="button" onclick="window.EVIL_logout();">Log Out</button>
-      </div>
-    `;
+    const menu = document.createElement('div');
+    menu.className = 'user-menu';
+    const profile = document.createElement('a');
+    profile.href = '/profile.html';
+    profile.className = 'user-name';
+    profile.title = `Profilo di ${user.name || 'Utente'}`;
+    profile.setAttribute('aria-label', `Profilo di ${user.name || 'Utente'}`);
+    profile.textContent = `👤 ${getInitials(user.name)}`;
+    menu.append(profile, navButton('logout', 'Esci', 'Esci dall\'account', () => window.EVIL_logout()));
+    authButtons.replaceChildren(menu);
+  }
+
+  /** Link al login che riporta alla pagina corrente dopo l'accesso. */
+  function loginUrl() {
+    const page = window.location.pathname.split('/').pop() || '';
+    if (!page || /^(login|account|home|index)\.html$/.test(page)) return '/login.html';
+    return `/login.html?redirect=${encodeURIComponent(page + window.location.search)}`;
   }
 
   function markAuthUiReady() {
@@ -291,7 +326,8 @@
       renderUserAuthButtons(authButtons, serverUser);
       return;
     }
-    if (!cached) renderGuestAuthButtons(authButtons);
+    // sessione scaduta: via il nome in alto; server irraggiungibile: resta la copia locale
+    if (!cached || lastSessionReachable) renderGuestAuthButtons(authButtons);
   }
 
   async function ensureAuthenticatedOrRedirect(redirectPage) {
@@ -300,7 +336,7 @@
     }
     const user = await syncUserFromServer();
     if (user) return true;
-    if (isAuthenticated()) return true;
+    if (!lastSessionReachable && isAuthenticated()) return true;
 
     const page = redirectPage || window.location.pathname.split('/').pop() || 'home.html';
     window.location.replace(`/login.html?redirect=${encodeURIComponent(page)}`);
@@ -340,9 +376,26 @@
     } catch { /* ignore */ }
   }
 
+  /** Altezza reale dell'header (su mobile va su due righe) per scroll-padding-top in CSS. */
+  function syncHeaderHeight() {
+    const header = document.querySelector('header');
+    if (header && header.offsetHeight) {
+      document.documentElement.style.setProperty('--evil-header-h', `${header.offsetHeight}px`);
+    }
+  }
+
   async function initEvilNavigation() {
     initializeHeaderEvents();
     initializeHamburgerMenu();
+    syncHeaderHeight();
+    if (!window.__evilHeaderHeightBound) {
+      window.__evilHeaderHeightBound = true;
+      let raf = 0;
+      window.addEventListener('resize', () => {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(syncHeaderHeight);
+      });
+    }
     if (typeof bindLogoEasterEggButton === 'function') bindLogoEasterEggButton();
     await scheduleInitAuthHeader();
   }
@@ -420,6 +473,7 @@
   window.scheduleInitAuthHeader = scheduleInitAuthHeader;
   window.initEvilNavigation = initEvilNavigation;
   window.ensureAuthenticatedOrRedirect = ensureAuthenticatedOrRedirect;
+  window.getInitials = getInitials;
 
   window.addEventListener('storage', (e) => {
     if (e.key === 'user') scheduleInitAuthHeader();

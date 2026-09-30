@@ -3,6 +3,7 @@
 const { body, validationResult } = require('express-validator');
 const PDFDocument = require('pdfkit');
 const { assertPublicDestination, isBlockedError, blockedMessage } = require('../lib/safe-http');
+const { toolError } = require('../lib/tool-errors');
 
 module.exports = function registerTools(app, ctx) {
   const {
@@ -18,6 +19,14 @@ module.exports = function registerTools(app, ctx) {
     runPublicInfoDomainSearch, runPublicInfoRegistrySearch, runPublicInfoPersonDetail,
   } = tools;
 
+  /** Risposta d'errore uniforme: messaggio per l'utente, dettaglio tecnico solo nei log. */
+  function sendToolError(res, err, tool, extra = {}) {
+    const { status, error, internal } = toolError(err);
+    if (internal) logger.error(`${tool}: errore`, { error: err.message, stack: err.stack });
+    else logger.warn(`${tool}: ${err.message}`);
+    if (!res.headersSent) res.status(status).json({ error, status: 'error', ...extra });
+  }
+
   // Endpoint principale
   // URL SECURITY CHECK SCAN
   app.post('/api/scan', 
@@ -25,13 +34,13 @@ module.exports = function registerTools(app, ctx) {
     scanLimiter,
     body('url')
       .trim()
-      .notEmpty().withMessage('URL required')
-      .isURL().withMessage('Invalid URL format'),
+      .notEmpty().withMessage('Inserisci un URL.')
+      .isURL().withMessage('URL non valido: scrivilo per intero, per esempio https://esempio.it'),
     (req, res, next) => {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         auditLog.security('SCAN_VALIDATION_FAILED', { userId: req.user.id, errors: errors.array() }, 'WARN');
-        return res.status(400).json({ error: 'Invalid URL format' });
+        return res.status(400).json({ error: errors.array()[0]?.msg || 'URL non valido.', status: 'error' });
       }
       next();
     },
@@ -43,7 +52,7 @@ module.exports = function registerTools(app, ctx) {
       if (!sanitizedUrl) {
         auditLog.security('SCAN_INVALID_URL', { userId: req.user.id, originalUrl: url }, 'WARN');
         return res.status(400).json({
-          error: 'Invalid or dangerous URL format',
+          error: 'URL non valido o non consentito.',
           status: 'error'
         });
       }
@@ -58,7 +67,7 @@ module.exports = function registerTools(app, ctx) {
 
         // Additional domain validation
         if (!domain || domain.length > 253) {
-          throw new Error('Invalid domain length');
+          throw new Error('Dominio non valido (troppo lungo).');
         }
 
         await assertPublicDestination(fullUrl);
@@ -78,8 +87,8 @@ module.exports = function registerTools(app, ctx) {
       const scanTimeout = setTimeout(() => {
         logger.warn('Scan timeout', { userId: req.user.id, domain });
         if (!res.headersSent) {
-          res.status(408).json({
-            error: 'Scan timeout - operation took too long',
+          res.status(504).json({
+            error: 'La scansione ha impiegato troppo tempo. Riprova tra poco.',
             status: 'timeout',
             domain
           });
@@ -117,23 +126,7 @@ module.exports = function registerTools(app, ctx) {
           stack: err.stack
         });
 
-        // Determine appropriate error response based on error type
-        let statusCode = 500;
-        let errorMessage = 'Scan failed due to internal error';
-
-        if (isBlockedError(err)) {
-          statusCode = 400;
-          errorMessage = blockedMessage(err);
-        } else if (err.message.includes('timeout')) {
-          statusCode = 408;
-          errorMessage = 'Scan timeout - please try again';
-        } else if (err.message.includes('ENOTFOUND') || err.message.includes('DNS')) {
-          statusCode = 400;
-          errorMessage = 'Domain not found or unreachable';
-        } else if (err.message.includes('ECONNREFUSED')) {
-          statusCode = 400;
-          errorMessage = 'Connection refused by target';
-        }
+        const { status: statusCode, error: errorMessage } = toolError(err);
 
         if (!res.headersSent) {
           res.status(statusCode).json({
@@ -153,14 +146,13 @@ module.exports = function registerTools(app, ctx) {
   // ========================
   app.post('/api/dns-enum', authenticateTools, dnsLimiter, async (req, res) => {
     const { domain } = req.body;
-    if (!domain) return res.status(400).json({ error: 'Domain required' });
+    if (!domain) return res.status(400).json({ error: 'Inserisci un dominio, per esempio esempio.it', status: 'error' });
 
     try {
       const result = await runDnsEnumeration(domain);
       res.json(result);
     } catch (err) {
-      const status = /non valido/i.test(err.message) ? 400 : 500;
-      res.status(status).json({ error: err.message, status: 'error', domain });
+      sendToolError(res, err, 'DNS', { domain });
     }
   });
 
@@ -169,17 +161,21 @@ module.exports = function registerTools(app, ctx) {
   // ========================
   app.post('/api/whois', authenticateTools, dnsLimiter, async (req, res) => {
     const { domain } = req.body;
-    if (!domain) return res.status(400).json({ error: 'Domain required' });
+    if (!domain) return res.status(400).json({ error: 'Inserisci un dominio, per esempio esempio.it', status: 'error' });
 
     try {
       const result = await runWhoisLookup(domain);
       if (result.status === 'failed') {
-        return res.status(502).json(result);
+        const mapped = toolError(new Error(String(result.error || '').replace(/^Lookup WHOIS fallito:\s*/, '')));
+        return res.status(502).json({
+          ...result,
+          error: mapped.internal ? 'Il server WHOIS non ha risposto. Riprova tra poco.' : mapped.error,
+          detail: result.error,
+        });
       }
       res.json(result);
     } catch (err) {
-      const status = /non valido/i.test(err.message) ? 400 : 500;
-      res.status(status).json({ error: err.message, status: 'error' });
+      sendToolError(res, err, 'WHOIS');
     }
   });
 
@@ -188,14 +184,13 @@ module.exports = function registerTools(app, ctx) {
   // ========================
   app.post('/api/subdomain-finder', authenticateTools, dnsLimiter, async (req, res) => {
     const { domain } = req.body;
-    if (!domain) return res.status(400).json({ error: 'Domain required' });
+    if (!domain) return res.status(400).json({ error: 'Inserisci un dominio, per esempio esempio.it', status: 'error' });
 
     try {
       const result = await runSubdomainFinder(domain);
       res.json(result);
     } catch (err) {
-      const status = /non valido/i.test(err.message) ? 400 : 500;
-      res.status(status).json({ error: err.message, status: 'error' });
+      sendToolError(res, err, 'Sottodomini');
     }
   });
 
@@ -204,17 +199,21 @@ module.exports = function registerTools(app, ctx) {
   // ========================
   app.post('/api/ssl-analyzer', authenticateTools, scanLimiter, async (req, res) => {
     const { domain } = req.body;
-    if (!domain) return res.status(400).json({ error: 'Domain required' });
+    if (!domain) return res.status(400).json({ error: 'Inserisci un dominio, per esempio esempio.it', status: 'error' });
 
     try {
       const result = await runSslAnalysis(domain);
       if (result.status === 'failed') {
-        return res.status(502).json(result);
+        const mapped = toolError(new Error(String(result.error || '')));
+        return res.status(502).json({
+          ...result,
+          error: mapped.internal ? 'Connessione sicura (TLS) non riuscita con questo dominio.' : mapped.error,
+          detail: result.error,
+        });
       }
       res.json(result);
     } catch (err) {
-      const status = isBlockedError(err) || /non valido/i.test(err.message) ? 400 : 500;
-      res.status(status).json({ error: isBlockedError(err) ? blockedMessage(err) : err.message, status: 'error' });
+      sendToolError(res, err, 'SSL');
     }
   });
 
@@ -223,7 +222,7 @@ module.exports = function registerTools(app, ctx) {
   // ========================
   app.post('/api/vulnerability-scan', authenticateTools, scanLimiter, async (req, res) => {
     const { url } = req.body;
-    if (!url) return res.status(400).json({ error: 'URL required' });
+    if (!url) return res.status(400).json({ error: 'Inserisci un URL.', status: 'error' });
 
     try {
       const result = await Promise.race([
@@ -234,11 +233,7 @@ module.exports = function registerTools(app, ctx) {
       ]);
       res.json(result);
     } catch (err) {
-      if (isBlockedError(err)) {
-        return res.status(400).json({ error: blockedMessage(err), status: 'error' });
-      }
-      const status = err.message.includes('timeout') ? 408 : err.message.includes('Invalid URL') ? 400 : 500;
-      res.status(status).json({ error: err.message, status: 'error' });
+      sendToolError(res, err, 'Header HTTP');
     }
   });
 
@@ -249,14 +244,13 @@ module.exports = function registerTools(app, ctx) {
   app.post('/api/social-profile', authenticateTools, scanLimiter, async (req, res) => {
     const { username, email } = req.body;
     if (!username) {
-      return res.status(400).json({ error: 'Username required', status: 'error' });
+      return res.status(400).json({ error: 'Inserisci uno username.', status: 'error' });
     }
     try {
       const result = await runSocialProfiling({ username, email });
       res.json(result);
     } catch (err) {
-      const code = /non valido/i.test(err.message) ? 400 : 500;
-      res.status(code).json({ error: err.message, status: 'error' });
+      sendToolError(res, err, 'Social profiling');
     }
   });
 
@@ -285,12 +279,11 @@ module.exports = function registerTools(app, ctx) {
         return res.json(result);
       }
       return res.status(400).json({
-        error: 'Fornire country (elenco territoriale), firstName+lastName (dossier) o target+type=domain',
+        error: 'Indica una nazione (elenco del territorio) oppure nome e cognome (dossier).',
         status: 'error'
       });
     } catch (err) {
-      const code = /obblig/i.test(err.message) ? 400 : 500;
-      res.status(code).json({ error: err.message, status: 'error' });
+      sendToolError(res, err, 'OSINT');
     }
   });
 
@@ -344,8 +337,7 @@ module.exports = function registerTools(app, ctx) {
         message: 'Scansione statica completata (file non persistito)'
       });
     } catch (err) {
-      logger.error('File scan error', { error: err.message, userId: req.user?.id });
-      res.status(500).json({ error: err.message || 'Errore scansione file', status: 'error' });
+      sendToolError(res, err, 'Analisi file');
     }
   }
 

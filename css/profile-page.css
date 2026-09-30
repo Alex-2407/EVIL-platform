@@ -246,7 +246,7 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 @keyframes profileReveal {
@@ -322,7 +322,7 @@
 
 .profile-action-card__hint {
   font-size: 0.75rem;
-  color: #64748b;
+  color: #7c8aa0;
 }
 
 .profile-action-card--danger {
@@ -390,9 +390,16 @@
   margin-bottom: 20px;
 }
 
-.profile-trophy-tabs {
+.profile-trophy-tabs,
+.profile-trophy-tabs__group {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+.profile-trophy-tab:focus-visible {
+  outline: 2px solid var(--profile-amber);
+  outline-offset: 2px;
 }
 
 .profile-trophy-tab {
@@ -458,7 +465,7 @@
   color: #cbd5e1;
 }
 
-.profile-detail-line span:first-child { color: #64748b; }
+.profile-detail-line span:first-child { color: #7c8aa0; }
 
 @media (max-width: 768px) {
   .profile-stats-row,

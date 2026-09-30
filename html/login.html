@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Accedi — EVIL Cybersecurity Platform</title>
+  <meta name="description" content="Accedi al tuo account EVIL per usare gli strumenti di analisi e ritrovare progressi e trofei.">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
@@ -96,6 +97,7 @@
         <section class="auth-panel" aria-labelledby="login-title">
           <p class="auth-panel__kicker">Autenticazione</p>
           <h1 id="login-title">Accedi a EVIL</h1>
+          <p id="loginReason" class="auth-message auth-message--info" role="status" hidden></p>
           <form id="loginForm" novalidate>
             <div class="auth-field">
               <label for="email">Email</label>
@@ -118,12 +120,12 @@
 
         <aside class="auth-aside">
           <h2>Benvenuto in EVIL</h2>
-          <p>Accedi al tuo account per utilizzare tutti gli strumenti di analisi della sicurezza.</p>
+          <p>Con l'account usi gli strumenti di analisi e ritrovi progressi e trofei su ogni dispositivo.</p>
           <ul>
-            <li>URL Security Check</li>
-            <li>Analisi vulnerabilità</li>
-            <li>OSINT avanzato</li>
-            <li>Report personalizzati</li>
+            <li>Check URL e controllo degli header HTTP</li>
+            <li>DNS, sottodomini e certificati SSL</li>
+            <li>Analisi di file e ricerche OSINT</li>
+            <li>Progressi, trofei e registro attività</li>
           </ul>
         </aside>
       </div>
@@ -150,7 +152,7 @@
         ·
         <a href="/help.html" class="evil-site-foot__link">Help</a>
         ·
-        <a href="https://github.com" class="evil-site-foot__link" rel="noopener noreferrer">GitHub</a>
+        <a href="https://github.com/Alex-2407/evil-platform" class="evil-site-foot__link" rel="noopener noreferrer">Codice su GitHub</a>
       </p>
     </section>
   </div>
@@ -161,14 +163,37 @@
   <script>
     const API_URL = '/api';
 
+    // Pagine che richiedono l'accesso: il login spiega perché l'utente è arrivato qui
+    const PROTECTED_PAGES = {
+      'security-check.html': 'Check URL',
+      'vulnerability-scanner.html': 'Header HTTP',
+      'dns-enumerator.html': 'Enumerazione DNS',
+      'subdomain-finder.html': 'Ricerca sottodomini',
+      'ssl-analyzer.html': 'Analisi SSL',
+      'file-analysis.html': 'Analisi file',
+      'social-profiling.html': 'Social profiling',
+      'public-info.html': 'Informazioni pubbliche',
+      'profile.html': 'il tuo profilo'
+    };
+
+    /** Solo pagine del sito (nome.html con eventuale query): niente redirect verso altri domini. */
     function getRedirectTarget() {
-      const params = new URLSearchParams(window.location.search);
-      const redirect = params.get('redirect');
-      if (!redirect || !/^[a-zA-Z0-9._/-]+\.html$/.test(redirect)) {
-        return 'home.html';
-      }
-      return redirect;
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '';
+      if (!/^[a-z0-9][a-z0-9._-]*\.html(\?[a-z0-9=&%._+-]*)?$/i.test(redirect)) return '/home.html';
+      return '/' + redirect;
     }
+
+    (function explainRedirect() {
+      const redirect = new URLSearchParams(window.location.search).get('redirect') || '';
+      const page = redirect.split('?')[0];
+      const label = PROTECTED_PAGES[page];
+      const note = document.getElementById('loginReason');
+      if (!label || !note) return;
+      note.textContent = page === 'profile.html'
+        ? 'Accedi per vedere il tuo profilo, i progressi e i trofei.'
+        : `Per usare ${label} serve un account EVIL (è gratuito). Accedi oppure registrati: dopo l'accesso torni direttamente allo strumento.`;
+      note.hidden = false;
+    })();
 
     (async function skipLoginIfSessionActive() {
       if (!new URLSearchParams(window.location.search).get('redirect')) return;
@@ -178,7 +203,7 @@
           const user = await syncUserFromServer();
           if (user) window.location.replace(getRedirectTarget());
         }
-      } catch (_) { /* resta su login */ }
+      } catch (_) { /* resta sul login */ }
     })();
 
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -187,11 +212,13 @@
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const errorDiv = document.getElementById('loginError');
+      const submitBtn = e.target.querySelector('button[type="submit"]');
       const showErr = (opts) => {
         if (window.EvilAuthFeedback) {
           window.EvilAuthFeedback.showAuthError(errorDiv, { action: 'login', ...opts });
         } else {
           errorDiv.textContent = opts.message || 'Errore';
+          errorDiv.hidden = false;
           errorDiv.style.display = 'block';
         }
       };
@@ -201,6 +228,11 @@
       };
 
       hideErr();
+      if (!email || !password) {
+        showErr({ message: 'Scrivi email e password.', status: 400 });
+        return;
+      }
+      if (submitBtn) submitBtn.disabled = true;
 
       try {
         const response = await fetch(`${API_URL}/auth/login`, {
@@ -210,15 +242,11 @@
           body: JSON.stringify({ email, password })
         });
 
-        let data;
+        let data = {};
         try {
           data = await response.json();
         } catch (_) {
-          const invalid = new Error(
-            response.status === 0 || !response.ok
-              ? 'Risposta non valida dal server (verifica CORS, HTTPS e che npm start sia attivo).'
-              : 'Risposta non valida dal server.'
-          );
+          const invalid = new Error('Il server non ha risposto correttamente. Riprova tra qualche istante.');
           invalid.status = response.status;
           throw invalid;
         }
@@ -228,35 +256,34 @@
             window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}`;
             return;
           }
-          let errMsg = data.error || 'Errore di login';
-          if (errMsg === 'Something went wrong') {
-            errMsg =
-              'Errore server: il sito deve essere servito dal server Node (npm start), non solo come file statici.';
-          }
+          const message = response.status === 429
+            ? 'Troppi tentativi di accesso. Aspetta qualche minuto e riprova, oppure reimposta la password.'
+            : data.error || 'Accesso non riuscito.';
           showErr({
-            message: errMsg,
+            message,
             status: response.status,
             raw: data,
-            hint: 'Copia il riquadro e invialo al supporto se il problema persiste.',
+            hint: response.status >= 500 ? 'Se il problema continua, scrivici dalla pagina Help.' : undefined,
           });
           return;
         }
 
         if (window.AUTH_STORAGE && typeof AUTH_STORAGE.setUser === 'function') {
           AUTH_STORAGE.setUser(data.user);
-        } else {
-          localStorage.setItem('user', JSON.stringify(data.user));
         }
         if (typeof notifyAuthVerified === 'function') notifyAuthVerified();
 
         window.location.href = getRedirectTarget();
       } catch (err) {
+        const local = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
         showErr({
-          message: 'Errore di connessione: ' + (err.message || 'impossibile contattare il server'),
+          message: err.status ? err.message : 'Connessione non riuscita. Controlla la rete e riprova.',
           status: err.status,
           raw: err.stack || err.message,
-          hint: 'Apri il sito da http://localhost:5000 dopo npm start, non come file://',
+          hint: local ? 'In locale: il server deve essere avviato con npm start.' : 'Se il problema continua, scrivici dalla pagina Help.',
         });
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
       }
     });
   </script>

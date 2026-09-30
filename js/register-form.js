@@ -1,67 +1,36 @@
 /**
  * EVIL — registrazione account (account.html)
+ * Le regole sono le stesse del server (middleware/auth.js): nomi con lettere accentate,
+ * password di almeno 12 caratteri con maiuscola, numero e un simbolo qualsiasi.
  */
 (function () {
   'use strict';
 
   const API_URL = '/api';
   const REGISTER_TIMEOUT_MS = 35000;
-
-  function mapRegisterError(message) {
-    const map = {
-      'Email already registered': 'Questa email è già registrata. Prova ad accedere.',
-      'Validation failed': 'Dati non validi. Controlla i campi e riprova.',
-      'Something went wrong':
-        'Errore server: verifica che il deploy usi npm start (API Node attive) e che SMTP/DATA_DIR siano configurati su Render.',
-      'Servizio non disponibile. Verifica che il deploy esegua npm start e non solo file statici.':
-        'Il sito online non espone le API: avvia il server Node (npm start) sul hosting, non solo file statici.',
-      'Errore server temporaneo. Riprova tra qualche minuto.':
-        'Errore temporaneo del server. Riprova tra qualche minuto.',
-      'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env (vedi SETUP_EMAIL_VERIFICATION.md).':
-        'Il server non può inviare l\'email di verifica. Contatta l\'amministratore o configura SMTP su Render.',
-      'Connection timeout':
-        'Il server email non risponde in tempo. Se compare un link di verifica nella pagina successiva, usalo; altrimenti configura SMTP su Render.',
-    };
-    if (/connection timeout|timeout/i.test(message)) {
-      return 'Il server email non risponde in tempo. Dopo la registrazione controlla se compare il link di verifica diretto.';
-    }
-    return map[message] || message;
-  }
+  // lettere di qualunque alfabeto (Nicolò, José, Chloé), spazi, apostrofo, punto e trattino
+  const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}\s'’.-]*$/u;
+  const SYMBOL_RE = /[^\p{L}\p{N}\s]/u;
+  const FIELD_IDS = { name: 'name', email: 'email', password: 'password', confirmPassword: 'confirm-password' };
 
   function validatePasswordStrength(password) {
-    if (!password || password.length < 12) {
-      return 'La password deve avere almeno 12 caratteri.';
-    }
-    if (!/[A-Z]/.test(password)) {
-      return 'La password deve contenere almeno una lettera maiuscola (A-Z).';
-    }
-    if (!/\d/.test(password)) {
-      return 'La password deve contenere almeno un numero (0-9).';
-    }
-    if (!/[@$!%*?&]/.test(password)) {
-      return 'La password deve contenere almeno un carattere speciale (@$!%*?&).';
-    }
+    if (!password || password.length < 12) return 'La password deve avere almeno 12 caratteri.';
+    if (!/[A-Z]/.test(password)) return 'La password deve contenere almeno una lettera maiuscola (A-Z).';
+    if (!/\d/.test(password)) return 'La password deve contenere almeno un numero (0-9).';
+    if (!SYMBOL_RE.test(password)) return 'La password deve contenere almeno un simbolo (per esempio ! ? @ # % . -).';
     return null;
   }
 
   function validateClient(name, email, password, confirmPassword) {
-    if (!name || name.length < 2) {
-      return 'Inserisci il nome completo (minimo 2 caratteri).';
+    if (!name || name.length < 2) return { field: 'name', message: 'Scrivi nome e cognome (almeno 2 caratteri).' };
+    if (!NAME_RE.test(name)) {
+      return { field: 'name', message: 'Il nome può contenere lettere (anche accentate), spazi, apostrofo e trattino.' };
     }
-    if (!/^[a-zA-Z\s'-]+$/.test(name)) {
-      return 'Il nome contiene caratteri non consentiti (usa solo lettere, spazi, apostrofo o trattino).';
-    }
-    if (!email) {
-      return 'Inserisci un indirizzo email.';
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return 'Formato email non valido.';
-    }
+    if (!email) return { field: 'email', message: 'Scrivi il tuo indirizzo email.' };
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { field: 'email', message: 'Controlla l\'indirizzo email.' };
     const pwdErr = validatePasswordStrength(password);
-    if (pwdErr) return pwdErr;
-    if (password !== confirmPassword) {
-      return 'Le password non coincidono.';
-    }
+    if (pwdErr) return { field: 'password', message: pwdErr };
+    if (password !== confirmPassword) return { field: 'confirmPassword', message: 'Le due password non coincidono.' };
     return null;
   }
 
@@ -75,28 +44,31 @@
     const submitBtn = form.querySelector('button[type="submit"]');
     const defaultLabel = submitBtn ? submitBtn.textContent : 'Registrati';
 
-    function showError(message, html, extra) {
+    function markField(field) {
+      Object.values(FIELD_IDS).forEach((id) => document.getElementById(id)?.removeAttribute('aria-invalid'));
+      const el = field && document.getElementById(FIELD_IDS[field] || field);
+      if (el) {
+        el.setAttribute('aria-invalid', 'true');
+        el.focus();
+      }
+    }
+
+    function showError(message, extra = {}) {
       if (!errorDiv) return;
       if (successDiv) successDiv.style.display = 'none';
-      if (html) {
-        errorDiv.className = 'auth-message auth-message--error auth-error-panel auth-error-panel--open';
-        errorDiv.innerHTML = message;
-        errorDiv.style.display = 'block';
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        return;
-      }
+      markField(extra.field);
       if (window.EvilAuthFeedback) {
         window.EvilAuthFeedback.showAuthError(errorDiv, {
           action: 'register',
           message,
-          status: extra?.status,
-          raw: extra?.raw,
-          hint: extra?.hint,
+          status: extra.status,
+          raw: extra.raw,
+          hint: extra.hint,
         });
       } else {
         errorDiv.textContent = message;
+        errorDiv.hidden = false;
         errorDiv.style.display = 'block';
-        errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
 
@@ -111,6 +83,10 @@
       if (successDiv) successDiv.style.display = 'none';
     }
 
+    Object.values(FIELD_IDS).forEach((id) => {
+      document.getElementById(id)?.addEventListener('input', (e) => e.target.removeAttribute('aria-invalid'));
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -123,15 +99,7 @@
 
       const clientError = validateClient(name, email, password, confirmPassword);
       if (clientError) {
-        showError(clientError, false);
-        return;
-      }
-
-      if (window.location.protocol === 'file:') {
-        showError(
-          'Apri il sito tramite il server Node (npm start) su http://localhost:5000 — non aprire il file HTML direttamente dal disco.',
-          false
-        );
+        showError(clientError.message, { status: 400, field: clientError.field });
         return;
       }
 
@@ -156,36 +124,27 @@
 
         clearTimeout(timeoutId);
 
-        let data;
+        let data = {};
         try {
           data = await response.json();
         } catch (_) {
-          throw new Error(
-            response.status === 0 || !response.ok
-              ? 'Risposta non valida dal server (avvia il server con npm start e apri la pagina da http://localhost:5000).'
-              : 'Risposta non valida dal server.'
-          );
+          const invalid = new Error('Il server non ha risposto correttamente. Riprova tra qualche istante.');
+          invalid.status = response.status;
+          throw invalid;
         }
 
         if (!response.ok) {
-          if (data.details && typeof data.details === 'string') {
-            showError(mapRegisterError(data.error) || 'Errore di registrazione', false, {
-              status: response.status,
-              raw: { error: data.error, details: data.details, smtpHint: data.smtpHint },
-              hint: data.smtpHint || 'Verifica SMTP su Render e /api/health/smtp?verify=1',
-            });
-            return;
-          }
-          if (data.details && Array.isArray(data.details)) {
-            const detailMessages = data.details
-              .map((d) => `• ${d.field || d.path || 'campo'}: ${d.message}`)
-              .join('<br>');
-            showError(`<strong>Errore di validazione:</strong><br>${detailMessages}`, true);
+          const first = Array.isArray(data.details) ? data.details[0] : null;
+          if (response.status === 409) {
+            showError(data.error || 'Questa email è già registrata. Prova ad accedere.', { status: 409, field: 'email' });
+          } else if (response.status === 429) {
+            showError('Troppi tentativi di registrazione da questa rete. Riprova tra un\'ora.', { status: 429 });
           } else {
-            showError(mapRegisterError(data.error) || 'Errore di registrazione', false, {
+            showError(data.error || 'Registrazione non riuscita.', {
               status: response.status,
+              field: first?.field,
               raw: data,
-              hint: 'Usa «Copia errore» e invialo al supporto.',
+              hint: response.status >= 500 ? 'Se il problema continua, scrivici dalla pagina Help.' : undefined,
             });
           }
           return;
@@ -193,30 +152,23 @@
 
         succeeded = true;
         if (submitBtn) submitBtn.textContent = 'Reindirizzamento…';
-        if (data.emailDelivery) {
-          sessionStorage.setItem('evil_email_delivery', data.emailDelivery);
-        }
-        if (data.emailHint) {
-          sessionStorage.setItem('evil_email_hint', data.emailHint);
-        }
-        sessionStorage.removeItem('evil_verify_link');
-        if (data.emailHint) {
-          sessionStorage.setItem('evil_email_hint', data.emailHint);
-        }
-        if (data.emailDelivery) {
-          sessionStorage.setItem('evil_email_delivery', data.emailDelivery);
-        }
+        try {
+          sessionStorage.removeItem('evil_verify_link');
+          if (data.emailHint) sessionStorage.setItem('evil_email_hint', data.emailHint);
+          if (data.emailDelivery) sessionStorage.setItem('evil_email_delivery', data.emailDelivery);
+        } catch { /* storage non disponibile */ }
         window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}&delivery=${encodeURIComponent(data.emailDelivery || 'pending')}`;
-        return;
       } catch (err) {
-        const msg =
+        const message =
           err.name === 'AbortError'
-            ? 'Il server non risponde (timeout). Su Render verifica SMTP e che il servizio Node sia attivo, non solo file statici.'
-            : err.message || 'impossibile contattare il server';
-        showError('Errore di connessione: ' + msg, false, {
+            ? 'Il server sta impiegando troppo a rispondere. Riprova tra qualche minuto.'
+            : err.status
+              ? err.message
+              : 'Connessione non riuscita. Controlla la rete e riprova.';
+        showError(message, {
           status: err.status,
           raw: err.stack || err.message,
-          hint: 'Verifica npm start e che la pagina sia su http://localhost:5000',
+          hint: 'Se il problema continua, scrivici dalla pagina Help.',
         });
       } finally {
         if (!succeeded && submitBtn) {

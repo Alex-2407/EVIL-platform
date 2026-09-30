@@ -12,7 +12,8 @@ const {
 
 // Lettere di qualunque alfabeto (accenti inclusi), spazi, apostrofi, punti e trattini: Nicolò, José, D'Alò, J. R.
 const NAME_REGEX = /^[\p{L}\p{M}][\p{L}\p{M}\s'’.-]*$/u;
-const PASSWORD_SPECIALS = /[@$!%*?&#^()\-_=+[\]{};:,.<>/\\|~`'"]/;
+// Qualunque simbolo che non sia lettera, cifra o spazio (prima solo @$!%*?& sul client)
+const PASSWORD_SPECIALS = /[^\p{L}\p{N}\s]/u;
 
 /** Utente ospite, solo con EVIL_TOOLS_PUBLIC=1 (test interni) */
 const GUEST_USER = { id: 'guest', name: 'Ospite', email: 'guest@evil.local' };
@@ -112,7 +113,7 @@ const validatePasswordStrength = (password) => {
     return { valid: false, reason: 'La password deve contenere almeno un numero.' };
   }
   if (!PASSWORD_SPECIALS.test(password)) {
-    return { valid: false, reason: 'La password deve contenere almeno un carattere speciale (per esempio ! ? @ # %).' };
+    return { valid: false, reason: 'La password deve contenere almeno un simbolo (per esempio ! ? @ # % . -).' };
   }
   return { valid: true };
 };

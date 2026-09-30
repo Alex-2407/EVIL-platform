@@ -30,9 +30,27 @@
     container.classList.remove('auth-error-panel--open');
   }
 
+  /**
+   * Errori dell'utente (password sbagliata, campo mancante, 4xx): solo una frase chiara.
+   * Errori del server o di rete: frase + dettaglio tecnico copiabile per il supporto.
+   */
+  function isUserError(opts) {
+    return typeof opts.status === 'number' && opts.status >= 400 && opts.status < 500;
+  }
+
   function showAuthError(container, opts) {
     if (!container) return;
     const message = opts.message || 'Errore sconosciuto';
+    if (isUserError(opts)) {
+      container.className = 'auth-message auth-message--error';
+      container.setAttribute('role', 'alert');
+      container.setAttribute('aria-live', 'assertive');
+      container.hidden = false;
+      container.textContent = message;
+      container.style.display = 'block';
+      container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return;
+    }
     const report = buildReport(opts);
     container.className = 'auth-message auth-message--error auth-error-panel auth-error-panel--open';
     container.setAttribute('role', 'alert');
@@ -47,6 +65,7 @@
       </details>
       <button type="button" class="auth-error-panel__copy">Copia errore</button>
     `;
+    container.hidden = false;
     container.style.display = 'block';
     const copyBtn = container.querySelector('.auth-error-panel__copy');
     copyBtn?.addEventListener('click', async () => {

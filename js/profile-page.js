@@ -45,18 +45,41 @@
     return rank;
   }
 
-  async function ensureSession() {
-    if (window.__evilAuthReady) await window.__evilAuthReady;
+  function goToLogin() {
+    window.location.replace('/login.html?redirect=profile.html');
+  }
 
-    let user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
-    if (!user && typeof syncUserFromServer === 'function') {
-      user = await syncUserFromServer();
+  /**
+   * Dati completi dell'account dal server (data di iscrizione, verifica email, sessioni).
+   * Prima la pagina usava la copia in localStorage, che ha solo id, nome ed email:
+   * un account verificato risultava "In attesa" e la data di iscrizione "—".
+   */
+  async function loadProfile() {
+    if (window.__evilAuthReady) await window.__evilAuthReady;
+    try {
+      const res = await fetch(`${API_URL}/auth/profile`, { credentials: 'include', cache: 'no-store' });
+      if (res.status === 401) {
+        goToLogin();
+        return null;
+      }
+      if (!res.ok) throw new Error(String(res.status));
+      const data = await res.json();
+      return data.user || null;
+    } catch {
+      // server non raggiungibile: si mostra quel che c'è in cache
+      const cached = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+      if (!cached) goToLogin();
+      return cached;
     }
-    if (!user) {
-      window.location.replace('/login.html?redirect=profile.html');
-      return null;
-    }
-    return user;
+  }
+
+  function initialsOf(name) {
+    if (typeof window.getInitials === 'function') return window.getInitials(name);
+    return String(name || 'U').trim().split(/\s+/).map((w) => w.charAt(0).toUpperCase()).join('').slice(0, 3) || 'U';
+  }
+
+  function escapeHtml(text) {
+    return String(text ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
   }
 
   function formatDate(iso) {
@@ -100,7 +123,7 @@
 
   function updateBanner(user, stats) {
     const name = user?.name || 'Operatore';
-    const initials = typeof getInitials === 'function' ? getInitials(name) : name.slice(0, 2).toUpperCase();
+    const initials = initialsOf(name);
 
     const titleEl = document.getElementById('profileDisplayName');
     const emailEl = document.getElementById('profileDisplayEmail');
@@ -135,7 +158,10 @@
       userNameDetail: user?.name,
       userEmailDetail: user?.email,
       userCreatedDetail: formatDate(user?.createdAt),
-      userVerifiedDetail: user?.emailVerified ? 'Verificata ✓' : 'In attesa'
+      userVerifiedDetail: user?.emailVerified === undefined ? '—' : user.emailVerified ? 'Verificata ✓' : 'Da verificare',
+      userSessionsDetail: Number.isFinite(user?.activeSessions)
+        ? `${user.activeSessions} ${user.activeSessions === 1 ? 'dispositivo' : 'dispositivi'}`
+        : '—'
     };
     Object.entries(map).forEach(([id, val]) => {
       const el = document.getElementById(id);
@@ -157,7 +183,7 @@
     if (!catalogCache.length) {
       grid.innerHTML = `
         <div class="profile-trophies__empty">
-          <p>Catalogo trofei non disponibile. Avvia il server e ricarica.</p>
+          <p>Non riusciamo a caricare i trofei in questo momento. Ricarica la pagina tra poco.</p>
           <a href="security-check.html" class="auth-submit auth-submit--link" style="display:inline-block;margin-top:16px;">Inizia con Check URL</a>
         </div>`;
       return;
@@ -209,18 +235,34 @@
     list.innerHTML = [...log].reverse().slice(0, 12).map((item, i) => `
       <div class="activity-feed__item" style="animation: profileReveal 0.5s ease ${i * 0.05}s forwards; opacity:0">
         <time class="activity-feed__time">${new Date(item.timestamp).toLocaleString('it-IT')}</time>
-        <span>${typeof getActivityLabel === 'function' ? getActivityLabel(item.name) : item.name}</span>
+        <span>${escapeHtml(typeof getActivityLabel === 'function' ? getActivityLabel(item.name) : item.name)}</span>
       </div>
     `).join('');
   }
 
   function bindTabs() {
-    document.querySelectorAll('.profile-trophy-tab').forEach((tab) => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.profile-trophy-tab').forEach((t) => t.classList.remove('is-active'));
-        tab.classList.add('is-active');
-        trophyFilter = tab.dataset.filter || 'all';
-        renderTrophies();
+    const tabs = [...document.querySelectorAll('.profile-trophy-tab[role="tab"]')];
+    const panel = document.getElementById('achievementsGrid');
+    function select(tab, focus) {
+      tabs.forEach((t) => {
+        const on = t === tab;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      if (panel) panel.setAttribute('aria-labelledby', tab.id);
+      if (focus) tab.focus();
+      trophyFilter = tab.dataset.filter || 'all';
+      renderTrophies();
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(tab, false));
+      // frecce sinistra/destra come nei tab nativi
+      tab.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+        e.preventDefault();
+        const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+        select(next, true);
       });
     });
   }
@@ -236,7 +278,7 @@
   }
 
   async function init() {
-    const user = await ensureSession();
+    const user = await loadProfile();
     if (!user) return;
 
     if (typeof loadUserProgress === 'function') await loadUserProgress();
