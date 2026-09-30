@@ -152,7 +152,7 @@ function createApp(ctx) {
       allowedHeaders: ['Content-Type', 'Authorization']
     })(req, res, next);
   });
-  app.use(express.json());
+  app.use(express.json({ limit: '256kb' }));
 
   pages.mountPageRoutes(app);
 

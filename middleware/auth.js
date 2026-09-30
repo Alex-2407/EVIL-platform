@@ -1,277 +1,196 @@
-// ==================== AUTHENTICATION MIDDLEWARE ====================
-// Secure JWT verification, password validation, and token management
+// ==================== AUTENTICAZIONE ====================
+// Middleware di autenticazione (creati con le dipendenze del server) e validazione
+// dei dati di registrazione e login.
 
-const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
+const {
+  getAccessTokenFromRequest,
+  getRefreshTokenFromCookie,
+  setAccessCookie,
+} = require('../utils/token-utils');
 
-// Password strength validation regex
-const PASSWORD_REGEX = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{12,}$/;
+// Lettere di qualunque alfabeto (accenti inclusi), spazi, apostrofi, punti e trattini: Nicolò, José, D'Alò, J. R.
+const NAME_REGEX = /^[\p{L}\p{M}][\p{L}\p{M}\s'’.-]*$/u;
+const PASSWORD_SPECIALS = /[@$!%*?&#^()\-_=+[\]{};:,.<>/\\|~`'"]/;
 
-/**
- * Middleware: Verify JWT Access Token
- * Returns 401 if token missing/invalid/expired
- */
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  let token = authHeader && authHeader.split(' ')[1];
+/** Utente ospite, solo con EVIL_TOOLS_PUBLIC=1 (test interni) */
+const GUEST_USER = { id: 'guest', name: 'Ospite', email: 'guest@evil.local' };
 
-  // httpOnly cookie (preferred) or legacy header
-  if (!token && req.cookies?.accessToken) {
-    token = req.cookies.accessToken;
-  }
-
-  if (!token) {
-    return res.status(401).json({ 
-      error: 'Access token required',
-      code: 'NO_TOKEN'
-    });
-  }
-
-  // CRITICAL: JWT_SECRET is mandatory - no fallback to weak defaults
-  if (!process.env.JWT_SECRET) {
-    console.error('❌ CRITICAL: JWT_SECRET environment variable not configured');
-    process.exit(1);
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      if (err.name === 'TokenExpiredError') {
-        return res.status(401).json({ 
-          error: 'Token expired',
-          code: 'TOKEN_EXPIRED'
-        });
-      }
-      return res.status(403).json({ 
-        error: 'Invalid token',
-        code: 'INVALID_TOKEN'
-      });
-    }
-
-    req.user = user;
-    next();
-  });
-};
-
-/** Utente guest solo se EVIL_TOOLS_PUBLIC=1 (modalità test) */
-const GUEST_USER = { id: 'guest', name: 'Guest', email: 'guest@evil.local' };
-
-/**
- * Auth strumenti: login obbligatorio salvo EVIL_TOOLS_PUBLIC=1 esplicito (solo dev/test).
- */
 function toolsArePublic() {
   const flag = process.env.EVIL_TOOLS_PUBLIC;
   return flag === '1' || flag === 'true';
 }
 
-const TOOLS_PUBLIC_ACCESS = toolsArePublic();
-
 /**
- * Imposta req.user se il cookie/header JWT è valido; non blocca gli ospiti.
+ * Crea i middleware di autenticazione.
+ * Se l'access token è scaduto ma il refresh token è valido, la sessione viene
+ * rinnovata in modo trasparente (nuovo cookie di accesso nella stessa risposta):
+ * l'utente non viene rimandato al login dopo un'ora di inattività.
  */
-const optionalAuthenticate = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  let token = authHeader && authHeader.split(' ')[1];
-  if (!token && req.cookies?.accessToken) {
-    token = req.cookies.accessToken;
-  }
-  if (!token || !process.env.JWT_SECRET) {
-    return next();
-  }
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (!err && user) req.user = user;
-    next();
-  });
-};
-
-const authenticateTools = (req, res, next) => {
-  const toolsPublic = toolsArePublic();
-
-  if (!toolsPublic) {
-    return authenticateToken(req, res, next);
-  }
-
-  const authHeader = req.headers['authorization'];
-  let token = authHeader && authHeader.split(' ')[1];
-  if (!token && req.cookies?.accessToken) {
-    token = req.cookies.accessToken;
+function createAuthMiddleware({ sessions }) {
+  async function resolveUser(req, res) {
+    const token = getAccessTokenFromRequest(req);
+    if (token) {
+      const verified = sessions.verifyAccess(token);
+      if (verified.payload) {
+        const user = sessions.userForAccess(verified.payload);
+        if (user) return { user, sid: verified.payload.sid };
+        // sessione chiusa (logout/reset): non si rinnova con il refresh dello stesso utente revocato
+      }
+    }
+    const refreshToken = getRefreshTokenFromCookie(req);
+    if (refreshToken) {
+      const refreshed = await sessions.refresh(refreshToken);
+      if (refreshed.user) {
+        setAccessCookie(res, refreshed.accessToken, refreshed.accessMs);
+        return { user: refreshed.user, sid: refreshed.sid, refreshed: true };
+      }
+      return { error: refreshed.error === 'expired' ? 'expired' : 'revoked' };
+    }
+    return { error: token ? 'expired' : 'missing' };
   }
 
-  if (!token || !process.env.JWT_SECRET) {
-    req.user = { ...GUEST_USER };
-    return next();
+  function attach(req, found) {
+    req.user = { id: found.user.id, email: found.user.email, name: found.user.name, sid: found.sid };
+    req.userRecord = found.user;
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    req.user = err ? { ...GUEST_USER } : user;
-    next();
-  });
-};
+  const authenticateToken = (req, res, next) => {
+    resolveUser(req, res)
+      .then((found) => {
+        if (!found.user) {
+          const code = found.error === 'missing' ? 'NO_TOKEN' : found.error === 'expired' ? 'TOKEN_EXPIRED' : 'SESSION_REVOKED';
+          const error =
+            found.error === 'missing' ? 'Accedi per continuare.' : 'Sessione scaduta: accedi di nuovo.';
+          return res.status(401).json({ error, code });
+        }
+        attach(req, found);
+        return next();
+      })
+      .catch(next);
+  };
+
+  const optionalAuthenticate = (req, res, next) => {
+    resolveUser(req, res)
+      .then((found) => {
+        if (found.user) attach(req, found);
+        next();
+      })
+      .catch(next);
+  };
+
+  const authenticateTools = (req, res, next) => {
+    if (!toolsArePublic()) return authenticateToken(req, res, next);
+    return optionalAuthenticate(req, res, (err) => {
+      if (err) return next(err);
+      if (!req.user) req.user = { ...GUEST_USER };
+      return next();
+    });
+  };
+
+  return { authenticateToken, optionalAuthenticate, authenticateTools, resolveUser };
+}
+
+// ---------------------------------------------------------------- password e validazione
 
 /**
- * Validate password strength
- * Requirements:
- * - Minimum 12 characters
- * - At least 1 uppercase letter
- * - At least 1 number
- * - At least 1 special character (@$!%*?&)
+ * Requisiti password: almeno 12 caratteri, una maiuscola, un numero e un carattere speciale.
+ * Messaggi in italiano, mostrati così come sono nell'interfaccia.
  */
 const validatePasswordStrength = (password) => {
-  if (!password || password.length < 12) {
-    return { valid: false, reason: 'Password must be at least 12 characters' };
+  if (typeof password !== 'string' || password.length < 12) {
+    return { valid: false, reason: 'La password deve avere almeno 12 caratteri.' };
+  }
+  if (password.length > 200) {
+    return { valid: false, reason: 'La password è troppo lunga (massimo 200 caratteri).' };
   }
   if (!/[A-Z]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one uppercase letter' };
+    return { valid: false, reason: 'La password deve contenere almeno una lettera maiuscola.' };
   }
   if (!/\d/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one number' };
+    return { valid: false, reason: 'La password deve contenere almeno un numero.' };
   }
-  if (!/[@$!%*?&]/.test(password)) {
-    return { valid: false, reason: 'Password must contain at least one special character (@$!%*?&)' };
+  if (!PASSWORD_SPECIALS.test(password)) {
+    return { valid: false, reason: 'La password deve contenere almeno un carattere speciale (per esempio ! ? @ # %).' };
   }
   return { valid: true };
 };
 
-/**
- * Validation chain for registration
- * - Name: 2-100 characters, no special chars
- * - Email: valid email format, normalized
- * - Password: strength check
- * -confirmPassword: matches password
- */
+function handleValidation(req, res, next) {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const details = errors.array().map((e) => ({ field: e.path || e.param, message: e.msg }));
+    return res.status(400).json({
+      error: details[0]?.message || 'Dati non validi.',
+      code: 'VALIDATION_FAILED',
+      details,
+    });
+  }
+  return next();
+}
+
 const validateRegister = [
   body('name')
+    .isString().withMessage('Inserisci il nome.')
+    .bail()
     .trim()
-    .isLength({ min: 2, max: 100 })
-    .withMessage('Name must be 2-100 characters')
-    .matches(/^[a-zA-Z\s'-]+$/)
-    .withMessage('Name contains invalid characters'),
-  
+    .isLength({ min: 2, max: 100 }).withMessage('Il nome deve avere tra 2 e 100 caratteri.')
+    .bail()
+    .matches(NAME_REGEX).withMessage('Il nome può contenere solo lettere (anche accentate), spazi, apostrofi, punti e trattini.'),
   body('email')
+    .isString().withMessage('Inserisci un indirizzo email.')
+    .bail()
     .trim()
-    .normalizeEmail()
-    .isEmail()
-    .withMessage('Invalid email format')
-    .isLength({ max: 255 })
-    .withMessage('Email too long'),
-  
-  body('password')
-    .custom((value) => {
-      const check = validatePasswordStrength(value);
-      if (!check.valid) throw new Error(check.reason);
-      return true;
-    }),
-  
-  body('confirmPassword')
-    .custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error('Passwords do not match');
-      }
-      return true;
-    }),
-
-  // Middleware to handle validation results
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.path || e.param, message: e.msg }))
-      });
-    }
-    next();
-  }
+    .isLength({ max: 254 }).withMessage('Indirizzo email troppo lungo.')
+    .bail()
+    .isEmail().withMessage('Indirizzo email non valido.')
+    .bail()
+    .customSanitizer((v) => String(v).toLowerCase()),
+  body('password').custom((value) => {
+    const check = validatePasswordStrength(value);
+    if (!check.valid) throw new Error(check.reason);
+    return true;
+  }),
+  body('confirmPassword').custom((value, { req }) => {
+    if (value !== req.body.password) throw new Error('Le password non coincidono.');
+    return true;
+  }),
+  handleValidation,
 ];
 
-/**
- * Validation chain for login
- * - Email: valid format, normalized
- * - Password: required
- */
 const validateLogin = [
   body('email')
+    .isString().withMessage('Inserisci un indirizzo email.')
+    .bail()
     .trim()
-    .normalizeEmail()
-    .isEmail()
-    .withMessage('Invalid email format'),
-  
+    .isEmail().withMessage('Indirizzo email non valido.')
+    .bail()
+    .customSanitizer((v) => String(v).toLowerCase()),
   body('password')
-    .notEmpty()
-    .withMessage('Password is required'),
-
-  // Middleware to handle validation results
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.path || e.param, message: e.msg }))
-      });
-    }
-    next();
-  }
+    .isString().withMessage('Inserisci la password.')
+    .bail()
+    .isLength({ min: 1, max: 200 }).withMessage('Inserisci la password.'),
+  handleValidation,
 ];
 
-/**
- * Validation chain for password reset
- */
-const validatePasswordReset = [
-  body('resetToken')
-    .notEmpty()
-    .withMessage('Reset token is required'),
-  
-  body('newPassword')
-    .custom((value) => {
-      const check = validatePasswordStrength(value);
-      if (!check.valid) throw new Error(check.reason);
-      return true;
-    }),
-  
-  body('confirmPassword')
-    .custom((value, { req }) => {
-      if (value !== req.body.newPassword) {
-        throw new Error('Passwords do not match');
-      }
-      return true;
-    }),
-
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ 
-        error: 'Validation failed',
-        details: errors.array().map(e => ({ field: e.path || e.param, message: e.msg }))
-      });
-    }
-    next();
-  }
-];
-
-/**
- * Hash password with bcrypt
- */
 const hashPassword = async (password) => {
-  const rounds = parseInt(process.env.BCRYPT_ROUNDS || 12);
-  return await bcrypt.hash(password, rounds);
+  const rounds = parseInt(process.env.BCRYPT_ROUNDS || 12, 10);
+  return bcrypt.hash(password, rounds);
 };
 
-/**
- * Verify password against bcrypt hash
- */
 const verifyPassword = async (plainPassword, hashedPassword) => {
-  return await bcrypt.compare(plainPassword, hashedPassword);
+  if (typeof plainPassword !== 'string' || typeof hashedPassword !== 'string') return false;
+  return bcrypt.compare(plainPassword, hashedPassword);
 };
 
 module.exports = {
-  authenticateToken,
-  optionalAuthenticate,
-  authenticateTools,
+  createAuthMiddleware,
   toolsArePublic,
-  TOOLS_PUBLIC_ACCESS: toolsArePublic(),
   validateRegister,
   validateLogin,
-  validatePasswordReset,
   validatePasswordStrength,
   hashPassword,
-  verifyPassword
+  verifyPassword,
+  NAME_REGEX,
 };

@@ -1,128 +1,69 @@
 'use strict';
-// Catalogo trofei e progressi (estratto da js/server.js)
+// Catalogo trofei e progressi utente
 const fs = require('fs');
-const path = require('path');
+const crypto = require('crypto');
 
 module.exports = function registerProgress(app, ctx) {
-  const { db, authenticateToken, resolveAchievementsFile, root } = ctx;
+  const { db, logger, authenticateToken, resolveAchievementsFile, normalizeProgress, mergeClientProgress } = ctx;
 
-  // ========================
-  // ENDPOINT PROGRESSI E TROFEI
-  // ========================
-
-  // Catalogo trofei (pubblico — nessun login richiesto)
-  function sendAchievementsCatalog(res) {
-    const achievementsFile = resolveAchievementsFile();
-    if (!fs.existsSync(achievementsFile)) {
-      return res.status(404).json({ error: 'Achievements database not found', path: achievementsFile });
-    }
-    const data = fs.readFileSync(achievementsFile, 'utf8');
-    res.setHeader('Cache-Control', 'no-cache');
-    return res.json(JSON.parse(data));
+  // Catalogo letto una volta e riletto solo se il file cambia
+  let cache = { mtimeMs: 0, body: null, etag: null, ids: new Set() };
+  function loadCatalog() {
+    const file = resolveAchievementsFile();
+    const stat = fs.statSync(file);
+    if (cache.body && cache.mtimeMs === stat.mtimeMs) return cache;
+    const body = fs.readFileSync(file, 'utf8');
+    const parsed = JSON.parse(body);
+    cache = {
+      mtimeMs: stat.mtimeMs,
+      body,
+      etag: `"${crypto.createHash('sha1').update(body).digest('hex').slice(0, 16)}"`,
+      ids: new Set((parsed.achievements || []).map((a) => a.id)),
+    };
+    return cache;
   }
 
-  app.get('/api/achievements', (req, res) => {
+  function sendAchievementsCatalog(req, res) {
     try {
-      sendAchievementsCatalog(res);
+      const catalog = loadCatalog();
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('ETag', catalog.etag);
+      if (req.headers['if-none-match'] === catalog.etag) return res.status(304).end();
+      res.type('application/json').send(catalog.body);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      logger.error('Achievements catalog error', { error: err.message });
+      res.status(500).json({ error: 'Catalogo trofei non disponibile' });
     }
-  });
+  }
 
-  app.get('/achievements.json', (req, res) => {
-    try {
-      sendAchievementsCatalog(res);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+  app.get('/api/achievements', sendAchievementsCatalog);
+  app.get('/achievements.json', sendAchievementsCatalog);
 
-  const defaultProgress = () => ({
-    totalScans: 0,
-    totalActivities: 0,
-    unlockedAchievements: [],
-    achievementMeta: {},
-    completedActivities: [],
-    activityLog: [],
-    lastUnlockedAchievement: null
-  });
-
-  // Salva i progressi dell'utente
-  app.post('/api/progress/save', authenticateToken, (req, res) => {
-    try {
-      const user = db.users.find(u => u.id === req.user.id);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Utente non trovato' });
-      }
-
-      user.progress = req.body;
-      user.progressUpdatedAt = new Date().toISOString();
-
-      db.save();
-
-      res.json({ status: 'success', message: 'Progressi salvati' });
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  // Carica i progressi dell'utente
   app.get('/api/progress/load', authenticateToken, (req, res) => {
-    try {
-      const user = db.users.find(u => u.id === req.user.id);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Utente non trovato' });
-      }
-
-      res.json(user.progress || defaultProgress());
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
+    const user = req.userRecord;
+    res.setHeader('Cache-Control', 'no-store');
+    res.json(normalizeProgress(user.progress));
   });
 
-  // Sblocca manualmente un trofeo (per testing)
-  app.post('/api/progress/unlock-achievement', authenticateToken, (req, res) => {
-    const { achievementId } = req.body;
-    if (!achievementId) {
-      return res.status(400).json({ error: 'Achievement ID mancante' });
-    }
-
+  // Il browser invia i propri progressi: vengono validati e fusi con quelli del server
+  // (i trofei devono esistere nel catalogo, i contatori non possono diminuire).
+  app.post('/api/progress/save', authenticateToken, async (req, res) => {
+    const user = req.userRecord;
     try {
-      const user = db.users.find(u => u.id === req.user.id);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Utente non trovato' });
+      let ids = null;
+      try {
+        ids = loadCatalog().ids;
+      } catch {
+        ids = null;
       }
-
-      if (!user.progress) {
-        user.progress = defaultProgress();
-      }
-      if (!user.progress.achievementMeta) user.progress.achievementMeta = {};
-      if (!user.progress.completedActivities) user.progress.completedActivities = [];
-
-      if (!user.progress.unlockedAchievements.includes(achievementId)) {
-        user.progress.unlockedAchievements.push(achievementId);
-        user.progress.achievementMeta[achievementId] = { unlockedAt: new Date().toISOString() };
-        user.progress.lastUnlockedAchievement = achievementId;
-        db.save();
-      }
-
-      let achievement = null;
-      const achievementsFile = path.join(root, 'achievements.json');
-      if (fs.existsSync(achievementsFile)) {
-        const db = JSON.parse(fs.readFileSync(achievementsFile, 'utf8'));
-        achievement = (db.achievements || []).find((a) => a.id === achievementId) || null;
-      }
-
-      res.json({
-        status: 'success',
-        unlockedAchievements: user.progress.unlockedAchievements,
-        achievement
-      });
+      user.progress = mergeClientProgress(user.progress, req.body, ids);
+      user.progressUpdatedAt = new Date().toISOString();
+      await db.save(user);
+      res.json({ status: 'success', message: 'Progressi salvati', progress: user.progress });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      if (err.status === 400) return res.status(400).json({ error: err.message });
+      logger.error('Progress save error', { error: err.message, userId: user.id });
+      res.status(500).json({ error: 'Impossibile salvare i progressi. Riprova.' });
     }
   });
 };

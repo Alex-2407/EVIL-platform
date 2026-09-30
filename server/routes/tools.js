@@ -6,7 +6,7 @@ const { assertPublicDestination, isBlockedError, blockedMessage } = require('../
 
 module.exports = function registerTools(app, ctx) {
   const {
-    db, logger, auditLog,
+    db, logger, auditLog, recordScan, normalizeProgress,
     authenticateTools, sanitizeUrl,
     scanLimiter, dnsLimiter, uploadLimiter,
     scanUpload, handleScanUploadError,
@@ -97,10 +97,10 @@ module.exports = function registerTools(app, ctx) {
         scanResult.userId = req.user.id;
         clearTimeout(scanTimeout);
 
-        const user = db.users.find(u => u.id === req.user.id);
+        const user = req.userRecord;
         if (user) {
-          user.progress.scans = (user.progress.scans || 0) + 1;
-          db.save();
+          recordScan(user, 'scan', { domain, grade: scanResult.grade });
+          await db.save(user).catch((err) => logger.warn('Progress save failed', { error: err.message }));
         }
 
         auditLog.security('SCAN_COMPLETED', { userId: req.user.id, domain, grade: scanResult.grade }, 'INFO');
@@ -313,20 +313,20 @@ module.exports = function registerTools(app, ctx) {
       result.scanDurationMs = Date.now() - started;
       result.timestamp = new Date().toISOString();
 
-      const user = db.users.find((u) => u.id === req.user?.id);
+      const user = req.userRecord;
       if (user) {
-        if (!user.progress) user.progress = { scans: 0, activities: 0, unlockedAchievements: [] };
-        user.progress.activities = (user.progress.activities || 0) + 1;
-        if (!user.uploadedFiles) user.uploadedFiles = [];
-        user.uploadedFiles.push({
-          originalName: req.file.originalname,
-          uploadedAt: result.timestamp,
-          sha256: result.hashes.sha256,
-          size: result.size,
-          verdict: result.verdict.code
-        });
-        if (user.uploadedFiles.length > 50) user.uploadedFiles = user.uploadedFiles.slice(-50);
-        db.save();
+        recordScan(user, 'file_scan', { verdict: result.verdict?.code });
+        user.uploadedFiles = [
+          ...(user.uploadedFiles || []),
+          {
+            originalName: String(req.file.originalname || '').slice(0, 120),
+            uploadedAt: result.timestamp,
+            sha256: result.hashes.sha256,
+            size: result.size,
+            verdict: result.verdict?.code,
+          },
+        ].slice(-50);
+        await db.save(user).catch((err) => logger.warn('Progress save failed', { error: err.message }));
       }
 
       auditLog.fileUpload(
@@ -358,135 +358,91 @@ module.exports = function registerTools(app, ctx) {
     handleFileScanRequest
   );
 
-  /**
-   * File Upload legacy — stesso motore sicuro in RAM (compatibilità UI vecchia)
-   */
-  app.post(
-    '/api/file-upload',
-    authenticateTools,
-    uploadLimiter,
-    scanUpload.single('file'),
-    handleScanUploadError,
-    handleFileScanRequest
-  );
 
   // ==================== REPORT GENERATOR ====================
+  const REPORT_FIELDS = {
+    title: 'Titolo',
+    target: 'Organizzazione',
+    severity: 'Severità',
+    author: 'Autore',
+    summary: 'Descrizione',
+    findings: 'Impatto',
+    systems: 'Sistemi coinvolti',
+    usersAffected: 'Utenti coinvolti',
+    recommendations: 'Raccomandazioni',
+  };
+
+  function cleanText(value, max = 4000) {
+    if (value == null) return '';
+    return String(value)
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '')
+      .trim()
+      .slice(0, max);
+  }
+
   app.post('/api/report-generator', authenticateTools, (req, res) => {
+    const user = req.userRecord || null;
+    const raw = req.body?.incident && typeof req.body.incident === 'object' ? req.body.incident : {};
+    const incident = {};
+    for (const key of Object.keys(REPORT_FIELDS)) {
+      incident[key] = cleanText(raw[key], key === 'title' || key === 'author' || key === 'target' ? 200 : 4000);
+    }
+
     try {
-      const user = db.users.find(u => u.id === req.user.id);
-      if (!user) {
-        return res.status(404).json({ error: 'Utente non trovato' });
-      }
-
-      const incident = req.body?.incident || null;
-
-      // Crea documento PDF
-      const doc = new PDFDocument({ bufferPages: true });
-      let buffers = [];
-    
-      doc.on('data', buffers.push.bind(buffers));
+      const doc = new PDFDocument({ size: 'A4', margin: 56, info: { Title: incident.title || 'Report EVIL', Author: incident.author || 'EVIL Platform' } });
+      const chunks = [];
+      doc.on('data', (c) => chunks.push(c));
+      doc.on('error', (err) => {
+        logger.error('PDF error', { error: err.message });
+        if (!res.headersSent) res.status(500).json({ error: 'Errore nella generazione del PDF.' });
+      });
       doc.on('end', () => {
-        const pdfBuffer = Buffer.concat(buffers);
-      
-        // Invia il PDF come risposta
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', 'attachment; filename="report.pdf"');
-        res.send(pdfBuffer);
+        res.setHeader('Content-Disposition', 'attachment; filename="report-evil.pdf"');
+        res.send(Buffer.concat(chunks));
       });
 
-      // Intestazione
-      doc.fontSize(24).font('Helvetica-Bold').text('EVIL Security Report', { align: 'center' });
-      doc.fontSize(10).fillColor('#666666').text(`Generated: ${new Date().toLocaleString()}`, { align: 'center' });
+      const now = new Date();
+      doc.font('Helvetica-Bold').fontSize(20).fillColor('#111111').text(incident.title || 'Report di sicurezza');
+      doc.moveDown(0.3);
+      doc.font('Helvetica').fontSize(10).fillColor('#555555')
+        .text(`Generato il ${now.toLocaleDateString('it-IT')} alle ${now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} con EVIL Platform`);
+      doc.moveDown(1);
+
+      const meta = [
+        ['Organizzazione', incident.target],
+        ['Severità', incident.severity],
+        ['Autore', incident.author || user?.name],
+      ].filter(([, v]) => v);
+      for (const [label, value] of meta) {
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#111111').text(`${label}: `, { continued: true });
+        doc.font('Helvetica').text(value);
+      }
+      if (meta.length) doc.moveDown(1);
+
+      for (const key of ['summary', 'findings', 'systems', 'usersAffected', 'recommendations']) {
+        if (!incident[key]) continue;
+        doc.font('Helvetica-Bold').fontSize(13).fillColor('#111111').text(REPORT_FIELDS[key]);
+        doc.moveDown(0.2);
+        doc.font('Helvetica').fontSize(10.5).fillColor('#222222').text(incident[key], { align: 'left' });
+        doc.moveDown(0.9);
+      }
+
+      if (user) {
+        const p = normalizeProgress(user.progress);
+        doc.moveDown(0.5);
+        doc.font('Helvetica-Bold').fontSize(11).fillColor('#111111').text('Attività su EVIL');
+        doc.font('Helvetica').fontSize(10).fillColor('#333333')
+          .text(`Scansioni completate: ${p.totalScans} · Attività: ${p.totalActivities} · Trofei sbloccati: ${p.unlockedAchievements.length}`);
+      }
+
       doc.moveDown(2);
-
-      // Informazioni utente
-      doc.fontSize(14).fillColor('#000000').font('Helvetica-Bold').text('User Information', { underline: true });
-      doc.fontSize(10).fillColor('#000000').font('Helvetica').text(`Username: ${user.nome || 'N/A'}`);
-      doc.text(`Email: ${user.email}`);
-      doc.text(`Account Created: ${new Date(user.createdAt || Date.now()).toLocaleDateString()}`);
-      doc.moveDown(1);
-
-      if (incident) {
-        doc.fontSize(14).font('Helvetica-Bold').text('Incident Report', { underline: true });
-        doc.fontSize(10).font('Helvetica');
-        if (incident.title) doc.text(`Title: ${incident.title}`);
-        if (incident.target) doc.text(`Target: ${incident.target}`);
-        if (incident.severity) doc.text(`Severity: ${incident.severity}`);
-        if (incident.summary) doc.text(`Summary: ${incident.summary}`);
-        if (incident.findings) doc.text(`Findings: ${incident.findings}`);
-        if (incident.author) doc.text(`Author: ${incident.author}`);
-        if (incident.systems) doc.text(`Systems: ${incident.systems}`);
-        if (incident.usersAffected) doc.text(`Users affected: ${incident.usersAffected}`);
-        doc.moveDown(1);
-      }
-
-      // Statistiche
-      doc.fontSize(14).font('Helvetica-Bold').text('Activity Statistics', { underline: true });
-      const activities = user.progress?.activities || 0;
-      const scans = user.progress?.scans || 0;
-      const files = user.uploadedFiles?.length || 0;
-    
-      doc.fontSize(10).font('Helvetica').text(`Total Activities: ${activities}`);
-      doc.text(`Scans Performed: ${scans}`);
-      doc.text(`Files Uploaded: ${files}`);
-      doc.moveDown(1);
-
-      // Lista file uploadi
-      if (user.uploadedFiles && user.uploadedFiles.length > 0) {
-        doc.fontSize(14).font('Helvetica-Bold').text('Uploaded Files', { underline: true });
-        doc.fontSize(9).font('Helvetica');
-
-        // Calcola larghezzhe colonne
-        const pageWidth = doc.page.width - 100;
-        const colWidth = pageWidth / 3;
-
-        // Intestazioni tabella
-        const y = doc.y;
-        doc.text('Filename', 50, y, { width: colWidth });
-        doc.text('MD5', 50 + colWidth, y, { width: colWidth });
-        doc.text('Upload Date', 50 + 2 * colWidth, y, { width: colWidth });
-        doc.moveTo(50, y + 15).lineTo(550, y + 15).stroke();
-        doc.moveDown(2);
-
-        // Righe file
-        user.uploadedFiles.slice(0, 10).forEach((file, index) => {
-          doc.fontSize(8);
-          const fileY = doc.y;
-          doc.text(file.filename.substring(0, 25), 50, fileY, { width: colWidth });
-          doc.text(file.md5.substring(0, 20) + '...', 50 + colWidth, fileY, { width: colWidth });
-          doc.text(new Date(file.uploadedAt).toLocaleDateString(), 50 + 2 * colWidth, fileY, { width: colWidth });
-          doc.moveDown(1.2);
-        });
-
-        if (user.uploadedFiles.length > 10) {
-          doc.fontSize(8).fillColor('#999999').text(`... and ${user.uploadedFiles.length - 10} more files`);
-        }
-        doc.moveDown(1);
-      }
-
-      // Achievement summary
-      if (user.progress?.unlockedAchievements && user.progress.unlockedAchievements.length > 0) {
-        doc.fontSize(14).font('Helvetica-Bold').fillColor('#000000').text('Unlocked Achievements', { underline: true });
-        doc.fontSize(10).font('Helvetica');
-      
-        user.progress.unlockedAchievements.slice(0, 5).forEach(achievement => {
-          doc.text(`✓ ${achievement.name || achievement.id}`);
-        });
-      
-        if (user.progress.unlockedAchievements.length > 5) {
-          doc.fontSize(9).fillColor('#999999').text(`... and ${user.progress.unlockedAchievements.length - 5} more achievements`);
-        }
-        doc.moveDown(1);
-      }
-
-      // Footer
-      doc.fontSize(8).fillColor('#999999');
-      doc.text(`\nThis report contains confidential information about user activity.`, { align: 'center' });
-      doc.text(`EVIL Cybersecurity Platform - ${new Date().getFullYear()}`, { align: 'center' });
-
+      doc.font('Helvetica').fontSize(8).fillColor('#777777')
+        .text('Documento generato a scopo didattico e professionale. Verificare i contenuti prima della diffusione.', { align: 'center' });
       doc.end();
     } catch (err) {
-      res.status(500).json({ error: 'Errore generazione report: ' + err.message });
+      logger.error('Report generator error', { error: err.message });
+      if (!res.headersSent) res.status(500).json({ error: 'Errore nella generazione del PDF.' });
     }
   });
 };

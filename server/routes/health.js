@@ -1,5 +1,18 @@
 'use strict';
-// Health check e diagnostica deploy (estratto da js/server.js)
+// Health check e diagnostica deploy
+const crypto = require('crypto');
+
+/**
+ * La diagnostica email espone host SMTP, mittente e percorsi del server: in produzione
+ * risponde solo con ?key=<DIAGNOSTICS_TOKEN> (se il token non è impostato, è disattivata).
+ */
+function diagnosticsAllowed(req) {
+  if (process.env.NODE_ENV !== 'production') return true;
+  const expected = process.env.DIAGNOSTICS_TOKEN || '';
+  const given = typeof req.query.key === 'string' ? req.query.key : '';
+  if (!expected || expected.length < 16 || given.length !== expected.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(given), Buffer.from(expected));
+}
 
 function registerHealth(app) {
   // Health checks (Railway/Render/load balancer)
@@ -29,6 +42,7 @@ function registerDiagnostics(app, ctx) {
   });
 
   app.get('/api/health/smtp', async (req, res) => {
+    if (!diagnosticsAllowed(req)) return res.status(404).json({ error: 'Non trovato' });
     try {
       const configured = emailService.isConfigured();
       const transport = emailService.getEmailTransport
@@ -65,6 +79,7 @@ function registerDiagnostics(app, ctx) {
         mode: emailService.resolveDeliveryMode(),
         from: emailService.fromEmail,
         baseUrl: process.env.BASE_URL || emailService.baseUrl,
+        storage: db.kind,
         usersFile: db.usersFile,
         dataDir: db.dataDir,
         emailDevOutbox: process.env.EMAIL_DEV_OUTBOX !== '0',

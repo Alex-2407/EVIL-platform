@@ -1,8 +1,13 @@
 'use strict';
-// Dipendenze condivise dalle route (estratto da js/server.js)
+/**
+ * Dipendenze condivise dalle route. È asincrono perché l'archivio utenti
+ * può essere un database (Postgres) da aprire prima di accettare richieste.
+ */
 const config = require('./config');
-const db = require('./lib/users-db');
 const pages = require('./pages');
+const { openUserStore } = require('./lib/user-store');
+const { createSessionManager } = require('./lib/sessions');
+const { defaultProgress, normalizeProgress, mergeClientProgress, recordScan } = require('./lib/progress');
 
 const { runUrlScan } = require('../services/tools/url-scanner-service');
 const { runHttpHeaderAudit } = require('../services/tools/http-header-audit-service');
@@ -15,67 +20,82 @@ const { runSocialProfiling } = require('../services/tools/social-profiling-servi
 const { runPublicInfoPersonSearch, runPublicInfoDomainSearch } = require('../services/tools/public-info-service');
 const { runPublicInfoRegistrySearch, runPublicInfoPersonDetail } = require('../services/tools/public-info-registry-service');
 const { scanUpload, handleScanUploadError } = require('../middleware/file-scanner-upload');
-const { setTokenCookies, clearAuthCookies, getRefreshTokenFromCookie } = require('../utils/token-utils');
+const tokenUtils = require('../utils/token-utils');
 const {
-  authenticateToken,
-  optionalAuthenticate,
-  authenticateTools,
+  createAuthMiddleware,
   validateRegister,
   validateLogin,
   verifyPassword,
+  hashPassword,
   validatePasswordStrength,
 } = require('../middleware/auth');
-const { sanitizeString, sanitizeUrl, assertSafePublicUrl } = require('../middleware/sanitization');
+const { sanitizeString, sanitizeUrl } = require('../middleware/sanitization');
 const limiters = require('../middleware/limiter');
-const tokenManager = require('../services/token-manager');
 const emailService = require('../services/email-service');
 const incidentsService = require('../services/incidents-service');
 const virtualLabService = require('../services/virtual-lab-service');
 const { logger, auditLog } = require('../middleware/logger');
 
-const ctx = {
-  ...config,
-  db,
-  root: pages.root,
-  resolveAchievementsFile: pages.resolveAchievementsFile,
-  logger,
-  auditLog,
-  emailService,
-  tokenManager,
-  incidentsService,
-  virtualLabService,
-  authenticateToken,
-  optionalAuthenticate,
-  authenticateTools,
-  validateRegister,
-  validateLogin,
-  verifyPassword,
-  validatePasswordStrength,
-  sanitizeString,
-  sanitizeUrl,
-  assertSafePublicUrl,
-  setTokenCookies,
-  clearAuthCookies,
-  getRefreshTokenFromCookie,
-  scanUpload,
-  handleScanUploadError,
-  ...limiters,
-  tools: {
-    runUrlScan,
-    runHttpHeaderAudit,
-    runDnsEnumeration,
-    runWhoisLookup,
-    runSubdomainFinder,
-    runSslAnalysis,
-    runFileScan,
-    runSocialProfiling,
-    runPublicInfoPersonSearch,
-    runPublicInfoDomainSearch,
-    runPublicInfoRegistrySearch,
-    runPublicInfoPersonDetail,
-  },
-};
+/**
+ * @param {object} [overrides] sostituzioni per i test (per esempio store o emailService)
+ */
+async function buildContext(overrides = {}) {
+  const db = overrides.db || (await openUserStore({ root: pages.root }));
+  const sessions = createSessionManager({
+    store: db,
+    accessSecret: config.JWT_SECRET,
+    refreshSecret: config.JWT_SECRET_REFRESH,
+    accessTtl: config.ACCESS_TOKEN_EXPIRY,
+    refreshTtl: config.REFRESH_TOKEN_EXPIRY,
+  });
+  const auth = createAuthMiddleware({ sessions });
 
-ctx.incidents = require('./routes/incidents')(ctx);
+  const ctx = {
+    ...config,
+    db,
+    sessions,
+    root: pages.root,
+    resolveAchievementsFile: pages.resolveAchievementsFile,
+    logger,
+    auditLog,
+    emailService,
+    incidentsService,
+    virtualLabService,
+    ...auth,
+    validateRegister,
+    validateLogin,
+    verifyPassword,
+    hashPassword,
+    validatePasswordStrength,
+    sanitizeString,
+    sanitizeUrl,
+    ...tokenUtils,
+    scanUpload,
+    handleScanUploadError,
+    defaultProgress,
+    normalizeProgress,
+    mergeClientProgress,
+    recordScan,
+    ...limiters,
+    tools: {
+      runUrlScan,
+      runHttpHeaderAudit,
+      runDnsEnumeration,
+      runWhoisLookup,
+      runSubdomainFinder,
+      runSslAnalysis,
+      runFileScan,
+      runSocialProfiling,
+      runPublicInfoPersonSearch,
+      runPublicInfoDomainSearch,
+      runPublicInfoRegistrySearch,
+      runPublicInfoPersonDetail,
+    },
+    ...overrides,
+  };
 
-module.exports = ctx;
+  ctx.incidents = overrides.incidents || require('./routes/incidents')(ctx);
+  return ctx;
+}
+
+module.exports = { buildContext };
