@@ -535,3 +535,18 @@
     transition: none;
   }
 }
+
+/* Campo trappola per i bot: fuori schermo, non raggiungibile da tastiera */
+.help-form__trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.help-form__field input[aria-invalid="true"],
+.help-form__field textarea[aria-invalid="true"] {
+  border-color: #f87171;
+  box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
+}

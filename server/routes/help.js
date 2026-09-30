@@ -1,64 +1,100 @@
 'use strict';
-// Modulo supporto (estratto da js/server.js)
+/**
+ * Modulo di supporto (help.html).
+ *
+ * - la richiesta va sempre e solo all'indirizzo dello staff (HELP_SUPPORT_EMAIL),
+ *   con Reply-To sull'indirizzo indicato dall'utente
+ * - l'email di conferma parte solo se chi scrive ha fatto l'accesso e l'indirizzo
+ *   del modulo è quello verificato del suo account: il modulo non può più essere
+ *   usato per inviare email a indirizzi di terzi (EVL-08)
+ * - limite per IP (helpLimiter) e campo trappola per i bot
+ */
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function clean(value, max) {
+  return String(value ?? '').replace(/\r\n?/g, '\n').trim().slice(0, max + 1);
+}
 
 module.exports = function registerHelp(app, ctx) {
-  const { helpLimiter, emailService, logger } = ctx;
+  const { helpLimiter, optionalAuthenticate, emailService, logger } = ctx;
 
-  // Modulo Help — invio richieste supporto via email
-  app.post('/api/help', helpLimiter, async (req, res) => {
+  app.post('/api/help', helpLimiter, optionalAuthenticate, async (req, res) => {
     try {
-      const name = String(req.body?.name || '').trim();
-      const email = String(req.body?.email || '').trim().toLowerCase();
-      const subject = String(req.body?.subject || '').trim();
-      const message = String(req.body?.message || '').trim();
-      const page = String(req.body?.page || req.get('Referer') || '').trim().slice(0, 500);
-
-      if (name.length < 2 || name.length > 100) {
-        return res.status(400).json({ error: 'Nome non valido (minimo 2 caratteri).' });
-      }
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-        return res.status(400).json({ error: 'Indirizzo email non valido.' });
-      }
-      if (subject.length < 3 || subject.length > 120) {
-        return res.status(400).json({ error: 'Oggetto non valido (3–120 caratteri).' });
-      }
-      if (message.length < 10 || message.length > 4000) {
-        return res.status(400).json({ error: 'Messaggio non valido (10–4000 caratteri).' });
-      }
-
-      if (!emailService.isConfigured()) {
-        return res.status(503).json({
-          error: 'Servizio email non configurato sul server.',
-          hint: 'Configura MAILTRAP_API_TOKEN o SMTP in produzione.',
+      const body = req.body || {};
+      // Campo nascosto: le persone non lo vedono, molti bot lo compilano
+      if (clean(body.website, 200)) {
+        logger.warn('Help form: campo trappola compilato', { event: 'HELP_HONEYPOT', ip: req.ip });
+        return res.json({
+          status: 'success',
+          message: 'Richiesta inviata. Ti risponderemo entro 2–5 giorni lavorativi.',
+          confirmationSent: false,
         });
       }
 
-      const result = await emailService.sendHelpRequest({ name, email, subject, message, page });
+      const name = clean(body.name, 100).replace(/\s+/g, ' ');
+      const email = clean(body.email, 254).toLowerCase();
+      const subject = clean(body.subject, 120).replace(/\s+/g, ' ');
+      const message = clean(body.message, 4000);
+      const page = clean(body.page || req.get('Referer') || '', 500);
+
+      if (name.length < 2 || name.length > 100) {
+        return res.status(400).json({ error: 'Scrivi il tuo nome (da 2 a 100 caratteri).', field: 'name' });
+      }
+      if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
+        return res.status(400).json({ error: 'Controlla l\'indirizzo email: serve per risponderti.', field: 'email' });
+      }
+      if (subject.length < 3 || subject.length > 120) {
+        return res.status(400).json({ error: 'L\'oggetto deve avere da 3 a 120 caratteri.', field: 'subject' });
+      }
+      if (message.length < 10 || message.length > 4000) {
+        return res.status(400).json({ error: 'Il messaggio deve avere da 10 a 4000 caratteri.', field: 'message' });
+      }
+
+      if (!emailService.isConfigured() && !emailService.outboxAllowed()) {
+        logger.error('Help form: email non configurata sul server');
+        return res.status(503).json({
+          error: 'Il modulo di supporto non è disponibile in questo momento. Riprova più tardi.',
+        });
+      }
+
+      const user = req.userRecord || null;
+      const ownsAddress = Boolean(user && user.emailVerified && String(user.email).toLowerCase() === email);
+
+      const result = await emailService.sendHelpRequest({
+        name,
+        email,
+        subject,
+        message,
+        page,
+        account: user ? { id: user.id, verified: Boolean(user.emailVerified) } : null,
+        confirmTo: ownsAddress ? user.email : null,
+        confirmName: ownsAddress ? user.name : null,
+      });
+
       if (!result.success) {
+        logger.error('Help form: invio non riuscito', { error: result.error });
         return res.status(502).json({
-          error: result.error || 'Invio email non riuscito.',
-          hint: result.hint || null,
+          error: 'Non siamo riusciti a inviare la richiesta. Riprova tra qualche minuto.',
         });
       }
 
       logger.info('Help request sent', {
         event: 'HELP_REQUEST',
-        email,
-        subject,
+        userId: user?.id || null,
         page,
         confirmationSent: result.confirmationSent,
         ip: req.ip,
       });
 
-      res.json({
+      return res.json({
         status: 'success',
-        message: 'Richiesta inviata. Il team ti risponderà entro 2–5 giorni lavorativi.',
+        message: `Richiesta inviata. Ti risponderemo a ${email} entro 2–5 giorni lavorativi.`,
         confirmationSent: Boolean(result.confirmationSent),
-        hint: result.hint || result.confirmationHint || null,
       });
     } catch (err) {
       logger.error('Help form error', { error: err.message });
-      res.status(500).json({ error: 'Errore interno durante l\'invio della richiesta.' });
+      return res.status(500).json({ error: 'Errore interno durante l\'invio della richiesta. Riprova.' });
     }
   });
 };

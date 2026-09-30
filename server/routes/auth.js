@@ -14,6 +14,7 @@
  */
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const { isDevelopment } = require('../../utils/env');
 
 const VERIFY_EXPIRY_MS = () => parseInt(process.env.EMAIL_VERIFY_EXPIRY_MS || `${24 * 60 * 60 * 1000}`, 10);
 const RESET_EXPIRY_MS = () => parseInt(process.env.PASSWORD_RESET_EXPIRY_MS || `${15 * 60 * 1000}`, 10);
@@ -127,7 +128,7 @@ module.exports = function registerAuth(app, ctx) {
         emailDelivery: emailResult.delivery || 'smtp',
         emailHint: emailResult.hint || 'Se non vedi l\'email, controlla la cartella spam.',
       };
-      if (process.env.NODE_ENV === 'development' && process.env.EMAIL_EXPOSE_VERIFY_LINK === '1' && emailResult.actionLink) {
+      if (isDevelopment() && process.env.EMAIL_EXPOSE_VERIFY_LINK === '1' && emailResult.actionLink) {
         payload.devVerificationLink = emailResult.actionLink;
       }
       return res.status(201).json(payload);
@@ -379,8 +380,8 @@ module.exports = function registerAuth(app, ctx) {
         emailDelivery: result.delivery,
         emailHint: result.hint || '',
       };
-      if (process.env.NODE_ENV === 'development' && result.verificationLink) {
-        payload.devVerificationLink = result.verificationLink;
+      if (isDevelopment() && process.env.EMAIL_EXPOSE_VERIFY_LINK === '1' && result.actionLink) {
+        payload.devVerificationLink = result.actionLink;
       }
       return res.json(payload);
     } catch (err) {

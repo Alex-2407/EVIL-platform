@@ -1,6 +1,11 @@
 /**
- * Email Service — verifica account via link
- * SMTP reale, Mailtrap Sandbox (solo inbox Mailtrap) o outbox locale in sviluppo
+ * Email Service — verifica account, reset password, modulo di supporto.
+ *
+ * Tutti gli invii passano da deliver():
+ * - API HTTPS di Mailtrap se configurata (Render free blocca le porte SMTP)
+ * - altrimenti SMTP (Mailtrap Sandbox/Live, Gmail, ...)
+ * - solo con NODE_ENV=development, se l'invio non è possibile il messaggio viene
+ *   salvato come file HTML in EMAIL_OUTBOX_DIR (mai in produzione)
  */
 
 const fs = require('fs');
@@ -9,6 +14,7 @@ const nodemailer = require('nodemailer');
 const axios = require('axios');
 const crypto = require('crypto');
 const { logger } = require('../middleware/logger');
+const { isDevelopment, isTest } = require('../utils/env');
 
 const MAILTRAP_SEND_API = 'https://send.api.mailtrap.io/api/send';
 
@@ -18,8 +24,22 @@ const SMTP_PLACEHOLDERS = new Set([
   'your_mailtrap_password',
   'your_username',
   'your_password',
-  'changeme'
+  'changeme',
+  'incolla_username_da_mailtrap_sandboxes',
+  'incolla_password_da_mailtrap_sandboxes'
 ]);
+
+/** Nei log basta riconoscere il destinatario, non serve l'indirizzo completo. */
+function maskEmail(email) {
+  const [local = '', domain = ''] = String(email || '').split('@');
+  if (!domain) return '***';
+  return `${local.slice(0, 2)}***@${domain}`;
+}
+
+/** Oggetto e intestazioni su una sola riga. */
+function oneLine(value, max = 200) {
+  return String(value ?? '').replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim().slice(0, max);
+}
 
 class EmailService {
   constructor() {
@@ -106,7 +126,7 @@ class EmailService {
     return this.useMailtrapApi() ? 'mailtrap_api' : 'smtp';
   }
 
-  async sendViaMailtrapApi({ to, subject, text, html }) {
+  async sendViaMailtrapApi({ to, subject, text, html, replyTo = null, category = 'Account' }) {
     const token = this.getMailtrapApiToken();
     if (!token) {
       return { success: false, error: 'MAILTRAP_API_TOKEN mancante (token Sending Mailtrap).' };
@@ -116,11 +136,12 @@ class EmailService {
     const payload = {
       from: { email: fromEmail, name: 'EVIL Platform' },
       to: [{ email: to }],
-      subject,
+      subject: oneLine(subject),
       text,
       html,
-      category: 'Account',
+      category,
     };
+    if (replyTo) payload.headers = { 'Reply-To': oneLine(replyTo, 254) };
 
     try {
       const res = await axios.post(
@@ -137,14 +158,15 @@ class EmailService {
         }
       );
       logger.info('Email inviata via Mailtrap API', {
-        recipient: to,
+        recipient: maskEmail(to),
+        category,
         status: res.status,
       });
       return {
         success: true,
         delivery: 'mailtrap_api',
         messageId: res.data?.message_ids?.[0] || res.data?.message_id || null,
-        hint: 'Email inviata via API Mailtrap (HTTPS). Controlla inbox e spam.',
+        hint: this.getDeliveryHint('mailtrap_api'),
       };
     } catch (err) {
       const detail =
@@ -154,7 +176,8 @@ class EmailService {
       logger.error('Errore Mailtrap API', {
         error: detail,
         status: err.response?.status,
-        recipient: to,
+        recipient: maskEmail(to),
+        category,
       });
       return {
         success: false,
@@ -163,20 +186,108 @@ class EmailService {
     }
   }
 
-  async sendVerificationEmail(email, token, name = 'Utente') {
-    const verificationLink = this.buildVerificationLink(token);
-    const mail = this.buildVerificationMail(name, verificationLink);
+  /**
+   * Unico punto di invio. Restituisce sempre { success, delivery, hint, ... } senza lanciare.
+   * @param {object} opts
+   * @param {string} opts.to destinatario
+   * @param {{subject,text,html,attachments?}} opts.mail messaggio già costruito
+   * @param {string} [opts.replyTo] indirizzo per le risposte (modulo di supporto)
+   * @param {string} [opts.category] categoria Mailtrap (Account, Support, ...)
+   * @param {string} [opts.label] descrizione per log ed errori
+   * @param {number} [opts.timeoutMs] timeout SMTP (default SMTP_SEND_TIMEOUT_MS)
+   * @param {object} [opts.outbox] anteprima da salvare in sviluppo:
+   *   { actionLink, buildMail: () => mail con logo incorporato, titleLabel, buttonLabel }
+   */
+  async deliver({ to, mail, replyTo = null, category = 'Account', label = 'Invio email', timeoutMs, outbox = null }) {
+    const saveToOutbox = (reason) => {
+      if (!this.outboxAllowed()) return null;
+      const result = this.writeOutboxPreview({
+        email: to,
+        actionLink: outbox?.actionLink || '#',
+        mail: outbox?.buildMail ? outbox.buildMail() : mail,
+        titleLabel: outbox?.titleLabel || label,
+        buttonLabel: outbox?.buttonLabel || 'Anteprima',
+      });
+      if (result.success && reason) result.sendError = reason;
+      return result.success ? result : null;
+    };
+
+    if (!this.isConfigured()) {
+      return (
+        saveToOutbox(null) || {
+          success: false,
+          error: 'Email non configurata: imposta MAILTRAP_API_TOKEN (produzione) oppure SMTP_USER e SMTP_PASS.',
+        }
+      );
+    }
 
     if (this.useMailtrapApi()) {
-      return this.sendViaMailtrapApi({
-        to: email,
+      const result = await this.sendViaMailtrapApi({
+        to,
         subject: mail.subject,
         text: mail.text,
         html: mail.html,
+        replyTo,
+        category,
       });
+      if (result.success) return result;
+      return saveToOutbox(result.error) || result;
     }
 
-    return this.sendVerificationEmailSmtp(email, mail);
+    const ms = timeoutMs || this.smtpSendTimeoutMs;
+    const dedicated = ms !== this.smtpSendTimeoutMs;
+    const transport = dedicated ? this.createSmtpTransporter(ms) : this.transporter;
+    try {
+      const info = await this.withTimeout(
+        transport.sendMail({
+          from: this.fromEmail,
+          to,
+          replyTo: replyTo ? oneLine(replyTo, 254) : undefined,
+          subject: oneLine(mail.subject),
+          text: mail.text,
+          html: mail.html,
+          attachments: mail.attachments || [],
+        }),
+        ms,
+        label
+      );
+      const delivery = this.resolveDeliveryMode();
+      logger.info('Email inviata via SMTP', { recipient: maskEmail(to), category, delivery });
+      return {
+        success: true,
+        delivery,
+        messageId: info.messageId,
+        hint: this.getDeliveryHint(delivery),
+      };
+    } catch (err) {
+      logger.error('Errore invio SMTP', { error: err.message, recipient: maskEmail(to), category, host: this.smtpHost });
+      return saveToOutbox(err.message) || { success: false, error: err.message };
+    } finally {
+      if (dedicated && transport?.close) {
+        try {
+          transport.close();
+        } catch (_) {
+          /* ignore */
+        }
+      }
+    }
+  }
+
+  async sendVerificationEmail(email, token, name = 'Utente') {
+    const verificationLink = this.buildVerificationLink(token);
+    return this.deliver({
+      to: email,
+      mail: this.buildVerificationMail(name, verificationLink),
+      category: 'Account',
+      label: 'Invio email di verifica',
+      timeoutMs: this.registerSmtpTimeoutMs,
+      outbox: {
+        actionLink: verificationLink,
+        buildMail: () => this.buildVerificationMail(name, verificationLink, { embedLogo: true }),
+        titleLabel: 'verifica',
+        buttonLabel: 'Apri link di verifica',
+      },
+    });
   }
 
   resolveSmtpAuth() {
@@ -267,17 +378,15 @@ class EmailService {
     return 'smtp';
   }
 
+  /** Frase mostrata all'utente dopo l'invio: tecnica solo in sviluppo. */
   getDeliveryHint(delivery) {
     if (delivery === 'sandbox') {
-      return 'Email catturata da Mailtrap Sandbox: apri https://mailtrap.io/sandboxes (non arriva nella tua casella Gmail/Outlook).';
+      return 'Sviluppo: l\'email è nella Sandbox di Mailtrap (https://mailtrap.io/sandboxes), non nella tua casella.';
     }
     if (delivery === 'outbox') {
-      return 'SMTP non configurato: il messaggio è salvato in data/email-outbox sul PC.';
+      return `Sviluppo: email non inviata, salvata come file in ${this.outboxDir}.`;
     }
-    if (delivery === 'live' || delivery === 'smtp') {
-      return 'Email inviata via SMTP: controlla la inbox (e la cartella spam).';
-    }
-    return '';
+    return 'Se non la vedi entro qualche minuto, controlla la cartella spam o promozioni.';
   }
 
   generateVerificationToken() {
@@ -615,119 +724,21 @@ class EmailService {
     }
   }
 
+  /** Anteprime su file solo in sviluppo/test, mai in produzione (contengono link di accesso). */
   outboxAllowed() {
-    return process.env.EMAIL_DEV_OUTBOX !== '0';
+    return (isDevelopment() || isTest()) && process.env.EMAIL_DEV_OUTBOX !== '0';
   }
 
-  async sendVerificationEmailSmtp(email, mail) {
-    const isDev = process.env.NODE_ENV !== 'production';
-    const allowDevOutbox = isDev && this.outboxAllowed();
-
-    if (!this.isConfigured()) {
-      return {
-        success: false,
-        error:
-          'SMTP non configurato. Imposta credenziali SMTP oppure MAILTRAP_API_TOKEN su Render.',
-      };
-    }
-
-    const transport = this.createSmtpTransporter(this.registerSmtpTimeoutMs);
-
-    try {
-      const info = await this.withTimeout(
-        transport.sendMail({
-          from: this.fromEmail,
-          to: email,
-          subject: mail.subject,
-          text: mail.text,
-          html: mail.html,
-          attachments: mail.attachments || [],
-        }),
-        this.registerSmtpTimeoutMs,
-        'Invio email verifica'
-      );
-      const delivery = this.resolveDeliveryMode();
-      return {
-        success: true,
-        delivery,
-        messageId: info.messageId,
-        hint: this.getDeliveryHint(delivery),
-      };
-    } catch (err) {
-      if (allowDevOutbox) {
-        const verificationLink = mail.html?.match(/href="([^"]+verify-email[^"]+)"/)?.[1];
-        if (verificationLink) {
-          return this.sendViaOutbox(email, 'Utente', verificationLink);
-        }
-      }
-      return { success: false, error: err.message };
-    } finally {
-      if (transport.close) {
-        try {
-          transport.close();
-        } catch (_) {
-          /* ignore */
-        }
-      }
-    }
-  }
-
-  /** Registrazione: email obbligatoria (API Mailtrap su Render, SMTP in locale). */
+  /** Registrazione e reinvio: senza email di verifica l'account non si crea. */
   async sendRegistrationVerification(email, token, name = 'Utente') {
-    if (!this.isConfigured()) {
-      return {
-        success: false,
-        error:
-          'Email non configurata. Su Render: MAILTRAP_API_TOKEN + EMAIL_USE_MAILTRAP_API=1 (il piano free blocca SMTP).',
-      };
+    if (this.outboxAllowed() && process.env.EMAIL_REGISTER_SKIP_SMTP === '1') {
+      return this.sendViaOutbox(email, name, this.buildVerificationLink(token));
     }
-
-    const isDev = process.env.NODE_ENV !== 'production';
-    if (isDev && this.outboxAllowed() && process.env.EMAIL_REGISTER_SKIP_SMTP === '1') {
-      const link = this.buildVerificationLink(token);
-      return this.sendViaOutbox(email, name, link);
-    }
-
     return this.sendVerificationEmail(email, token, name);
   }
 
   async sendVerificationLink(email, token, name = 'Utente') {
     return this.sendRegistrationVerification(email, token, name);
-  }
-
-  /**
-   * Genera un codice di verifica di 6 cifre (legacy)
-   */
-  generateVerificationCode() {
-    return crypto.randomInt(100000, 1000000).toString();
-  }
-
-  validateSmtpConfig() {
-    if (!this.isConfigured()) {
-      return { success: false, error: 'SMTP non configurato' };
-    }
-    return { success: true };
-  }
-
-  async sendVerificationCode(email, code, name = 'Utente') {
-    const configCheck = this.validateSmtpConfig();
-    if (!configCheck.success) return configCheck;
-
-    const safeName = this.escapeHtml(name);
-    const safeCode = this.escapeHtml(code);
-
-    try {
-      const info = await this.transporter.sendMail({
-        from: this.fromEmail,
-        to: email,
-        subject: 'EVIL Platform - Codice di Verifica Email',
-        text: `Ciao ${name},\n\nCodice: ${code}\n\nScade tra 10 minuti.`,
-        html: `<p>Ciao <strong>${safeName}</strong>,</p><p>Codice: <strong>${safeCode}</strong></p>`
-      });
-      return { success: true, messageId: info.messageId };
-    } catch (err) {
-      return { success: false, error: err.message };
-    }
   }
 
   buildPasswordResetLink(token) {
@@ -828,96 +839,50 @@ class EmailService {
 
   async sendPasswordResetEmail(email, resetToken, name = 'Utente') {
     const resetLink = this.buildPasswordResetLink(resetToken);
-    const mail = this.buildPasswordResetMail(name, resetLink);
-    const isDev = process.env.NODE_ENV !== 'production';
-    const allowOutbox = isDev && process.env.EMAIL_DEV_OUTBOX !== '0';
-
-    if (!this.isConfigured()) {
-      if (allowOutbox) {
-        const outbox = this.writeOutboxPreview({
-          email,
-          actionLink: resetLink,
-          mail: this.buildPasswordResetMail(name, resetLink, { embedLogo: true }),
-          titleLabel: 'reset password',
-          buttonLabel: 'Apri link reset password'
-        });
-        return outbox;
-      }
-      return {
-        success: false,
-        error: 'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env.'
-      };
-    }
-
-    try {
-      const info = await this.transporter.sendMail({
-        from: this.fromEmail,
-        to: email,
-        subject: mail.subject,
-        text: mail.text,
-        html: mail.html,
-        attachments: mail.attachments || []
-      });
-      const delivery = this.resolveDeliveryMode();
-      logger.info('Email reset password inviata via SMTP', {
-        messageId: info.messageId,
-        recipient: email,
-        delivery,
-        host: this.smtpHost
-      });
-      return {
-        success: true,
-        delivery,
-        messageId: info.messageId,
-        hint: this.getDeliveryHint(delivery)
-      };
-    } catch (err) {
-      logger.error('Errore invio SMTP reset password', {
-        error: err.message,
-        recipient: email,
-        host: this.smtpHost
-      });
-      if (allowOutbox) {
-        const outbox = this.writeOutboxPreview({
-          email,
-          actionLink: resetLink,
-          mail: this.buildPasswordResetMail(name, resetLink, { embedLogo: true }),
-          titleLabel: 'reset password',
-          buttonLabel: 'Apri link reset password'
-        });
-        outbox.smtpError = err.message;
-        outbox.hint = `SMTP fallito (${err.message}). ${outbox.hint}`;
-        return outbox;
-      }
-      return { success: false, error: err.message };
-    }
+    return this.deliver({
+      to: email,
+      mail: this.buildPasswordResetMail(name, resetLink),
+      category: 'Account',
+      label: 'Invio email reset password',
+      outbox: {
+        actionLink: resetLink,
+        buildMail: () => this.buildPasswordResetMail(name, resetLink, { embedLogo: true }),
+        titleLabel: 'reset password',
+        buttonLabel: 'Apri link reset password',
+      },
+    });
   }
 
-  buildHelpMail({ name, email, subject, message, page }) {
+  buildHelpMail({ name, email, subject, message, page, account = null }) {
     const safeName = this.escapeHtml(name);
     const safeEmail = this.escapeHtml(email);
     const safeSubject = this.escapeHtml(subject);
     const safeMessage = this.escapeHtml(message).replace(/\n/g, '<br>');
     const safePage = this.escapeHtml(page || '—');
+    const accountLine = account
+      ? `utente registrato (id ${account.id}${account.verified ? ', email verificata' : ', email NON verificata'})`
+      : 'non autenticato: l\'indirizzo non è verificato';
     const text = [
       `Richiesta supporto EVIL`,
       ``,
       `Da: ${name} <${email}>`,
+      `Account: ${accountLine}`,
       `Oggetto: ${subject}`,
       `Pagina: ${page || '—'}`,
       ``,
       message,
       ``,
-      '— Inviato dal modulo Help EVIL'
+      '— Inviato dal modulo Help EVIL (rispondi a questa email per scrivere all\'utente)'
     ].join('\n');
 
     const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"></head><body style="font-family:system-ui,sans-serif;background:#06080e;color:#e2e8f0;padding:24px;">
       <h2 style="color:#f59e0b;margin:0 0 16px;">Richiesta supporto EVIL</h2>
-      <p><strong>Nome:</strong> ${safeName}<br><strong>Email:</strong> ${safeEmail}<br><strong>Oggetto:</strong> ${safeSubject}<br><strong>Pagina:</strong> ${safePage}</p>
+      <p><strong>Nome:</strong> ${safeName}<br><strong>Email:</strong> ${safeEmail}<br><strong>Account:</strong> ${this.escapeHtml(accountLine)}<br><strong>Oggetto:</strong> ${safeSubject}<br><strong>Pagina:</strong> ${safePage}</p>
       <div style="background:rgba(15,23,42,0.8);border:1px solid rgba(125,211,252,0.15);border-radius:12px;padding:16px;line-height:1.6;">${safeMessage}</div>
+      <p style="color:#64748b;font-size:13px;">Rispondi a questa email per scrivere direttamente all'utente.</p>
     </body></html>`;
 
-    return { subject: `[EVIL Help] ${subject}`, text, html, attachments: [] };
+    return { subject: `[EVIL Help] ${oneLine(subject, 120)}`, text, html, attachments: [] };
   }
 
   buildHelpConfirmationMail(name) {
@@ -948,79 +913,37 @@ class EmailService {
     };
   }
 
-  async sendMailTo({ to, mail }) {
-    const isDev = process.env.NODE_ENV !== 'production';
-    const allowOutbox = isDev && process.env.EMAIL_DEV_OUTBOX !== '0';
-
-    if (!this.isConfigured()) {
-      if (allowOutbox) {
-        return this.writeOutboxPreview({
-          email: to,
-          actionLink: '#',
-          mail,
-          titleLabel: 'help',
-          buttonLabel: 'Anteprima'
-        });
-      }
-      return {
-        success: false,
-        error: 'SMTP non configurato. Imposta SMTP_USER e SMTP_PASS nel file .env.'
-      };
-    }
-
-    try {
-      const info = await this.withTimeout(
-        this.transporter.sendMail({
-          from: this.fromEmail,
-          to,
-          subject: mail.subject,
-          text: mail.text,
-          html: mail.html,
-          attachments: mail.attachments || []
-        }),
-        this.smtpSendTimeoutMs,
-        'Invio email'
-      );
-      const delivery = this.resolveDeliveryMode();
-      return {
-        success: true,
-        delivery,
-        messageId: info.messageId,
-        hint: this.getDeliveryHint(delivery)
-      };
-    } catch (err) {
-      logger.error('Errore invio SMTP', { error: err.message, to });
-      if (allowOutbox) {
-        const outbox = this.writeOutboxPreview({
-          email: to,
-          actionLink: '#',
-          mail,
-          titleLabel: 'help-fallback',
-          buttonLabel: 'Anteprima'
-        });
-        outbox.smtpError = err.message;
-        return outbox;
-      }
-      return { success: false, error: err.message };
-    }
+  async sendMailTo({ to, mail, replyTo = null, category = 'Support' }) {
+    return this.deliver({ to, mail, replyTo, category, label: 'Invio email di supporto' });
   }
 
-  async sendHelpRequest({ name, email, subject, message, page }) {
+  /**
+   * Modulo di supporto. La richiesta va sempre allo staff (Reply-To = indirizzo indicato).
+   * La conferma all'utente parte solo se il route ha verificato che l'indirizzo è suo
+   * (account con email verificata): così il modulo non può essere usato per mandare
+   * email a indirizzi di terzi.
+   */
+  async sendHelpRequest({ name, email, subject, message, page, account = null, confirmTo = null, confirmName = null }) {
     const supportTo =
       (process.env.HELP_SUPPORT_EMAIL || process.env.SMTP_FROM_EMAIL || 'support@projectevil.it').trim();
-    const staffMail = this.buildHelpMail({ name, email, subject, message, page });
-    const confirmMail = this.buildHelpConfirmationMail(name);
+    const staffMail = this.buildHelpMail({ name, email, subject, message, page, account });
 
-    const staffResult = await this.sendMailTo({ to: supportTo, mail: staffMail });
+    const staffResult = await this.sendMailTo({ to: supportTo, mail: staffMail, replyTo: email });
     if (!staffResult.success) return staffResult;
 
-    const userResult = await this.sendMailTo({ to: email, mail: confirmMail });
+    let confirmationSent = false;
+    if (confirmTo) {
+      const userResult = await this.sendMailTo({
+        to: confirmTo,
+        mail: this.buildHelpConfirmationMail(confirmName || name),
+      });
+      confirmationSent = Boolean(userResult.success);
+    }
     return {
       success: true,
       delivery: staffResult.delivery,
       hint: staffResult.hint,
-      confirmationSent: userResult.success,
-      confirmationHint: userResult.hint || userResult.error
+      confirmationSent,
     };
   }
 }

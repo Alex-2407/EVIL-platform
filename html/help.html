@@ -138,16 +138,19 @@
             <span class="policy-section__icon" aria-hidden="true">✉</span>
             <h2 id="h-form">Invia una richiesta</h2>
           </div>
-          <p>Compila il modulo: riceverai un'email di conferma e il team riceverà il messaggio su <strong>support@projectevil.it</strong>.</p>
+          <p>Il messaggio arriva al team su <strong>support@projectevil.it</strong> e ti rispondiamo all'indirizzo che indichi. Se hai fatto l'accesso, ricevi anche un'email di conferma.</p>
           <form id="helpContactForm" class="help-form" novalidate>
             <input type="hidden" id="help-page" name="page" value="">
+            <div class="help-form__trap" aria-hidden="true">
+              <label>Non compilare questo campo <input type="text" id="help-website" name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
             <label class="help-form__field">
               <span>Nome</span>
               <input type="text" id="help-name" name="name" required minlength="2" maxlength="100" autocomplete="name">
             </label>
             <label class="help-form__field">
               <span>Email</span>
-              <input type="email" id="help-email" name="email" required autocomplete="email">
+              <input type="email" id="help-email" name="email" required maxlength="254" autocomplete="email">
             </label>
             <label class="help-form__field">
               <span>Oggetto</span>
@@ -155,7 +158,7 @@
             </label>
             <label class="help-form__field">
               <span>Messaggio</span>
-              <textarea id="help-message" name="message" rows="6" required minlength="10" maxlength="4000" placeholder="Pagina o strumento, ambiente (locale/produzione), descrizione del problema…"></textarea>
+              <textarea id="help-message" name="message" rows="6" required minlength="10" maxlength="4000" placeholder="Su quale pagina o strumento? Cosa stavi facendo e cosa è successo?"></textarea>
             </label>
             <p id="helpFormMessage" class="help-form__msg" hidden role="status"></p>
             <button type="submit" class="policy-btn policy-btn--primary">Invia richiesta</button>
@@ -172,8 +175,8 @@
             <li>Indirizzo email usato per l'account EVIL (se applicabile).</li>
             <li>Pagina o strumento (es. Lab virtuale, Check URL, Centro Quiz).</li>
             <li>Descrizione del problema o del concetto da chiarire.</li>
-            <li>Ambiente: locale (<code>localhost:5000</code>) o sito pubblico.</li>
-            <li>Screenshot o messaggio di errore, se presente.</li>
+            <li>Browser e dispositivo (es. Chrome su Windows, Safari su iPhone), se il problema riguarda la grafica o un pulsante.</li>
+            <li>Il testo esatto dell'eventuale messaggio di errore. Per mandare uno screenshot scrivi direttamente a support@projectevil.it.</li>
           </ol>
         </section>
 
