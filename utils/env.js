@@ -25,6 +25,16 @@ function isProduction() {
   return !isDevelopment() && !isTest();
 }
 
+/**
+ * Dietro il proxy di Render/Cloudflare l'IP reale del visitatore arriva in X-Forwarded-For.
+ * TRUST_PROXY=1/0 forza la scelta; di default si fida del proxy solo in produzione.
+ */
+function trustProxy() {
+  if (process.env.TRUST_PROXY === '1') return true;
+  if (process.env.TRUST_PROXY === '0') return false;
+  return isProduction();
+}
+
 /** Etichetta leggibile per log e /api/health. */
 function describeEnv() {
   const raw = nodeEnv();
@@ -33,4 +43,4 @@ function describeEnv() {
   return `production (NODE_ENV=${raw} non riconosciuto)`;
 }
 
-module.exports = { nodeEnv, isDevelopment, isTest, isProduction, describeEnv };
+module.exports = { nodeEnv, isDevelopment, isTest, isProduction, trustProxy, describeEnv };

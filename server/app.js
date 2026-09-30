@@ -17,7 +17,8 @@ const registerLab = require('./routes/lab');
 const registerProgress = require('./routes/progress');
 const registerHelp = require('./routes/help');
 const registerAuth = require('./routes/auth');
-const { isDevelopment, isProduction } = require('../utils/env');
+const { isDevelopment, trustProxy } = require('../utils/env');
+const { isOriginAllowed, wildcardConfigured } = require('./lib/origins');
 
 const root = pages.root;
 
@@ -27,7 +28,7 @@ function createApp(ctx) {
   registerHealth(app);
 
   // Dietro nginx/Cloudflare in produzione: IP reale per rate limit e sessioni lab
-  if (process.env.TRUST_PROXY === '1' || (isProduction() && process.env.TRUST_PROXY !== '0')) {
+  if (trustProxy()) {
     app.set('trust proxy', 1);
   }
 
@@ -91,54 +92,12 @@ function createApp(ctx) {
     });
   }
 
-  function getAllowedCorsOrigins() {
-    const defaultOrigins =
-      'https://www.projectevil.it,https://projectevil.it,http://localhost:5000,http://127.0.0.1:5000';
-    const origins = new Set(
-      (process.env.CORS_ORIGINS || defaultOrigins)
-        .split(',')
-        .map((o) => o.trim().replace(/\/$/, ''))
-        // "*" con i cookie equivarrebbe a fidarsi di qualunque sito: ignorato
-        .filter((o) => o && o !== '*')
-    );
-
-    for (const raw of [process.env.BASE_URL, process.env.RENDER_EXTERNAL_URL]) {
-      if (!raw || !String(raw).trim()) continue;
-      try {
-        const normalized = String(raw).trim().replace(/\/$/, '');
-        const withScheme = /^https?:\/\//i.test(normalized)
-          ? normalized
-          : `https://${normalized}`;
-        origins.add(new URL(withScheme).origin);
-      } catch (_) {
-        /* ignore malformed URL */
-      }
-    }
-
-    return origins;
-  }
-
   function isCorsOriginAllowed(origin, req) {
     if (isDev) return true;
-    if (!origin) return true;
-
-    const allowed = getAllowedCorsOrigins();
-    if (allowed.has(origin)) return true;
-
-    try {
-      const originHost = new URL(origin).host;
-      const requestHost = req.get('host');
-      if (originHost && requestHost && originHost === requestHost) {
-        return true;
-      }
-    } catch (_) {
-      /* ignore */
-    }
-
-    return false;
+    return isOriginAllowed(origin, req.get('host'));
   }
 
-  if ((process.env.CORS_ORIGINS || '').split(',').some((o) => o.trim() === '*')) {
+  if (wildcardConfigured()) {
     logger.warn('CORS_ORIGINS contiene "*": valore ignorato (con i cookie di sessione non è sicuro)');
   }
 
