@@ -822,7 +822,9 @@ function nmapOutput(lab, args) {
   return lines.join('\n');
 }
 
-function curlOutput(session, lab, args) {
+// raw = riga di comando completa: serve ai lab JWT, upload e XXE (header -H, -F, corpo XML).
+// Prima non veniva passata e quei tre lab andavano in errore a ogni curl ("raw is not defined").
+function curlOutput(session, lab, args, raw = args.join(' ')) {
   const url = args.find((a) => a.startsWith('http')) || args[0] || '';
   if (!url.includes(lab.targetIp) && !url.includes(lab.hostname)) {
     return `curl: (7) Failed to connect — host non autorizzato fuori VLAN lab.`;
@@ -1241,7 +1243,7 @@ async function execCommand(sessionId, ownerKey, commandLine) {
       break;
     }
     case 'curl':
-      output = curlOutput(session, lab, args);
+      output = curlOutput(session, lab, args, raw);
       break;
     case 'hydra':
       output = hydraOutput(lab, args);
