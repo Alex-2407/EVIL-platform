@@ -1,108 +1,127 @@
 #!/usr/bin/env node
-
 /**
- * Pre-Deployment Checklist
- * Verifica che tutto sia pronto per il deploy online
+ * Controllo della configurazione prima di un deploy.
+ * Legge le variabili d'ambiente (e il .env, se c'è) e segnala cosa manca o è rischioso.
+ *
+ * Uso:
+ *   npm run check:deploy                       configurazione locale (.env)
+ *   NODE_ENV=production ... npm run check:deploy   con le variabili di Render
+ *   npm run check:deploy -- --url https://www.projectevil.it   controlla anche il sito online
+ *
+ * Esce con codice 1 se c'è almeno un errore.
  */
-
 const fs = require('fs');
 const path = require('path');
 
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+const root = path.join(__dirname, '..');
+require('dotenv').config({ path: path.join(root, '.env'), quiet: true });
+const env = require('../utils/env');
 
-console.log('\n📋 ============================================');
-console.log('   PRE-DEPLOYMENT CHECKLIST');
-console.log('   ============================================\n');
+const results = [];
+const ok = (msg) => results.push({ level: 'ok', msg });
+const warn = (msg) => results.push({ level: 'warn', msg });
+const fail = (msg) => results.push({ level: 'fail', msg });
 
-let totalChecks = 0;
-let passedChecks = 0;
-let warnings = [];
+const production = env.isProduction();
+const WEAK = ['your_super_secret', 'change_this', 'minimum_32', 'example', 'secret123'];
 
-function check(description, condition) {
-  totalChecks++;
-  const status = condition ? '✅' : '❌';
-  console.log(`${status} ${description}`);
-  if (condition) passedChecks++;
-  return condition;
-}
+// ---------------------------------------------------------------- runtime e file
+const major = Number(process.versions.node.split('.')[0]);
+if (major >= 22) ok(`Node ${process.versions.node}`);
+else fail(`Node ${process.versions.node}: serve Node 22 (engines in package.json)`);
 
-function warn(description, condition) {
-  if (!condition) {
-    warnings.push(description);
-    console.log(`⚠️  ${description}`);
-  } else {
-    console.log(`✅ ${description}`);
-  }
-}
+const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+if (/22/.test(pkg.engines?.node || '')) ok(`engines.node = ${pkg.engines.node}`);
+else warn('package.json: engines.node non indica Node 22 (Render sceglie la versione da qui)');
 
-const baseDir = path.join(__dirname, '..');
-
-check('File .env esiste', fs.existsSync(path.join(baseDir, '.env')));
-check('File .gitignore esiste', fs.existsSync(path.join(baseDir, '.gitignore')));
-check('Procfile usa npm start', (() => {
-  try {
-    return fs.readFileSync(path.join(baseDir, 'Procfile'), 'utf8').includes('npm start');
-  } catch {
-    return false;
-  }
-})());
-check('File package.json esiste', fs.existsSync(path.join(baseDir, 'package.json')));
-check('File achievements.json esiste', fs.existsSync(path.join(baseDir, 'achievements.json')));
-
-check('Cartella html/ esiste', fs.existsSync(path.join(baseDir, 'html')));
-check('Pagina trofei preview', fs.existsSync(path.join(baseDir, 'html', 'trophy-preview-local.html')));
-check('Pagina musichette preview', fs.existsSync(path.join(baseDir, 'html', 'jingle-preview-local.html')));
-check('js/server.js esiste', fs.existsSync(path.join(baseDir, 'js', 'server.js')));
-check('SSRF guard (assertSafePublicUrl)', fs.readFileSync(path.join(baseDir, 'middleware', 'sanitization.js'), 'utf8').includes('assertSafePublicUrl'));
-check('Health endpoint in server', fs.readFileSync(path.join(baseDir, 'js', 'server.js'), 'utf8').includes("app.get(['/health', '/api/health']"));
-check('HTTPS enforce middleware', fs.existsSync(path.join(baseDir, 'middleware', 'https-enforce.js')));
-check('Register rate limit attivo', !fs.readFileSync(path.join(baseDir, 'middleware', 'limiter.js'), 'utf8').includes('registerLimiter = (req, res, next) => next()'));
+if (fs.existsSync(path.join(root, 'node_modules'))) ok('dipendenze installate');
+else fail('node_modules mancante: esegui npm install');
 
 try {
-  const pkg = JSON.parse(fs.readFileSync(path.join(baseDir, 'package.json'), 'utf8'));
-  check('package.json ha main: js/server.js', pkg.main === 'js/server.js');
-  check('package.json ha script start', pkg.scripts?.start?.includes('js/server.js'));
-  check('package.json ha engines.node', pkg.engines?.node?.includes('18'));
-} catch {
-  check('package.json valido', false);
+  const parts = ['home-hero.css', 'home-unified.css', 'home-motion.css', 'home-footer.css'];
+  const bundle = fs.readFileSync(path.join(root, 'css', 'home.bundle.css'), 'utf8');
+  const stale = parts.some((p) => !bundle.includes(fs.readFileSync(path.join(root, 'css', p), 'utf8')));
+  if (stale) warn('css/home.bundle.css non corrisponde ai sorgenti: esegui npm run build (npm start lo fa comunque)');
+  else ok('css/home.bundle.css aggiornato');
+} catch (err) {
+  fail(`CSS della home: ${err.message}`);
 }
 
-check('node_modules/ installato', fs.existsSync(path.join(baseDir, 'node_modules')));
+// ---------------------------------------------------------------- ambiente
+if (!env.nodeEnv()) warn('NODE_ENV non impostato: il server applica le regole di produzione (impostalo esplicitamente)');
+else ok(`NODE_ENV = ${env.nodeEnv()}`);
 
-const isProd = process.env.NODE_ENV === 'production';
 const jwt = process.env.JWT_SECRET || '';
-const weak = ['your_super_secret', 'change_this', 'minimum_32', 'example'];
+const refresh = process.env.JWT_SECRET_REFRESH || '';
+for (const [name, value] of [['JWT_SECRET', jwt], ['JWT_SECRET_REFRESH', refresh]]) {
+  if (!value) fail(`${name} mancante (node scripts/generate-secrets.js)`);
+  else if (value.length < 32 || WEAK.some((w) => value.includes(w))) {
+    (production ? fail : warn)(`${name} troppo corto o di esempio${production ? ': in produzione il server non parte' : ''}`);
+  } else ok(`${name} impostato`);
+}
+if (jwt && jwt === refresh) (production ? fail : warn)('JWT_SECRET e JWT_SECRET_REFRESH sono uguali');
 
-if (isProd) {
-  check('JWT_SECRET impostato (produzione)', jwt.length >= 32);
-  check('JWT_SECRET non è placeholder (produzione)', !weak.some((p) => jwt.includes(p)));
-  check('BASE_URL https in produzione', /^https:\/\//i.test(process.env.BASE_URL || ''));
-  warn('TRUST_PROXY=1 in produzione', process.env.TRUST_PROXY === '1');
-  warn('EMAIL_DEV_OUTBOX disattivato in produzione', process.env.EMAIL_DEV_OUTBOX !== '1');
-  warn('EVIL_TOOLS_PUBLIC non forzato a 1 in produzione', process.env.EVIL_TOOLS_PUBLIC !== '1');
-} else {
-  console.log('\nℹ️  NODE_ENV≠production — controlli JWT/BASE_URL produzione saltati');
-  warn('JWT_SECRET personalizzato (consigliato)', jwt.length >= 32 && !weak.some((p) => jwt.includes(p)));
+const baseUrl = process.env.BASE_URL || '';
+if (production && !/^https:\/\//.test(baseUrl)) fail(`BASE_URL deve essere https in produzione (ora: "${baseUrl || 'vuota'}")`);
+else if (baseUrl) ok(`BASE_URL = ${baseUrl}`);
+else warn('BASE_URL vuota: i link nelle email useranno http://localhost:5000');
+
+// ---------------------------------------------------------------- archivio utenti
+const dataDir = process.env.DATA_DIR || '';
+if (process.env.DATABASE_URL) ok('account in Postgres (DATABASE_URL)');
+else if (production) {
+  const onRender = Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID);
+  if (!dataDir || /^\/(var\/)?tmp(\/|$)/.test(dataDir) || onRender) {
+    fail('account su file in una cartella non persistente: imposta DATABASE_URL (Postgres, es. Neon gratuito)');
+  } else warn(`account su file in ${dataDir}: va bene solo con un disco persistente`);
+} else ok(`account su file (${dataDir || 'data/'}) — va bene in locale`);
+
+// ---------------------------------------------------------------- email
+const apiToken = process.env.MAILTRAP_API_TOKEN || '';
+const smtpOk = process.env.SMTP_USER && process.env.SMTP_PASS && !/incolla_|your_/.test(`${process.env.SMTP_USER}${process.env.SMTP_PASS}`);
+if (apiToken && process.env.EMAIL_USE_MAILTRAP_API !== '0') ok('email via API Mailtrap');
+else if (smtpOk) {
+  const onRender = Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID);
+  (onRender ? warn : ok)(`email via SMTP (${process.env.SMTP_HOST || 'host?'})${onRender ? ': Render free blocca le porte SMTP, usa MAILTRAP_API_TOKEN' : ''}`);
+} else if (production) fail('email non configurata: registrazione e reset password non funzioneranno');
+else ok('email non configurata: in sviluppo i messaggi vanno in data/email-outbox');
+
+if (!process.env.HELP_SUPPORT_EMAIL) warn('HELP_SUPPORT_EMAIL non impostata: le richieste di supporto vanno a SMTP_FROM_EMAIL');
+
+// ---------------------------------------------------------------- altro
+if (process.env.EVIL_TOOLS_PUBLIC === '1' || process.env.EVIL_TOOLS_PUBLIC === 'true') {
+  (production ? fail : warn)('EVIL_TOOLS_PUBLIC attivo: scansioni e OSINT aperti a chiunque senza login');
+}
+if ((process.env.CORS_ORIGINS || '').split(',').some((o) => o.trim() === '*')) warn('CORS_ORIGINS contiene "*": viene ignorato');
+if (production && !process.env.COOKIE_DOMAIN) warn('COOKIE_DOMAIN non impostato: la sessione non vale tra projectevil.it e www.projectevil.it');
+
+// ---------------------------------------------------------------- sito online (facoltativo)
+async function checkOnline(url) {
+  const base = url.replace(/\/$/, '');
+  try {
+    const res = await fetch(`${base}/api/health`, { signal: AbortSignal.timeout(15000) });
+    const body = await res.json().catch(() => ({}));
+    if (res.ok && body.status === 'ok') ok(`${base}/api/health risponde (env: ${body.env || '?'})`);
+    else fail(`${base}/api/health: HTTP ${res.status}`);
+    const page = await fetch(`${base}/`, { signal: AbortSignal.timeout(15000) });
+    if (page.headers.get('content-security-policy')) ok('header di sicurezza presenti sulla home');
+    else fail('la home non ha la Content-Security-Policy');
+    const robots = await fetch(`${base}/robots.txt`, { signal: AbortSignal.timeout(15000) });
+    (robots.ok ? ok : warn)(`/robots.txt: HTTP ${robots.status}`);
+  } catch (err) {
+    fail(`${base} non raggiungibile: ${err.message}`);
+  }
 }
 
-console.log('\n📊 ============================================');
-console.log(`   RISULTATO: ${passedChecks}/${totalChecks} verifiche passate`);
-if (warnings.length) {
-  console.log(`   Avvisi: ${warnings.length}`);
-}
-console.log('   ============================================\n');
+(async () => {
+  const i = process.argv.indexOf('--url');
+  if (i > 0 && process.argv[i + 1]) await checkOnline(process.argv[i + 1]);
 
-if (passedChecks === totalChecks) {
-  console.log('🎉 CHECKLIST BASE OK — pronto per deploy.\n');
-  console.log('Prossimi step produzione:');
-  console.log('1. Imposta NODE_ENV=production, BASE_URL=https://..., TRUST_PROXY=1, FORCE_HTTPS=1, JWT_SECRET unico');
-  console.log('2. Su Render/Railway: abilita certificato TLS sul custom domain (Let\'s Encrypt)');
-  console.log('3. EVIL_TOOLS_PUBLIC lasciato disattivato — login obbligatorio per gli strumenti');
-  console.log('4. EMAIL_DEV_OUTBOX=0 + SMTP live');
-  console.log('5. REDIS_URL per refresh token condivisi');
-  console.log('6. Deploy su Railway/Render con Procfile (npm start)\n');
-  process.exit(warnings.length && isProd ? 1 : 0);
-}
-
-console.log('⚠️  Alcune verifiche obbligatorie non passate.\n');
-process.exit(1);
+  const icon = { ok: '✅', warn: '⚠️ ', fail: '❌' };
+  console.log(`\nControllo deploy (${production ? 'regole di produzione' : 'sviluppo'})\n`);
+  for (const r of results) console.log(`${icon[r.level]} ${r.msg}`);
+  const fails = results.filter((r) => r.level === 'fail').length;
+  const warns = results.filter((r) => r.level === 'warn').length;
+  console.log(`\n${fails} errori, ${warns} avvisi.`);
+  process.exit(fails ? 1 : 0);
+})();

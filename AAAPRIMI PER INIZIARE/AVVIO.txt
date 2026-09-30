@@ -1,13 +1,13 @@
 EVIL Suite — avvio locale
 =========================
 
-1. Installa Node.js LTS: https://nodejs.org/
+1. Installa Node.js 22 LTS: https://nodejs.org/
 
 2. Doppio click su uno di questi file (in questa cartella):
 
    start-local.bat   → prima volta: installa dipendenze + .env + apre il browser
    start-server.bat  → avvia solo il server in una finestra separata
-   stop-server.bat   → ferma tutti i processi node.exe
+   stop-server.bat   → ferma il server EVIL (solo quello sulla porta 5000)
 
 3. Nel browser usa sempre: http://localhost:5000/
    (non aprire i file .html con doppio click)
