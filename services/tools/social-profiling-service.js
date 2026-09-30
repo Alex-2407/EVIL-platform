@@ -290,7 +290,8 @@ async function runSocialProfiling(input) {
   const summary = {
     platformsChecked: platforms.length,
     confirmedFound: platforms.filter((p) => p.found === true && p.confidence === 'high').length,
-    possibleFound: platforms.filter((p) => p.found === true && p.confidence === 'high').length,
+    // prima era identico a confirmedFound (stesso filtro copiato)
+    possibleFound: platforms.filter((p) => p.found === true && p.confidence !== 'high').length,
     manualLinks: platforms.filter((p) => p.dataSource === 'http-head').length,
     notFound: platforms.filter((p) => p.found === false).length,
     inconclusive: platforms.filter((p) => p.found == null).length
