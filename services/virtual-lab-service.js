@@ -6,7 +6,14 @@ const crypto = require('crypto');
 
 const SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 const MAX_SESSIONS_PER_OWNER = 3;
+// Un'aula intera può uscire da un solo IP pubblico: il limite per IP è largo,
+// quello per persona (account o cookie anonimo del browser) resta 3.
+const MAX_SESSIONS_PER_IP = parseInt(process.env.VLAB_MAX_SESSIONS_PER_IP || '60', 10);
+const MAX_TOTAL_SESSIONS = parseInt(process.env.VLAB_MAX_TOTAL_SESSIONS || '3000', 10);
 const LAB_ID_PATTERN = /^[a-z0-9-]+$/i;
+const SESSION_ID_PATTERN = /^[a-f0-9]{24}$/;
+const ANON_COOKIE = 'evil_lab_anon';
+const ANON_ID_PATTERN = /^[a-f0-9-]{16,64}$/i;
 
 let redisClient;
 function getRedis() {
@@ -610,22 +617,45 @@ function getLab(labId) {
   return LAB_CATALOG[labId] || null;
 }
 
-function resolveClientIp(req) {
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) {
-    const ip = String(forwarded).split(',')[0].trim();
-    if (ip) return ip;
-  }
-  return req.ip || null;
-}
-
+/**
+ * Proprietario della sessione: l'account, oppure per gli ospiti un identificativo casuale
+ * nel cookie evil_lab_anon (impostato da ensureAnonOwner). Prima era l'IP letto da
+ * X-Forwarded-For, che il client può scrivere a piacere, e tutta un'aula dietro lo stesso
+ * IP condivideva il limite di 3 lab.
+ */
 function ownerKeyFromRequest(req) {
   if (req.user?.id) return `user:${req.user.id}`;
-  const ip = resolveClientIp(req);
-  if (ip) return `ip:${ip}`;
-  const ua = req.headers['user-agent'] || 'browser';
-  const hash = crypto.createHash('sha256').update(ua).digest('hex').slice(0, 12);
-  return `anon:${hash}`;
+  const anon = req.cookies?.[ANON_COOKIE];
+  if (anon && ANON_ID_PATTERN.test(anon)) return `anon:${anon}`;
+  return `ip:${req.ip || 'unknown'}`;
+}
+
+/** Middleware: assegna il cookie anonimo agli ospiti che aprono il laboratorio. */
+function ensureAnonOwner(cookieOptions = {}) {
+  return (req, res, next) => {
+    if (req.user?.id) return next();
+    const current = req.cookies?.[ANON_COOKIE];
+    if (current && ANON_ID_PATTERN.test(current)) return next();
+    const id = crypto.randomUUID();
+    res.cookie(ANON_COOKIE, id, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/api/virtual-lab',
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+      ...cookieOptions,
+    });
+    req.cookies = { ...(req.cookies || {}), [ANON_COOKIE]: id };
+    return next();
+  };
+}
+
+function countSessions(predicate) {
+  const now = Date.now();
+  let n = 0;
+  for (const s of sessions.values()) {
+    if (s.status === 'running' && s.expiresAt >= now && predicate(s)) n += 1;
+  }
+  return n;
 }
 
 function validateLabId(labId) {
@@ -638,7 +668,7 @@ function newSessionId() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-async function createSession(labId, ownerKey) {
+async function createSession(labId, ownerKey, { ip = null } = {}) {
   const lab = getLab(labId);
   if (!lab) {
     const err = new Error('Lab non trovato');
@@ -648,8 +678,18 @@ async function createSession(labId, ownerKey) {
 
   const running = await countRunningSessions(ownerKey);
   if (running >= MAX_SESSIONS_PER_OWNER) {
-    const err = new Error('Limite sessioni attive raggiunto (max 3). Termina un lab prima.');
+    const err = new Error('Hai già 3 lab aperti: chiudine uno con "Termina VM" e riprova. Ogni sessione si chiude comunque da sola dopo 2 ore.');
     err.status = 429;
+    throw err;
+  }
+  if (ip && countSessions((s) => s.ip === ip) >= MAX_SESSIONS_PER_IP) {
+    const err = new Error('Troppi lab aperti da questa rete. Riprova tra qualche minuto.');
+    err.status = 429;
+    throw err;
+  }
+  if (countSessions(() => true) >= MAX_TOTAL_SESSIONS) {
+    const err = new Error('Il laboratorio è molto usato in questo momento. Riprova tra qualche minuto.');
+    err.status = 503;
     throw err;
   }
 
@@ -659,6 +699,7 @@ async function createSession(labId, ownerKey) {
     id,
     labId,
     ownerKey,
+    ip,
     status: 'running',
     startedAt: now,
     expiresAt: now + SESSION_TTL_MS,
@@ -702,7 +743,7 @@ function sanitizeSession(session, lab) {
 }
 
 async function getSession(sessionId, ownerKey) {
-  const session = await loadSessionById(sessionId);
+  const session = SESSION_ID_PATTERN.test(String(sessionId || '')) ? await loadSessionById(sessionId) : null;
   if (!session) {
     const err = new Error('Sessione non trovata o scaduta');
     err.status = 404;
@@ -1325,13 +1366,15 @@ function purgeExpiredSessions() {
   }
 }
 
-setInterval(purgeExpiredSessions, 10 * 60 * 1000);
+setInterval(purgeExpiredSessions, 10 * 60 * 1000).unref();
 
 module.exports = {
   catalogForClient,
   getLab,
   validateLabId,
   ownerKeyFromRequest,
+  ensureAnonOwner,
+  ANON_COOKIE,
   createSession,
   getSession,
   stopSession,
