@@ -1,72 +1,63 @@
 {
-  "name": "evil-url-scanner",
-  "version": "1.0.0",
-  "description": "Advanced URL Scanner Backend - Cybersecurity Learning Platform",
+  "name": "evil-platform",
+  "version": "1.1.0",
+  "description": "EVIL — piattaforma didattica di cybersecurity: laboratori simulati, quiz, simulatori e strumenti di analisi difensiva",
   "main": "js/server.js",
   "scripts": {
     "start": "node scripts/build-home-css.js && node js/server.js",
-    "dev": "node scripts/build-home-css.js && node js/server.js",
+    "dev": "node scripts/build-home-css.js && node --watch-path=server --watch-path=middleware --watch-path=services --watch-path=utils js/server.js",
+    "build": "node scripts/build-home-css.js",
     "build:home-css": "node scripts/build-home-css.js",
-    "test": "node scripts/verify-services.js",
+    "test": "node --test --test-concurrency=1 tests/",
+    "lint": "eslint .",
+    "check:encoding": "node scripts/find-encoding-issues.js",
     "check:deploy": "node scripts/check-deployment.js",
-    "build": "webpack --mode=production",
-    "build:css": "webpack --mode=production --entry ./css/style.css --output-path ./public/dist --output-filename style.min.css",
-    "build:js": "webpack --mode=production"
+    "verify": "node scripts/verify-services.js",
+    "migrate:postgres": "node scripts/migrate-users-to-postgres.js"
   },
   "engines": {
-    "node": "18.x",
-    "npm": ">=9.0.0"
+    "node": "22.x",
+    "npm": ">=10"
   },
   "keywords": [
-    "url-scanner",
-    "security",
     "cybersecurity",
-    "cryptography"
+    "education",
+    "security-training",
+    "virtual-lab",
+    "quiz"
   ],
-  "author": "EVIL",
+  "author": "Alessandro Branca",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Alex-2407/EVIL-platform.git"
+    "url": "https://github.com/Alex-2407/evil-platform.git"
   },
   "dependencies": {
-    "axios": "^1.15.0",
-    "bcryptjs": "2.4.3",
-    "compression": "^1.8.1",
+    "axios": "^1.20.0",
+    "bcryptjs": "^3.0.3",
+    "compression": "^1.8.2",
     "cookie-parser": "^1.4.7",
-    "cors": "2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.22.1",
-    "express-rate-limit": "7.1.5",
-    "express-validator": "7.0.0",
-    "helmet": "7.1.0",
-    "ioredis": "5.3.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.3",
+    "express-rate-limit": "^7.5.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.3.0",
+    "ioredis": "^5.8.2",
     "ipaddr.js": "^2.5.0",
-    "joi": "^18.1.2",
-    "jsonwebtoken": "9.0.2",
-    "lodash": "^4.17.21",
-    "multer": "^2.1.1",
-    "nodemailer": "^6.10.1",
+    "joi": "^18.2.9",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.13",
     "pdfkit": "0.13.0",
     "pg": "^8.23.0",
-    "uuid": "9.0.1",
     "winston": "^3.19.0",
-    "ws": "^8.19.0"
+    "ws": "^8.22.0"
   },
   "overrides": {
     "path-to-regexp": "0.1.13"
   },
   "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-env": "^7.29.2",
-    "babel-loader": "^10.1.1",
-    "css-loader": "^7.1.4",
-    "cssnano": "^7.1.5",
-    "mini-css-extract-plugin": "^2.10.2",
-    "postcss-loader": "^8.2.1",
-    "supertest": "^7.3.0",
-    "terser": "^5.46.1",
-    "webpack": "^5.106.1",
-    "webpack-cli": "^7.0.2"
+    "supertest": "^7.3.0"
   }
 }

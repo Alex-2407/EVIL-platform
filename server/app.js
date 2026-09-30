@@ -24,6 +24,7 @@ const root = pages.root;
 
 function createApp(ctx) {
   const app = express();
+  app.disable('x-powered-by'); // anche per /health, registrato prima di helmet
 
   registerHealth(app);
 
