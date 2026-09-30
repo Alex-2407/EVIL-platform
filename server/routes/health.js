@@ -1,13 +1,14 @@
 'use strict';
 // Health check e diagnostica deploy
 const crypto = require('crypto');
+const { isDevelopment, isTest, describeEnv } = require('../../utils/env');
 
 /**
  * La diagnostica email espone host SMTP, mittente e percorsi del server: in produzione
  * risponde solo con ?key=<DIAGNOSTICS_TOKEN> (se il token non è impostato, è disattivata).
  */
 function diagnosticsAllowed(req) {
-  if (process.env.NODE_ENV !== 'production') return true;
+  if (isDevelopment() || isTest()) return true;
   const expected = process.env.DIAGNOSTICS_TOKEN || '';
   const given = typeof req.query.key === 'string' ? req.query.key : '';
   if (!expected || expected.length < 16 || given.length !== expected.length) return false;
@@ -20,7 +21,7 @@ function registerHealth(app) {
     res.status(200).json({
       status: 'ok',
       service: 'evil-platform',
-      env: process.env.NODE_ENV || 'development',
+      env: describeEnv(),
       uptime: Math.round(process.uptime()),
       timestamp: new Date().toISOString(),
     });
@@ -36,7 +37,7 @@ function registerDiagnostics(app, ctx) {
       ok: true,
       service: 'evil-platform',
       version: process.env.RENDER_GIT_COMMIT || 'local',
-      nodeEnv: process.env.NODE_ENV || 'development',
+      nodeEnv: describeEnv(),
       timestamp: new Date().toISOString(),
     });
   });
@@ -82,7 +83,7 @@ function registerDiagnostics(app, ctx) {
         storage: db.kind,
         usersFile: db.usersFile,
         dataDir: db.dataDir,
-        emailDevOutbox: process.env.EMAIL_DEV_OUTBOX !== '0',
+        emailDevOutbox: emailService.outboxAllowed(),
         hints,
         error: check.error || null,
         tip:

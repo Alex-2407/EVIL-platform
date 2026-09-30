@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const express = require('express');
+const { isDevelopment, isProduction } = require('../utils/env');
 const { getCanonicalOrigin } = require('../middleware/https-enforce');
 
 const root = path.resolve(__dirname, '..');
@@ -264,7 +265,7 @@ function mountStatic(app) {
   syncAchievementsToHtml();
 
   // controlli solo in sviluppo, possono essere rimossi in produzione
-  if (process.env.NODE_ENV !== 'production') {
+  if (isDevelopment()) {
     checkStaticExists(path.join(root, 'css'));
     checkStaticExists(path.join(root, 'js'));
     checkStaticExists(path.join(root, 'assets'));
@@ -273,14 +274,14 @@ function mountStatic(app) {
   }
 
   app.use('/css', express.static(path.join(root, 'css'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '30d' : 0,
+    maxAge: isProduction() ? '30d' : 0,
     etag: true,
     lastModified: true,
     setHeaders(res, filePath) {
       const base = filePath.replace(/\\/g, '/');
       const alwaysFresh = /virtual-lab|web-simulator|crypto-studio|quiz-hub|hacked-timeline|attacks-map|historic-attacks|malware-db|malware-classification|manipulation-techniques|security-check|http-header-audit|tools-hub/i.test(base);
       const devFresh =
-        process.env.NODE_ENV !== 'production' &&
+        isDevelopment() &&
         /(home(\.bundle|\.css|-footer|-hero|-unified|-motion)?|site-footer|site-header|evil-motion)\.css$/i.test(base);
       if (alwaysFresh || devFresh) {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -305,7 +306,7 @@ function mountStatic(app) {
 
   const LAB_JS_NO_CACHE = /^(virtual-lab(-guides)?|crypto-studio|quiz-hub(-data)?(-extra)?|hacked-timeline(-data)?|attacks-map|historic-attacks(-data)?|malware-db(-data)?|malware-classification(-data)?|manipulation-techniques(-data)?|security-check|http-header-audit|tools-api|url-scanner-service|http-header-audit-service|load-header|auth-manager|evil-site-chrome)\.js$/i;
   app.use('/js', express.static(path.join(root, 'js'), {
-    maxAge: process.env.NODE_ENV === 'production' ? '7d' : 0,
+    maxAge: isProduction() ? '7d' : 0,
     etag: true,
     lastModified: true,
     setHeaders(res, filePath) {

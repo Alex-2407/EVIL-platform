@@ -17,6 +17,7 @@ const registerLab = require('./routes/lab');
 const registerProgress = require('./routes/progress');
 const registerHelp = require('./routes/help');
 const registerAuth = require('./routes/auth');
+const { isDevelopment, isProduction } = require('../utils/env');
 
 const root = pages.root;
 
@@ -26,7 +27,7 @@ function createApp(ctx) {
   registerHealth(app);
 
   // Dietro nginx/Cloudflare in produzione: IP reale per rate limit e sessioni lab
-  if (process.env.TRUST_PROXY === '1' || process.env.NODE_ENV === 'production') {
+  if (process.env.TRUST_PROXY === '1' || (isProduction() && process.env.TRUST_PROXY !== '0')) {
     app.set('trust proxy', 1);
   }
 
@@ -62,26 +63,25 @@ function createApp(ctx) {
   // ==================== APPLY LOGGING MIDDLEWARE ====================
   app.use(httpLogger);
 
-  // ==================== CORS SICURO - DEPLOYMENT AWARE ====================
-  const isDev = process.env.NODE_ENV !== 'production';
+  // ==================== CORS ====================
+  // Le comodità di sviluppo si accendono solo con NODE_ENV=development esplicito
+  // (prima bastava che NODE_ENV non fosse "production", anche se mancava del tutto).
+  const isDev = isDevelopment();
 
-  // route di debugging: mostra l'albero dei file dall'interno del container
-  // utile su Render per verificare quali asset sono stati effettivamente copiati
+  // Debug locale: elenco dei file serviti (esclusi node_modules, .git e dati)
   if (isDev) {
+    const SKIP = new Set(['node_modules', '.git', 'data', 'logs', 'uploads']);
     app.get('/__debug/files', (req, res) => {
       try {
         const walk = (dir) => {
           let results = [];
-          const list = fs.readdirSync(dir);
-          list.forEach(file => {
+          for (const file of fs.readdirSync(dir)) {
+            if (SKIP.has(file) || file.startsWith('.env')) continue;
             const full = path.join(dir, file);
             const stat = fs.statSync(full);
-            if (stat.isDirectory()) {
-              results = results.concat(walk(full));
-            } else {
-              results.push(path.relative(root, full));
-            }
-          });
+            if (stat.isDirectory()) results = results.concat(walk(full));
+            else results.push(path.relative(root, full));
+          }
           return results;
         };
         res.json({ cwd: process.cwd(), root, files: walk(root) });
@@ -97,8 +97,9 @@ function createApp(ctx) {
     const origins = new Set(
       (process.env.CORS_ORIGINS || defaultOrigins)
         .split(',')
-        .map((o) => o.trim())
-        .filter(Boolean)
+        .map((o) => o.trim().replace(/\/$/, ''))
+        // "*" con i cookie equivarrebbe a fidarsi di qualunque sito: ignorato
+        .filter((o) => o && o !== '*')
     );
 
     for (const raw of [process.env.BASE_URL, process.env.RENDER_EXTERNAL_URL]) {
@@ -122,7 +123,7 @@ function createApp(ctx) {
     if (!origin) return true;
 
     const allowed = getAllowedCorsOrigins();
-    if (allowed.has('*') || allowed.has(origin)) return true;
+    if (allowed.has(origin)) return true;
 
     try {
       const originHost = new URL(origin).host;
@@ -137,20 +138,25 @@ function createApp(ctx) {
     return false;
   }
 
+  if ((process.env.CORS_ORIGINS || '').split(',').some((o) => o.trim() === '*')) {
+    logger.warn('CORS_ORIGINS contiene "*": valore ignorato (con i cookie di sessione non è sicuro)');
+  }
+
+  const corsMiddleware = cors({
+    origin: true, // riflette l'origine, già verificata qui sotto
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  });
+
   app.use((req, res, next) => {
-    cors({
-      origin(origin, callback) {
-        if (isCorsOriginAllowed(origin, req)) {
-          callback(null, true);
-        } else {
-          logger.warn('CORS blocked', { origin, host: req.get('host') });
-          callback(new Error('CORS non consentito: ' + origin));
-        }
-      },
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization']
-    })(req, res, next);
+    const origin = req.get('Origin');
+    if (origin && !isCorsOriginAllowed(origin, req)) {
+      // Richiesta da un altro sito: rifiutata prima di arrivare alle route
+      logger.warn('CORS blocked', { origin, host: req.get('host'), path: req.path });
+      return res.status(403).json({ error: 'Origine non consentita.', code: 'CORS_FORBIDDEN' });
+    }
+    return corsMiddleware(req, res, next);
   });
   app.use(express.json({ limit: '256kb' }));
 
@@ -164,49 +170,50 @@ function createApp(ctx) {
   registerDiagnostics(app, ctx);
   registerAuth(app, ctx);
 
-  // ==================== ERROR HANDLING MIDDLEWARE ====================
-  // Global error handling middleware
-
-  // Catch 404 errors
-  app.use((req, res, next) => {
-    const error = new Error(`Route ${req.originalUrl} not found`);
-    error.statusCode = 404;
-    next(error);
+  // ==================== 404 ====================
+  const notFoundPage = path.join(root, 'html', '404.html');
+  app.use((req, res) => {
+    const wantsHtml = req.method === 'GET' && !req.path.startsWith('/api/') && req.accepts(['html', 'json']) === 'html';
+    if (wantsHtml && fs.existsSync(notFoundPage)) {
+      res.status(404);
+      return res.sendFile(notFoundPage);
+    }
+    return res.status(404).json({ error: 'Risorsa non trovata.', code: 'NOT_FOUND', status: 'error' });
   });
 
-  // Global error handler
+  // ==================== ERRORI ====================
+  // eslint-disable-next-line no-unused-vars
   app.use((error, req, res, next) => {
-    const statusCode = error.statusCode || 500;
-    const message = error.message || 'Internal Server Error';
+    const statusCode = Number(error.statusCode || error.status) || 500;
 
-    // Log error with context
+    // Errori del client (JSON malformato, corpo troppo grande, ...): niente stack nei log
+    if (statusCode < 500) {
+      logger.warn('Richiesta non valida', { status: statusCode, type: error.type, url: req.originalUrl, method: req.method, ip: req.ip });
+      const friendly =
+        error.type === 'entity.parse.failed' ? 'Il corpo della richiesta non è un JSON valido.'
+          : error.type === 'entity.too.large' ? 'Richiesta troppo grande.'
+            : error.expose && error.message ? error.message
+              : 'Richiesta non valida.';
+      return res.status(statusCode).json({ error: friendly, status: 'error' });
+    }
+
     logger.error('Request Error', {
-      error: message,
+      error: error.message,
       stack: error.stack,
       url: req.originalUrl,
       method: req.method,
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       statusCode,
-      timestamp: new Date().toISOString()
     });
 
-    const isDevelopment = process.env.NODE_ENV !== 'production';
-    const isHealthApi = (req.originalUrl || '').startsWith('/api/health');
-    const isAuthApi = (req.originalUrl || '').startsWith('/api/auth');
-    const showDetail = isDevelopment || isHealthApi || isAuthApi;
-    const errorResponse = {
-      error: showDetail ? message : 'Something went wrong',
-      status: 'error',
-      timestamp: new Date().toISOString()
-    };
-
-    // Add stack trace in development
-    if (isDevelopment && error.stack) {
-      errorResponse.stack = error.stack;
+    if (res.headersSent) return next(error);
+    const body = { error: 'Errore interno del server. Riprova tra poco.', status: 'error' };
+    if (isDev) {
+      body.detail = error.message;
+      body.stack = error.stack;
     }
-
-    res.status(statusCode).json(errorResponse);
+    return res.status(statusCode).json(body);
   });
 
   return app;

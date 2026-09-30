@@ -8,6 +8,7 @@ const { buildContext } = require('./context');
 const { createApp } = require('./app');
 const { logger } = require('../middleware/logger');
 const { shouldEnforceHttps, getCanonicalOrigin } = require('../middleware/https-enforce');
+const { isProduction, describeEnv } = require('../utils/env');
 
 async function main() {
   const ctx = await buildContext();
@@ -35,7 +36,7 @@ async function main() {
 
   process.on('unhandledRejection', (reason) => {
     logger.error('Unhandled Rejection', { reason: reason?.message || String(reason), stack: reason?.stack });
-    if (process.env.NODE_ENV === 'production') shutdown(1, 'unhandledRejection');
+    if (isProduction()) shutdown(1, 'unhandledRejection');
   });
   process.on('uncaughtException', (error) => {
     logger.error('Uncaught Exception', { error: error.message, stack: error.stack });
@@ -47,8 +48,7 @@ async function main() {
   incidents.start();
 
   server.listen(config.PORT, '0.0.0.0', () => {
-    const nodeEnv = process.env.NODE_ENV || 'development';
-    console.log(`\n✅ EVIL avviato su http://0.0.0.0:${config.PORT} (${nodeEnv}, Node ${process.version})`);
+    console.log(`\n✅ EVIL avviato su http://0.0.0.0:${config.PORT} (${describeEnv()}, Node ${process.version})`);
 
     if (!fs.existsSync(path.join(ctx.root, 'css', 'home.bundle.css'))) {
       console.warn('⚠️ Manca css/home.bundle.css — esegui: npm run build:home-css');

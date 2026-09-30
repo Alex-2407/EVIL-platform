@@ -3,12 +3,14 @@
 // SameSite=Lax: il cookie non parte con richieste POST da altri siti, e le API
 // accettano solo JSON, quindi un form esterno non può simulare un'azione dell'utente.
 
+const { isProduction } = require('./env');
+
 const ACCESS_COOKIE = 'accessToken';
 const REFRESH_COOKIE = 'refreshToken';
 
 /** Opzioni comuni per impostare e cancellare i cookie (HTTPS in produzione + COOKIE_DOMAIN opzionale). */
 function getAuthCookieOptions(maxAge) {
-  const isProd = process.env.NODE_ENV === 'production';
+  const isProd = isProduction();
   const opts = {
     httpOnly: true,
     secure: isProd,

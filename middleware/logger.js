@@ -1,17 +1,13 @@
-// ==================== LOGGING SYSTEM ====================
-// Structured logging with Winston for better debugging and monitoring
+// ==================== LOG ====================
+// - console sempre (in produzione JSON su una riga: è quello che mostra il pannello di Render)
+// - file in logs/ solo in sviluppo o con LOG_TO_FILES=1, con rotazione (5 MB x 3)
+// - nei test automatici silenzioso, salvo LOG_LEVEL esplicito
 
 const winston = require('winston');
 const path = require('path');
-
-// Create logs directory if it doesn't exist
 const fs = require('fs');
-const logsDir = path.join(__dirname, '..', 'logs');
-if (!fs.existsSync(logsDir)) {
-  fs.mkdirSync(logsDir, { recursive: true });
-}
+const { isDevelopment, isTest } = require('../utils/env');
 
-// Define log levels
 const levels = {
   error: 0,
   warn: 1,
@@ -20,63 +16,24 @@ const levels = {
   debug: 4
 };
 
-// Define colors for console output
-const colors = {
+winston.addColors({
   error: 'red',
   warn: 'yellow',
   info: 'green',
   http: 'magenta',
   debug: 'blue'
-};
-
-winston.addColors(colors);
-
-// Create the logger
-const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
-  levels,
-  format: winston.format.combine(
-    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    winston.format.errors({ stack: true }),
-    winston.format.json()
-  ),
-  defaultMeta: { service: 'evil-platform' },
-  transports: [
-    // Error log file
-    new winston.transports.File({
-      filename: path.join(logsDir, 'error.log'),
-      level: 'error',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.errors({ stack: true }),
-        winston.format.json()
-      )
-    }),
-
-    // Combined log file
-    new winston.transports.File({
-      filename: path.join(logsDir, 'combined.log'),
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      )
-    }),
-
-    // Audit log for security events
-    new winston.transports.File({
-      filename: path.join(logsDir, 'audit.log'),
-      level: 'info',
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-      )
-    })
-  ]
 });
 
-// Console transport for development
-if (process.env.NODE_ENV !== 'production') {
-  logger.add(new winston.transports.Console({
+const logsDir = path.join(__dirname, '..', 'logs');
+const logToFiles = process.env.LOG_TO_FILES === '1' || (isDevelopment() && process.env.LOG_TO_FILES !== '0');
+
+// Solo gli eventi di sicurezza ("AUDIT: ...") finiscono in audit.log
+const onlyAudit = winston.format((info) => (String(info.message || '').startsWith('AUDIT') ? info : false));
+
+const transports = [];
+
+if (isDevelopment()) {
+  transports.push(new winston.transports.Console({
     format: winston.format.combine(
       winston.format.colorize({ all: true }),
       winston.format.timestamp({ format: 'HH:mm:ss' }),
@@ -86,7 +43,47 @@ if (process.env.NODE_ENV !== 'production') {
       })
     )
   }));
+} else {
+  transports.push(new winston.transports.Console({
+    silent: isTest() && !process.env.LOG_LEVEL,
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      winston.format.errors({ stack: true }),
+      winston.format.json()
+    )
+  }));
 }
+
+if (logToFiles) {
+  try {
+    fs.mkdirSync(logsDir, { recursive: true });
+    const fileOpts = { maxsize: 5 * 1024 * 1024, maxFiles: 3, tailable: true };
+    transports.push(
+      new winston.transports.File({ ...fileOpts, filename: path.join(logsDir, 'error.log'), level: 'error' }),
+      new winston.transports.File({ ...fileOpts, filename: path.join(logsDir, 'combined.log') }),
+      new winston.transports.File({
+        ...fileOpts,
+        filename: path.join(logsDir, 'audit.log'),
+        level: 'info',
+        format: winston.format.combine(onlyAudit(), winston.format.timestamp(), winston.format.json())
+      })
+    );
+  } catch (err) {
+    console.warn(`⚠️ Log su file disattivati (${err.message})`);
+  }
+}
+
+const logger = winston.createLogger({
+  level: process.env.LOG_LEVEL || 'info',
+  levels,
+  format: winston.format.combine(
+    winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    winston.format.errors({ stack: true }),
+    winston.format.json()
+  ),
+  defaultMeta: { service: 'evil-platform' },
+  transports
+});
 
 // HTTP request logger middleware
 const httpLogger = (req, res, next) => {
