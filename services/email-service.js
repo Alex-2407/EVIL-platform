@@ -408,9 +408,10 @@ class EmailService {
   }
 
   getLogoFilePath() {
+    const root = path.join(__dirname, '..');
     const candidates = [
-      path.join(process.cwd(), 'html', 'generated-image.png'),
-      path.join(process.cwd(), 'public', 'generated-image.png')
+      path.join(root, 'assets', 'evil-logo-128.png'), // 5 KB invece dei 173 KB dell'originale
+      path.join(root, 'public', 'generated-image.png')
     ];
     return candidates.find((filePath) => fs.existsSync(filePath)) || null;
   }
@@ -452,7 +453,10 @@ class EmailService {
    * Logo in email: URL pubblico (EMAIL_LOGO_URL), allegato CID (SMTP) o base64 (outbox/anteprima).
    */
   resolveEmailLogo({ embed = false } = {}) {
-    const publicUrl = (process.env.EMAIL_LOGO_URL || '').trim();
+    // In produzione il logo si carica dal sito (BASE_URL https), senza allegati
+    const publicUrl =
+      (process.env.EMAIL_LOGO_URL || '').trim() ||
+      (/^https:\/\//i.test(this.baseUrl) ? `${this.baseUrl}/assets/evil-logo-128.png` : '');
     if (!embed && /^https:\/\//i.test(publicUrl)) {
       return { src: publicUrl, attachment: null };
     }

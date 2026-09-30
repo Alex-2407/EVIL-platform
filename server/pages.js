@@ -2,6 +2,7 @@
 // Static, pagine HTML e iniezione asset (estratto da js/server.js)
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const { isDevelopment, isProduction } = require('../utils/env');
 const { getCanonicalOrigin } = require('../middleware/https-enforce');
@@ -46,20 +47,113 @@ function checkStaticExists(dir) {
 
 // ==================== HTML INJECTION MIDDLEWARE ====================
 
-const HOME_CSS_VERSION = '20260603';
-const HOME_STYLESHEETS = [
-  `/css/home.css?v=${HOME_CSS_VERSION}`,
-  `/css/home.bundle.css?v=${HOME_CSS_VERSION}`,
-  `/css/home-footer.css?v=${HOME_CSS_VERSION}`
-];
+// Le versioni (?v=) non si scrivono più a mano: versionAssetUrls() aggiunge a ogni
+// file l'hash del suo contenuto quando la pagina viene servita.
+// home.bundle.css contiene già home-footer.css: non va caricato una seconda volta.
+const HOME_STYLESHEETS = ['/css/home.css', '/css/home.bundle.css'];
 
-const SITE_FOOTER_CSS = '/css/site-footer.css?v=20260606';
-const SITE_HEADER_CSS = '/css/site-header.css?v=20260619';
-const SYSTEM_THEME_CSS = '/css/system-theme.css?v=20260717';
-const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css?v=20260717';
-const RESPONSIVE_CSS = '/css/responsive.css?v=20260717';
-const EVIL_MOTION_CSS = '/css/evil-motion.css?v=20260626';
-const EVIL_MOTION_JS = '/js/evil-motion.js?v=20260626';
+const SITE_FOOTER_CSS = '/css/site-footer.css';
+const SITE_HEADER_CSS = '/css/site-header.css';
+const SYSTEM_THEME_CSS = '/css/system-theme.css';
+const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css';
+const RESPONSIVE_CSS = '/css/responsive.css';
+const EVIL_MOTION_CSS = '/css/evil-motion.css';
+const EVIL_MOTION_JS = '/js/evil-motion.js';
+
+const DEFAULT_DESCRIPTION =
+  'EVIL è una piattaforma didattica di cybersecurity: laboratori simulati, quiz, simulatori di attacchi web e strumenti di analisi difensiva.';
+
+// ==================== VERSIONI DEGLI ASSET (hash del contenuto) ====================
+// Nelle pagine ogni file di css/, js/, assets/, public/ riceve ?v=<hash del contenuto>.
+// Con la versione giusta nell'URL il browser lo tiene per un anno (immutable); senza,
+// lo rivalida a ogni visita (ETag, risposta 304 se non è cambiato). Al posto delle date
+// scritte a mano e degli elenchi di file "sempre freschi" che si scaricavano a ogni visita.
+const ASSET_DIRS = new Set(['css', 'js', 'assets', 'public', 'html']);
+const versionCache = new Map();
+
+function fileVersion(absPath) {
+  let st;
+  try {
+    st = fs.statSync(absPath);
+  } catch (_) {
+    return null;
+  }
+  if (!st.isFile()) return null;
+  const cached = versionCache.get(absPath);
+  if (cached && cached.mtimeMs === st.mtimeMs && cached.size === st.size) return cached.hash;
+  const hash = crypto.createHash('sha1').update(fs.readFileSync(absPath)).digest('hex').slice(0, 10);
+  versionCache.set(absPath, { mtimeMs: st.mtimeMs, size: st.size, hash });
+  return hash;
+}
+
+function assetFileFromUrl(urlPath) {
+  const m = /^\/([a-z]+)\/(.+)$/.exec(urlPath);
+  if (!m || !ASSET_DIRS.has(m[1])) return null;
+  let rel;
+  try {
+    rel = decodeURIComponent(m[2]);
+  } catch (_) {
+    return null;
+  }
+  if (rel.split(/[\\/]/).includes('..')) return null;
+  return path.join(root, m[1], rel);
+}
+
+function versionAssetUrls(html) {
+  return html.replace(
+    /\b(href|src)="(\/(?:css|js|assets|public)\/[^"?#]+)(?:\?[^"#]*)?"/g,
+    (full, attr, urlPath) => {
+      const file = assetFileFromUrl(urlPath);
+      const v = file && fileVersion(file);
+      return v ? `${attr}="${urlPath}?v=${v}"` : full;
+    }
+  );
+}
+
+/** Cache-Control per i file statici: un anno se l'URL ha la versione giusta, altrimenti rivalida. */
+function staticOptions() {
+  return {
+    etag: true,
+    lastModified: true,
+    setHeaders(res, filePath) {
+      const v = res.req?.query?.v;
+      if (typeof v === 'string' && v && v === fileVersion(filePath)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  };
+}
+
+function escapeAttr(value) {
+  return String(value).replace(/&(?!(?:[a-z]+|#\d+|#x[0-9a-f]+);)/gi, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+/** Anteprima dei link (WhatsApp, Telegram, social) per le pagine che non la dichiarano. */
+function injectSocialMeta(html, pagePath, origin) {
+  let out = html;
+  if (!/<meta\s+name="description"/i.test(out)) {
+    out = out.replace('</head>', `  <meta name="description" content="${escapeAttr(DEFAULT_DESCRIPTION)}">\n</head>`);
+  }
+  if (/property="og:title"/i.test(out)) return out;
+  const title = ((out.match(/<title>([^<]*)<\/title>/i) || [])[1] || 'EVIL').trim();
+  const desc = (out.match(/<meta\s+name="description"\s+content="([^"]*)"/i) || [])[1] || DEFAULT_DESCRIPTION;
+  const base = origin || 'https://www.projectevil.it';
+  const tags = [
+    '<meta property="og:type" content="website">',
+    '<meta property="og:site_name" content="EVIL">',
+    '<meta property="og:locale" content="it_IT">',
+    `<meta property="og:title" content="${escapeAttr(title)}">`,
+    `<meta property="og:description" content="${escapeAttr(desc)}">`,
+    `<meta property="og:url" content="${escapeAttr(base + pagePath)}">`,
+    `<meta property="og:image" content="${escapeAttr(base)}/assets/og-image.jpg">`,
+    '<meta property="og:image:width" content="1200">',
+    '<meta property="og:image:height" content="630">',
+    '<meta name="twitter:card" content="summary_large_image">',
+  ];
+  return out.replace('</head>', `${tags.map((t) => `  ${t}`).join('\n')}\n</head>`);
+}
 
 function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
@@ -117,15 +211,27 @@ function normalizeSiteNavLinks(html) {
   return html.replace(/href="([a-z][a-z0-9-]*\.html)"/gi, (match, file) => `href="/${file}"`);
 }
 
-function sendInjectedHtml(res, relativeName) {
+// In produzione i file non cambiano mentre il server gira: la pagina elaborata si tiene
+// in memoria. In sviluppo si rielabora a ogni richiesta, così le modifiche si vedono subito.
+const renderedPages = new Map();
+
+function renderPage(relativeName, canonicalPath) {
   const filePath = path.join(root, 'html', relativeName);
-  if (!fs.existsSync(filePath)) return false;
-  const htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'), relativeName);
+  const key = `${relativeName}|${canonicalPath || ''}`;
+  if (isProduction() && renderedPages.has(key)) return renderedPages.get(key);
+  if (!fs.existsSync(filePath)) return null;
+  const html = injectPageAssets(fs.readFileSync(filePath, 'utf8'), canonicalPath ?? relativeName);
+  if (isProduction()) renderedPages.set(key, html);
+  return html;
+}
+
+function sendInjectedHtml(res, relativeName, canonicalPath) {
+  const html = renderPage(relativeName, canonicalPath);
+  if (html == null) return false;
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-  res.setHeader('Pragma', 'no-cache');
-  res.setHeader('Expires', '0');
-  res.send(htmlContent);
+  // no-cache = il browser chiede sempre se la pagina è cambiata (ETag → 304 se no)
+  res.setHeader('Cache-Control', 'no-cache');
+  res.send(html);
   return true;
 }
 
@@ -249,15 +355,19 @@ function injectPageAssets(htmlContent, pageName) {
   // Canonical = URL della pagina stessa. Prima tutte le pagine dichiaravano la home
   // come canonica, invitando i motori di ricerca a non indicizzarle.
   const canonical = getCanonicalOrigin();
+  const pagePath = pageName ? `/${String(pageName).replace(/^\/+/, '')}` : '/';
   if (canonical && !html.includes('rel="canonical"')) {
-    const pagePath = pageName ? `/${String(pageName).replace(/^\/+/, '')}` : '/';
     html = html.replace(
       '</head>',
       `  <link rel="canonical" href="${canonical}${pagePath}">\n</head>`
     );
   }
+  html = injectSocialMeta(html, pagePath, canonical);
 
-  return html;
+  // I meta http-equiv sulla cache non servono (decidono gli header HTTP) e confondono
+  html = html.replace(/\s*<meta http-equiv="(?:Cache-Control|Pragma|Expires)"[^>]*>/gi, '');
+
+  return versionAssetUrls(html);
 }
 
 
@@ -273,55 +383,15 @@ function mountStatic(app) {
     checkStaticExists(path.join(root, 'html'));
   }
 
-  app.use('/css', express.static(path.join(root, 'css'), {
-    maxAge: isProduction() ? '30d' : 0,
-    etag: true,
-    lastModified: true,
-    setHeaders(res, filePath) {
-      const base = filePath.replace(/\\/g, '/');
-      const alwaysFresh = /virtual-lab|web-simulator|crypto-studio|quiz-hub|hacked-timeline|attacks-map|historic-attacks|malware-db|malware-classification|manipulation-techniques|security-check|http-header-audit|tools-hub/i.test(base);
-      const devFresh =
-        isDevelopment() &&
-        /(home(\.bundle|\.css|-footer|-hero|-unified|-motion)?|site-footer|site-header|evil-motion)\.css$/i.test(base);
-      if (alwaysFresh || devFresh) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-      }
-    }
-  }));
+  app.use('/css', express.static(path.join(root, 'css'), staticOptions()));
 
   // Alias typo comune (browser/cache): home-chrome.css → bundle reale
   app.get('/css/home-chrome.css', (req, res) => {
-    res.redirect(302, `/css/home.bundle.css?v=${HOME_CSS_VERSION}`);
+    res.redirect(302, '/css/home.bundle.css');
   });
 
-  // matrixrain.js: no long cache (easter egg aggiornato spesso)
-  app.get('/js/matrixrain.js', (req, res) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.sendFile(path.join(root, 'js', 'matrixrain.js'));
-  });
-
-  const LAB_JS_NO_CACHE = /^(virtual-lab(-guides)?|crypto-studio|quiz-hub(-data)?(-extra)?|hacked-timeline(-data)?|attacks-map|historic-attacks(-data)?|malware-db(-data)?|malware-classification(-data)?|manipulation-techniques(-data)?|security-check|http-header-audit|tools-api|url-scanner-service|http-header-audit-service|load-header|auth-manager|evil-site-chrome)\.js$/i;
-  app.use('/js', express.static(path.join(root, 'js'), {
-    maxAge: isProduction() ? '7d' : 0,
-    etag: true,
-    lastModified: true,
-    setHeaders(res, filePath) {
-      if (LAB_JS_NO_CACHE.test(path.basename(filePath))) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-      }
-    },
-  }));
-  app.use('/assets', express.static(path.join(root, 'assets'), {
-    maxAge: '30d', // Cache assets for 30 days
-    etag: true,
-    lastModified: true
-  }));
+  app.use('/js', express.static(path.join(root, 'js'), staticOptions()));
+  app.use('/assets', express.static(path.join(root, 'assets'), staticOptions()));
 
   // Easter egg: aprendo /public/generated-image.png nel browser (non come <img>) → animazione
   app.get('/public/generated-image.png', (req, res, next) => {
@@ -332,11 +402,7 @@ function mountStatic(app) {
     next();
   });
 
-  app.use('/public', express.static(path.join(root, 'public'), {
-    maxAge: '30d', // Cache public files for 30 days
-    etag: true,
-    lastModified: true
-  }));
+  app.use('/public', express.static(path.join(root, 'public'), staticOptions()));
 
   // HTML con asset injection (prima dello static /html, altrimenti bypass)
   app.get(/^\/html\/[^/]+\.html$/i, (req, res, next) => {
@@ -350,19 +416,13 @@ function mountStatic(app) {
     if (!sendInjectedHtml(res, rel)) return next();
   });
 
-  app.use('/html', express.static(path.join(root, 'html'))); // asset non-html + fallback
+  app.use('/html', express.static(path.join(root, 'html'), staticOptions())); // asset non-html + fallback
 }
 
 function mountPageRoutes(app) {
   // Route per la homepage (root)
   app.get('/', (req, res) => {
-    const filePath = path.join(root, 'html', 'home.html');
-    if (fs.existsSync(filePath)) {
-      let htmlContent = injectPageAssets(fs.readFileSync(filePath, 'utf8'));
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.send(htmlContent);
-    }
-    res.status(404).send('Home page not found');
+    if (!sendInjectedHtml(res, 'home.html', '')) res.status(404).send('Home page not found');
   });
 
   // Redirect legacy ethical hacking → studio cifratura
@@ -384,5 +444,7 @@ module.exports = {
   mountPageRoutes,
   resolveAchievementsFile,
   injectPageAssets,
+  versionAssetUrls,
+  fileVersion,
   root,
 };
