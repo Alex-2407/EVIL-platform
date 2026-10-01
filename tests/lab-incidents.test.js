@@ -84,3 +84,16 @@ test('lab: nessun comando comune manda in errore un laboratorio (regressione "ra
     await agent.delete(`/api/virtual-lab/sessions/${id}`).expect(200);
   }
 });
+
+test('feed RSS: scartati i link non http(s)', () => {
+  const { parseRssItems } = require('../services/incidents-service');
+  const xml = `<rss><channel>
+    <item><title>Buono</title><link>https://example.org/a?x=1&amp;y=2</link></item>
+    <item><title>Script</title><link>javascript:alert(1)</link></item>
+    <item><title>Virgolette</title><link>https://example.org/" onmouseover="x</link></item>
+  </channel></rss>`;
+  const links = parseRssItems(xml, 8, 'test').map((i) => i.link);
+  assert.equal(links[0], 'https://example.org/a?x=1&amp;y=2');
+  assert.equal(links[1], '');
+  assert.equal(links[2], '');
+});

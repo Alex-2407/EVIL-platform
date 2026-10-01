@@ -53,10 +53,9 @@
     return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} UTC`;
   }
 
+  // Escape anche delle virgolette: il risultato finisce pure dentro attributi HTML
   function escapeHtml(s) {
-    const d = document.createElement('div');
-    d.textContent = s || '';
-    return d.innerHTML;
+    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   }
 
   function debounce(fn, ms) {
@@ -533,7 +532,7 @@
       const dateStr = Number.isNaN(date.getTime())
         ? '—'
         : date.toLocaleDateString('it-IT', { dateStyle: 'medium' });
-      const link = inc.link
+      const link = /^https?:\/\//i.test(inc.link || '')
         ? `<a href="${escapeHtml(inc.link)}" target="_blank" rel="noopener noreferrer">Fonte ufficiale ↗</a>`
         : '';
 

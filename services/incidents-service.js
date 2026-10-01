@@ -96,9 +96,11 @@ function parseRssItems(xml, limit = 8, feedSource = 'RSS') {
       .replace(/<!\[CDATA\[|\]\]>/g, '')
       .replace(/<[^>]+>/g, '')
       .trim();
-    const link =
+    const rawLink =
       (item.match(/<link[^>]*href="([^"]+)"/i) || [])[1] ||
       (item.match(/<link>([\s\S]*?)<\/link>/i) || [null, ''])[1].trim();
+    // Il feed è esterno: si accettano solo link http(s) (niente javascript: o data:)
+    const link = /^https?:\/\/[^\s"'<>]+$/i.test(rawLink) ? rawLink : '';
     const pubDate =
       (item.match(/<pubDate>([\s\S]*?)<\/pubDate>/i) ||
         item.match(/<updated>([\s\S]*?)<\/updated>/i) ||
@@ -462,4 +464,5 @@ module.exports = {
   computeAggregatedStats,
   aggregateByCountry,
   COUNTRY_CENTROIDS,
+  parseRssItems,
 };
