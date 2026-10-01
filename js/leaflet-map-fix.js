@@ -126,18 +126,31 @@
     const frozen = global.L ? global.L.latLng(center[0], center[1]) : { lat: center[0], lng: center[1] };
     const z = zoom != null ? zoom : map.getZoom();
 
+    // Leaflet arrotonda il centro al pixel: a zoom 2 un pixel vale ~0,35°, quindi
+    // confrontare le coordinate con una soglia di 0,02° non converge mai e setView
+    // rientra in moveend all'infinito (RangeError: Maximum call stack size exceeded).
+    // Si confronta lo scarto in pixel e si evita di rientrare durante il ripristino.
+    let snapping = false;
     const snap = () => {
-      const cur = map.getCenter();
-      const drift =
-        Math.abs(cur.lat - frozen.lat) > 0.02 || Math.abs(cur.lng - frozen.lng) > 0.02;
-      if (drift || map.getZoom() !== z) {
-        map.setView(frozen, z, { animate: false, pan: false });
+      if (snapping) return;
+      let offset;
+      try {
+        offset = map.latLngToContainerPoint(frozen).subtract(map.getSize().divideBy(2));
+      } catch (_) {
+        return;
+      }
+      if (Math.abs(offset.x) <= 2 && Math.abs(offset.y) <= 2 && map.getZoom() === z) return;
+      snapping = true;
+      try {
+        map.setView(frozen, z, { animate: false });
+      } finally {
+        snapping = false;
       }
     };
 
     map.on('moveend', snap);
     map.on('zoomend', snap);
-    map.setView(frozen, z, { animate: false, pan: false });
+    snap();
     return snap;
   }
 

@@ -321,7 +321,11 @@
     document.querySelector('.ha-map-section')?.classList.add('is-visible');
     initReveal();
     requestAnimationFrame(() => {
-      initMap();
+      try {
+        initMap();
+      } catch (err) {
+        console.error('[historic-attacks] mappa non disponibile:', err);
+      }
       setTimeout(() => scheduleMapResize(), 120);
     });
   }

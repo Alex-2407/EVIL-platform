@@ -739,8 +739,17 @@
     initRadar();
     initReveal();
 
+    // Un errore della mappa non deve bloccare il feed (pill ferma su "Caricamento feed…")
+    const safeInitMap = () => {
+      try {
+        initMap();
+      } catch (err) {
+        console.error('[attacks-map] mappa non disponibile:', err);
+      }
+    };
+
     const run = () => {
-      initMap();
+      safeInitMap();
       refresh();
       setInterval(() => refresh(false), 5 * 60 * 1000);
       connectWebSocket();
@@ -749,7 +758,7 @@
     $('am-refresh-btn')?.addEventListener('click', () => refresh(true));
 
     requestAnimationFrame(() => {
-      initMap();
+      safeInitMap();
       setTimeout(run, 40);
     });
   }
