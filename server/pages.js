@@ -6,6 +6,10 @@ const crypto = require('crypto');
 const express = require('express');
 const { isDevelopment, isProduction } = require('../utils/env');
 const { getCanonicalOrigin } = require('../middleware/https-enforce');
+const { renderHeader, renderFooter, clientManifest } = require('./chrome');
+const i18n = require('./i18n');
+const { PAGES, ACCOUNT_PAGES, LANGS, DEFAULT_LANG } = require('./site-map');
+const { computeStats } = require('./stats');
 
 const root = path.resolve(__dirname, '..');
 
@@ -60,8 +64,11 @@ const RESPONSIVE_CSS = '/css/responsive.css';
 const EVIL_MOTION_CSS = '/css/evil-motion.css';
 const EVIL_MOTION_JS = '/js/evil-motion.js';
 
-const DEFAULT_DESCRIPTION =
-  'EVIL è una piattaforma didattica di cybersecurity: laboratori simulati, quiz, simulatori di attacchi web e strumenti di analisi difensiva.';
+const DEFAULT_DESCRIPTION = {
+  it: 'EVIL è una piattaforma didattica di cybersecurity: laboratori simulati, quiz, simulatori di attacchi web e strumenti di analisi difensiva.',
+  en: 'EVIL is a cybersecurity training platform: simulated labs, quizzes, web attack simulators and defensive analysis tools.',
+};
+const OG_LOCALE = { it: 'it_IT', en: 'en_GB' };
 
 // ==================== VERSIONI DEGLI ASSET (hash del contenuto) ====================
 // Nelle pagine ogni file di css/, js/, assets/, public/ riceve ?v=<hash del contenuto>.
@@ -141,49 +148,50 @@ function injectIcons(html) {
   return html.replace('</head>', `${links.map((l) => `  ${l}`).join('\n')}\n</head>`);
 }
 
-// Pagine pubbliche per la sitemap (le pagine con login rimandano al login: escluse)
+// Pagine pubbliche per la sitemap (le pagine con login rimandano al login: escluse).
+// Ogni pagina compare in tutte le lingue, con i link hreflang alle altre versioni.
 const SITEMAP_PAGES = [
-  ['/', '1.0', 'weekly'],
-  ['/virtual-lab.html', '0.9', 'monthly'],
-  ['/web-simulator.html', '0.9', 'monthly'],
-  ['/crypto-studio.html', '0.9', 'monthly'],
-  ['/quiz-hub.html', '0.9', 'monthly'],
-  ['/hacked-timeline.html', '0.8', 'monthly'],
-  ['/attacks-map.html', '0.8', 'daily'],
-  ['/historic-attacks.html', '0.8', 'monthly'],
-  ['/malware-db.html', '0.7', 'monthly'],
-  ['/malware-classification.html', '0.7', 'monthly'],
-  ['/manipulation-techniques.html', '0.7', 'monthly'],
-  ['/domain-recon.html', '0.6', 'monthly'],
-  ['/osint-hub.html', '0.6', 'monthly'],
-  ['/report-generator.html', '0.5', 'yearly'],
-  ['/account.html', '0.4', 'yearly'],
-  ['/login.html', '0.3', 'yearly'],
-  ['/help.html', '0.4', 'yearly'],
-  ['/site-policies.html', '0.3', 'yearly'],
+  ['home.html', 1.0, 'weekly'],
+  ...[...PAGES, ...ACCOUNT_PAGES]
+    .filter((p) => p.sitemap != null)
+    .map((p) => [p.file, p.sitemap, p.file === 'attacks-map.html' ? 'daily' : 'monthly']),
 ];
+
+function localizedPath(file, lang) {
+  const prefix = lang === DEFAULT_LANG ? '' : `/${lang}`;
+  return !file || file === 'home.html' ? `${prefix}/` : `${prefix}/${file}`;
+}
 
 function buildSitemap(origin) {
   const base = origin || 'https://www.projectevil.it';
-  const urls = SITEMAP_PAGES.filter(([p]) => p === '/' || fs.existsSync(path.join(root, 'html', p.slice(1))))
-    .map(([p, priority, freq]) => `  <url>\n    <loc>${base}${p}</loc>\n    <changefreq>${freq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`);
-  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`;
+  const urls = [];
+  for (const [file, priority, freq] of SITEMAP_PAGES) {
+    if (!fs.existsSync(path.join(root, 'html', file))) continue;
+    const alts = [...LANGS.map((l) => `    <xhtml:link rel="alternate" hreflang="${l}" href="${base}${localizedPath(file, l)}"/>`),
+      `    <xhtml:link rel="alternate" hreflang="x-default" href="${base}${localizedPath(file, DEFAULT_LANG)}"/>`];
+    for (const lang of LANGS) {
+      urls.push(`  <url>\n    <loc>${base}${localizedPath(file, lang)}</loc>\n${alts.join('\n')}\n    <changefreq>${freq}</changefreq>\n    <priority>${Number(priority).toFixed(1)}</priority>\n  </url>`);
+    }
+  }
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${urls.join('\n')}\n</urlset>\n`;
 }
 
 /** Anteprima dei link (WhatsApp, Telegram, social) per le pagine che non la dichiarano. */
-function injectSocialMeta(html, pagePath, origin) {
+function injectSocialMeta(html, pagePath, origin, lang = DEFAULT_LANG) {
   let out = html;
+  const fallback = DEFAULT_DESCRIPTION[lang] || DEFAULT_DESCRIPTION.it;
   if (!/<meta\s+name="description"/i.test(out)) {
-    out = out.replace('</head>', `  <meta name="description" content="${escapeAttr(DEFAULT_DESCRIPTION)}">\n</head>`);
+    out = out.replace('</head>', `  <meta name="description" content="${escapeAttr(fallback)}">\n</head>`);
   }
   if (/property="og:title"/i.test(out)) return out;
   const title = ((out.match(/<title>([^<]*)<\/title>/i) || [])[1] || 'EVIL').trim();
-  const desc = (out.match(/<meta\s+name="description"\s+content="([^"]*)"/i) || [])[1] || DEFAULT_DESCRIPTION;
+  const desc = (out.match(/<meta\s+name="description"\s+content="([^"]*)"/i) || [])[1] || fallback;
   const base = origin || 'https://www.projectevil.it';
   const tags = [
     '<meta property="og:type" content="website">',
     '<meta property="og:site_name" content="EVIL">',
-    '<meta property="og:locale" content="it_IT">',
+    `<meta property="og:locale" content="${OG_LOCALE[lang] || OG_LOCALE.it}">`,
+    ...LANGS.filter((l) => l !== lang).map((l) => `<meta property="og:locale:alternate" content="${OG_LOCALE[l]}">`),
     `<meta property="og:title" content="${escapeAttr(title)}">`,
     `<meta property="og:description" content="${escapeAttr(desc)}">`,
     `<meta property="og:url" content="${escapeAttr(base + pagePath)}">`,
@@ -199,7 +207,6 @@ function hasResponsiveCss(html) {
   return /responsive\.css/i.test(html);
 }
 
-const AUTH_CHROME_VERSION = '20260610';
 
 const AUTH_REQUIRED_HTML =
   /^(security-check|vulnerability-scanner|dns-enumerator|subdomain-finder|ssl-analyzer|file-analysis|social-profiling|public-info|profile)\.html$/i;
@@ -227,23 +234,23 @@ function addDeferToBodyScripts(html) {
   );
 }
 
-/** Un solo script defer: menu + auth (evita doppio init e header "Accedi" con JWT valido) */
+/**
+ * Un solo script defer per menu e stato utente. La classe evil-auth-pending va su <html>
+ * dal server (prima era uno <script> inline per pagina, che obbligava la CSP a 'unsafe-inline');
+ * la regola che nasconde i pulsanti finché la sessione non è nota è in site-header.css.
+ */
 function injectAuthChromeScripts(html) {
   if (!/<header[\s>]/i.test(html) || !html.includes('</head>')) return html;
-
-  const block =
-    `  <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>\n` +
-    `  <script>document.documentElement.classList.add("evil-auth-pending");</script>\n` +
-    `  <script src="/js/evil-site-chrome.js?v=${AUTH_CHROME_VERSION}" defer></script>\n`;
   const stripRe =
     /\s*<script[^>]*src="[^"]*(?:auth-manager|load-header|evil-site-chrome)\.js[^"]*"[^>]*>\s*<\/script>\s*/gi;
-
   let out = html.replace(stripRe, '\n');
   out = out.replace(/<style id="evil-auth-pending-style">[\s\S]*?<\/style>\s*/gi, '');
-  if (!out.includes('evil-site-chrome.js')) {
-    out = out.replace('</head>', `${block}</head>`);
-  }
-  return out;
+  out = out.replace(/\s*<script>document\.documentElement\.classList\.add\("evil-auth-pending"\);<\/script>/g, '');
+  out = out.replace(/<html\b([^>]*)>/i, (m, attrs) => {
+    if (/class="/.test(attrs)) return m.replace(/class="/, 'class="evil-auth-pending ');
+    return `<html${attrs} class="evil-auth-pending">`;
+  });
+  return out.replace('</head>', `  <script src="/js/evil-site-chrome.js" defer></script>\n</head>`);
 }
 
 /** Link menu sempre dalla root (/pagina.html) — evita doppio caricamento da path /html/ misti */
@@ -255,20 +262,39 @@ function normalizeSiteNavLinks(html) {
 // in memoria. In sviluppo si rielabora a ogni richiesta, così le modifiche si vedono subito.
 const renderedPages = new Map();
 
-function renderPage(relativeName, canonicalPath) {
+// Pagine di sviluppo: mai in produzione
+const DEV_ONLY_PAGE = /-local\.html$/i;
+
+function fillChrome(html, lang, file) {
+  return html
+    .replace(/<!--evil:header-->/, () => renderHeader(lang, file))
+    .replace(/<!--evil:footer-->/, () => renderFooter(lang, file));
+}
+
+function renderPage(relativeName, canonicalPath, lang = DEFAULT_LANG) {
+  if (isProduction() && DEV_ONLY_PAGE.test(relativeName)) return null;
   const filePath = path.join(root, 'html', relativeName);
-  const key = `${relativeName}|${canonicalPath || ''}`;
+  const key = `${lang}|${relativeName}|${canonicalPath ?? ''}`;
   if (isProduction() && renderedPages.has(key)) return renderedPages.get(key);
   if (!fs.existsSync(filePath)) return null;
-  const html = injectPageAssets(fs.readFileSync(filePath, 'utf8'), canonicalPath ?? relativeName);
+  let html = fillChrome(fs.readFileSync(filePath, 'utf8'), lang, relativeName);
+  if (lang !== DEFAULT_LANG) {
+    const out = i18n.translateHtml(html, lang, relativeName);
+    html = out.html;
+    if (isDevelopment() && out.missing.length) {
+      console.warn(`⚠️ i18n ${lang}/${relativeName}: ${out.missing.length} testi senza traduzione (npm run i18n:check)`);
+    }
+  }
+  html = injectPageAssets(html, canonicalPath ?? relativeName, lang);
   if (isProduction()) renderedPages.set(key, html);
   return html;
 }
 
-function sendInjectedHtml(res, relativeName, canonicalPath) {
-  const html = renderPage(relativeName, canonicalPath);
+function sendInjectedHtml(res, relativeName, canonicalPath, lang = DEFAULT_LANG) {
+  const html = renderPage(relativeName, canonicalPath, lang);
   if (html == null) return false;
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Content-Language', lang);
   // no-cache = il browser chiede sempre se la pagina è cambiata (ETag → 304 se no)
   res.setHeader('Cache-Control', 'no-cache');
   res.send(html);
@@ -344,7 +370,55 @@ function injectEvilMotion(html) {
   return html;
 }
 
-function injectPageAssets(htmlContent, pageName) {
+const HTML_PAGES = () => new Set(fs.readdirSync(path.join(root, 'html')).filter((f) => f.endsWith('.html')));
+
+/** Nella versione inglese i link alle pagine del sito puntano a /en/… */
+function localizeLinks(html, lang) {
+  if (lang === DEFAULT_LANG) return html;
+  const pages = HTML_PAGES();
+  return html
+    .replace(/\bhref="\/([a-z0-9-]+\.html)((?:[?#][^"]*)?)"/gi, (m, file, rest) =>
+      pages.has(file) && !DEV_ONLY_PAGE.test(file) ? `href="/${lang}/${file}${rest}"` : m)
+    .replace(/\bhref="\/((?:[?#][^"]*)?)"/g, (m, rest) => `href="/${lang}/${rest}"`);
+}
+
+/** Nella versione inglese i file di dati (quiz, catalogo…) hanno una copia in js/i18n/<lang>/ */
+function localizeDataScripts(html, lang) {
+  if (lang === DEFAULT_LANG) return html;
+  return html.replace(/(<script[^>]*\ssrc=")\/js\/([a-z0-9-]+\.js)((?:\?[^"]*)?")/gi, (m, pre, file, rest) =>
+    fs.existsSync(path.join(root, 'js', 'i18n', lang, file)) ? `${pre}/js/i18n/${lang}/${file}${rest}` : m);
+}
+
+/** Lingua del documento, traduzioni per il JS e ricerca rapida. */
+function injectI18nRuntime(html, lang) {
+  let out = html.replace(/<html\b([^>]*)>/i, (m, attrs) =>
+    /\blang="/i.test(attrs) ? m.replace(/\blang="[^"]*"/i, `lang="${lang}"`) : `<html lang="${lang}"${attrs}>`);
+  if (out.includes('/js/i18n.js')) return out;
+  const scripts = [];
+  if (lang !== DEFAULT_LANG) scripts.push(`<script src="/js/i18n/${lang}.js"></script>`);
+  scripts.push('<script src="/js/i18n.js"></script>');
+  if (/<header[\s>]/i.test(out)) {
+    scripts.push('<script src="/js/site-pages.js" defer></script>', '<script src="/js/site-search.js" defer></script>');
+  }
+  // prima di qualunque altro script della pagina
+  const headEnd = out.indexOf('</head>');
+  const firstScript = out.search(/<script\b/i);
+  const block = scripts.join('\n  ');
+  if (firstScript !== -1 && firstScript < headEnd) return `${out.slice(0, firstScript)}${block}\n  ${out.slice(firstScript)}`;
+  return out.replace('</head>', `  ${block}\n</head>`);
+}
+
+function injectAlternates(html, pagePath, origin, lang) {
+  if (!origin) return html;
+  const file = pagePath === '/' ? 'home.html' : pagePath.replace(/^\//, '');
+  const links = [
+    ...LANGS.map((l) => `<link rel="alternate" hreflang="${l}" href="${origin}${localizedPath(file, l)}">`),
+    `<link rel="alternate" hreflang="x-default" href="${origin}${localizedPath(file, DEFAULT_LANG)}">`,
+  ];
+  return html.replace('</head>', `${links.map((l) => `  ${l}`).join('\n')}\n</head>`);
+}
+
+function injectPageAssets(htmlContent, pageName, lang = DEFAULT_LANG) {
   if (!htmlContent.includes('</head>')) return htmlContent;
   let html = htmlContent;
   html = injectAuthRequiredBody(html, pageName);
@@ -384,6 +458,9 @@ function injectPageAssets(htmlContent, pageName) {
 
   html = injectAuthChromeScripts(html);
   html = normalizeSiteNavLinks(html);
+  html = localizeLinks(html, lang);
+  html = localizeDataScripts(html, lang);
+  html = injectI18nRuntime(html, lang);
   html = addDeferToBodyScripts(html);
 
   html = injectSiteFooterCss(html);
@@ -396,13 +473,15 @@ function injectPageAssets(htmlContent, pageName) {
   // come canonica, invitando i motori di ricerca a non indicizzarle.
   const canonical = getCanonicalOrigin();
   const pagePath = pageName ? `/${String(pageName).replace(/^\/+/, '')}` : '/';
+  const langPath = lang === DEFAULT_LANG ? pagePath : `/${lang}${pagePath}`;
   if (canonical && !html.includes('rel="canonical"')) {
     html = html.replace(
       '</head>',
-      `  <link rel="canonical" href="${canonical}${pagePath}">\n</head>`
+      `  <link rel="canonical" href="${canonical}${langPath}">\n</head>`
     );
   }
-  html = injectSocialMeta(html, pagePath, canonical);
+  html = injectAlternates(html, pagePath, canonical, lang);
+  html = injectSocialMeta(html, langPath, canonical, lang);
   html = injectIcons(html);
 
   // I meta http-equiv sulla cache non servono (decidono gli header HTTP) e confondono
@@ -412,8 +491,33 @@ function injectPageAssets(htmlContent, pageName) {
 }
 
 
+/** File generati per il browser: dizionari delle traduzioni e mappa del sito con i numeri. */
+function writeGeneratedClientFiles() {
+  try {
+    i18n.buildClientDicts();
+  } catch (err) {
+    console.warn('⚠️ i18n: dizionari per il browser non generati:', err.message);
+  }
+  try {
+    const manifest = clientManifest(computeStats());
+    const body = `/* Generato da server/pages.js: non modificare a mano (server/site-map.js) */\nwindow.EVIL_SITE = ${JSON.stringify(manifest)};\n`;
+    const file = path.join(root, 'js', 'site-pages.js');
+    let prev = null;
+    try {
+      prev = fs.readFileSync(file, 'utf8');
+    } catch (_) { /* nuovo */ }
+    if (prev !== body) fs.writeFileSync(file, body);
+  } catch (err) {
+    console.warn('⚠️ js/site-pages.js non generato:', err.message);
+  }
+}
+
 function mountStatic(app) {
   syncAchievementsToHtml();
+  writeGeneratedClientFiles();
+
+  // Il codice del server non va servito come file statico (js/server.js è l'avvio)
+  app.get(['/js/server.js', '/js/server.js.map'], (req, res) => res.status(404).end());
 
   // File che i motori di ricerca e i browser cercano nella radice del sito
   // (prima /robots.txt, /sitemap.xml e /favicon.ico rispondevano 404)
@@ -473,10 +577,30 @@ function mountStatic(app) {
   app.get(/^\/[^/]+\.html$/i, (req, res, next) => {
     const rel = req.path.replace(/^\//, '');
     if (!rel || rel.includes('/') || rel.startsWith('html/')) return next();
+    if (rel === 'home.html') return res.redirect(301, '/');
     if (!sendInjectedHtml(res, rel)) return next();
   });
 
-  app.use('/html', express.static(path.join(root, 'html'), staticOptions())); // asset non-html + fallback
+  // Versioni nelle altre lingue: /en/ e /en/pagina.html
+  for (const lang of LANGS.filter((l) => l !== DEFAULT_LANG)) {
+    // /en senza barra → /en/ (con il routing non stretto di Express '/en' prenderebbe anche '/en/')
+    app.get(new RegExp(`^/${lang}$`), (req, res, next) => (req.originalUrl.split('?')[0] === `/${lang}` ? res.redirect(301, `/${lang}/`) : next()));
+    app.get(`/${lang}/`, (req, res, next) => {
+      if (!sendInjectedHtml(res, 'home.html', '', lang)) return next();
+    });
+    app.get(new RegExp(`^/${lang}/([a-z0-9-]+\\.html)$`, 'i'), (req, res, next) => {
+      const rel = req.params[0];
+      if (rel === 'home.html') return res.redirect(301, `/${lang}/`);
+      if (!sendInjectedHtml(res, rel, undefined, lang)) return next();
+    });
+  }
+
+  // Le pagine HTML si servono solo dalle route sopra (con header, traduzioni e asset):
+  // /html/ resta per gli altri file (achievements.json, componenti)
+  app.use('/html', (req, res, next) => {
+    if (/\.html$/i.test(req.path) && isProduction()) return res.status(404).end();
+    next();
+  }, express.static(path.join(root, 'html'), staticOptions()));
 }
 
 function mountPageRoutes(app) {
@@ -484,6 +608,12 @@ function mountPageRoutes(app) {
   app.get('/', (req, res) => {
     if (!sendInjectedHtml(res, 'home.html', '')) res.status(404).send('Home page not found');
   });
+
+  // La pagina "Tecniche di manipolazione" parlava di persistenza ed evasione: ora ha il nome giusto
+  app.get(['/manipulation-techniques.html', '/html/manipulation-techniques.html'], (req, res) => {
+    res.redirect(301, '/persistence-evasion.html');
+  });
+  app.get('/en/manipulation-techniques.html', (req, res) => res.redirect(301, '/en/persistence-evasion.html'));
 
   // Redirect legacy ethical hacking → studio cifratura
   app.get(['/ethical-hacking.html', '/html/ethical-hacking.html'], (req, res) => {
@@ -500,6 +630,9 @@ function mountPageRoutes(app) {
 }
 
 module.exports = {
+  writeGeneratedClientFiles,
+  renderPage,
+  buildSitemap,
   mountStatic,
   mountPageRoutes,
   resolveAchievementsFile,

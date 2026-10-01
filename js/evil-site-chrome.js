@@ -5,6 +5,8 @@
   'use strict';
 
   const AUTH_API_URL = window.location.origin + '/api';
+  const I18N = window.EVIL_I18N || { t: (s, v) => (v ? s.replace(/\{(\w+)\}/g, (m, k) => v[k] ?? m) : s), url: (p) => p };
+  const { t } = I18N;
   const AUTH_TIMEOUT = 8000;
 
   const AUTH_REQUIRED_PAGES = new Set([
@@ -212,7 +214,7 @@
       if (!response.ok) return { reachable: response.status < 500 && response.status !== 429, user: null };
       const data = await response.json();
       if (data.authenticated && data.user?.id && data.user?.email) {
-        const name = data.user.name || data.user.email.split('@')[0] || 'Utente';
+        const name = data.user.name || data.user.email.split('@')[0] || t('Utente');
         return {
           reachable: true,
           user: { id: data.user.id, name, email: data.user.email, emailVerified: Boolean(data.user.emailVerified) }
@@ -245,7 +247,7 @@
     const name =
       user.name ||
       (typeof user.email === 'string' ? user.email.split('@')[0] : '') ||
-      'Utente';
+      t('Utente');
     return { id: user.id, name, email: user.email, emailVerified: Boolean(user.emailVerified) };
   }
 
@@ -268,6 +270,15 @@
     return fullName.trim().split(/\s+/).map((w) => w.charAt(0).toUpperCase()).join('').substring(0, 3);
   }
 
+  function navLink(className, label, ariaLabel, href) {
+    const a = document.createElement('a');
+    a.className = `auth-btn ${className}`;
+    a.href = href;
+    a.textContent = label;
+    if (ariaLabel) a.setAttribute('aria-label', ariaLabel);
+    return a;
+  }
+
   function navButton(className, label, ariaLabel, onClick) {
     const btn = document.createElement('button');
     btn.type = 'button';
@@ -280,8 +291,8 @@
 
   function renderGuestAuthButtons(authButtons) {
     authButtons.replaceChildren(
-      navButton('account', 'Accedi', 'Accedi a EVIL', () => { window.location.href = loginUrl(); }),
-      navButton('login', 'Registrati', 'Crea un account EVIL', () => { window.location.href = '/account.html'; })
+      navLink('account', t('Accedi'), t('Accedi a EVIL'), loginUrl()),
+      navLink('login', t('Registrati'), t('Crea un account EVIL'), I18N.url('/account.html'))
     );
   }
 
@@ -289,20 +300,21 @@
     const menu = document.createElement('div');
     menu.className = 'user-menu';
     const profile = document.createElement('a');
-    profile.href = '/profile.html';
+    profile.href = I18N.url('/profile.html');
     profile.className = 'user-name';
-    profile.title = `Profilo di ${user.name || 'Utente'}`;
-    profile.setAttribute('aria-label', `Profilo di ${user.name || 'Utente'}`);
+    const label = t('Profilo di {name}', { name: user.name || t('Utente') });
+    profile.title = label;
+    profile.setAttribute('aria-label', label);
     profile.textContent = `👤 ${getInitials(user.name)}`;
-    menu.append(profile, navButton('logout', 'Esci', 'Esci dall\'account', () => window.EVIL_logout()));
+    menu.append(profile, navButton('logout', t('Esci'), t('Esci dall’account'), () => window.EVIL_logout()));
     authButtons.replaceChildren(menu);
   }
 
   /** Link al login che riporta alla pagina corrente dopo l'accesso. */
   function loginUrl() {
     const page = window.location.pathname.split('/').pop() || '';
-    if (!page || /^(login|account|home|index)\.html$/.test(page)) return '/login.html';
-    return `/login.html?redirect=${encodeURIComponent(page + window.location.search)}`;
+    if (!page || /^(login|account|home|index)\.html$/.test(page)) return I18N.url('/login.html');
+    return I18N.url(`/login.html?redirect=${encodeURIComponent(page + window.location.search)}`);
   }
 
   function markAuthUiReady() {
@@ -339,7 +351,7 @@
     if (!lastSessionReachable && isAuthenticated()) return true;
 
     const page = redirectPage || window.location.pathname.split('/').pop() || 'home.html';
-    window.location.replace(`/login.html?redirect=${encodeURIComponent(page)}`);
+    window.location.replace(I18N.url(`/login.html?redirect=${encodeURIComponent(page)}`));
     return false;
   }
 
@@ -361,10 +373,10 @@
         headers: { 'Content-Type': 'application/json' }
       }).catch(() => {});
       AUTH_STORAGE.clear();
-      window.location.replace('/login.html');
+      window.location.replace(I18N.url('/login.html'));
     } catch {
       AUTH_STORAGE.clear();
-      window.location.replace('/login.html');
+      window.location.replace(I18N.url('/login.html'));
     }
   }
 

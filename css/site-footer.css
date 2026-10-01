@@ -119,3 +119,80 @@ footer.evil-site-foot {
     grid-template-columns: 1fr;
   }
 }
+
+/* ─── v3: footer con le quattro aree del sito ─── */
+.evil-site-foot__grid--v3 {
+  grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr));
+}
+
+.evil-site-foot__col--brand .evil-site-foot__title {
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  font-weight: 900;
+  font-size: 1.6rem;
+  letter-spacing: -0.02em;
+}
+
+.evil-site-foot__fire {
+  font-style: italic;
+  color: #a5b4c8;
+}
+
+.evil-site-foot__col--cyan .evil-site-foot__tag { color: #7dd3fc; }
+.evil-site-foot__col--amber .evil-site-foot__tag { color: #fbbf24; }
+.evil-site-foot__col--green .evil-site-foot__tag { color: #00ff9c; }
+.evil-site-foot__col--violet .evil-site-foot__tag { color: #c4b5fd; }
+
+h2.evil-site-foot__tag {
+  margin: 0 0 0.35rem;
+}
+
+.evil-site-foot__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.evil-site-foot__list .evil-site-foot__link {
+  color: #a5b4c8;
+  font-weight: 500;
+  font-size: 0.86rem;
+}
+
+.evil-site-foot__list .evil-site-foot__link::after {
+  content: none;
+}
+
+.evil-site-foot__list .evil-site-foot__link:hover {
+  color: #f8fafc;
+}
+
+.evil-site-foot__bottom {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: clamp(1.75rem, 4vw, 2.25rem) auto 0;
+  padding-top: 1.1rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+}
+
+@media (max-width: 1020px) {
+  .evil-site-foot__grid--v3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .evil-site-foot__col--brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .evil-site-foot__grid--v3 {
+    grid-template-columns: 1fr;
+  }
+}

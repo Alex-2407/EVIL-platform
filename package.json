@@ -6,14 +6,16 @@
   "scripts": {
     "start": "node scripts/build-home-css.js && node js/server.js",
     "dev": "node scripts/build-home-css.js && node --watch-path=server --watch-path=middleware --watch-path=services --watch-path=utils js/server.js",
-    "build": "node scripts/build-home-css.js",
+    "build": "node scripts/build-home-css.js && node scripts/i18n.js build",
     "build:home-css": "node scripts/build-home-css.js",
     "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",
     "lint": "eslint .",
     "check:encoding": "node scripts/find-encoding-issues.js",
     "check:deploy": "node scripts/check-deployment.js",
     "verify": "node scripts/verify-services.js",
-    "migrate:postgres": "node scripts/migrate-users-to-postgres.js"
+    "migrate:postgres": "node scripts/migrate-users-to-postgres.js",
+    "i18n:extract": "node scripts/i18n.js extract",
+    "i18n:check": "node scripts/i18n.js check"
   },
   "engines": {
     "node": "22.x",
@@ -48,6 +50,7 @@
     "joi": "^18.2.9",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.4.0",
+    "node-html-parser": "^7.1.0",
     "nodemailer": "^10.0.13",
     "pdfkit": "0.13.0",
     "pg": "^8.23.0",

@@ -11,6 +11,7 @@ const { httpsRedirectMiddleware } = require('../middleware/https-enforce');
 const { logger, httpLogger } = require('../middleware/logger');
 const { globalLimiter } = require('../middleware/limiter');
 const pages = require('./pages');
+const { i18nMiddleware } = require('./i18n');
 const { registerHealth, registerDiagnostics } = require('./routes/health');
 const registerTools = require('./routes/tools');
 const registerLab = require('./routes/lab');
@@ -58,6 +59,8 @@ function createApp(ctx) {
 
   // Cookie letti anche dal limite globale (conteggio per utente autenticato)
   app.use(cookieParser());
+  // lingua della richiesta (req.lang, req.t) per i messaggi delle API
+  app.use(i18nMiddleware);
 
   // Limite globale solo sulle API: statici e pagine non passano di qui
   app.use('/api', globalLimiter);
