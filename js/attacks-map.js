@@ -329,7 +329,11 @@
         iconAnchor: [14, 14],
       });
 
-      const marker = L.marker([lat, lon], { icon, interactive: true });
+      const marker = L.marker([lat, lon], {
+        icon,
+        interactive: true,
+        title: `${region.country}: ${count} segnalazioni`,
+      });
       marker.bindPopup(popupHtml, POPUP_OPTS);
       marker.on('click', () => marker.openPopup());
       layerGroup.addLayer(marker);

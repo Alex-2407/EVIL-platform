@@ -189,7 +189,11 @@
 
       const popup = popupHtml(attack);
 
-      const marker = L.marker([dispLat, dispLon], { icon, interactive: true });
+      const marker = L.marker([dispLat, dispLon], {
+        icon,
+        interactive: true,
+        title: String(attack.org || attack.title || 'Violazione'),
+      });
       marker.bindPopup(popup, POPUP_OPTS);
       marker.on('click', () => focusAttack(attack.id, false));
       layerGroup.addLayer(marker);
