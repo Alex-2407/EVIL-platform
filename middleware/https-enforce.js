@@ -1,11 +1,15 @@
 // ==================== HTTPS ENFORCEMENT ====================
 // Redirect HTTP → HTTPS e allinea l'host a BASE_URL (certificato TLS sul dominio canonico).
+// "Produzione" è decisa da utils/env.isProduction(): anche NODE_ENV assente o scritto male
+// vale come produzione (prima serviva NODE_ENV=production alla lettera).
+
+const { isProduction } = require('../utils/env');
 
 function shouldEnforceHttps() {
   const off = process.env.FORCE_HTTPS;
   if (off === '0' || off === 'false') return false;
   if (off === '1' || off === 'true') return true;
-  if (process.env.NODE_ENV === 'production') return true;
+  if (isProduction()) return true;
   if (process.env.BASE_URL && /^https:\/\//i.test(process.env.BASE_URL)) return true;
   return false;
 }
@@ -16,7 +20,7 @@ function getCanonicalOrigin() {
   try {
     const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
     const url = new URL(withScheme);
-    if (process.env.NODE_ENV === 'production' && url.protocol !== 'https:') {
+    if (isProduction() && url.protocol !== 'https:') {
       url.protocol = 'https:';
     }
     return url.origin;

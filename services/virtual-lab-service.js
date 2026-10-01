@@ -3,6 +3,16 @@
  * Nessuna connessione reale: risposte didattiche controllate lato server.
  */
 const crypto = require('crypto');
+const { t } = require('../server/i18n');
+
+// I campi rivolti all'utente del catalogo sono oggetti {it, en}: pick() restituisce
+// la versione nella lingua della sessione, con l'italiano come ripiego.
+function pick(lang, value) {
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return (lang && value[lang]) || value.it || value.en || '';
+  }
+  return value;
+}
 
 const SESSION_TTL_MS = 2 * 60 * 60 * 1000;
 const MAX_SESSIONS_PER_OWNER = 3;
@@ -56,59 +66,143 @@ const ATTACKER = {
   prompt: 'evil-kali@jumpbox:~$',
 };
 
+// Livelli didattici (glossario docs/I18N.md: base/intermedio/avanzato).
+const LV = {
+  base: { it: 'Base', en: 'Beginner' },
+  inter: { it: 'Intermedio', en: 'Intermediate' },
+  adv: { it: 'Avanzato', en: 'Advanced' },
+};
+
+// I testi rivolti all'utente sono oggetti {it, en}: il servizio risponde nella lingua
+// della richiesta (vedi pick() e il campo session.lang). I campi tecnici (nmap, ssh, web…)
+// restano identici nelle due lingue. Nessun valore di flag compare negli obiettivi o nei
+// suggerimenti: la flag si trova sfruttando lo scenario.
 const LAB_CATALOG = {
   'network-recon': {
     id: 'network-recon',
     name: 'EVIL-NetProbe',
-    title: 'Ricognizione di rete',
-    difficulty: 'Principiante',
-    duration: '30–45 min',
+    title: { it: 'Ricognizione di rete', en: 'Network reconnaissance' },
+    level: LV.base,
+    duration: '~15 min',
+    audience: {
+      it: 'Chi inizia con i test di sicurezza autorizzati e vuole imparare a mappare un perimetro.',
+      en: 'People starting with authorised security testing who want to learn how to map a perimeter.',
+    },
+    prerequisites: {
+      it: 'Nozioni di base su TCP/IP, porte e servizi di rete.',
+      en: 'Basic understanding of TCP/IP, ports and network services.',
+    },
     targetIp: '10.42.10.5',
     hostname: 'gateway.evil.lab',
     icon: '◈',
-    description: 'Mappa la rete isolata EVIL: host attivi, porte e servizi con nmap.',
-    objectives: [
-      'Esegui una scansione con nmap sul target 10.42.10.5',
-      'Identifica almeno due servizi in ascolto',
-      'Invia la flag con submit flag EVIL{recon_complete}',
-    ],
+    description: {
+      it: 'In un test autorizzato il primo passo è mappare host, porte e servizi in perimetro. Qui lo fai con nmap su un target isolato.',
+      en: 'In an authorised test the first step is to map hosts, ports and services in scope. Here you do it with nmap against an isolated target.',
+    },
+    objectives: {
+      it: [
+        'Esegui una scansione con nmap sul target 10.42.10.5',
+        'Identifica almeno due servizi in ascolto e le loro versioni',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: riduci la superficie esposta e verifica come rilevare una scansione',
+      ],
+      en: [
+        'Run an nmap scan against the target 10.42.10.5',
+        'Identify at least two listening services and their versions',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: reduce the exposed surface and check how a scan is detected',
+      ],
+    },
     flag: 'EVIL{recon_complete}',
-    hints: [
-      'Prova: nmap -sV 10.42.10.5',
-      'Cerca porte 22, 80 e 443 nella risposta di nmap.',
-    ],
+    hints: {
+      it: [
+        'Prova una scansione delle versioni: nmap -sV 10.42.10.5',
+        'Guarda le righe con STATE open: annota porte e servizi che potresti approfondire.',
+      ],
+      en: [
+        'Try a version scan: nmap -sV 10.42.10.5',
+        'Look at the lines with STATE open: note the ports and services worth investigating.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Esponi solo le porte necessarie, chiudi i servizi inutilizzati e metti davanti un firewall con allowlist; tieni aggiornati i servizi raggiungibili.',
+        en: 'Expose only the ports you need, close unused services and put an allowlist firewall in front; keep reachable services patched.',
+      },
+      detect: {
+        it: 'Un IDS/IPS e i log del firewall segnalano le scansioni: molte connessioni verso porte diverse dallo stesso IP in pochi secondi.',
+        en: 'An IDS/IPS and firewall logs flag scans: many connections to different ports from the same IP within seconds.',
+      },
+    },
     nmap: {
       ports: [
-        { port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 8.9' },
-        { port: 80, state: 'open', service: 'http', version: 'nginx 1.24' },
-        { port: 443, state: 'open', service: 'https', version: 'nginx 1.24' },
+        { port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 9.6' },
+        { port: 80, state: 'open', service: 'http', version: 'nginx 1.26' },
+        { port: 443, state: 'open', service: 'https', version: 'nginx 1.26' },
       ],
     },
   },
   'web-app-01': {
     id: 'web-app-01',
     name: 'EVIL-WebTarget',
-    title: 'Applicazione web vulnerabile',
-    difficulty: 'Principiante',
-    duration: '45–60 min',
+    title: { it: 'SQL injection sul login', en: 'Login SQL injection' },
+    level: LV.base,
+    duration: '~20 min',
+    audience: {
+      it: 'Chi sviluppa o testa applicazioni web e vuole capire da dentro una SQL injection.',
+      en: 'People who build or test web apps and want to understand SQL injection from the inside.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP e di query SQL; saper leggere una richiesta POST.',
+      en: 'Basics of HTTP and SQL queries; able to read a POST request.',
+    },
     targetIp: '10.42.10.11',
     hostname: 'web-target.evil.lab',
     icon: '◇',
-    description: 'Target web in VLAN isolata: login debole e SQL injection simulata.',
-    objectives: [
-      'Scansiona 10.42.10.11 e verifica la porta 80',
-      'Recupera la pagina di login con curl',
-      'Bypassa il login con SQL injection nel parametro user',
-      'Invia la flag ottenuta con submit flag',
-    ],
+    description: {
+      it: 'Un login che costruisce la query SQL concatenando l\'input utente. Scenario autorizzato in rete isolata.',
+      en: 'A login that builds its SQL query by concatenating user input. Authorised scenario on an isolated network.',
+    },
+    objectives: {
+      it: [
+        'Scansiona 10.42.10.11 e verifica la porta 80',
+        'Recupera la pagina di login con curl',
+        'Prova un bypass dell\'autenticazione tramite SQL injection',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: correggi la query e indica come rilevare l\'attacco',
+      ],
+      en: [
+        'Scan 10.42.10.11 and confirm port 80',
+        'Fetch the login page with curl',
+        'Try an authentication bypass through SQL injection',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: fix the query and explain how the attack is detected',
+      ],
+    },
     flag: 'EVIL{sqli_login_bypass}',
-    hints: [
-      'curl http://10.42.10.11/login',
-      'Prova user=admin\' OR \'1\'=\'1 nel body POST del form.',
-    ],
+    hints: {
+      it: [
+        'Scarica prima il form: curl http://10.42.10.11/login',
+        'Un login che concatena l\'input accetta una condizione sempre vera nel campo user.',
+      ],
+      en: [
+        'Fetch the form first: curl http://10.42.10.11/login',
+        'A login that concatenates input will accept an always-true condition in the user field.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Usa query parametrizzate (prepared statement) con binding dei valori, mai concatenazione di stringhe; valida l\'input e dai all\'utente DB il minimo dei privilegi.',
+        en: 'Use parameterised queries (prepared statements) with value binding, never string concatenation; validate input and give the DB user least privilege.',
+      },
+      detect: {
+        it: 'Un WAF e i log applicativi segnalano apici e sintassi SQL nei parametri; picchi di errori SQL indicano tentativi di injection.',
+        en: 'A WAF and application logs flag quotes and SQL syntax in parameters; spikes of SQL errors indicate injection attempts.',
+      },
+    },
     nmap: {
       ports: [
-        { port: 80, state: 'open', service: 'http', version: 'nginx 1.22' },
+        { port: 80, state: 'open', service: 'http', version: 'nginx 1.24' },
         { port: 3306, state: 'filtered', service: 'mysql', version: '' },
       ],
     },
@@ -121,37 +215,74 @@ const LAB_CATALOG = {
   pass: <input name="pass" type="password"><br>
   <button>Accedi</button>
 </form></body></html>`,
-      sqliPayload: "admin' OR '1'='1",
     },
   },
   'linux-ssh-01': {
     id: 'linux-ssh-01',
     name: 'EVIL-LinuxBox',
-    title: 'Accesso SSH debole',
-    difficulty: 'Intermedio',
-    duration: '45–60 min',
+    title: { it: 'Accesso SSH con credenziali deboli', en: 'Weak SSH credentials' },
+    level: LV.inter,
+    duration: '~15 min',
+    audience: {
+      it: 'Amministratori di sistema e tester che valutano la robustezza dell\'accesso SSH.',
+      en: 'System administrators and testers assessing the strength of SSH access.',
+    },
+    prerequisites: {
+      it: 'Uso base del terminale Linux e del comando ssh.',
+      en: 'Basic Linux terminal use and familiarity with the ssh command.',
+    },
     targetIp: '10.42.10.21',
     hostname: 'linuxbox.evil.lab',
     icon: '▣',
-    description: 'Server Linux con credenziali prevedibili. Solo rete lab EVIL.',
-    objectives: [
-      'Individua la porta SSH con nmap',
-      'Connettiti via ssh student@10.42.10.21',
-      'Leggi /home/student/notes.txt e invia la flag',
-    ],
+    description: {
+      it: 'Un server Linux con una password prevedibile: uno dei vettori più comuni negli ambienti mal configurati.',
+      en: 'A Linux server with a predictable password: one of the most common vectors in misconfigured environments.',
+    },
+    objectives: {
+      it: [
+        'Individua la porta SSH con nmap',
+        'Accedi con l\'utente di prova documentato (chiedi hint)',
+        'Leggi /home/student/notes.txt e trova la flag',
+        'Consegnala con submit flag <flag>',
+        'Difendi: imposta autenticazione a chiave e indica come rilevare i tentativi',
+      ],
+      en: [
+        'Find the SSH port with nmap',
+        'Log in with the documented test account (ask for a hint)',
+        'Read /home/student/notes.txt and find the flag',
+        'Submit it with submit flag <flag>',
+        'Defend: enforce key-based auth and explain how attempts are detected',
+      ],
+    },
     flag: 'EVIL{weak_ssh_creds}',
-    hints: [
-      'nmap -p 22 10.42.10.21',
-      'Password comune in lab: evil2024 per l\'utente student.',
-    ],
+    hints: {
+      it: [
+        'Conferma la porta 22: nmap -p 22 10.42.10.21',
+        'In questo scenario l\'utente student ha la password di prova evil-lab-01.',
+      ],
+      en: [
+        'Confirm port 22: nmap -p 22 10.42.10.21',
+        'In this scenario the student user has the test password evil-lab-01.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Disabilita l\'autenticazione a password (PasswordAuthentication no), usa solo chiavi SSH, imponi password robuste dove servono e aggiungi fail2ban con MFA.',
+        en: 'Disable password authentication (PasswordAuthentication no), use SSH keys only, enforce strong passwords where needed and add fail2ban with MFA.',
+      },
+      detect: {
+        it: 'Le righe "Failed password" ripetute in /var/log/auth.log da uno stesso IP indicano un attacco in corso.',
+        en: 'Repeated "Failed password" lines in /var/log/auth.log from the same IP indicate an ongoing attack.',
+      },
+    },
     nmap: {
-      ports: [{ port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 8.4' }],
+      ports: [{ port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 9.6' }],
     },
     ssh: {
       user: 'student',
-      password: 'evil2024',
+      password: 'evil-lab-01',
       files: {
-        '/home/student/notes.txt': 'Backup credenziali lab — flag: EVIL{weak_ssh_creds}\nNon riutilizzare in produzione.',
+        '/home/student/notes.txt': 'Appunti lab — la flag di questo scenario è EVIL{weak_ssh_creds}\nNon riutilizzare credenziali deboli in produzione.',
         '/etc/passwd': 'root:x:0:0:root:/root:/bin/bash\nstudent:x:1000:1000:Lab User:/home/student:/bin/bash',
       },
     },
@@ -159,32 +290,69 @@ const LAB_CATALOG = {
   'linux-privesc-01': {
     id: 'linux-privesc-01',
     name: 'EVIL-Server',
-    title: 'Privilege escalation',
-    difficulty: 'Avanzato',
-    duration: '60–90 min',
+    title: { it: 'Privilege escalation via sudo', en: 'Privilege escalation via sudo' },
+    level: LV.adv,
+    duration: '~25 min',
+    audience: {
+      it: 'Tester e amministratori che vogliono capire come una regola sudo troppo larga porti a root.',
+      en: 'Testers and administrators who want to see how an over-broad sudo rule leads to root.',
+    },
+    prerequisites: {
+      it: 'Buona confidenza con la shell Linux, i permessi e il meccanismo sudo.',
+      en: 'Good comfort with the Linux shell, permissions and the sudo mechanism.',
+    },
     targetIp: '10.42.10.22',
     hostname: 'privesc.evil.lab',
     icon: '⬡',
-    description: 'Shell limitata e sudo mal configurato — escalation didattica.',
-    objectives: [
-      'Accedi via ssh come dev@10.42.10.22',
-      'Esegui sudo -l e individua find',
-      'Ottieni shell root con sudo find',
-      'Leggi /root/flag.txt e invia la flag',
-    ],
+    description: {
+      it: 'Shell limitata e una regola sudo troppo permissiva: da utente normale a root, in uno scenario didattico.',
+      en: 'A limited shell and an over-permissive sudo rule: from a normal user to root, in a teaching scenario.',
+    },
+    objectives: {
+      it: [
+        'Accedi con l\'utente dev (vedi hint per le credenziali di prova)',
+        'Esegui sudo -l e individua il binario sfruttabile',
+        'Ottieni una shell con privilegi elevati',
+        'Leggi /root/flag.txt, trova la flag e consegnala con submit flag <flag>',
+        'Difendi: restringi sudoers e indica come rilevare l\'abuso',
+      ],
+      en: [
+        'Log in as the dev user (see hint for test credentials)',
+        'Run sudo -l and spot the abusable binary',
+        'Obtain a shell with elevated privileges',
+        'Read /root/flag.txt, find the flag and submit it with submit flag <flag>',
+        'Defend: tighten sudoers and explain how the abuse is detected',
+      ],
+    },
     flag: 'EVIL{sudo_find_shell}',
-    hints: [
-      'Credenziali lab: dev / devlab',
-      'sudo find . -exec /bin/sh \\; -quit apre una shell root.',
-    ],
+    hints: {
+      it: [
+        'Credenziali di prova dello scenario: dev / evil-lab-dev.',
+        'Un binario con -exec può lanciare una shell: consulta GTFOBins per il comando esatto.',
+      ],
+      en: [
+        'Scenario test credentials: dev / evil-lab-dev.',
+        'A binary with -exec can spawn a shell: check GTFOBins for the exact command.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Concedi in sudoers solo i comandi strettamente necessari, evita binari che aprono shell (find, vim, less…) con NOPASSWD e preferisci wrapper controllati.',
+        en: 'Grant only the strictly necessary commands in sudoers, avoid shell-spawning binaries (find, vim, less…) with NOPASSWD and prefer controlled wrappers.',
+      },
+      detect: {
+        it: 'auditd sulle execve e i log di sudo mostrano un utente normale che lancia /bin/sh tramite un comando sudo: segnale chiaro di escalation.',
+        en: 'auditd on execve and sudo logs show a normal user spawning /bin/sh through a sudo command: a clear escalation signal.',
+      },
+    },
     nmap: {
-      ports: [{ port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 9.0' }],
+      ports: [{ port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 9.6' }],
     },
     ssh: {
       user: 'dev',
-      password: 'devlab',
+      password: 'evil-lab-dev',
       files: {
-        '/home/dev/readme.txt': 'Utente dev — prova sudo -l',
+        '/home/dev/readme.txt': 'Utente dev — prova sudo -l per vedere cosa puoi eseguire.',
       },
       sudo: {
         allowed: '/usr/bin/find',
@@ -198,23 +366,59 @@ const LAB_CATALOG = {
   'xss-reflected': {
     id: 'xss-reflected',
     name: 'EVIL-XSSLab',
-    title: 'Cross-Site Scripting (XSS)',
-    difficulty: 'Principiante',
-    duration: '30–45 min',
+    title: { it: 'Cross-Site Scripting (XSS) riflesso', en: 'Reflected Cross-Site Scripting (XSS)' },
+    level: LV.base,
+    duration: '~15 min',
+    audience: {
+      it: 'Sviluppatori front-end e tester che vogliono capire perché l\'output va sempre codificato.',
+      en: 'Front-end developers and testers who want to understand why output must always be encoded.',
+    },
+    prerequisites: {
+      it: 'Basi di HTML/JavaScript e del modo in cui il browser esegue gli script.',
+      en: 'Basics of HTML/JavaScript and how the browser executes scripts.',
+    },
     targetIp: '10.42.10.12',
     hostname: 'xss-lab.evil.lab',
     icon: '◆',
-    description: 'Parametro di ricerca che riflette input non filtrato nel browser.',
-    objectives: [
-      'Scansiona 10.42.10.12 e apri la pagina di ricerca',
-      'Inietta un payload XSS nel parametro q',
-      'Invia la flag ottenuta con submit flag',
-    ],
+    description: {
+      it: 'Un parametro di ricerca che rimanda l\'input nella pagina senza codifica: il browser lo esegue come codice.',
+      en: 'A search parameter that reflects input back into the page without encoding: the browser runs it as code.',
+    },
+    objectives: {
+      it: [
+        'Scansiona 10.42.10.12 e apri la pagina di ricerca',
+        'Dimostra l\'esecuzione di uno script nel parametro q',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: codifica l\'output e indica come rilevare l\'XSS',
+      ],
+      en: [
+        'Scan 10.42.10.12 and open the search page',
+        'Demonstrate script execution through the q parameter',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: encode the output and explain how XSS is detected',
+      ],
+    },
     flag: 'EVIL{xss_reflected}',
-    hints: [
-      'curl "http://10.42.10.12/search?q=test"',
-      'Prova q=<script>alert(1)</script> nell\'URL.',
-    ],
+    hints: {
+      it: [
+        'Osserva come torna l\'input: curl "http://10.42.10.12/search?q=test"',
+        'Se l\'input non è codificato, un tag <script> nel parametro q viene eseguito.',
+      ],
+      en: [
+        'See how the input comes back: curl "http://10.42.10.12/search?q=test"',
+        'If the input is not encoded, a <script> tag in the q parameter is executed.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Codifica l\'output in base al contesto (HTML, attributo, JS), usa l\'escaping automatico del framework e applica una Content-Security-Policy restrittiva.',
+        en: 'Encode output according to context (HTML, attribute, JS), rely on the framework\'s auto-escaping and apply a strict Content-Security-Policy.',
+      },
+      detect: {
+        it: 'Un WAF e i report di violazione della CSP segnalano tag <script> o handler on* riflessi nelle risposte.',
+        en: 'A WAF and CSP violation reports flag <script> tags or on* handlers reflected in responses.',
+      },
+    },
     nmap: {
       ports: [{ port: 80, state: 'open', service: 'http', version: 'Apache 2.4' }],
     },
@@ -223,73 +427,181 @@ const LAB_CATALOG = {
   'lfi-web': {
     id: 'lfi-web',
     name: 'EVIL-LFILab',
-    title: 'Local File Inclusion',
-    difficulty: 'Intermedio',
-    duration: '45–60 min',
+    title: { it: 'Local File Inclusion', en: 'Local File Inclusion' },
+    level: LV.inter,
+    duration: '~20 min',
+    audience: {
+      it: 'Sviluppatori e tester che vogliono capire i rischi del path controllato dall\'utente.',
+      en: 'Developers and testers who want to understand the risks of user-controlled paths.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP e del filesystem; conoscere il concetto di web root.',
+      en: 'Basics of HTTP and the filesystem; familiarity with the web root concept.',
+    },
     targetIp: '10.42.10.15',
     hostname: 'lfi-lab.evil.lab',
     icon: '▤',
-    description: 'Parametro file che legge path arbitrari sul server web.',
-    objectives: [
-      'Trova l\'endpoint /view?file= sulla porta 80',
-      'Usa directory traversal per leggere /etc/passwd',
-      'Invia la flag con submit flag',
-    ],
+    description: {
+      it: 'Un parametro file che include percorsi scelti dall\'utente: con il directory traversal si esce dalla web root.',
+      en: 'A file parameter that includes user-chosen paths: directory traversal lets you escape the web root.',
+    },
+    objectives: {
+      it: [
+        'Trova l\'endpoint /view?file= sulla porta 80',
+        'Usa il directory traversal per leggere un file di sistema',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: valida il percorso e indica come rilevare il traversal',
+      ],
+      en: [
+        'Find the /view?file= endpoint on port 80',
+        'Use directory traversal to read a system file',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: validate the path and explain how traversal is detected',
+      ],
+    },
     flag: 'EVIL{lfi_traversal}',
-    hints: [
-      'curl "http://10.42.10.15/view?file=index.php"',
-      'Prova file=../../../etc/passwd',
-    ],
+    hints: {
+      it: [
+        'Guarda la pagina inclusa: curl "http://10.42.10.15/view?file=index.php"',
+        'Le sequenze ../ permettono di risalire le cartelle verso file noti come /etc/passwd.',
+      ],
+      en: [
+        'Look at the included page: curl "http://10.42.10.15/view?file=index.php"',
+        'The ../ sequences let you climb directories toward known files such as /etc/passwd.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Non passare mai l\'input utente a funzioni di inclusione: usa una allowlist di file consentiti, normalizza il percorso e limita con open_basedir/chroot.',
+        en: 'Never pass user input to include functions: use an allowlist of permitted files, normalise the path and confine with open_basedir/chroot.',
+      },
+      detect: {
+        it: 'Sequenze ../ o percorsi come /etc/passwd nei parametri, visibili nei log del web server, indicano tentativi di traversal.',
+        en: '../ sequences or paths like /etc/passwd in parameters, visible in web server logs, indicate traversal attempts.',
+      },
+    },
     nmap: {
-      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.20' }],
+      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.26' }],
     },
     web: { type: 'lfi' },
   },
   'csrf-web': {
     id: 'csrf-web',
     name: 'EVIL-CSRFLab',
-    title: 'Cross-Site Request Forgery',
-    difficulty: 'Intermedio',
-    duration: '30–45 min',
+    title: { it: 'Cross-Site Request Forgery', en: 'Cross-Site Request Forgery' },
+    level: LV.inter,
+    duration: '~15 min',
+    audience: {
+      it: 'Sviluppatori web che gestiscono azioni autenticate e vogliono proteggerle.',
+      en: 'Web developers who handle authenticated actions and want to protect them.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP, cookie di sessione e form POST.',
+      en: 'Basics of HTTP, session cookies and POST forms.',
+    },
     targetIp: '10.42.10.13',
     hostname: 'csrf-lab.evil.lab',
     icon: '◎',
-    description: 'Form che cambia email senza token anti-CSRF.',
-    objectives: [
-      'Ispeziona il form /account/email con curl',
-      'Simula POST senza token di protezione',
-      'Invia la flag restituita dal server',
-    ],
+    description: {
+      it: 'Un form che cambia l\'email senza token anti-CSRF: un sito terzo può far agire il browser autenticato.',
+      en: 'A form that changes the email with no anti-CSRF token: a third-party site can act through the authenticated browser.',
+    },
+    objectives: {
+      it: [
+        'Ispeziona il form /account/email con curl',
+        'Mostra che la POST viene accettata senza token di protezione',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: aggiungi i token anti-CSRF e indica come rilevare l\'abuso',
+      ],
+      en: [
+        'Inspect the /account/email form with curl',
+        'Show that the POST is accepted with no protection token',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: add anti-CSRF tokens and explain how the abuse is detected',
+      ],
+    },
     flag: 'EVIL{csrf_no_token}',
-    hints: [
-      'curl http://10.42.10.13/account/email',
-      'curl -d "email=attacker@evil.lab" http://10.42.10.13/account/email',
-    ],
+    hints: {
+      it: [
+        'Cerca un token nascosto nel form: curl http://10.42.10.13/account/email',
+        'Se non c\'è alcun token, una POST con solo il campo email viene accettata.',
+      ],
+      en: [
+        'Look for a hidden token in the form: curl http://10.42.10.13/account/email',
+        'If there is no token, a POST with just the email field is accepted.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Richiedi un token anti-CSRF per ogni azione che cambia stato, imposta i cookie di sessione con SameSite e chiedi la riautenticazione per le operazioni sensibili.',
+        en: 'Require an anti-CSRF token for every state-changing action, set session cookies with SameSite and re-authenticate for sensitive operations.',
+      },
+      detect: {
+        it: 'Il server segnala le richieste senza token valido o con Origin/Referer cross-site inattesi.',
+        en: 'The server flags requests with a missing/invalid token or unexpected cross-site Origin/Referer.',
+      },
+    },
     nmap: {
-      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.18' }],
+      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.24' }],
     },
     web: { type: 'csrf' },
   },
   'dir-discovery': {
     id: 'dir-discovery',
     name: 'EVIL-DirLab',
-    title: 'Directory brute force',
-    difficulty: 'Principiante',
-    duration: '30–45 min',
+    title: { it: 'Scoperta di directory nascoste', en: 'Hidden directory discovery' },
+    level: LV.base,
+    duration: '~10 min',
+    audience: {
+      it: 'Chi gestisce web server e vuole capire cosa resta esposto per errore.',
+      en: 'People who run web servers and want to see what stays exposed by mistake.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP e dei codici di stato (200, 403, 404).',
+      en: 'Basics of HTTP and status codes (200, 403, 404).',
+    },
     targetIp: '10.42.10.14',
     hostname: 'dir-lab.evil.lab',
     icon: '▧',
-    description: 'Percorsi nascosti su web server — enum con dirb.',
-    objectives: [
-      'Esegui dirb sul target web',
-      'Recupera /admin/flag.txt con curl',
-      'Invia la flag con submit flag',
-    ],
+    description: {
+      it: 'Percorsi non collegati da nessuna pagina ma ancora raggiungibili: pannelli admin o backup dimenticati.',
+      en: 'Paths not linked from any page yet still reachable: forgotten admin panels or backups.',
+    },
+    objectives: {
+      it: [
+        'Enumera i percorsi del web server con dirb',
+        'Individua un percorso sensibile non pubblicizzato',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: proteggi i percorsi sensibili e indica come rilevare l\'enumerazione',
+      ],
+      en: [
+        'Enumerate the web server paths with dirb',
+        'Spot a sensitive, unadvertised path',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: protect sensitive paths and explain how enumeration is detected',
+      ],
+    },
     flag: 'EVIL{hidden_admin_path}',
-    hints: [
-      'dirb http://10.42.10.14/',
-      'curl http://10.42.10.14/admin/flag.txt',
-    ],
+    hints: {
+      it: [
+        'Enumera i percorsi comuni: dirb http://10.42.10.14/',
+        'Un codice 200 su un percorso come /admin indica una risorsa raggiungibile senza link.',
+      ],
+      en: [
+        'Enumerate common paths: dirb http://10.42.10.14/',
+        'A 200 on a path like /admin points to a resource reachable with no link.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Rimuovi o proteggi con autenticazione i percorsi sensibili, disattiva il listing delle directory e non lasciare backup nella web root.',
+        en: 'Remove or authenticate sensitive paths, disable directory listing and keep backups out of the web root.',
+      },
+      detect: {
+        it: 'Raffiche di 404/403 verso percorsi comuni dallo stesso IP, nei log di accesso, indicano un\'enumerazione.',
+        en: 'Bursts of 404/403 to common paths from the same IP, in access logs, indicate enumeration.',
+      },
+    },
     nmap: {
       ports: [{ port: 80, state: 'open', service: 'http', version: 'Apache 2.4' }],
     },
@@ -298,53 +610,125 @@ const LAB_CATALOG = {
   'brute-force-ssh': {
     id: 'brute-force-ssh',
     name: 'EVIL-BruteLab',
-    title: 'Brute force SSH',
-    difficulty: 'Intermedio',
-    duration: '45–60 min',
+    title: { it: 'Brute force SSH', en: 'SSH brute force' },
+    level: LV.inter,
+    duration: '~15 min',
+    audience: {
+      it: 'Amministratori che vogliono capire perché servono MFA e rate limiting su SSH.',
+      en: 'Administrators who want to see why MFA and rate limiting matter for SSH.',
+    },
+    prerequisites: {
+      it: 'Conoscere SSH e il concetto di wordlist.',
+      en: 'Familiarity with SSH and the concept of a wordlist.',
+    },
     targetIp: '10.42.10.23',
     hostname: 'brute.evil.lab',
     icon: '▨',
-    description: 'Servizio SSH con password debole scoperta via hydra.',
-    objectives: [
-      'Conferma SSH aperto con nmap',
-      'Lancia hydra con wordlist lab su admin',
-      'Invia la flag trovata nel report hydra',
-    ],
-    flag: 'EVIL{hydra_ssh_win}',
-    hints: [
-      'nmap -p 22 10.42.10.23',
-      'hydra -l admin -P /usr/share/wordlists/lab.txt ssh://10.42.10.23',
-    ],
-    nmap: {
-      ports: [{ port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 7.6' }],
+    description: {
+      it: 'Un servizio SSH con una password debole che cade sotto un attacco automatizzato: ecco perché servono difese.',
+      en: 'An SSH service with a weak password that falls to an automated attack: this is why defences matter.',
     },
-    bruteforce: { user: 'admin', password: 'lab2024' },
+    objectives: {
+      it: [
+        'Conferma SSH aperto con nmap',
+        'Esegui un attacco a dizionario autorizzato con hydra',
+        'Trova la flag nel report e consegnala con submit flag <flag>',
+        'Difendi: aggiungi MFA e rate limiting, indica come rilevare il brute force',
+      ],
+      en: [
+        'Confirm SSH is open with nmap',
+        'Run an authorised dictionary attack with hydra',
+        'Find the flag in the report and submit it with submit flag <flag>',
+        'Defend: add MFA and rate limiting, explain how brute force is detected',
+      ],
+    },
+    flag: 'EVIL{hydra_ssh_win}',
+    hints: {
+      it: [
+        'Conferma la porta 22: nmap -p 22 10.42.10.23',
+        'Lancia hydra sull\'utente admin con una wordlist: hydra -l admin -P /usr/share/wordlists/lab.txt ssh://10.42.10.23',
+      ],
+      en: [
+        'Confirm port 22: nmap -p 22 10.42.10.23',
+        'Run hydra against the admin user with a wordlist: hydra -l admin -P /usr/share/wordlists/lab.txt ssh://10.42.10.23',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Preferisci l\'autenticazione a chiave, aggiungi MFA, limita i tentativi con fail2ban e un rate limit, e vieta login diretti con password deboli.',
+        en: 'Prefer key-based authentication, add MFA, throttle attempts with fail2ban and a rate limit, and forbid direct logins with weak passwords.',
+      },
+      detect: {
+        it: 'Molti login falliti in rapida successione da uno stesso IP in /var/log/auth.log sono il segnale tipico del brute force.',
+        en: 'Many failed logins in quick succession from the same IP in /var/log/auth.log are the classic brute-force signal.',
+      },
+    },
+    nmap: {
+      ports: [{ port: 22, state: 'open', service: 'ssh', version: 'OpenSSH 8.9' }],
+    },
+    bruteforce: { user: 'admin', password: 'evil-lab-23' },
   },
   'smb-enum': {
     id: 'smb-enum',
     name: 'EVIL-SMBLab',
-    title: 'Enumerazione SMB',
-    difficulty: 'Intermedio',
-    duration: '45–60 min',
+    title: { it: 'Enumerazione SMB', en: 'SMB enumeration' },
+    level: LV.inter,
+    duration: '~15 min',
+    audience: {
+      it: 'Chi gestisce condivisioni di rete e vuole evitare esposizioni accidentali.',
+      en: 'People who manage network shares and want to avoid accidental exposure.',
+    },
+    prerequisites: {
+      it: 'Basi di SMB e delle condivisioni di file in rete.',
+      en: 'Basics of SMB and network file shares.',
+    },
     targetIp: '10.42.10.31',
     hostname: 'smb-lab.evil.lab',
     icon: '▥',
-    description: 'Condivisioni SMB esposte in rete interna lab.',
-    objectives: [
-      'Scansiona la porta 445 con nmap',
-      'Elenca share con smbclient -L',
-      'Leggi flag.txt dalla share backup',
-      'Invia la flag con submit flag',
-    ],
+    description: {
+      it: 'Condivisioni SMB accessibili senza credenziali: un classico per backup e file sensibili lasciati esposti.',
+      en: 'SMB shares accessible with no credentials: a classic for backups and sensitive files left exposed.',
+    },
+    objectives: {
+      it: [
+        'Scansiona la porta 445 con nmap',
+        'Elenca le share con smbclient -L',
+        'Leggi il file nascosto nella share backup',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: disattiva l\'accesso anonimo e indica come rilevare l\'enumerazione',
+      ],
+      en: [
+        'Scan port 445 with nmap',
+        'List the shares with smbclient -L',
+        'Read the hidden file in the backup share',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: disable anonymous access and explain how enumeration is detected',
+      ],
+    },
     flag: 'EVIL{smb_open_share}',
-    hints: [
-      'nmap -p 445 10.42.10.31',
-      'smbclient -L //10.42.10.31 -N',
-      'smbclient //10.42.10.31/backup -N -c "get flag.txt"',
-    ],
+    hints: {
+      it: [
+        'Conferma SMB: nmap -p 445 10.42.10.31',
+        'Elenca le share in modo anonimo con smbclient -L //10.42.10.31 -N, poi apri la share backup.',
+      ],
+      en: [
+        'Confirm SMB: nmap -p 445 10.42.10.31',
+        'List shares anonymously with smbclient -L //10.42.10.31 -N, then open the backup share.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Disattiva l\'accesso guest/anonymous, restringi le share agli utenti autorizzati, abilita la firma SMB e segmenta la rete.',
+        en: 'Disable guest/anonymous access, restrict shares to authorised users, enable SMB signing and segment the network.',
+      },
+      detect: {
+        it: 'I log SMB mostrano accessi anonimi e richieste di listing delle share da host non previsti.',
+        en: 'SMB logs show anonymous logins and share-listing requests from unexpected hosts.',
+      },
+    },
     nmap: {
       ports: [
-        { port: 445, state: 'open', service: 'microsoft-ds', version: 'Samba 4.15' },
+        { port: 445, state: 'open', service: 'microsoft-ds', version: 'Samba 4.19' },
         { port: 139, state: 'open', service: 'netbios-ssn', version: '' },
       ],
     },
@@ -356,23 +740,59 @@ const LAB_CATALOG = {
   'command-injection': {
     id: 'command-injection',
     name: 'EVIL-CmdLab',
-    title: 'Command injection',
-    difficulty: 'Intermedio',
-    duration: '30–45 min',
+    title: { it: 'OS command injection', en: 'OS command injection' },
+    level: LV.inter,
+    duration: '~20 min',
+    audience: {
+      it: 'Sviluppatori che invocano comandi di sistema e vogliono farlo in modo sicuro.',
+      en: 'Developers who invoke system commands and want to do it safely.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP e di come una shell interpreta ; e |.',
+      en: 'Basics of HTTP and how a shell interprets ; and |.',
+    },
     targetIp: '10.42.10.16',
     hostname: 'cmdi-lab.evil.lab',
     icon: '▩',
-    description: 'Parametro host passato a system() senza sanitizzazione — OS command injection.',
-    objectives: [
-      'Trova /ping?host= sul web target',
-      'Concatena un comando con ; o |',
-      'Invia la flag restituita dal server',
-    ],
+    description: {
+      it: 'Un parametro host passato a una chiamata di sistema senza sanitizzazione: si possono concatenare comandi.',
+      en: 'A host parameter passed to a system call with no sanitisation: commands can be chained.',
+    },
+    objectives: {
+      it: [
+        'Trova /ping?host= sul web target',
+        'Mostra l\'esecuzione di un comando concatenato con ; o |',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: elimina la chiamata a shell e indica come rilevare l\'injection',
+      ],
+      en: [
+        'Find /ping?host= on the web target',
+        'Show execution of a command chained with ; or |',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: remove the shell call and explain how injection is detected',
+      ],
+    },
     flag: 'EVIL{cmd_injection}',
-    hints: [
-      'curl "http://10.42.10.16/ping?host=127.0.0.1"',
-      'curl "http://10.42.10.16/ping?host=127.0.0.1;whoami"',
-    ],
+    hints: {
+      it: [
+        'Osserva il comportamento normale: curl "http://10.42.10.16/ping?host=127.0.0.1"',
+        'Se l\'input non è filtrato, host=127.0.0.1;whoami esegue whoami dopo il ping.',
+      ],
+      en: [
+        'Observe the normal behaviour: curl "http://10.42.10.16/ping?host=127.0.0.1"',
+        'If the input is not filtered, host=127.0.0.1;whoami runs whoami after the ping.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Evita di invocare una shell: usa API native con argomenti separati, oppure una allowlist rigida e la validazione dell\'input; mai concatenare stringhe nei comandi.',
+        en: 'Avoid invoking a shell: use native APIs with separate arguments, or a strict allowlist plus input validation; never concatenate strings into commands.',
+      },
+      detect: {
+        it: 'Un WAF e i log segnalano metacaratteri come ; | & o backtick nei parametri destinati a comandi.',
+        en: 'A WAF and logs flag metacharacters such as ; | & or backticks in parameters meant for commands.',
+      },
+    },
     nmap: {
       ports: [{ port: 80, state: 'open', service: 'http', version: 'Apache 2.4' }],
     },
@@ -381,98 +801,242 @@ const LAB_CATALOG = {
   'ssrf-web': {
     id: 'ssrf-web',
     name: 'EVIL-SSRFLab',
-    title: 'Server-Side Request Forgery',
-    difficulty: 'Avanzato',
-    duration: '45–60 min',
+    title: { it: 'Server-Side Request Forgery', en: 'Server-Side Request Forgery' },
+    level: LV.adv,
+    duration: '~20 min',
+    audience: {
+      it: 'Sviluppatori di servizi che recuperano URL e vogliono bloccare l\'accesso alle risorse interne.',
+      en: 'Developers of services that fetch URLs and want to block access to internal resources.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP, reti interne (RFC1918) e metadata service.',
+      en: 'Basics of HTTP, internal networks (RFC1918) and metadata services.',
+    },
     targetIp: '10.42.10.17',
     hostname: 'ssrf-lab.evil.lab',
     icon: '◉',
-    description: 'Il server recupera URL scelti dall\'utente — accesso a risorse interne.',
-    objectives: [
-      'Ispeziona /fetch?url= con curl',
-      'Richiedi un host interno lab (10.42.0.99)',
-      'Invia la flag dal metadata service simulato',
-    ],
+    description: {
+      it: 'Il server recupera URL forniti dall\'utente: si possono raggiungere servizi interni non esposti all\'esterno.',
+      en: 'The server fetches user-supplied URLs: internal services not exposed outside can be reached.',
+    },
+    objectives: {
+      it: [
+        'Ispeziona /fetch?url= con curl',
+        'Fai richiedere al server un host interno dello scenario (10.42.0.99)',
+        'Trova la flag dal servizio interno e consegnala con submit flag <flag>',
+        'Difendi: filtra le destinazioni e indica come rilevare l\'SSRF',
+      ],
+      en: [
+        'Inspect /fetch?url= with curl',
+        'Make the server request an internal scenario host (10.42.0.99)',
+        'Find the flag from the internal service and submit it with submit flag <flag>',
+        'Defend: filter destinations and explain how SSRF is detected',
+      ],
+    },
     flag: 'EVIL{ssrf_internal}',
-    hints: [
-      'curl "http://10.42.10.17/fetch?url=http://example.com"',
-      'curl "http://10.42.10.17/fetch?url=http://10.42.0.99/internal/flag"',
-    ],
+    hints: {
+      it: [
+        'Prova prima un URL esterno: curl "http://10.42.10.17/fetch?url=http://example.com"',
+        'Poi punta a un host interno dello scenario, come http://10.42.0.99/internal/flag.',
+      ],
+      en: [
+        'Try an external URL first: curl "http://10.42.10.17/fetch?url=http://example.com"',
+        'Then point to an internal scenario host, such as http://10.42.0.99/internal/flag.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Usa una allowlist di host e schemi consentiti, blocca gli indirizzi interni e i metadata service, e non passare mai l\'URL grezzo dell\'utente al client HTTP.',
+        en: 'Use an allowlist of permitted hosts and schemes, block internal addresses and metadata services, and never pass the raw user URL to the HTTP client.',
+      },
+      detect: {
+        it: 'Richieste in uscita dal server verso indirizzi interni o verso 169.254.169.254 sono un segnale tipico di SSRF.',
+        en: 'Outbound requests from the server to internal addresses or to 169.254.169.254 are a classic SSRF signal.',
+      },
+    },
     nmap: {
-      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.22' }],
+      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.24' }],
     },
     web: { type: 'ssrf' },
   },
   'idor-api': {
     id: 'idor-api',
     name: 'EVIL-IDORLab',
-    title: 'IDOR su API REST',
-    difficulty: 'Intermedio',
-    duration: '30–45 min',
+    title: { it: 'IDOR su API REST', en: 'IDOR on a REST API' },
+    level: LV.inter,
+    duration: '~15 min',
+    audience: {
+      it: 'Chi progetta API e vuole garantire i controlli di autorizzazione per oggetto.',
+      en: 'People who design APIs and want to ensure per-object authorisation checks.',
+    },
+    prerequisites: {
+      it: 'Basi di API REST e di autenticazione/autorizzazione.',
+      en: 'Basics of REST APIs and authentication/authorisation.',
+    },
     targetIp: '10.42.10.18',
     hostname: 'api-lab.evil.lab',
     icon: '▷',
-    description: 'Cambio ID numerico nell\'API espone dati di altri utenti.',
-    objectives: [
-      'Chiama /api/user?id=1000 (tuo profilo)',
-      'Incrementa l\'ID per accedere a dati altrui',
-      'Invia la flag del record esposto',
-    ],
+    description: {
+      it: 'Un ID numerico nell\'API senza controllo di autorizzazione: cambiandolo si leggono dati di altri utenti.',
+      en: 'A numeric ID in the API with no authorisation check: changing it reads other users\' data.',
+    },
+    objectives: {
+      it: [
+        'Chiama /api/user?id=1000 (il tuo profilo)',
+        'Mostra che un altro ID restituisce dati non tuoi',
+        'Trova la flag nel record esposto e consegnala con submit flag <flag>',
+        'Difendi: applica i controlli di autorizzazione e indica come rilevare l\'abuso',
+      ],
+      en: [
+        'Call /api/user?id=1000 (your own profile)',
+        'Show that another ID returns data that is not yours',
+        'Find the flag in the exposed record and submit it with submit flag <flag>',
+        'Defend: enforce authorisation checks and explain how the abuse is detected',
+      ],
+    },
     flag: 'EVIL{idor_user_data}',
-    hints: [
-      'curl "http://10.42.10.18/api/user?id=1000"',
-      'curl "http://10.42.10.18/api/user?id=1001"',
-    ],
+    hints: {
+      it: [
+        'Guarda il tuo profilo: curl "http://10.42.10.18/api/user?id=1000"',
+        'Prova un ID vicino, come 1001, per vedere se l\'API controlla la proprietà del record.',
+      ],
+      en: [
+        'Look at your profile: curl "http://10.42.10.18/api/user?id=1000"',
+        'Try a nearby ID, such as 1001, to see whether the API checks record ownership.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Verifica a ogni richiesta che l\'utente autenticato possa accedere a quell\'oggetto; preferisci identificatori non indovinabili e nega di default.',
+        en: 'Check on every request that the authenticated user may access that object; prefer unguessable identifiers and deny by default.',
+      },
+      detect: {
+        it: 'Accessi sequenziali a molti ID o a record fuori dall\'ambito dell\'utente, nei log dell\'API, indicano un IDOR.',
+        en: 'Sequential access to many IDs or to records outside the user\'s scope, in API logs, indicates IDOR.',
+      },
+    },
     nmap: {
-      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.24' }],
+      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.26' }],
     },
     web: { type: 'idor' },
   },
   'jwt-weak': {
     id: 'jwt-weak',
     name: 'EVIL-JWTLab',
-    title: 'JWT / auth API rotta',
-    difficulty: 'Avanzato',
-    duration: '45–60 min',
+    title: { it: 'Autorizzazione API via JWT', en: 'API authorisation via JWT' },
+    level: LV.adv,
+    duration: '~25 min',
+    audience: {
+      it: 'Chi implementa autenticazione basata su token e vuole validarla correttamente.',
+      en: 'People who implement token-based authentication and want to validate it correctly.',
+    },
+    prerequisites: {
+      it: 'Conoscere la struttura di un JWT (header, payload, firma) e le API.',
+      en: 'Familiarity with JWT structure (header, payload, signature) and APIs.',
+    },
     targetIp: '10.42.10.19',
     hostname: 'jwt-lab.evil.lab',
     icon: '▶',
-    description: 'Token JWT con secret debole — escalation a ruolo admin via API.',
-    objectives: [
-      'Richiedi /api/profile senza token (403)',
-      'Usa il token admin di lab nell\'header Authorization',
-      'Invia la flag dalla risposta privilegiata',
-    ],
+    description: {
+      it: 'Un\'API che si fida di un token JWT mal validato: con un token di ruolo admin si ottiene accesso privilegiato.',
+      en: 'An API that trusts a poorly validated JWT: an admin-role token grants privileged access.',
+    },
+    objectives: {
+      it: [
+        'Richiedi /api/profile senza token (403)',
+        'Usa il token admin dello scenario nell\'header Authorization',
+        'Trova la flag nella risposta privilegiata e consegnala con submit flag <flag>',
+        'Difendi: valida firma e algoritmo e indica come rilevare l\'abuso',
+      ],
+      en: [
+        'Request /api/profile with no token (403)',
+        'Use the scenario admin token in the Authorization header',
+        'Find the flag in the privileged response and submit it with submit flag <flag>',
+        'Defend: validate signature and algorithm and explain how the abuse is detected',
+      ],
+    },
     flag: 'EVIL{jwt_admin_role}',
-    hints: [
-      'curl http://10.42.10.19/api/profile',
-      'curl -H "Authorization: Bearer evil.admin.token.lab" http://10.42.10.19/api/profile',
-    ],
+    hints: {
+      it: [
+        'Prova senza credenziali: curl http://10.42.10.19/api/profile',
+        'Lo scenario accetta il token di prova evil.admin.token.lab nell\'header Authorization: Bearer.',
+      ],
+      en: [
+        'Try with no credentials: curl http://10.42.10.19/api/profile',
+        'The scenario accepts the test token evil.admin.token.lab in the Authorization: Bearer header.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Verifica sempre la firma con un secret robusto, accetta solo gli algoritmi previsti (mai alg none), controlla scadenza e claim e ruota le chiavi.',
+        en: 'Always verify the signature with a strong secret, allow only the expected algorithms (never alg none), check expiry and claims and rotate keys.',
+      },
+      detect: {
+        it: 'Picchi di token con firma non valida o con header alg none nei log di autenticazione indicano tentativi di manomissione.',
+        en: 'Spikes of tokens with invalid signatures or an alg none header in authentication logs indicate tampering attempts.',
+      },
+    },
     nmap: {
-      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.22' }],
+      ports: [{ port: 80, state: 'open', service: 'http', version: 'nginx 1.24' }],
     },
     web: { type: 'jwt' },
   },
   'file-upload': {
     id: 'file-upload',
     name: 'EVIL-UploadLab',
-    title: 'Upload file pericoloso',
-    difficulty: 'Intermedio',
-    duration: '30–45 min',
+    title: { it: 'Upload di file non validato', en: 'Unvalidated file upload' },
+    level: LV.inter,
+    duration: '~20 min',
+    audience: {
+      it: 'Sviluppatori che accettano upload e vogliono evitare l\'esecuzione di codice.',
+      en: 'Developers who accept uploads and want to prevent code execution.',
+    },
+    prerequisites: {
+      it: 'Basi di HTTP, upload multipart e web root.',
+      en: 'Basics of HTTP, multipart uploads and the web root.',
+    },
     targetIp: '10.42.10.20',
     hostname: 'upload-lab.evil.lab',
     icon: '▤',
-    description: 'Endpoint upload senza validazione estensione — webshell simulata.',
-    objectives: [
-      'Trova POST /upload',
-      'Carica un file .php con curl -F',
-      'Invia la flag dal percorso di upload',
-    ],
+    description: {
+      it: 'Un endpoint di upload senza controllo di tipo o estensione: un file eseguibile sul web root diventa una webshell.',
+      en: 'An upload endpoint with no type or extension check: an executable file on the web root becomes a webshell.',
+    },
+    objectives: {
+      it: [
+        'Individua l\'endpoint POST /upload',
+        'Mostra che un file eseguibile viene accettato senza controlli',
+        'Trova la flag dalla risposta e consegnala con submit flag <flag>',
+        'Difendi: valida e isola gli upload, indica come rilevare l\'abuso',
+      ],
+      en: [
+        'Find the POST /upload endpoint',
+        'Show that an executable file is accepted with no checks',
+        'Find the flag in the response and submit it with submit flag <flag>',
+        'Defend: validate and isolate uploads, explain how the abuse is detected',
+      ],
+    },
     flag: 'EVIL{upload_webshell}',
-    hints: [
-      'curl http://10.42.10.20/upload',
-      'curl -F "file=@shell.php" http://10.42.10.20/upload',
-    ],
+    hints: {
+      it: [
+        'Guarda il form: curl http://10.42.10.20/upload',
+        'Prova a inviare un file con estensione eseguibile con curl -F per vedere se viene rifiutato.',
+      ],
+      en: [
+        'Look at the form: curl http://10.42.10.20/upload',
+        'Try sending a file with an executable extension via curl -F to see whether it is rejected.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Valida tipo, estensione e contenuto con una allowlist, salva i file fuori dalla web root con nomi casuali e vietane l\'esecuzione.',
+        en: 'Validate type, extension and content against an allowlist, store files outside the web root with random names and forbid their execution.',
+      },
+      detect: {
+        it: 'Upload di estensioni eseguibili (.php, .jsp) e successive richieste a quei file, nei log, indicano un tentativo di webshell.',
+        en: 'Uploads of executable extensions (.php, .jsp) and later requests to those files, in logs, indicate a webshell attempt.',
+      },
+    },
     nmap: {
       ports: [{ port: 80, state: 'open', service: 'http', version: 'Apache 2.4' }],
     },
@@ -481,50 +1045,122 @@ const LAB_CATALOG = {
   'xxe-xml': {
     id: 'xxe-xml',
     name: 'EVIL-XXELab',
-    title: 'XML External Entity (XXE)',
-    difficulty: 'Avanzato',
-    duration: '45–60 min',
+    title: { it: 'XML External Entity (XXE)', en: 'XML External Entity (XXE)' },
+    level: LV.adv,
+    duration: '~25 min',
+    audience: {
+      it: 'Sviluppatori che elaborano XML e vogliono configurare il parser in modo sicuro.',
+      en: 'Developers who process XML and want to configure the parser securely.',
+    },
+    prerequisites: {
+      it: 'Conoscere la sintassi XML, DTD ed entità.',
+      en: 'Familiarity with XML syntax, DTDs and entities.',
+    },
     targetIp: '10.42.10.24',
     hostname: 'xxe-lab.evil.lab',
     icon: '◐',
-    description: 'Parser XML che risolve entità esterne — lettura file lato server.',
-    objectives: [
-      'Invia XML a POST /api/parse',
-      'Inietta entità ENTITY che legge file locali',
-      'Invia la flag nell\'output XML',
-    ],
+    description: {
+      it: 'Un parser XML che risolve le entità esterne: si possono leggere file locali o raggiungere la rete interna.',
+      en: 'An XML parser that resolves external entities: local files can be read or the internal network reached.',
+    },
+    objectives: {
+      it: [
+        'Invia un XML a POST /api/parse',
+        'Definisci un\'entità esterna che legge un file locale',
+        'Trova la flag nell\'output e consegnala con submit flag <flag>',
+        'Difendi: disattiva le entità esterne e indica come rilevare l\'XXE',
+      ],
+      en: [
+        'Send XML to POST /api/parse',
+        'Define an external entity that reads a local file',
+        'Find the flag in the output and submit it with submit flag <flag>',
+        'Defend: disable external entities and explain how XXE is detected',
+      ],
+    },
     flag: 'EVIL{xxe_entity}',
-    hints: [
-      'curl -d "<user>test</user>" http://10.42.10.24/api/parse',
-      'Usa <!ENTITY x SYSTEM "file:///etc/hostname"> nel payload XML.',
-    ],
+    hints: {
+      it: [
+        'Prova un XML normale: curl -d "<user>test</user>" http://10.42.10.24/api/parse',
+        'Definisci un\'entità con <!ENTITY x SYSTEM "file:///etc/hostname"> e richiamala nel corpo.',
+      ],
+      en: [
+        'Try a normal XML: curl -d "<user>test</user>" http://10.42.10.24/api/parse',
+        'Define an entity with <!ENTITY x SYSTEM "file:///etc/hostname"> and reference it in the body.',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Disattiva DTD ed entità esterne nel parser (feature "disallow-doctype-decl", nessuna risoluzione di entità esterne) e preferisci formati più semplici dove possibile.',
+        en: 'Disable DTDs and external entities in the parser (the "disallow-doctype-decl" feature, no external entity resolution) and prefer simpler formats where possible.',
+      },
+      detect: {
+        it: 'Payload XML con DOCTYPE/ENTITY o schemi file:// nei corpi delle richieste, nei log, indicano tentativi di XXE.',
+        en: 'XML payloads with DOCTYPE/ENTITY or file:// schemes in request bodies, in logs, indicate XXE attempts.',
+      },
+    },
     nmap: {
-      ports: [{ port: 80, state: 'open', service: 'http', version: 'Tomcat 9' }],
+      ports: [{ port: 80, state: 'open', service: 'http', version: 'Tomcat 10' }],
     },
     web: { type: 'xxe' },
   },
   'ftp-anonymous': {
     id: 'ftp-anonymous',
     name: 'EVIL-FTPLab',
-    title: 'FTP anonymous access',
-    difficulty: 'Principiante',
-    duration: '20–30 min',
+    title: { it: 'Accesso FTP anonimo', en: 'Anonymous FTP access' },
+    level: LV.base,
+    duration: '~10 min',
+    audience: {
+      it: 'Chi gestisce server FTP e vuole evitare di esporre file per errore.',
+      en: 'People who run FTP servers and want to avoid exposing files by mistake.',
+    },
+    prerequisites: {
+      it: 'Basi di FTP e del login anonimo.',
+      en: 'Basics of FTP and anonymous login.',
+    },
     targetIp: '10.42.10.32',
     hostname: 'ftp-lab.evil.lab',
     icon: '▥',
-    description: 'Server FTP con login anonymous e file sensibili esposti.',
-    objectives: [
-      'Scansiona porta 21 con nmap',
-      'Accedi come anonymous via ftp',
-      'Scarica flag.txt e invia la flag',
-    ],
+    description: {
+      it: 'Un server FTP con login anonimo abilitato che espone file sensibili: una misconfigurazione frequente.',
+      en: 'An FTP server with anonymous login enabled that exposes sensitive files: a frequent misconfiguration.',
+    },
+    objectives: {
+      it: [
+        'Scansiona la porta 21 con nmap',
+        'Scarica flag.txt sfruttando il login anonimo',
+        'Trova la flag e consegnala con submit flag <flag>',
+        'Difendi: disattiva l\'accesso anonimo e indica come rilevare l\'abuso',
+      ],
+      en: [
+        'Scan port 21 with nmap',
+        'Download flag.txt using the anonymous login',
+        'Find the flag and submit it with submit flag <flag>',
+        'Defend: disable anonymous access and explain how the abuse is detected',
+      ],
+    },
     flag: 'EVIL{ftp_anonymous}',
-    hints: [
-      'nmap -p 21 10.42.10.32',
-      'ftp anonymous@10.42.10.32 -c "get flag.txt"',
-    ],
+    hints: {
+      it: [
+        'Conferma FTP: nmap -p 21 10.42.10.32',
+        'Scarica il file in modo non interattivo: curl "ftp://anonymous:anon@10.42.10.32/flag.txt"',
+      ],
+      en: [
+        'Confirm FTP: nmap -p 21 10.42.10.32',
+        'Download the file non-interactively: curl "ftp://anonymous:anon@10.42.10.32/flag.txt"',
+      ],
+    },
+    remediation: {
+      fix: {
+        it: 'Disattiva il login anonimo (in vsftpd: anonymous_enable=NO), usa SFTP/FTPS con account autenticati e limita i permessi alle sole directory necessarie.',
+        en: 'Disable anonymous login (in vsftpd: anonymous_enable=NO), use SFTP/FTPS with authenticated accounts and restrict permissions to the directories you actually need.',
+      },
+      detect: {
+        it: 'I log del server FTP mostrano login "anonymous" e download di file: facili da segnalare se non previsti.',
+        en: 'The FTP server logs show "anonymous" logins and file downloads: easy to flag when they are not expected.',
+      },
+    },
     nmap: {
-      ports: [{ port: 21, state: 'open', service: 'ftp', version: 'vsftpd 3.0' }],
+      ports: [{ port: 21, state: 'open', service: 'ftp', version: 'vsftpd 3.0.5' }],
     },
     ftp: { anonymous: true },
   },
@@ -598,19 +1234,24 @@ async function countRunningSessions(ownerKey) {
   ).length;
 }
 
-function catalogForClient() {
-  return Object.values(LAB_CATALOG).map((lab) => ({
-    id: lab.id,
-    name: lab.name,
-    title: lab.title,
-    difficulty: lab.difficulty,
-    duration: lab.duration,
-    targetIp: lab.targetIp,
-    hostname: lab.hostname,
-    icon: lab.icon,
-    description: lab.description,
-    objectiveCount: lab.objectives.length,
-  }));
+function catalogForClient(lang) {
+  return Object.values(LAB_CATALOG).map((lab) => {
+    const objectives = pick(lang, lab.objectives) || [];
+    return {
+      id: lab.id,
+      name: lab.name,
+      title: pick(lang, lab.title),
+      level: pick(lang, lab.level),
+      duration: lab.duration,
+      audience: pick(lang, lab.audience),
+      prerequisites: pick(lang, lab.prerequisites),
+      targetIp: lab.targetIp,
+      hostname: lab.hostname,
+      icon: lab.icon,
+      description: pick(lang, lab.description),
+      objectiveCount: objectives.length,
+    };
+  });
 }
 
 function getLab(labId) {
@@ -668,27 +1309,27 @@ function newSessionId() {
   return crypto.randomBytes(12).toString('hex');
 }
 
-async function createSession(labId, ownerKey, { ip = null } = {}) {
+async function createSession(labId, ownerKey, { ip = null, lang = null } = {}) {
   const lab = getLab(labId);
   if (!lab) {
-    const err = new Error('Lab non trovato');
+    const err = new Error(t(lang, 'Scenario non trovato'));
     err.status = 404;
     throw err;
   }
 
   const running = await countRunningSessions(ownerKey);
   if (running >= MAX_SESSIONS_PER_OWNER) {
-    const err = new Error('Hai già 3 lab aperti: chiudine uno con "Termina VM" e riprova. Ogni sessione si chiude comunque da sola dopo 2 ore.');
+    const err = new Error(t(lang, 'Hai già 3 scenari aperti: chiudine uno con "Termina scenario" e riprova. Ogni sessione si chiude comunque da sola dopo 2 ore.'));
     err.status = 429;
     throw err;
   }
   if (ip && countSessions((s) => s.ip === ip) >= MAX_SESSIONS_PER_IP) {
-    const err = new Error('Troppi lab aperti da questa rete. Riprova tra qualche minuto.');
+    const err = new Error(t(lang, 'Troppi scenari aperti da questa rete. Riprova tra qualche minuto.'));
     err.status = 429;
     throw err;
   }
   if (countSessions(() => true) >= MAX_TOTAL_SESSIONS) {
-    const err = new Error('Il laboratorio è molto usato in questo momento. Riprova tra qualche minuto.');
+    const err = new Error(t(lang, 'Il laboratorio è molto usato in questo momento. Riprova tra qualche minuto.'));
     err.status = 503;
     throw err;
   }
@@ -700,6 +1341,7 @@ async function createSession(labId, ownerKey, { ip = null } = {}) {
     labId,
     ownerKey,
     ip,
+    lang: lang || null,
     status: 'running',
     startedAt: now,
     expiresAt: now + SESSION_TTL_MS,
@@ -718,6 +1360,7 @@ async function createSession(labId, ownerKey, { ip = null } = {}) {
 
 function sanitizeSession(session, lab) {
   const l = lab || getLab(session.labId);
+  const lang = session.lang;
   return {
     id: session.id,
     labId: session.labId,
@@ -731,32 +1374,35 @@ function sanitizeSession(session, lab) {
       ? {
           id: l.id,
           name: l.name,
-          title: l.title,
+          title: pick(lang, l.title),
           targetIp: l.targetIp,
           hostname: l.hostname,
-          objectives: l.objectives,
-          difficulty: l.difficulty,
+          objectives: pick(lang, l.objectives),
+          level: pick(lang, l.level),
+          duration: l.duration,
+          prerequisites: pick(lang, l.prerequisites),
+          audience: pick(lang, l.audience),
         }
       : null,
     attacker: ATTACKER,
   };
 }
 
-async function getSession(sessionId, ownerKey) {
+async function getSession(sessionId, ownerKey, lang = null) {
   const session = SESSION_ID_PATTERN.test(String(sessionId || '')) ? await loadSessionById(sessionId) : null;
   if (!session) {
-    const err = new Error('Sessione non trovata o scaduta');
+    const err = new Error(t(lang, 'Sessione non trovata o scaduta'));
     err.status = 404;
     throw err;
   }
   if (session.ownerKey !== ownerKey) {
-    const err = new Error('Accesso negato a questa sessione');
+    const err = new Error(t(lang, 'Accesso negato a questa sessione'));
     err.status = 403;
     throw err;
   }
   if (session.expiresAt < Date.now()) {
     await removeSessionById(sessionId, ownerKey);
-    const err = new Error('Sessione scaduta');
+    const err = new Error(t(lang, 'Sessione scaduta'));
     err.status = 410;
     throw err;
   }

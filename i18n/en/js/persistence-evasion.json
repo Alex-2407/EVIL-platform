@@ -1,0 +1,14 @@
+{
+  "Bassa": "Low",
+  "Media": "Medium",
+  "Alta": "High",
+  "Evasione": "Evasion",
+  "Persistenza": "Persistence",
+  "ID MITRE ATT&CK: {id}": "MITRE ATT&CK ID: {id}",
+  "Segnali da cercare": "Signs to look for",
+  "Come si rileva": "How to detect it",
+  "Come si previene": "How to prevent it",
+  "Stealth": "Stealth",
+  "Prevalenza": "Prevalence",
+  "Difficoltà di rilevamento": "Detection difficulty"
+}

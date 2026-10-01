@@ -2,6 +2,8 @@
  * EVIL WHOIS — RDAP (HTTPS) + fallback TCP :43 (senza CLI di sistema)
  */
 const { axios, connectTcp } = require('../../server/lib/safe-http');
+const { t } = require('../../server/i18n');
+const { normalizeToolDomain } = require('./tool-i18n');
 
 const TLD_WHOIS = {
   com: 'whois.verisign-grs.com',
@@ -20,13 +22,9 @@ const TLD_WHOIS = {
   dev: 'whois.nic.google'
 };
 
-function normalizeDomain(input) {
-  let d = String(input || '').trim().toLowerCase();
-  d = d.replace(/^https?:\/\//, '').split('/')[0].split(':')[0].replace(/\.$/, '');
-  if (!d || !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+\.?$/i.test(d)) {
-    throw new Error('Formato dominio non valido');
-  }
-  return d.replace(/\.$/, '');
+/** Compatibilità: stesso controllo degli altri strumenti DNS (nomi interni rifiutati). */
+function normalizeDomain(input, lang) {
+  return normalizeToolDomain(input, lang);
 }
 
 function parseWhoisOutput(raw) {
@@ -164,7 +162,7 @@ async function resolveWhoisServer(tld) {
   return 'whois.iana.org';
 }
 
-async function lookupTcpWhois(domain) {
+async function lookupTcpWhois(domain, lang) {
   const tld = domain.split('.').pop();
   const server = await resolveWhoisServer(tld);
   let raw = await tcpWhoisQuery(server, domain);
@@ -175,7 +173,7 @@ async function lookupTcpWhois(domain) {
 
   const parsed = parseWhoisOutput(raw);
   if (!Object.keys(parsed.fields).length) {
-    throw new Error('Risposta WHOIS vuota o non parsabile');
+    throw new Error(t(lang, 'Il registro ha restituito una risposta WHOIS vuota o illeggibile.'));
   }
 
   return {
@@ -189,8 +187,8 @@ async function lookupTcpWhois(domain) {
   };
 }
 
-async function runWhoisLookup(inputDomain) {
-  const domain = normalizeDomain(inputDomain);
+async function runWhoisLookup(inputDomain, lang) {
+  const domain = normalizeToolDomain(inputDomain, lang);
 
   try {
     const rdap = await lookupRdap(domain);
@@ -200,12 +198,13 @@ async function runWhoisLookup(inputDomain) {
   }
 
   try {
-    return await lookupTcpWhois(domain);
+    return await lookupTcpWhois(domain, lang);
   } catch (err) {
     return {
       domain,
       timestamp: new Date().toISOString(),
-      error: `Lookup WHOIS fallito: ${err.message}`,
+      error: t(lang, 'Né RDAP né il servizio WHOIS del registro hanno restituito dati per questo dominio.'),
+      cause: err,
       status: 'failed'
     };
   }

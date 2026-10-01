@@ -1,17 +1,17 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Persistenza ed evasione — EVIL Threat Intelligence</title>
-  <meta name="description" content="Tecniche MITRE ATT&CK di persistenza ed evasione malware: indicatori comportamentali, mitigazioni difensive e confronto per livello stealth.">
+  <title>Persistenza ed evasione — EVIL</title>
+  <meta name="description" content="Come un intruso resta in un sistema e sfugge ai controlli: tecniche MITRE ATT&amp;CK di persistenza ed evasione con segnali, rilevamento e prevenzione per chi difende.">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/persistence-evasion.css?v=20260703">
+  <link rel="stylesheet" href="/css/persistence-evasion.css?v=20261001">
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -30,32 +30,85 @@
 
   <main>
     <section class="mt-hero" aria-labelledby="mt-title">
-      <p class="mt-kicker">Threat intelligence · MITRE ATT&CK</p>
-      <h1 id="mt-title">Persistenza ed evasione malware</h1>
+      <p class="mt-kicker">Analizza · MITRE ATT&amp;CK</p>
+      <h1 id="mt-title">Persistenza ed evasione</h1>
       <p class="mt-hero__lead">
-        Come il malware resta sul sistema dopo la compromissione e come elude sandbox, AV ed EDR.
-        Complementare al <a href="/malware-db.html">catalogo</a>,
-        alla <a href="/malware-classification.html">tassonomia</a> e all’
-        <a href="/file-analysis.html">analisi file</a>.
+        Come un intruso mantiene l’accesso a un sistema già compromesso e prova a sfuggire ai controlli,
+        quali tracce lascia e come chi difende può rilevarlo e prevenirlo.
       </p>
-      <nav class="mt-nav-links" aria-label="Collegamenti correlati">
-        <a href="/malware-db.html">Catalogo 1000+</a>
-        <a href="/malware-classification.html">Tassonomia</a>
+      <nav class="mt-nav-links" aria-label="Pagine correlate">
+        <a href="/malware-db.html">Catalogo malware</a>
+        <a href="/malware-classification.html">Tassonomia malware</a>
         <a href="/historic-attacks.html">Violazioni storiche</a>
-        <a href="/attacks-map.html">Mappa incidenti</a>
+        <a href="/ethics.html">Etica e legge</a>
       </nav>
     </section>
 
     <div class="mt-wrap">
+      <section class="mt-intro" aria-labelledby="mt-why-title">
+        <div class="mt-intro__text">
+          <h2 id="mt-why-title" class="mt-section-title">Perché chi difende studia queste tecniche</h2>
+          <p>
+            Un intruso raramente ottiene tutto ciò che vuole al primo accesso. Per restare nel sistema dopo un
+            riavvio o un cambio di password usa tecniche di <strong>persistenza</strong>; per non farsi notare da
+            antivirus, EDR e analisti usa tecniche di <strong>evasione</strong>. Sono le fasi in cui un attacco
+            può durare settimane senza che nessuno se ne accorga.
+          </p>
+          <p>
+            Conoscerle serve a sapere dove guardare: ogni meccanismo di persistenza lascia una traccia (una chiave
+            di registro, un servizio, un’attività pianificata) e ogni tentativo di evasione produce segnali che un
+            buon sistema di monitoraggio può raccogliere. Prima si trova la persistenza, più breve è la permanenza
+            dell’intruso e minore è il danno.
+          </p>
+          <p>
+            Le schede descrivono cosa fa ogni tecnica e come riconoscerla, non come eseguirla. Usa queste
+            conoscenze solo su sistemi tuoi o per cui hai un’<strong>autorizzazione scritta</strong>: leggi
+            <a href="/ethics.html">Etica e legge</a> prima di sperimentare in laboratorio.
+          </p>
+        </div>
+
+        <aside class="mt-facts" aria-labelledby="mt-facts-title">
+          <h2 id="mt-facts-title" class="mt-facts__title">Scheda del modulo</h2>
+          <dl class="mt-facts__list">
+            <div>
+              <dt>A chi serve</dt>
+              <dd>Analisti SOC, amministratori di sistema, studenti e chi si prepara a un ruolo di difesa (blue team)</dd>
+            </div>
+            <div>
+              <dt>Livello</dt>
+              <dd>Intermedio</dd>
+            </div>
+            <div>
+              <dt>Durata</dt>
+              <dd>Circa 60–90 minuti per leggere tutte le schede e la tabella</dd>
+            </div>
+            <div>
+              <dt>Prerequisiti</dt>
+              <dd>Basi di Windows (registro, servizi, processi), le categorie di malware della <a href="/malware-classification.html">Tassonomia malware</a> e cosa fanno un antivirus e un EDR</dd>
+            </div>
+          </dl>
+          <h3 class="mt-facts__subtitle">Obiettivi di apprendimento</h3>
+          <ul class="mt-facts__goals">
+            <li>Distinguere persistenza ed evasione e collocarle nelle fasi di un attacco</li>
+            <li>Riconoscere i segnali che ogni tecnica lascia su un sistema Windows</li>
+            <li>Sapere quali log ed eventi attivare per rilevarle</li>
+            <li>Scegliere le contromisure che ne riducono l’efficacia</li>
+          </ul>
+        </aside>
+      </section>
+
       <aside class="mt-callout" role="note">
-        <strong>Come usare questa sezione:</strong>
-        Campione specifico (Emotet, LockBit…) → <a href="/malware-db.html">catalogo malware</a>.
-        Tipo di minaccia (worm, ransomware…) → <a href="/malware-classification.html">tassonomia</a>.
-        Breach storici → <a href="/historic-attacks.html">violazioni storiche</a>.
-        Qui: tecniche <strong>post-compromise</strong> mappate su MITRE (persistenza + evasione).
+        <strong>Come usare questa pagina.</strong>
+        Filtra per categoria o cerca per nome, ID MITRE ATT&amp;CK (per esempio T1055) o parola chiave (per esempio WMI).
+        In ogni scheda trovi, nell’ordine: cosa fa la tecnica, i segnali da cercare, come si rileva e come si previene.
+        La tabella finale confronta le tecniche per aiutarti a decidere da dove cominciare.
+        Gli esempi riguardano Windows, il sistema su cui queste tecniche sono documentate più spesso.
+        Per una famiglia di malware specifica (Emotet, LockBit…) consulta il <a href="/malware-db.html">Catalogo malware</a>;
+        per i tipi di minaccia (worm, ransomware…) la <a href="/malware-classification.html">Tassonomia malware</a>;
+        per i casi reali le <a href="/historic-attacks.html">Violazioni storiche</a>.
       </aside>
 
-      <div class="mt-stats" aria-label="Statistiche tecniche">
+      <div class="mt-stats" aria-label="Numero di tecniche">
         <div class="mt-stat">
           <span class="mt-stat__val" id="mt-stat-persistence">0</span>
           <span class="mt-stat__lbl">Persistenza</span>
@@ -66,22 +119,50 @@
         </div>
         <div class="mt-stat">
           <span class="mt-stat__val" id="mt-stat-shown">0</span>
-          <span class="mt-stat__lbl">Visualizzate</span>
+          <span class="mt-stat__lbl">Mostrate</span>
         </div>
       </div>
 
       <div class="mt-toolbar">
-        <input type="search" id="mt-search" class="mt-search" placeholder="Cerca tecnica o ID MITRE (es. T1055, WMI…)" autocomplete="off" aria-label="Cerca tecniche">
+        <input type="search" id="mt-search" class="mt-search" placeholder="Cerca per nome, ID (T1055) o parola chiave (WMI)" autocomplete="off" aria-label="Cerca tra le tecniche">
         <div class="mt-filters" role="group" aria-label="Filtra per categoria">
-          <button type="button" class="mt-filter-btn is-active" data-category="all">Tutte</button>
-          <button type="button" class="mt-filter-btn" data-category="persistence">Persistenza</button>
-          <button type="button" class="mt-filter-btn" data-category="evasion">Evasione</button>
+          <button type="button" class="mt-filter-btn is-active" data-category="all" aria-pressed="true">Tutte</button>
+          <button type="button" class="mt-filter-btn" data-category="persistence" aria-pressed="false">Persistenza</button>
+          <button type="button" class="mt-filter-btn" data-category="evasion" aria-pressed="false">Evasione</button>
         </div>
       </div>
 
-      <h2 class="mt-section-title">Schede tecniche</h2>
-      <p id="mt-empty" class="mt-empty" hidden>Nessuna tecnica corrisponde ai filtri selezionati.</p>
+      <h2 class="mt-section-title">Schede delle tecniche</h2>
+      <p id="mt-empty" class="mt-empty" hidden>Nessuna tecnica corrisponde alla ricerca o al filtro scelto.</p>
       <div id="mt-grid" class="mt-grid" aria-live="polite"></div>
+
+      <section class="mt-legend" aria-labelledby="mt-legend-title">
+        <h2 id="mt-legend-title" class="mt-section-title">Come leggere i valori</h2>
+        <p>
+          Ogni tecnica ha tre valori su una scala bassa / media / alta. Sono <strong>stime qualitative</strong>
+          a scopo didattico, non misure: nel tuo ambiente possono cambiare molto in base ai log raccolti e
+          agli strumenti disponibili. Il colore indica chi è avvantaggiato: verde favorisce chi difende,
+          rosso chi attacca.
+        </p>
+        <dl class="mt-legend__list">
+          <div>
+            <dt>Stealth</dt>
+            <dd>Quanto la tecnica è discreta. Alta: lascia poche tracce visibili con un controllo di routine. Bassa: basta guardare nel posto giusto per notarla.</dd>
+          </div>
+          <div>
+            <dt>Prevalenza</dt>
+            <dd>Quanto spesso la tecnica compare negli incidenti e nei report pubblici di threat intelligence. Alta: è tra le prime cose da controllare.</dd>
+          </div>
+          <div>
+            <dt>Difficoltà di rilevamento</dt>
+            <dd>Quanto è difficile accorgersene. Bassa: un evento di log dedicato o uno strumento come Autoruns è sufficiente. Alta: servono telemetria avanzata (EDR, Sysmon ben configurato) o analisi della memoria.</dd>
+          </div>
+        </dl>
+        <p>
+          Una tecnica con prevalenza alta e difficoltà di rilevamento bassa è il primo controllo da automatizzare;
+          una con difficoltà alta richiede investimenti in telemetria e competenze di analisi.
+        </p>
+      </section>
 
       <h2 class="mt-section-title">Confronto rapido</h2>
       <div class="mt-compare">
@@ -92,8 +173,8 @@
                 <th scope="col">Tecnica</th>
                 <th scope="col">Stealth</th>
                 <th scope="col">Prevalenza</th>
-                <th scope="col">Rilevazione</th>
-                <th scope="col">Mitigazione chiave</th>
+                <th scope="col">Difficoltà di rilevamento</th>
+                <th scope="col">Contromisura principale</th>
               </tr>
             </thead>
             <tbody id="mt-compare-body"></tbody>
@@ -102,18 +183,20 @@
       </div>
 
       <div class="mt-cta">
-        <h2>Approfondimenti</h2>
-        <p><a href="/malware-db.html">Catalogo malware</a> — oltre 1000 campioni con IoC e contromisure</p>
-        <p><a href="/file-analysis.html">Analisi file</a> — upload controllato e indicatori statici</p>
-        <p><a href="/historic-attacks.html">Violazioni storiche</a> — case study di breach documentati</p>
+        <h2>Per approfondire</h2>
+        <p><a href="/malware-db.html">Catalogo malware</a> — famiglie documentate con indicatori e contromisure</p>
+        <p><a href="/malware-classification.html">Tassonomia malware</a> — le categorie di malware spiegate con esempi</p>
+        <p><a href="/file-analysis.html">Analisi file</a> — indicatori statici di un file sospetto</p>
+        <p><a href="/historic-attacks.html">Violazioni storiche</a> — casi reali e cosa hanno insegnato</p>
+        <p><a href="/ethics.html">Etica e legge</a> — cosa puoi fare, dove e con quale autorizzazione</p>
       </div>
     </div>
   </main>
 
   <!--evil:footer-->
 
-  <script src="/js/persistence-evasion-data.js?v=20260703"></script>
-  <script src="/js/persistence-evasion.js?v=20260703"></script>
+  <script src="/js/persistence-evasion-data.js?v=20261001"></script>
+  <script src="/js/persistence-evasion.js?v=20261001"></script>
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/progress-manager.js" defer></script>
 </body>

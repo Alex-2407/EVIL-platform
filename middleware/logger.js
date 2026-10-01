@@ -2,11 +2,18 @@
 // - console sempre (in produzione JSON su una riga: è quello che mostra il pannello di Render)
 // - file in logs/ solo in sviluppo o con LOG_TO_FILES=1, con rotazione (5 MB x 3)
 // - nei test automatici silenzioso, salvo LOG_LEVEL esplicito
+//
+// Dati personali (S-14): le email negli eventi di audit sono mascherate (gi***@dominio),
+// token e chiavi nelle query degli URL sono sostituiti da ***; restano IP e user agent,
+// utili contro gli abusi. Conservazione: in produzione i log stanno solo nel pannello
+// del provider (Render) per il periodo previsto dal piano; i file locali ruotano a
+// 5 MB x 3 per tipo. Vedi README, sezione "Dati personali e log".
 
 const winston = require('winston');
 const path = require('path');
 const fs = require('fs');
 const { isDevelopment, isTest } = require('../utils/env');
+const { maskEmail, maskUrlSecrets, maskDetails } = require('../utils/mask');
 
 const levels = {
   error: 0,
@@ -93,7 +100,7 @@ const httpLogger = (req, res, next) => {
     const duration = Date.now() - start;
     logger.http('HTTP Request', {
       method: req.method,
-      url: req.url,
+      url: maskUrlSecrets(req.originalUrl || req.url),
       status: res.statusCode,
       duration: `${duration}ms`,
       ip: req.ip,
@@ -113,7 +120,7 @@ const auditLog = {
     logger.info('AUDIT: Login successful', {
       event: 'LOGIN_SUCCESS',
       userId,
-      email,
+      email: maskEmail(email),
       ip,
       userAgent
     });
@@ -125,7 +132,7 @@ const auditLog = {
   loginFailed: (email, ip, reason = 'Invalid credentials', userAgent) => {
     logger.warn('AUDIT: Login failed', {
       event: 'LOGIN_FAILED',
-      email,
+      email: maskEmail(email),
       ip,
       reason,
       userAgent
@@ -139,7 +146,7 @@ const auditLog = {
     logger.warn('AUDIT: Account locked', {
       event: 'ACCOUNT_LOCKED',
       userId,
-      email,
+      email: maskEmail(email),
       ip,
       reason,
       userAgent
@@ -179,7 +186,7 @@ const auditLog = {
   security: (event, details, severity = 'INFO') => {
     logger.warn(`AUDIT: Security event - ${event}`, {
       event,
-      details,
+      details: maskDetails(details),
       severity
     });
   }

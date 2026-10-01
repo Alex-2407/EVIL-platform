@@ -26,13 +26,16 @@ function isProduction() {
 }
 
 /**
- * Dietro il proxy di Render/Cloudflare l'IP reale del visitatore arriva in X-Forwarded-For.
- * TRUST_PROXY=1/0 forza la scelta; di default si fida del proxy solo in produzione.
+ * Fiducia nel proxy (IP reale da X-Forwarded-For): NON più attiva per default in produzione.
+ * Si dichiara con TRUST_PROXY (numero di proxy o elenco IP/CIDR): vedi utils/trust-proxy.js.
+ * Restituisce true se è attiva; il valore esatto per Express è trustProxySetting().
  */
 function trustProxy() {
-  if (process.env.TRUST_PROXY === '1') return true;
-  if (process.env.TRUST_PROXY === '0') return false;
-  return isProduction();
+  return require('./trust-proxy').trustProxyEnabled();
+}
+
+function trustProxySetting() {
+  return require('./trust-proxy').trustProxySetting();
 }
 
 /** Etichetta leggibile per log e /api/health. */
@@ -43,4 +46,4 @@ function describeEnv() {
   return `production (NODE_ENV=${raw} non riconosciuto)`;
 }
 
-module.exports = { nodeEnv, isDevelopment, isTest, isProduction, trustProxy, describeEnv };
+module.exports = { nodeEnv, isDevelopment, isTest, isProduction, trustProxy, trustProxySetting, describeEnv };

@@ -1,32 +1,36 @@
 /**
- * EVIL — messaggi errore auth visibili e copiabili (login / registrazione)
+ * EVIL — messaggi di errore visibili e copiabili (accesso / registrazione)
  */
 (function (global) {
   'use strict';
+
+  const I18N = global.EVIL_I18N || { t: (s, v) => String(s).replace(/\{(\w+)\}/g, (m, k) => (v && k in v ? String(v[k]) : m)) };
+  const { t } = I18N;
 
   // Escape anche delle virgolette: il risultato finisce pure dentro attributi HTML
   function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
   }
 
+  /** Testo tecnico per il supporto: resta in inglese/italiano tecnico neutro, è pensato per chi fa assistenza. */
   function buildReport(opts) {
     const lines = [
       `EVIL auth — ${new Date().toISOString()}`,
-      `Pagina: ${global.location?.href || '—'}`,
-      `Azione: ${opts.action || '—'}`,
+      `Page: ${global.location?.href || '—'}`,
+      `Action: ${opts.action || '—'}`,
     ];
     if (opts.status != null) lines.push(`HTTP: ${opts.status}`);
-    if (opts.message) lines.push(`Messaggio: ${opts.message}`);
-    if (opts.raw) lines.push(`Dettaglio: ${typeof opts.raw === 'string' ? opts.raw : JSON.stringify(opts.raw)}`);
-    if (opts.hint) lines.push(`Nota: ${opts.hint}`);
+    if (opts.message) lines.push(`Message: ${opts.message}`);
+    if (opts.raw) lines.push(`Detail: ${typeof opts.raw === 'string' ? opts.raw : JSON.stringify(opts.raw)}`);
+    if (opts.hint) lines.push(`Note: ${opts.hint}`);
     return lines.join('\n');
   }
 
   function hideAuthError(container) {
     if (!container) return;
-    container.style.display = 'none';
-    container.innerHTML = '';
-    container.classList.remove('auth-error-panel--open');
+    container.hidden = true;
+    container.textContent = '';
+    container.classList.remove('auth-error-panel', 'auth-error-panel--open');
   }
 
   /**
@@ -39,43 +43,39 @@
 
   function showAuthError(container, opts) {
     if (!container) return;
-    const message = opts.message || 'Errore sconosciuto';
+    const message = opts.message || t('Errore sconosciuto');
+    container.setAttribute('role', 'alert');
+    container.setAttribute('aria-live', 'assertive');
     if (isUserError(opts)) {
       container.className = 'auth-message auth-message--error';
-      container.setAttribute('role', 'alert');
-      container.setAttribute('aria-live', 'assertive');
-      container.hidden = false;
       container.textContent = message;
-      container.style.display = 'block';
+      container.hidden = false;
       container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       return;
     }
     const report = buildReport(opts);
     container.className = 'auth-message auth-message--error auth-error-panel auth-error-panel--open';
-    container.setAttribute('role', 'alert');
-    container.setAttribute('aria-live', 'assertive');
     container.innerHTML = `
       <p class="auth-error-panel__title">${escapeHtml(message)}</p>
-      ${opts.status != null ? `<p class="auth-error-panel__meta">Codice HTTP: <strong>${escapeHtml(String(opts.status))}</strong></p>` : ''}
+      ${opts.status != null ? `<p class="auth-error-panel__meta">${escapeHtml(t('Codice HTTP:'))} <strong>${escapeHtml(String(opts.status))}</strong></p>` : ''}
       ${opts.hint ? `<p class="auth-error-panel__hint">${escapeHtml(opts.hint)}</p>` : ''}
       <details class="auth-error-panel__details">
-        <summary>Dettaglio tecnico (per supporto)</summary>
+        <summary>${escapeHtml(t('Dettaglio tecnico (per il supporto)'))}</summary>
         <pre class="auth-error-panel__pre">${escapeHtml(report)}</pre>
       </details>
-      <button type="button" class="auth-error-panel__copy">Copia errore</button>
+      <button type="button" class="auth-error-panel__copy">${escapeHtml(t('Copia errore'))}</button>
     `;
     container.hidden = false;
-    container.style.display = 'block';
     const copyBtn = container.querySelector('.auth-error-panel__copy');
     copyBtn?.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(report);
-        copyBtn.textContent = 'Copiato!';
+        copyBtn.textContent = t('Copiato');
         setTimeout(() => {
-          copyBtn.textContent = 'Copia errore';
+          copyBtn.textContent = t('Copia errore');
         }, 2200);
       } catch {
-        copyBtn.textContent = 'Selezione manuale dal riquadro sopra';
+        copyBtn.textContent = t('Copia non riuscita: seleziona il testo nel riquadro');
       }
     });
     container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

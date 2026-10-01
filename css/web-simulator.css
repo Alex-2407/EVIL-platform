@@ -637,6 +637,75 @@
   box-shadow: 0 0 10px rgba(0, 255, 156, 0.45);
 }
 
+/* Scheda didattica del modulo */
+.sim-brief {
+  margin: 0 0 clamp(1.75rem, 4vw, 2.5rem);
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+  border: 1px solid var(--sim-border);
+  border-radius: 14px;
+  background: var(--sim-card-bg);
+  animation: simFadeUp 0.65s ease-out both;
+}
+
+.sim-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.9rem 1.5rem;
+  margin: 0 0 1.1rem;
+}
+
+.sim-brief-grid div {
+  margin: 0;
+}
+
+.sim-brief-grid dt {
+  font-family: var(--sim-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sim-amber);
+  margin-bottom: 0.3rem;
+}
+
+.sim-brief-grid dd {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.sim-brief-goals__title {
+  margin: 0 0 0.45rem;
+  font-family: var(--sim-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sim-learn);
+}
+
+.sim-brief-goals ul {
+  margin: 0 0 1.1rem;
+  padding-left: 1.2rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.sim-brief-ethics {
+  margin: 0;
+  padding-top: 0.9rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.sim-brief-ethics a {
+  color: var(--sim-accent);
+}
+
 @media (max-width: 992px) {
   .sim-phase-rail {
     grid-template-columns: 1fr 1fr;

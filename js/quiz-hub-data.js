@@ -1,1457 +1,1431 @@
+/**
+ * Centro quiz EVIL — catalogo principale (16 categorie).
+ * Le categorie aggiuntive e le domande di approfondimento stanno in quiz-hub-data-extra.js.
+ * Copia inglese con la stessa struttura: js/i18n/en/quiz-hub-data.js
+ *
+ * Struttura:
+ *   level: 'base' | 'intermedio' | 'avanzato' (valore usato dal codice, non tradurre)
+ *   learn: [{ href, label }] pagine del sito dove approfondire l'argomento
+ *   Q(level, domanda, spiegazione, opzioni) — una sola opzione con correct: true
+ */
 (function () {
-  function Q(question, explanation, options) {
-    return { question, explanation, options };
+  const B = 'base';
+  const I = 'intermedio';
+  const A = 'avanzato';
+
+  function Q(level, question, explanation, options) {
+    return { level, question, explanation, options };
   }
 
   const PILLARS = {
-    human: 'Inganno umano',
+    human: 'Fattore umano',
     tech: 'Tecnico',
     defend: 'Difesa',
     intel: 'Intelligence',
   };
 
+  const LEVELS = {
+    base: 'Base',
+    intermedio: 'Intermedio',
+    avanzato: 'Avanzato',
+  };
+
   const CATEGORIES = {
     'phishing-email': {
       id: 'phishing-email',
-      name: "Phishing & Email",
+      name: 'Phishing ed email',
       pillar: 'human',
+      level: B,
       icon: '◈',
       accent: '#fb7185',
-      description: "Email fraudolente, BEC, segnali di allarme.",
+      description: 'Riconoscere email fraudolente, BEC e mittenti falsificati.',
+      learn: [
+        { href: '/security-check.html', label: 'Check URL' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "Ricevi un'email dalla banca che chiede di cliccare un link per verificare il conto. Cosa è più sospetto?",
-          "I phisher commettono errori e usano link che sembrano legittimi ma puntano a siti fake.",
+        Q(B,
+          "Ricevi un'email dalla tua banca che ti chiede di cliccare un link per «verificare il conto». Qual è il segnale più affidabile per riconoscere un phishing?",
+          "Oggi molti messaggi di phishing sono scritti in un italiano impeccabile, anche grazie all'IA generativa: l'ortografia non è più un indicatore affidabile. Contano gli elementi che l'attaccante non può falsificare facilmente: il dominio reale del link e del mittente, il contesto (aspettavi questa comunicazione?), la richiesta insolita (credenziali, pagamenti) e la pressione del tempo. Nel dubbio, apri il sito digitando tu l'indirizzo.",
           [
-        { text: "Le banche non inviano mai email", correct: false },
-        { text: "Errori di ortografia e link che non corrisponde al dominio ufficiale", correct: true },
-        { text: "Email ricevuta di lunedì", correct: false },
-        { text: "Tono cordiale", correct: false }
-          ]
-        ),
-        Q(
-          "Quale indirizzo email è PROBABILMENTE fraudolento?",
-          "Typosquatting: sostituiscono lettere (o→0) o usano domini invertiti. Controlla sempre il dominio reale.",
+            { text: 'Il testo contiene errori di ortografia e di grammatica', correct: false },
+            { text: 'Il link punta a un dominio diverso da quello ufficiale e il messaggio ti mette fretta', correct: true },
+            { text: "L'email arriva fuori dall'orario d'ufficio", correct: false },
+            { text: "Nel piè di pagina manca l'indirizzo della sede legale", correct: false },
+          ]),
+        Q(B,
+          'Quale di questi indirizzi è con ogni probabilità fraudolento?',
+          "Typosquatting: lo zero al posto della «o» imita il marchio. Gli altri indirizzi appartengono tutti al dominio registrato amazon.com (anche payments.amazon.com è un suo sottodominio): conta la parte immediatamente prima del dominio di primo livello, non le parole che compaiono altrove.",
           [
-        { text: "support@amazon.com", correct: false },
-        { text: "support@amaz0n.com", correct: true },
-        { text: "customer-service@amazon.com", correct: false },
-        { text: "noreply@payments.amazon.com", correct: false }
-          ]
-        ),
-        Q(
-          "Email PayPal: conto sospeso, verifica subito. Cosa è più sospetto?",
-          "Urgenza artificiale e assenza di dettagli personalizzati sono segnali classici di phishing.",
+            { text: 'support@amazon.com', correct: false },
+            { text: 'support@amaz0n.com', correct: true },
+            { text: 'customer-service@amazon.com', correct: false },
+            { text: 'noreply@payments.amazon.com', correct: false },
+          ]),
+        Q(B,
+          "Email «PayPal»: «Il tuo conto è stato sospeso, verificalo entro 24 ore». Quale combinazione di elementi è più indicativa di phishing?",
+          "Scadenze ravvicinate e saluti generici sono tipici delle campagne di massa. Logo e footer si copiano in pochi secondi, e gli indirizzi noreply sono comuni anche nelle email legittime: non dimostrano nulla, né in un senso né nell'altro.",
           [
-        { text: "Urgenza artificiale e mancanza di dettagli personali", correct: true },
-        { text: "Proviene da PayPal", correct: false },
-        { text: "Contiene il logo", correct: false },
-        { text: "È in inglese", correct: false }
-          ]
-        ),
-        Q(
-          "Oggetto: \"Importante: Azione Richiesta Urgente\". Qual è il segnale di allarme?",
-          "L'urgenza forzata bypassa il pensiero critico: tattica comune nei messaggi fraudolenti.",
+            { text: 'Scadenza ravvicinata e saluto generico («Gentile cliente»)', correct: true },
+            { text: 'Presenza del logo e dei link a privacy e condizioni nel footer', correct: false },
+            { text: 'Invio da un indirizzo noreply@', correct: false },
+            { text: 'Testo lungo con molte informazioni legali', correct: false },
+          ]),
+        Q(B,
+          "Oggetto: «URGENTE: azione richiesta entro oggi». Perché questo tipo di oggetto è un segnale d'allarme?",
+          "L'urgenza serve a farti agire prima di verificare: è una leva psicologica, non un dettaglio tecnico. Le aziende legittime a volte scrivono «urgente», quindi da solo non basta a concludere che sia phishing, ma deve farti rallentare e controllare.",
           [
-        { text: "È un'email importante", correct: false },
-        { text: "Tono urgente per farti agire senza riflettere", correct: true },
-        { text: "È in maiuscolo", correct: false },
-        { text: "Mittente aziendale", correct: false }
-          ]
-        ),
-        Q(
-          "Quale caratteristica è tipica di un'email legittima da una banca?",
-          "Le banche non chiedono password via link; usano dati personalizzati sulla transazione.",
+            { text: 'Crea pressione temporale per farti agire prima di verificare', correct: true },
+            { text: 'Gli oggetti in maiuscolo vengono bloccati dai filtri, quindi è arrivata per errore', correct: false },
+            { text: 'Indica che il messaggio contiene un allegato eseguibile', correct: false },
+            { text: 'Le aziende legittime non usano mai la parola «urgente»', correct: false },
+          ]),
+        Q(B,
+          "Quale caratteristica è tipica di un'email legittima della tua banca?",
+          "Una banca non chiede mai password, PIN od OTP via email e si riferisce a operazioni che puoi verificare. Anche in questo caso, per agire apri l'app o il sito digitando l'indirizzo, invece di usare i link del messaggio.",
           [
-        { text: "Richiede password tramite link", correct: false },
-        { text: "Dettagli personalizzati su conto o operazione", correct: true },
-        { text: "Dominio casuale", correct: false },
-        { text: "Allegato .exe", correct: false }
-          ]
-        ),
-        Q(
-          "BEC (Business Email Compromise): cosa descrive meglio l'attacco?",
-          "Il BEC imita dirigenti o fornitori per indurre bonifici o furto di credenziali.",
+            { text: 'Contiene un link diretto alla pagina di login, per comodità', correct: false },
+            { text: "Si riferisce a un'operazione che riconosci e non chiede credenziali", correct: true },
+            { text: 'Arriva da un dominio simile a quello della banca, come banca-sicurezza.com', correct: false },
+            { text: 'Chiede di confermare il PIN per completare un aggiornamento', correct: false },
+          ]),
+        Q(I,
+          'Che cosa descrive meglio un attacco BEC (Business Email Compromise)?',
+          "Nel BEC l'attaccante impersona, o controlla davvero dopo averne rubato le credenziali, la casella di un dirigente o di un fornitore e chiede un bonifico, un cambio di IBAN o dati riservati. Spesso non c'è alcun allegato né link: la difesa è soprattutto procedurale, ad esempio confermare ogni cambio di coordinate bancarie con una telefonata a un numero già noto.",
           [
-        { text: "Spam massivo senza target", correct: false },
-        { text: "Email che imita CEO o fornitore per frodi su pagamenti", correct: true },
-        { text: "Solo virus su allegati", correct: false },
-        { text: "Attacco solo su social", correct: false }
-          ]
-        ),
-        Q(
-          "Come verificare se un link in email è sicuro prima di cliccare?",
-          "Passa il mouse sul link (senza cliccare) e confronta dominio e HTTPS con il sito ufficiale.",
+            { text: 'Invio massivo di spam generico a indirizzi casuali', correct: false },
+            { text: 'Email che si spaccia per un dirigente o un fornitore per ottenere pagamenti o dati', correct: true },
+            { text: 'Allegato che cifra i file aziendali e chiede un riscatto', correct: false },
+            { text: 'Attacco DDoS che rende irraggiungibile il server di posta', correct: false },
+          ]),
+        Q(B,
+          "Come controlli un link in un'email prima di cliccarlo?",
+          "Il testo visibile di un link può essere qualsiasi cosa: conta la destinazione reale, che vedi passando il puntatore (o tenendo premuto su smartphone). «https://» nel testo non prova nulla, e la modalità in incognito non isola il sito né blocca il phishing.",
           [
-        { text: "Cliccare e vedere se carica", correct: false },
-        { text: "Ispezionare URL reale al passaggio del mouse e confrontare col sito ufficiale", correct: true },
-        { text: "Fidarsi se il testo dice HTTPS", correct: false },
-        { text: "Inoltrare a colleghi", correct: false }
-          ]
-        ),
-        Q(
-          "Cosa fare con un'email di phishing ricevuta in azienda?",
-          "Segnalare al SOC/IT e non interagire evita escalation e aiuta a bloccare campagne.",
+            { text: 'Controllo che il testo del link cominci con https://', correct: false },
+            { text: 'Passo il puntatore sul link e confronto il dominio reale con quello ufficiale', correct: true },
+            { text: 'Lo apro in modalità in incognito, che isola il sito', correct: false },
+            { text: "Verifico che l'email contenga il logo dell'azienda", correct: false },
+          ]),
+        Q(B,
+          "Che cosa fai con un'email di phishing ricevuta sulla casella aziendale?",
+          "Segnalarla con il pulsante o il canale previsto permette al SOC di rimuoverla da tutte le caselle e bloccare il dominio. Inoltrarla a tutti diffonde il link, rispondere conferma all'attaccante che l'indirizzo è attivo, e aprire l'allegato è proprio ciò che vuole.",
           [
-        { text: "Rispondere per capire chi è", correct: false },
-        { text: "Non cliccare, segnalare a IT/SOC e cancellare", correct: true },
-        { text: "Inoltrare a tutti come avviso", correct: false },
-        { text: "Aprire allegati in sandbox personale", correct: false }
-          ]
-        ),
+            { text: 'Rispondo chiedendo al mittente di identificarsi', correct: false },
+            { text: "Non interagisco e la segnalo con il canale previsto dall'IT o dal SOC", correct: true },
+            { text: 'La inoltro a tutti i colleghi per avvisarli', correct: false },
+            { text: "Apro l'allegato per capire se è davvero malevolo", correct: false },
+          ]),
       ],
     },
     'social-engineering': {
       id: 'social-engineering',
-      name: "Social Engineering",
+      name: 'Social engineering',
       pillar: 'human',
+      level: B,
       icon: '◎',
       accent: '#f472b6',
-      description: "Manipolazione psicologica, pretexting, autorità.",
+      description: 'Manipolazione psicologica, pretexting, leve di autorità e urgenza.',
+      learn: [
+        { href: '/osint-hub.html', label: 'OSINT' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "Un collega invia un link \"guarda questo video\". Cosa fai?",
-          "Account compromessi inviano malware ai contatti: verifica su canale alternativo.",
+        Q(B,
+          'Un collega ti scrive «guarda questo video» con un link, senza altro contesto. Cosa fai?',
+          "Gli account compromessi vengono usati per inviare link malevoli ai contatti, sfruttando la fiducia. Rispondere allo stesso messaggio non serve: se l'account è in mano all'attaccante, risponderà lui. Verifica su un canale diverso.",
           [
-        { text: "Clicco subito", correct: false },
-        { text: "Chiedo conferma al collega su canale diverso", correct: true },
-        { text: "Scarico senza scansione", correct: false },
-        { text: "Apro in incognito e clicco", correct: false }
-          ]
-        ),
-        Q(
-          "Sconosciuto si presenta come IT e chiede accesso al PC. Cosa fai?",
-          "Verifica chiamando IT con numero interno noto, mai con quello fornito dal chiamante.",
+            { text: 'Lo apro: il mittente è un collega fidato', correct: false },
+            { text: 'Chiedo conferma al collega su un canale diverso (telefono, chat aziendale)', correct: true },
+            { text: "Rispondo allo stesso messaggio chiedendo se l'ha inviato davvero", correct: false },
+            { text: 'Lo apro in modalità in incognito per sicurezza', correct: false },
+          ]),
+        Q(B,
+          "Uno sconosciuto ti chiama presentandosi come tecnico dell'IT e chiede di collegarsi al tuo PC. Cosa fai?",
+          "Nomi e matricole si trovano facilmente (LinkedIn, organigrammi, email precedenti), quindi conoscerli non prova nulla. Richiamare il numero fornito dal chiamante significa parlare di nuovo con lui. Si verifica sempre con un numero interno ufficiale.",
           [
-        { text: "Do accesso subito", correct: false },
-        { text: "Richiamo IT con numero ufficiale interno", correct: true },
-        { text: "Chiedo solo il nome", correct: false },
-        { text: "Do password via chat", correct: false }
-          ]
-        ),
-        Q(
-          "Quale NON è tipica del social engineering digitale?",
-          "Il SE digitale sfrutta urgenza, autorità e fiducia; la lettera certificata è meno immediata.",
+            { text: 'Gli chiedo nome e matricola: se li conosce, è affidabile', correct: false },
+            { text: "Richiamo l'helpdesk al numero interno ufficiale prima di concedere qualsiasi accesso", correct: true },
+            { text: "Concedo l'accesso remoto ma resto davanti allo schermo", correct: false },
+            { text: 'Lo richiamo al numero che mi ha lasciato', correct: false },
+          ]),
+        Q(I,
+          "Un messaggio dice: «Il direttore ha già approvato, serve solo la tua firma entro un'ora». Quali leve psicologiche sfrutta?",
+          "Il riferimento al direttore sfrutta l'autorità, la scadenza ravvicinata l'urgenza: sono due dei principi di persuasione descritti da Robert Cialdini e tra i più usati nel social engineering. Riconoscere la leva aiuta a fermarsi e verificare.",
           [
-        { text: "Fingersi autorità (banca, polizia)", correct: false },
-        { text: "Creare urgenza", correct: false },
-        { text: "Lettera cartacea certificata come vettore principale immediato", correct: true },
-        { text: "Sfruttare fiducia verso colleghi", correct: false }
-          ]
-        ),
-        Q(
-          "Email: hai vinto un premio senza aver partecipato. È phishing?",
-          "Premi inaspettati sono truffe classiche per rubare dati o denaro.",
+            { text: 'Autorità e urgenza', correct: true },
+            { text: 'Reciprocità', correct: false },
+            { text: 'Riprova sociale', correct: false },
+            { text: 'Simpatia', correct: false },
+          ]),
+        Q(B,
+          'Ricevi un messaggio che ti annuncia la vincita di un premio a un concorso a cui non hai partecipato. Di cosa si tratta?',
+          "I premi inattesi sono un'esca classica per ottenere dati personali o piccoli «costi di spedizione». HTTPS indica solo una connessione cifrata, e i filtri antispam non verificano che un messaggio sia onesto.",
           [
-        { text: "No, può essere legittimo", correct: false },
-        { text: "Sì, quasi certamente truffa", correct: true },
-        { text: "Solo se in spam", correct: false },
-        { text: "Dipende dal mittente", correct: false }
-          ]
-        ),
-        Q(
-          "Cosa rende efficace il social engineering?",
-          "Sfrutta emozioni (paura, curiosità, avidità) più che solo vulnerabilità tecniche.",
+            { text: 'Quasi certamente di una truffa', correct: true },
+            { text: 'Di un messaggio legittimo, se il link usa HTTPS', correct: false },
+            { text: 'Di una truffa solo se chiede un pagamento: i dati personali si possono fornire', correct: false },
+            { text: "Di un messaggio affidabile, perché il filtro antispam l'ha lasciato passare", correct: false },
+          ]),
+        Q(B,
+          "Che cosa rende efficace il social engineering?",
+          "Sfrutta reazioni umane prevedibili (fiducia, paura, curiosità, fretta, desiderio di aiutare) più che falle tecniche. Colpisce anche persone esperte, soprattutto quando sono stanche o sotto pressione, e quasi sempre avviene a distanza.",
           [
-        { text: "Sfrutta emozioni umane", correct: true },
-        { text: "Solo tecnologia avanzata", correct: false },
-        { text: "Solo su analfabeti digitali", correct: false },
-        { text: "Richiede sempre accesso fisico", correct: false }
-          ]
-        ),
-        Q(
-          "Pretexting in sicurezza significa:",
-          "Inventare uno scenario credibile per ottenere informazioni o accesso.",
+            { text: 'Sfrutta emozioni e automatismi umani come fiducia, paura e fretta', correct: true },
+            { text: 'Richiede strumenti tecnici avanzati e vulnerabilità zero-day', correct: false },
+            { text: 'Funziona solo su persone con poca esperienza informatica', correct: false },
+            { text: 'Necessita sempre di un contatto di persona', correct: false },
+          ]),
+        Q(B,
+          'Nel social engineering, che cosa si intende per pretexting?',
+          "Il pretexting consiste nel costruire uno scenario credibile (un pretesto: il nuovo fornitore, l'auditor, il collega di un'altra sede) per ottenere informazioni o accesso. Le altre risposte descrivono il phishing di massa, il tailgating e il baiting.",
           [
-        { text: "Crittografare i dati", correct: false },
-        { text: "Creare una storia falsa credibile per manipolare la vittima", correct: true },
-        { text: "Scansionare le porte", correct: false },
-        { text: "Backup automatico", correct: false }
-          ]
-        ),
-        Q(
-          "Quale principio aiuta a resistere alla manipolazione?",
-          "Pausa, verifica indipendente e policy aziendali riducono il successo del SE.",
+            { text: 'Costruire uno scenario credibile per ottenere informazioni o accesso', correct: true },
+            { text: 'Inviare in massa email generiche sperando che qualcuno clicchi', correct: false },
+            { text: 'Seguire una persona autorizzata oltre una porta controllata', correct: false },
+            { text: 'Lasciare una chiavetta USB come esca', correct: false },
+          ]),
+        Q(B,
+          'Quale comportamento aiuta di più a resistere alla manipolazione?',
+          "Fermarsi, verificare con un canale indipendente e seguire le procedure toglie all'attaccante il suo vantaggio principale: la fretta. Conoscere dettagli interni non dimostra l'identità, e nessun filtro tecnico blocca una telefonata.",
           [
-        { text: "Agire subito per non perdere opportunità", correct: false },
-        { text: "Pausa, verifica indipendente e policy", correct: true },
-        { text: "Condividere password con IT al telefono", correct: false },
-        { text: "Disattivare antivirus per velocità", correct: false }
-          ]
-        ),
-        Q(
-          "Vishing usa principalmente quale canale?",
-          "Voice phishing: chiamate per rubare credenziali o indurre azioni.",
+            { text: 'Rispondere subito per non bloccare il lavoro e verificare dopo', correct: false },
+            { text: 'Fermarsi, verificare in modo indipendente e seguire le procedure aziendali', correct: true },
+            { text: 'Fidarsi delle richieste che citano correttamente dati interni', correct: false },
+            { text: "Affidarsi al filtro antispam, che blocca i tentativi di manipolazione", correct: false },
+          ]),
+        Q(B,
+          'Il vishing usa principalmente quale canale?',
+          "Vishing sta per voice phishing: telefonate, messaggi vocali e, sempre più spesso, voci clonate con l'IA. Via SMS si parla di smishing; via email o social di phishing.",
           [
-        { text: "Solo email", correct: false },
-        { text: "Telefono/voce", correct: true },
-        { text: "Solo USB", correct: false },
-        { text: "Solo fax", correct: false }
-          ]
-        ),
+            { text: 'Telefono e voce', correct: true },
+            { text: 'SMS', correct: false },
+            { text: 'Email', correct: false },
+            { text: 'Messaggi sui social network', correct: false },
+          ]),
       ],
     },
     'smishing-vishing': {
       id: 'smishing-vishing',
-      name: "Smishing & Vishing",
+      name: 'Smishing e vishing',
       pillar: 'human',
+      level: B,
       icon: '☎',
       accent: '#e879f9',
-      description: "Truffe via SMS e telefono, OTP, finti operatori.",
+      description: 'Truffe via SMS e telefono, codici OTP, finti operatori.',
+      learn: [
+        { href: '/security-check.html', label: 'Check URL' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "SMS: \"Pacco in attesa, clicca per ritirare\". Rischio principale?",
-          "Smishing usa link corti verso siti fake per credenziali o malware.",
+        Q(B,
+          'SMS: «Il tuo pacco è in giacenza, clicca per riprogrammare la consegna». Qual è il rischio principale?',
+          "Lo smishing porta a siti falsi che chiedono dati di carta (spesso per un piccolo «costo di riconsegna») o fanno installare app malevole. Aprire un SMS non comporta addebiti, e citare un corriere reale è proprio il trucco.",
           [
-        { text: "Ritardo postale", correct: false },
-        { text: "Link fraudolento per furto credenziali o malware", correct: true },
-        { text: "Costo SMS", correct: false },
-        { text: "Spam legale", correct: false }
-          ]
-        ),
-        Q(
-          "Chiamata: \"Sono la banca, conferma il codice OTP ricevuto\". Cosa fare?",
-          "Mai condividere OTP: la banca non lo chiede; è furto sessione/account.",
+            { text: 'Un link a un sito falso per rubare dati di pagamento o installare malware', correct: true },
+            { text: 'Che il pacco torni al mittente se non clicchi', correct: false },
+            { text: "Un addebito sul credito telefonico per aver aperto l'SMS", correct: false },
+            { text: 'Nessuno, se il messaggio cita un corriere reale', correct: false },
+          ]),
+        Q(B,
+          'Al telefono: «Sono della banca, mi detti il codice OTP che ha appena ricevuto». Cosa fai?',
+          "L'OTP serve a confermare un'operazione che, in quel momento, sta facendo l'attaccante. Nessuna banca lo chiede: non va comunicato in nessuna forma, nemmeno in parte. Riaggancia e chiama tu la banca al numero ufficiale.",
           [
-        { text: "Dettare il codice", correct: false },
-        { text: "Non comunicare OTP e riagganciare; contattare banca con numero ufficiale", correct: true },
-        { text: "Chiedere al chiamante di ripetere", correct: false },
-        { text: "Inviare screenshot", correct: false }
-          ]
-        ),
-        Q(
-          "Numero che sembra locale ma è spoofato. Come difendersi?",
-          "Non fidarsi del caller ID; verificare tramite canali ufficiali.",
+            { text: 'Lo detto solo se il chiamante conosce già il mio nome e il mio IBAN', correct: false },
+            { text: 'Non lo comunico, riaggancio e chiamo la banca al numero ufficiale', correct: true },
+            { text: "Leggo solo le prime cifre per verificare l'identità del chiamante", correct: false },
+            { text: 'Lo comunico, tanto scade dopo pochi minuti', correct: false },
+          ]),
+        Q(B,
+          'Una chiamata sembra arrivare dal numero della tua banca. Come ti difendi dallo spoofing?',
+          "Il numero visualizzato (caller ID) si falsifica facilmente, quindi può coincidere con quello salvato in rubrica. Anche il mittente di un SMS si può falsificare. Chiudi e richiama tu un numero ufficiale.",
           [
-        { text: "Caller ID è sempre affidabile", correct: false },
-        { text: "Non fidarsi del numero visualizzato; verificare con contatto ufficiale", correct: true },
-        { text: "Richiamare lo stesso numero", correct: false },
-        { text: "Dare dati se tono professionale", correct: false }
-          ]
-        ),
-        Q(
-          "SMS con link accorciato da mittente sconosciuto. Azione migliore?",
-          "Eliminare e verificare servizi tramite app/sito ufficiale digitato manualmente.",
+            { text: 'Mi fido: il numero corrisponde a quello della banca salvato in rubrica', correct: false },
+            { text: 'Non mi fido del numero visualizzato e richiamo io un numero ufficiale', correct: true },
+            { text: 'Chiedo al chiamante di mandarmi un SMS di conferma', correct: false },
+            { text: 'Mi fido se il chiamante usa un tono professionale', correct: false },
+          ]),
+        Q(B,
+          'Ricevi un SMS con un link accorciato da un mittente sconosciuto. Qual è la scelta migliore?',
+          "Non aprire il link e controllare dall'app o dal sito ufficiale digitato a mano. Il lucchetto non dice nulla sull'onestà del sito, rispondere «STOP» conferma che il numero è attivo e inoltrare il link lo diffonde.",
           [
-        { text: "Cliccare per vedere", correct: false },
-        { text: "Eliminare e usare app/sito ufficiale senza il link", correct: true },
-        { text: "Rispondere STOP con dati", correct: false },
-        { text: "Inoltrare ad amici", correct: false }
-          ]
-        ),
-        Q(
-          "Truffa \"supporto Microsoft\" al telefono. Segnale tipico?",
-          "Chiedono accesso remoto o pagamenti per \"pulire virus\" inesistenti.",
+            { text: 'Aprire il link per vedere se il sito ha il lucchetto', correct: false },
+            { text: "Non aprirlo e verificare dall'app o dal sito ufficiale digitato a mano", correct: true },
+            { text: 'Rispondere «STOP» per non ricevere altri messaggi', correct: false },
+            { text: 'Inoltrarlo a un amico per avere un parere', correct: false },
+          ]),
+        Q(B,
+          'Ti chiama il «supporto tecnico Microsoft» perché ha rilevato virus sul tuo PC. Che cosa rivela la truffa?',
+          "Microsoft non telefona di sua iniziativa per problemi sul tuo computer. I truffatori chiedono di installare un software di accesso remoto o di pagare per una «pulizia». Sapere che usi Windows non prova nulla, e l'accento o l'orario non sono indicatori affidabili.",
           [
-        { text: "Inviano solo email", correct: false },
-        { text: "Richiedono accesso remoto o pagamento urgente", correct: true },
-        { text: "Mandano fattura cartacea", correct: false },
-        { text: "Non parlano mai", correct: false }
-          ]
-        ),
-        Q(
-          "SIM swapping serve agli attaccanti per:",
-          "Intercettare SMS OTP spostando la SIM su dispositivo dell'attaccante.",
+            { text: "La chiamata non richiesta e la richiesta di accesso remoto o di un pagamento", correct: true },
+            { text: 'Nulla, se il chiamante sa che usi Windows', correct: false },
+            { text: 'Solo il fatto che chiami di sera', correct: false },
+            { text: "L'accento straniero del chiamante", correct: false },
+          ]),
+        Q(I,
+          'A che cosa serve il SIM swapping a un attaccante?',
+          "Convincendo l'operatore (o un suo dipendente) a trasferire il numero su una nuova SIM, l'attaccante riceve SMS e chiamate della vittima, compresi gli OTP e i codici di recupero degli account.",
           [
-        { text: "Aumentare segnale Wi-Fi", correct: false },
-        { text: "Ricevere SMS/OTP della vittima su altra SIM", correct: true },
-        { text: "Crittografare il telefono", correct: false },
-        { text: "Backup foto", correct: false }
-          ]
-        ),
-        Q(
-          "Messaggio: \"Hai un rimborso, inserisci IBAN qui\". È:",
-          "Richieste dati finanziari via SMS non ufficiale sono quasi sempre fraudolente.",
+            { text: 'A ricevere su una SIM sotto il suo controllo gli SMS e gli OTP della vittima', correct: true },
+            { text: 'A copiare la memoria del telefono e le foto', correct: false },
+            { text: 'A intercettare il traffico Wi-Fi del telefono', correct: false },
+            { text: 'A disattivare la cifratura del dispositivo', correct: false },
+          ]),
+        Q(B,
+          'SMS: «Hai diritto a un rimborso, inserisci il tuo IBAN a questo link». Come lo valuti?',
+          "Gli enti non raccolgono dati bancari tramite link in SMS. Il nome del mittente si può falsificare, quindi il messaggio può comparire nella stessa conversazione degli SMS veri dell'ente: non è una garanzia.",
           [
-        { text: "Procedura standard", correct: false },
-        { text: "Probabilmente smishing", correct: true },
-        { text: "Sempre legittimo se c'è euro", correct: false },
-        { text: "Solo marketing", correct: false }
-          ]
-        ),
-        Q(
-          "Dopo una chiamata sospetta a cui hai dato dati parziali, cosa fare?",
-          "Bloccare carte, cambiare password e segnalare alla banca/IT.",
+            { text: 'Una procedura normale per i rimborsi', correct: false },
+            { text: 'Probabile smishing', correct: true },
+            { text: 'Legittimo, se il link usa HTTPS', correct: false },
+            { text: "Affidabile, perché compare nella stessa conversazione degli SMS veri dell'ente", correct: false },
+          ]),
+        Q(I,
+          'Dopo una telefonata sospetta hai fornito alcuni dati personali. Cosa fai?',
+          "Agisci subito: avvisa la banca o l'IT, blocca ciò che può essere bloccato (carte, accessi), cambia le credenziali coinvolte e controlla movimenti e accessi nei giorni seguenti. Anche dati parziali servono a truffe successive più credibili.",
           [
-        { text: "Aspettare", correct: false },
-        { text: "Bloccare account/carte, cambiare credenziali, segnalare", correct: true },
-        { text: "Pubblicare su social", correct: false },
-        { text: "Richiamare lo stesso numero", correct: false }
-          ]
-        ),
+            { text: 'Aspetto: con dati parziali non possono fare nulla', correct: false },
+            { text: 'Avviso subito banca o IT, blocco ciò che serve, cambio le credenziali coinvolte e monitoro', correct: true },
+            { text: "Richiamo il numero che mi ha chiamato per annullare l'operazione", correct: false },
+            { text: "Cambio solo la password dell'email personale", correct: false },
+          ]),
       ],
     },
     'physical-se': {
       id: 'physical-se',
-      name: "Ingegneria Sociale Fisica",
+      name: 'Social engineering fisico',
       pillar: 'human',
+      level: B,
       icon: '⬡',
       accent: '#fda4af',
-      description: "USB drop, tailgating, baiting, dumpster diving.",
+      description: 'Chiavette esca, accodamento agli ingressi, baiting, documenti nei rifiuti.',
+      learn: [
+        { href: '/glossary.html', label: 'Glossario' },
+        { href: '/learning-paths.html', label: 'Percorsi di apprendimento' },
+      ],
       questions: [
-        Q(
-          "Trovi una USB in parcheggio aziendale. Cosa fare?",
-          "USB drop: malware al collegamento; consegnare a sicurezza senza inserirla.",
+        Q(B,
+          'Trovi una chiavetta USB nel parcheggio aziendale. Cosa fai?',
+          "Una chiavetta può contenere malware o essere un dispositivo che si presenta al PC come tastiera e digita comandi in pochi secondi: l'antivirus non sempre lo ferma. Non collegarla da nessuna parte e consegnala alla sicurezza o all'IT.",
           [
-        { text: "Inserirla per vedere contenuti", correct: false },
-        { text: "Non inserirla; consegnare a sicurezza/IT", correct: true },
-        { text: "Portarla a casa", correct: false },
-        { text: "Regalarla a un collega", correct: false }
-          ]
-        ),
-        Q(
-          "Tailgating è:",
-          "Entrare in area riservata seguendo qualcuno senza badge proprio.",
+            { text: 'La collego a un PC non aziendale per vedere di chi è', correct: false },
+            { text: "Non la collego e la consegno alla sicurezza o all'IT", correct: true },
+            { text: "La collego: l'antivirus blocca qualsiasi minaccia da USB", correct: false },
+            { text: 'La formatto e la riutilizzo', correct: false },
+          ]),
+        Q(B,
+          'Che cosa si intende per tailgating?',
+          "È l'accodamento: entrare in un'area protetta subito dietro una persona autorizzata, senza autenticarsi. Le altre risposte descrivono la raccolta di informazioni sui social, lo shoulder surfing e il dumpster diving.",
           [
-        { text: "Phishing via email", correct: false },
-        { text: "Accesso fisico seguendo altri senza autenticazione", correct: true },
-        { text: "Attacco DDoS", correct: false },
-        { text: "Crittografia debole", correct: false }
-          ]
-        ),
-        Q(
-          "Sconosciuto con pacco chiede di tenere il portone. Policy corretta?",
-          "Non tenere porte; indirizzare a reception o verificare badge.",
+            { text: "Entrare in un'area protetta accodandosi a una persona autorizzata", correct: true },
+            { text: 'Seguire una persona sui social per raccogliere informazioni', correct: false },
+            { text: 'Guardare lo schermo di qualcuno da sopra la spalla', correct: false },
+            { text: "Rovistare tra i rifiuti dell'azienda", correct: false },
+          ]),
+        Q(B,
+          'Uno sconosciuto con un pacco in mano ti chiede di tenergli aperto il portone. Cosa fai?',
+          "Una divisa o un pacco si procurano facilmente. La procedura corretta è non far entrare nessuno senza autenticazione e indirizzarlo alla reception, che contatta il destinatario. Chiedere un documento non sostituisce il controllo accessi.",
           [
-        { text: "Tenere sempre per gentilezza", correct: false },
-        { text: "Rifiutare e indirizzare a reception/verifica badge", correct: true },
-        { text: "Dare il badge", correct: false },
-        { text: "Lasciarlo solo in sala", correct: false }
-          ]
-        ),
-        Q(
-          "Baiting può includere:",
-          "Esca fisica o digitale (USB, download \"gratis\") per compromettere la vittima.",
+            { text: 'Tengo aperto, se indossa una divisa da corriere', correct: false },
+            { text: 'Non tengo aperto e lo indirizzo alla reception', correct: true },
+            { text: 'Lo faccio entrare, ma gli chiedo di lasciarmi un documento', correct: false },
+            { text: 'Gli presto il mio badge per la consegna', correct: false },
+          ]),
+        Q(B,
+          'Quale di questi è un esempio di baiting?',
+          "Il baiting usa un'esca che stimola la curiosità o l'avidità: una chiavetta con un'etichetta allettante, un download «gratuito». L'email con bonifico urgente è BEC, la telefonata del finto tecnico è vishing.",
           [
-        { text: "Solo firewall", correct: false },
-        { text: "USB o offerte ingannevoli come esca", correct: true },
-        { text: "Solo backup", correct: false },
-        { text: "Patch automatiche", correct: false }
-          ]
-        ),
-        Q(
-          "Dumpster diving in sicurezza significa:",
-          "Recuperare documenti buttati per ottenere informazioni sensibili.",
+            { text: 'Una chiavetta USB con etichetta «Stipendi 2026» lasciata in sala riunioni', correct: true },
+            { text: 'Una porta antincendio lasciata aperta per arieggiare', correct: false },
+            { text: 'Un’email che chiede un bonifico urgente a nome del CEO', correct: false },
+            { text: 'La telefonata di un finto tecnico che chiede la password', correct: false },
+          ]),
+        Q(B,
+          'Che cosa si intende per dumpster diving?',
+          "Recuperare documenti, appunti, supporti e dispositivi gettati nei rifiuti per ricavarne informazioni utili a un attacco. La difesa è la distruzione sicura (distruggidocumenti, cancellazione certificata dei supporti).",
           [
-        { text: "Nuotare", correct: false },
-        { text: "Recuperare informazioni da rifiuti/documenti scartati", correct: true },
-        { text: "Scansione porte", correct: false },
-        { text: "Brute force", correct: false }
-          ]
-        ),
-        Q(
-          "Badge visitor senza accompagnamento in area server. Tu:",
-          "Escort obbligatoria nelle zone critiche; segnalare anomalie.",
+            { text: 'Recuperare informazioni da documenti e supporti gettati nei rifiuti', correct: true },
+            { text: 'Cercare dati in archivi web dismessi', correct: false },
+            { text: "Scansionare le reti Wi-Fi dall'esterno dell'edificio", correct: false },
+            { text: 'Recuperare file dal cestino del PC di un collega', correct: false },
+          ]),
+        Q(B,
+          'Vedi un visitatore con badge, senza accompagnatore, nella sala server. Cosa fai?',
+          "Nelle aree critiche i visitatori devono essere accompagnati. Chiedere con cortesia chi lo accompagna e avvisare la sicurezza è la reazione corretta: un badge visitatore non autorizza a muoversi da soli.",
           [
-        { text: "Ignorare", correct: false },
-        { text: "Segnalare e far rispettare policy escort", correct: true },
-        { text: "Prestare il tuo badge", correct: false },
-        { text: "Fotografare per social", correct: false }
-          ]
-        ),
-        Q(
-          "Pretesto telefonico in ufficio: uno sconosciuto chiede i nomi del reparto. Risposta:",
-          "Non divulgare struttura interna a sconosciuti; usare canali ufficiali.",
+            { text: 'Lo ignoro: se ha un badge, qualcuno lo ha autorizzato', correct: false },
+            { text: 'Gli chiedo con cortesia chi lo accompagna e avviso la sicurezza', correct: true },
+            { text: 'Lo accompagno fuori senza segnalare nulla', correct: false },
+            { text: 'Lo lascio lavorare, ma annoto il suo nome', correct: false },
+          ]),
+        Q(B,
+          'Uno sconosciuto telefona e chiede i nomi dei responsabili di un reparto. Come rispondi?',
+          "Ogni informazione presa da sola sembra innocua, ma sommata alle altre rende credibile un attacco mirato. Le richieste di informazioni sull'organizzazione vanno indirizzate ai canali ufficiali.",
           [
-        { text: "Elencare tutti i reparti", correct: false },
-        { text: "Rifiutare e indirizzare a reception/comunicazione ufficiale", correct: true },
-        { text: "Dare numeri interni", correct: false },
-        { text: "Mostrare organigramma", correct: false }
-          ]
-        ),
-        Q(
-          "Miglior controllo contro tailgating?",
-          "Mantrap, badge individuali e cultura \"challenge\" riducono accessi non autorizzati.",
+            { text: 'Fornisco solo i nomi, tanto sono già su LinkedIn', correct: false },
+            { text: 'Non fornisco informazioni e lo indirizzo ai canali ufficiali', correct: true },
+            { text: 'Gli passo il numero interno del responsabile', correct: false },
+            { text: "Gli chiedo di scrivermi un'email e poi gli mando l'organigramma", correct: false },
+          ]),
+        Q(B,
+          "Qual è il controllo più efficace contro l'accodamento agli ingressi?",
+          "Bussole o tornelli che lasciano passare una persona alla volta, badge personali e una cultura che incoraggia a chiedere cortesemente chi si è. Telecamere non monitorate, cartelli e PIN condivisi non impediscono l'accesso.",
           [
-        { text: "Porta sempre aperta", correct: false },
-        { text: "Mantrap, badge e cultura di sfida cortese", correct: true },
-        { text: "Solo videocamera esterna", correct: false },
-        { text: "Password su porta", correct: false }
-          ]
-        ),
+            { text: 'Telecamere all’ingresso, anche se nessuno le monitora', correct: false },
+            { text: 'Bussole o tornelli antiaccodamento, badge personali e abitudine a chiedere', correct: true },
+            { text: 'Un codice PIN sulla porta condiviso da tutti', correct: false },
+            { text: 'Un cartello «Vietato l’ingresso ai non autorizzati»', correct: false },
+          ]),
       ],
     },
     'malware-ransomware': {
       id: 'malware-ransomware',
-      name: "Malware & Ransomware",
+      name: 'Malware e ransomware',
       pillar: 'tech',
+      level: B,
       icon: '⚠',
       accent: '#f87171',
-      description: "Virus, trojan, ransomware, indicazioni di compromissione.",
+      description: 'Virus, trojan, ransomware, indicatori di compromissione.',
+      learn: [
+        { href: '/malware-db.html', label: 'Catalogo malware' },
+        { href: '/malware-classification.html', label: 'Tassonomia malware' },
+        { href: '/persistence-evasion.html', label: 'Persistenza ed evasione' },
+      ],
       questions: [
-        Q(
-          "Allegato .exe da sconosciuto. Cosa fare?",
-          "Eseguibili da fonti non verificate sono altamente pericolosi: eliminare.",
+        Q(B,
+          'Ricevi da uno sconosciuto un allegato .exe. Cosa fai?',
+          "Un eseguibile inatteso non si apre, nemmeno se l'antivirus non segnala nulla: nessun antivirus rileva tutto. Va segnalato all'IT (in azienda) o eliminato. Inoltrarlo per un parere lo diffonde.",
           [
-        { text: "Aprire subito", correct: false },
-        { text: "Eliminare senza aprire", correct: true },
-        { text: "Aprire in VM personale", correct: false },
-        { text: "Caricare su cloud", correct: false }
-          ]
-        ),
-        Q(
-          "Quale estensione è più rischiosa se da fonte ignota?",
-          "Exe, bat, scr, js possono eseguire codice; massima cautela.",
+            { text: "Lo apro se l'antivirus non segnala nulla", correct: false },
+            { text: "Non lo apro e lo segnalo all'IT o lo elimino", correct: true },
+            { text: 'Lo inoltro a un collega esperto per un parere', correct: false },
+            { text: 'Lo rinomino in .txt e lo apro per leggerlo', correct: false },
+          ]),
+        Q(I,
+          'Quale di questi allegati può eseguire codice con un doppio clic su Windows?',
+          "I file .scr (screensaver) sono eseguibili a tutti gli effetti, come .exe, .js, .vbs, .bat, .hta e .lnk. Un file .txt, .png o .csv si apre in un visualizzatore e non esegue codice da solo (salvo vulnerabilità del programma che lo apre).",
           [
-        { text: ".pdf da fonte verificata", correct: false },
-        { text: ".exe", correct: true },
-        { text: ".txt", correct: false },
-        { text: ".png", correct: false }
-          ]
-        ),
-        Q(
-          "Ransomware tipicamente:",
-          "Cifra file e chiede riscatto, spesso dopo compromissione iniziale.",
+            { text: 'foto.png', correct: false },
+            { text: 'fattura.scr', correct: true },
+            { text: 'note.txt', correct: false },
+            { text: 'elenco.csv', correct: false },
+          ]),
+        Q(B,
+          'Che cosa fa tipicamente un ransomware?',
+          "Cifra i dati e chiede un riscatto per la chiave; oggi spesso ruba anche i dati prima di cifrarli e minaccia di pubblicarli. Le altre risposte descrivono adware, cryptojacking e keylogger.",
           [
-        { text: "Aumenta solo la RAM", correct: false },
-        { text: "Cifra dati e chiede pagamento per sblocco", correct: true },
-        { text: "Migliora le performance", correct: false },
-        { text: "È solo antivirus", correct: false }
-          ]
-        ),
-        Q(
-          "Segnale possibile infezione malware?",
-          "Lentezza, pop-up, connessioni strane, file rinominati.",
+            { text: 'Cifra i dati e chiede un riscatto, spesso minacciando anche di pubblicarli', correct: true },
+            { text: 'Mostra pubblicità indesiderate nel browser', correct: false },
+            { text: 'Usa il computer per minare criptovalute', correct: false },
+            { text: 'Registra i tasti premuti per rubare password', correct: false },
+          ]),
+        Q(B,
+          'Quale di questi può essere un segnale di infezione?',
+          "Processi sconosciuti, connessioni verso indirizzi insoliti e file rinominati con estensioni strane sono indizi da segnalare. Aggiornamenti, scansioni pianificate e password salvate nel browser sono comportamenti normali.",
           [
-        { text: "Solo schermo più luminoso", correct: false },
-        { text: "Prestazioni degradate, pop-up o file crittografati", correct: true },
-        { text: "Wi-Fi più veloce", correct: false },
-        { text: "Batteria infinita", correct: false }
-          ]
-        ),
-        Q(
-          "Dopo ransomware su PC aziendale, prima azione?",
-          "Isolare dalla rete e avvisare SOC; non pagare senza policy.",
+            { text: 'Il PC chiede di installare gli aggiornamenti di sistema', correct: false },
+            { text: 'Processi sconosciuti, connessioni insolite, file rinominati con estensioni strane', correct: true },
+            { text: 'Il browser propone di salvare una password', correct: false },
+            { text: "L'antivirus avvia la scansione pianificata", correct: false },
+          ]),
+        Q(B,
+          'Un ransomware sta cifrando i file del tuo PC aziendale. Qual è la prima azione?',
+          "Isolare il PC dalla rete (cavo e Wi-Fi) ferma la propagazione verso cartelle condivise e altri sistemi; poi si avvisa subito IT o SOC senza cancellare nulla, perché servono le evidenze. Collegare un disco di backup significa farlo cifrare.",
           [
-        { text: "Pagare subito in bitcoin", correct: false },
-        { text: "Disconnettere dalla rete e segnalare SOC/IT", correct: true },
-        { text: "Continuare a lavorare", correct: false },
-        { text: "Formattare senza segnalare", correct: false }
-          ]
-        ),
-        Q(
-          "Trojan si differenzia da virus perché:",
-          "Si maschera da software utile per indurre installazione.",
+            { text: 'Pago subito per limitare i danni', correct: false },
+            { text: 'Isolo il PC dalla rete e avviso subito IT o SOC, senza cancellare nulla', correct: true },
+            { text: 'Collego un disco esterno per salvare i file non ancora cifrati', correct: false },
+            { text: 'Spengo il PC e reinstallo il sistema', correct: false },
+          ]),
+        Q(B,
+          'In che cosa un trojan si distingue dalle altre famiglie di malware?',
+          "Il trojan si presenta come software utile e conta sull'utente per essere eseguito. Replicarsi da solo in rete è tipico dei worm, infettare altri eseguibili dei virus, nascondersi nel firmware di rootkit e bootkit.",
           [
-        { text: "Si replica da solo via email sempre", correct: false },
-        { text: "Si presenta come software legittimo per essere eseguito", correct: true },
-        { text: "È solo hardware", correct: false },
-        { text: "Non fa nulla", correct: false }
-          ]
-        ),
-        Q(
-          "Macro in documento Office da sconosciuto:",
-          "Macro possono eseguire malware; disabilitare se non necessarie.",
+            { text: 'Si replica da solo attraverso la rete senza intervento umano', correct: false },
+            { text: "Si presenta come software legittimo e conta sull'utente per essere eseguito", correct: true },
+            { text: 'Infetta altri file eseguibili inserendovi il proprio codice', correct: false },
+            { text: 'Si nasconde nel firmware per sopravvivere alla reinstallazione', correct: false },
+          ]),
+        Q(B,
+          'Un documento Office ricevuto da uno sconosciuto ti chiede di «abilitare il contenuto» (macro). Cosa sai delle macro?',
+          "Le macro possono eseguire codice e sono state a lungo uno dei vettori di infezione più usati; per questo le versioni recenti di Office bloccano di default quelle nei file scaricati da Internet. Un mittente conosciuto non basta: il suo account può essere compromesso.",
           [
-        { text: "Sempre sicure", correct: false },
-        { text: "Possono eseguire codice malevolo: non abilitare da fonti non fidate", correct: true },
-        { text: "Solo su Mac", correct: false },
-        { text: "Richieste da tutte le banche", correct: false }
-          ]
-        ),
-        Q(
-          "Backup efficace contro ransomware deve essere:",
-          "Copie offline/immutabili impediscono cifratura da parte del malware.",
+            { text: 'Sono sicure se il file arriva da un indirizzo conosciuto', correct: false },
+            { text: 'Possono eseguire codice: non abilitarle su documenti di provenienza non verificata', correct: true },
+            { text: "Sono bloccate dall'antivirus in ogni caso", correct: false },
+            { text: 'Sono pericolose solo su macOS', correct: false },
+          ]),
+        Q(B,
+          'Come deve essere un backup efficace contro il ransomware?',
+          "Almeno una copia deve essere offline o immutabile, cioè irraggiungibile o non modificabile dal malware, e i ripristini vanno provati. Un disco sempre collegato o una cartella sincronizzata vengono cifrati insieme agli originali; uno snapshot accessibile con le credenziali di dominio può essere cancellato dall'attaccante.",
           [
-        { text: "Solo sulla stessa unità cifrata dal malware", correct: false },
-        { text: "Offline o immutabile, testato con restore", correct: true },
-        { text: "Solo su desktop", correct: false },
-        { text: "Mai testato", correct: false }
-          ]
-        ),
+            { text: 'Su un disco esterno sempre collegato al PC', correct: false },
+            { text: 'Con almeno una copia offline o immutabile e ripristini provati regolarmente', correct: true },
+            { text: 'In una cartella cloud sincronizzata che replica subito ogni modifica', correct: false },
+            { text: "In uno snapshot sullo stesso server, gestito con le credenziali di amministratore di dominio", correct: false },
+          ]),
       ],
     },
     'url-links': {
       id: 'url-links',
-      name: "URL & Link",
+      name: 'URL e link',
       pillar: 'tech',
+      level: B,
       icon: '🔗',
       accent: '#38bdf8',
-      description: "Typosquatting, IDN, shortener, HTTPS.",
+      description: 'Typosquatting, domini IDN, link accorciati, cosa garantisce HTTPS.',
+      learn: [
+        { href: '/security-check.html', label: 'Check URL' },
+        { href: '/domain-recon.html', label: 'Ricognizione dominio' },
+      ],
       questions: [
-        Q(
-          "Link mostra https://paypa1.com. Problema?",
-          "Typosquatting: dominio simile con caratteri sostituiti.",
+        Q(B,
+          'Un link mostra https://paypa1.com. Qual è il problema?',
+          "È typosquatting: la «l» finale di paypal è sostituita dal numero 1. Il certificato HTTPS è valido per paypa1.com, cioè per il sito dell'attaccante: cifra la connessione, ma non dice chi c'è dall'altra parte.",
           [
-        { text: "HTTPS rende tutto sicuro", correct: false },
-        { text: "Dominio typosquatted (l vs 1)", correct: true },
-        { text: "Troppo corto", correct: false },
-        { text: "Nessuno", correct: false }
-          ]
-        ),
-        Q(
-          "URL accorciato (bit.ly) da email sconosciuta:",
-          "Gli shortener nascondono destinazione reale: rischio phishing.",
+            { text: 'Nessuno: il certificato HTTPS garantisce che sia PayPal', correct: false },
+            { text: 'È typosquatting: la «l» è sostituita da «1»', correct: true },
+            { text: 'Manca solo il «www»', correct: false },
+            { text: 'È il dominio PayPal per i pagamenti internazionali', correct: false },
+          ]),
+        Q(B,
+          'Come tratti un link accorciato (es. bit.ly) in un’email inattesa?',
+          "Un link accorciato nasconde la destinazione. Il dominio dell'abbreviatore è affidabile, ma chiunque può creare un link breve verso qualsiasi sito: va espanso con un servizio di anteprima o evitato.",
           [
-        { text: "Sempre sicuri", correct: false },
-        { text: "Nascondono destinazione: evitare senza verifica", correct: true },
-        { text: "Sono solo per social", correct: false },
-        { text: "Bloccati da legge", correct: false }
-          ]
-        ),
-        Q(
-          "Punycode/IDN homograph attack sfrutta:",
-          "Caratteri unicode simili a lettere latine (es. а vs a).",
+            { text: 'È sicuro, perché bit.ly è un dominio noto e affidabile', correct: false },
+            { text: 'Nasconde la destinazione: va espanso con un servizio di anteprima o evitato', correct: true },
+            { text: 'È sicuro, perché gli abbreviatori filtrano sempre i link malevoli', correct: false },
+            { text: 'È pericoloso solo se il link è scaduto', correct: false },
+          ]),
+        Q(I,
+          'Che cosa sfrutta un attacco omografico IDN?',
+          "Nei nomi di dominio internazionalizzati (IDN) si possono usare caratteri di altri alfabeti identici alle lettere latine, come la «а» cirillica. I browser mostrano in alcuni casi la forma Punycode (xn--…) per difendersi, ma non sempre. Gli errori di battitura sono typosquatting; il marchio in un sottodominio è un altro trucco ancora.",
           [
-        { text: "Solo firewall", correct: false },
-        { text: "Caratteri visivamente simili in domini", correct: true },
-        { text: "Solo IP statici", correct: false },
-        { text: "VPN", correct: false }
-          ]
-        ),
-        Q(
-          "Come aprire sito bancario in sicurezza dopo email sospetta?",
-          "Digitare URL manualmente o usare bookmark, mai link in email.",
+            { text: 'Caratteri di altri alfabeti visivamente identici alle lettere latine', correct: true },
+            { text: 'Domini così lunghi da non entrare nella barra degli indirizzi', correct: false },
+            { text: "Errori di battitura comuni dell'utente", correct: false },
+            { text: 'Sottodomini che contengono il nome del marchio (paypal.esempio.com)', correct: false },
+          ]),
+        Q(B,
+          "Dopo un'email sospetta, come apri in sicurezza il sito della tua banca?",
+          "Digita l'indirizzo, usa un segnalibro salvato in precedenza o l'app ufficiale. I risultati sponsorizzati sui motori di ricerca sono stati usati per campagne di phishing, e copiare il link dall'email equivale a cliccarlo.",
           [
-        { text: "Cliccare link email", correct: false },
-        { text: "Digitare URL o bookmark noto", correct: true },
-        { text: "Cercare su motore e cliccare primo risultato ads", correct: false },
-        { text: "Aprire allegato", correct: false }
-          ]
-        ),
-        Q(
-          "Certificato HTTPS garantisce che il sito sia:",
-          "HTTPS cifra il canale, non prova che il sito sia legittimo o benigno.",
+            { text: "Clicco il link nell'email controllando che ci sia il lucchetto", correct: false },
+            { text: "Digito l'indirizzo o uso un segnalibro o l'app ufficiale", correct: true },
+            { text: 'Cerco la banca su un motore di ricerca e apro il primo risultato, anche se sponsorizzato', correct: false },
+            { text: "Copio il link dall'email e lo incollo nel browser", correct: false },
+          ]),
+        Q(B,
+          'Che cosa garantisce HTTPS?',
+          "HTTPS garantisce che la connessione sia cifrata e che il server possieda un certificato valido per quel dominio. Non dice nulla sull'onestà di chi gestisce il sito: anche i siti di phishing hanno certificati validi, ottenuti gratuitamente in pochi minuti.",
           [
-        { text: "Sempre legittimo", correct: false },
-        { text: "Connessione cifrata, non necessariamente sito affidabile", correct: true },
-        { text: "Senza malware", correct: false },
-        { text: "Governativo", correct: false }
-          ]
-        ),
-        Q(
-          "Open redirect su sito noto può essere usato per:",
-          "Far sembrare link partire da dominio fidato reindirizzando a malevolo.",
+            { text: 'Che il sito è stato verificato come legittimo dal browser', correct: false },
+            { text: 'Che la connessione è cifrata verso quel dominio, non che il sito sia onesto', correct: true },
+            { text: 'Che il sito non contiene malware', correct: false },
+            { text: "Che l'azienda proprietaria è stata verificata da un ente pubblico", correct: false },
+          ]),
+        Q(I,
+          'A che cosa può servire un open redirect su un sito noto?',
+          "Un open redirect inoltra a qualsiasi indirizzo passato come parametro: il link sembra puntare a un dominio fidato, ma porta al sito dell'attaccante. Leggere i cookie del dominio richiederebbe un XSS; modificare il DNS o ottenere un certificato richiedono ben altro.",
           [
-        { text: "Accelerare internet", correct: false },
-        { text: "Phishing usando fiducia nel dominio iniziale", correct: true },
-        { text: "Backup", correct: false },
-        { text: "MFA", correct: false }
-          ]
-        ),
-        Q(
-          "Hover sul link mostra http://192.168.1.5/login in email \"banca\". È:",
-          "IP diretti in email istituzionali sono altamente sospetti.",
+            { text: 'A far sembrare diretto a un dominio fidato un link che porta a un sito malevolo', correct: true },
+            { text: 'A leggere i cookie del dominio fidato', correct: false },
+            { text: 'A modificare il DNS del dominio fidato', correct: false },
+            { text: 'A ottenere un certificato TLS per il dominio fidato', correct: false },
+          ]),
+        Q(B,
+          "Passando il puntatore su un link in un'email della «banca» vedi http://203.0.113.45/login. Come lo valuti?",
+          "Le banche usano il proprio dominio, non indirizzi IP numerici, e una pagina di login senza HTTPS è comunque inaccettabile. Un indirizzo IP non identifica chi gestisce il server meglio di un dominio, e un logo si copia in pochi secondi.",
           [
-        { text: "Normale", correct: false },
-        { text: "Molto sospetto: probabile phishing", correct: true },
-        { text: "Obbligatorio", correct: false },
-        { text: "Solo mobile", correct: false }
-          ]
-        ),
-        Q(
-          "Quale pratica riduce rischio da link?",
-          "Browser aggiornato, filtri, formazione e verifica dominio.",
+            { text: 'Normale: molte banche usano indirizzi IP per i server di login', correct: false },
+            { text: 'Molto sospetto: le banche usano il proprio dominio e qui manca anche HTTPS', correct: true },
+            { text: 'Sicuro, perché un indirizzo IP non si può falsificare come un dominio', correct: false },
+            { text: 'Accettabile, se la pagina mostra il logo della banca', correct: false },
+          ]),
+        Q(B,
+          'Quale pratica riduce di più il rischio legato ai link?',
+          "Browser e sistema aggiornati chiudono le vulnerabilità sfruttabili da una pagina malevola; la protezione di navigazione integrata blocca molti siti noti; controllare il dominio resta l'abitudine decisiva. Estensioni di sicurezza aggiuntive aumentano la superficie d'attacco, e i contatti in rubrica possono essere compromessi.",
           [
-        { text: "Disabilitare tutti gli aggiornamenti", correct: false },
-        { text: "Browser aggiornato, verifica dominio, non cliccare link sospetti", correct: true },
-        { text: "Installare toolbar casuali", correct: false },
-        { text: "Disattivare HTTPS", correct: false }
-          ]
-        ),
+            { text: 'Disattivare gli aggiornamenti automatici per evitare modifiche inattese', correct: false },
+            { text: 'Browser aggiornato, protezione di navigazione attiva e verifica del dominio', correct: true },
+            { text: 'Installare più estensioni di sicurezza di produttori diversi', correct: false },
+            { text: 'Fidarsi dei link che arrivano da contatti in rubrica', correct: false },
+          ]),
       ],
     },
     'passwords-mfa': {
       id: 'passwords-mfa',
-      name: "Password & MFA",
+      name: 'Password e MFA',
       pillar: 'defend',
+      level: B,
       icon: '🔐',
       accent: '#34d399',
-      description: "Password robuste, manager, 2FA, passkey.",
+      description: 'Password robuste, password manager, autenticazione a più fattori, passkey.',
+      learn: [
+        { href: '/crypto-studio.html', label: 'Studio cifratura' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "Quale informazione NON va chiesta via email?",
-          "Password, PIN e codici di sicurezza non si condividono per email.",
+        Q(B,
+          "Un negozio online ti scrive per un ordine. Quale informazione non dovrebbe mai chiederti via email?",
+          "Password, PIN e codici OTP non si comunicano mai via email né al telefono, a nessuno. Le altre informazioni sono normali in una comunicazione su un ordine.",
           [
-        { text: "Numero ordine", correct: false },
-        { text: "Password, PIN o codice di sicurezza", correct: true },
-        { text: "Email di contatto", correct: false },
-        { text: "Orario ritiro", correct: false }
-          ]
-        ),
-        Q(
-          "Password più sicura tra queste:",
-          "Lunga, casuale, unica per servizio; evitare dati personali.",
+            { text: "Il numero d'ordine", correct: false },
+            { text: 'La password, un PIN o un codice OTP', correct: true },
+            { text: "L'indirizzo di consegna", correct: false },
+            { text: 'La fascia oraria preferita per la consegna', correct: false },
+          ]),
+        Q(B,
+          'Quale di queste è la scelta più sicura?',
+          "La lunghezza e l'unicità contano più dei simboli: «P@ssw0rd2026!» segue uno schema che i programmi di cracking provano tra i primi. Dati personali si indovinano, e una password riusata cade insieme al primo servizio violato.",
           [
-        { text: "password123", correct: false },
-        { text: "Passphrase lunga casuale unica per servizio", correct: true },
-        { text: "Nome+anno nascita", correct: false },
-        { text: "Stessa per tutti i siti", correct: false }
-          ]
-        ),
-        Q(
-          "MFA (2FA) aggiunge:",
-          "Secondo fattore oltre alla password: qualcosa che hai o sei.",
+            { text: 'P@ssw0rd2026! (maiuscole, numeri e simboli)', correct: false },
+            { text: 'Una passphrase lunga e casuale, diversa per ogni servizio', correct: true },
+            { text: "Il nome del tuo animale seguito dall'anno di nascita", correct: false },
+            { text: 'Una password complessa usata su tutti i siti, così la ricordi', correct: false },
+          ]),
+        Q(B,
+          "Che cosa aggiunge l'autenticazione a più fattori (MFA)?",
+          "Un fattore di tipo diverso dalla password: qualcosa che hai (telefono, chiave di sicurezza) o che sei (biometria). Una seconda password o una domanda di sicurezza sono ancora «qualcosa che sai», e un CAPTCHA non autentica nessuno.",
           [
-        { text: "Solo complessità password", correct: false },
-        { text: "Secondo fattore (app, token, biometria)", correct: true },
-        { text: "Solo captcha", correct: false },
-        { text: "Niente", correct: false }
-          ]
-        ),
-        Q(
-          "Dove conservare password aziendali/personali?",
-          "Password manager crittografato con MFA.",
+            { text: 'Una seconda password da inserire dopo la prima', correct: false },
+            { text: 'Un fattore indipendente dalla password: qualcosa che hai o che sei', correct: true },
+            { text: 'Una domanda di sicurezza personale', correct: false },
+            { text: 'Un CAPTCHA che blocca i bot', correct: false },
+          ]),
+        Q(B,
+          'Dove conviene conservare le password?',
+          "Un password manager protetto da una master password robusta e da MFA genera e conserva password uniche. File, note del telefono ed email a sé stessi non sono cifrati in modo adeguato e finiscono facilmente in backup e sincronizzazioni.",
           [
-        { text: "Post-it sul monitor", correct: false },
-        { text: "Password manager crittografato", correct: true },
-        { text: "File Excel su Desktop", correct: false },
-        { text: "Chat con sé stessi", correct: false }
-          ]
-        ),
-        Q(
-          "OTP via SMS è:",
-          "Meglio di niente, ma app/hardware token resistono meglio a SIM swap.",
+            { text: 'In un foglio di calcolo sul desktop chiamato «password»', correct: false },
+            { text: 'In un password manager con master password robusta e MFA', correct: true },
+            { text: 'Nelle note del telefono, sempre a portata di mano', correct: false },
+            { text: 'In una email inviata a me stesso', correct: false },
+          ]),
+        Q(I,
+          'Come valuti i codici OTP ricevuti via SMS?',
+          "Sono molto meglio della sola password, ma più deboli di un'app di autenticazione o di una chiave di sicurezza: si possono intercettare con il SIM swapping e, come tutti i codici da digitare, carpire con un sito di phishing in tempo reale.",
           [
-        { text: "Sempre superiore a app authenticator", correct: false },
-        { text: "Utile ma meno robusto di app/token hardware vs SIM swap", correct: true },
-        { text: "Inutile", correct: false },
-        { text: "Uguale a password sola", correct: false }
-          ]
-        ),
-        Q(
-          "Credential stuffing sfrutta:",
-          "Riutilizzo password violate su altri siti.",
+            { text: 'Sicuri quanto una chiave di sicurezza FIDO2', correct: false },
+            { text: "Meglio di nessun secondo fattore, ma più deboli di app o chiavi hardware", correct: true },
+            { text: 'Inutili: tanto vale usare solo la password', correct: false },
+            { text: "Più sicuri di un'app di autenticazione perché passano dall'operatore", correct: false },
+          ]),
+        Q(I,
+          'Su che cosa si basa il credential stuffing?',
+          "Sul riuso: coppie email-password trapelate da un servizio vengono provate in automatico su molti altri. Provare tutte le combinazioni è forza bruta; provare poche password comuni su molti account è password spraying.",
           [
-        { text: "Bug fisici", correct: false },
-        { text: "Stesse password riusate dopo data breach", correct: true },
-        { text: "Solo USB", correct: false },
-        { text: "Solo fax", correct: false }
-          ]
-        ),
-        Q(
-          "Passkey (FIDO2) tende a:",
-          "Autenticazione phishing-resistant con chiavi crittografiche.",
+            { text: 'Sul riuso di password già trapelate in altre violazioni', correct: true },
+            { text: 'Sul tentativo di tutte le combinazioni possibili di caratteri', correct: false },
+            { text: 'Sul tentativo di poche password comuni su moltissimi account', correct: false },
+            { text: 'Sull’intercettazione delle password su Wi-Fi pubblico', correct: false },
+          ]),
+        Q(I,
+          'Qual è il vantaggio principale delle passkey (FIDO2/WebAuthn)?',
+          "Ogni passkey è una coppia di chiavi legata al dominio del sito: un sito clone non può usarla e la chiave privata non lascia il dispositivo o il gestore che la protegge. Le passkey possono essere sincronizzate tra dispositivi, non solo su chiavette fisiche.",
           [
-        { text: "Essere password scritte su carta", correct: false },
-        { text: "Ridurre phishing con chiavi legate al dispositivo/servizio", correct: true },
-        { text: "Sostituire backup", correct: false },
-        { text: "Disabilitare HTTPS", correct: false }
-          ]
-        ),
-        Q(
-          "Politica aziendale: rotazione forzata ogni 30 giorni senza motivo:",
-          "NIST e best practice favoriscono password lunghe e breach-driven change.",
+            { text: 'Resistono al phishing: la chiave è legata al dominio e il segreto non viene mai inviato al sito', correct: true },
+            { text: 'Sostituiscono la password con un PIN di 4 cifre inviato via SMS', correct: false },
+            { text: 'Conservano la password in chiaro nel cloud del produttore', correct: false },
+            { text: 'Funzionano solo con chiavette USB fisiche', correct: false },
+          ]),
+        Q(I,
+          'Una policy impone di cambiare password ogni 30 giorni, senza alcun indizio di compromissione. Come la valuti?',
+          "Le linee guida NIST SP 800-63B sconsigliano la scadenza periodica senza motivo: spinge a password prevedibili (Autunno2026!, Inverno2026!). Si cambia la password quando c'è un indizio di compromissione; nel frattempo contano lunghezza, unicità, controllo delle password trapelate e MFA.",
           [
-        { text: "Sempre obbligatoria", correct: false },
-        { text: "Spesso sconsigliata se induce password deboli prevedibili", correct: true },
-        { text: "Sostituisce MFA", correct: false },
-        { text: "Elimina phishing", correct: false }
-          ]
-        ),
+            { text: 'Obbligatoria secondo le linee guida NIST', correct: false },
+            { text: 'Sconsigliata: induce password prevedibili; meglio cambiarla quando c’è un indizio di compromissione', correct: true },
+            { text: "Sufficiente a sostituire l'MFA", correct: false },
+            { text: 'La misura più efficace contro il phishing', correct: false },
+          ]),
       ],
     },
     'crypto-hashing': {
       id: 'crypto-hashing',
-      name: "Crittografia & Hash",
+      name: 'Crittografia e hash',
       pillar: 'tech',
+      level: I,
       icon: '⬢',
       accent: '#a78bfa',
-      description: "Simmetrica, asimmetrica, hash, firme digitali.",
+      description: 'Cifratura simmetrica e asimmetrica, hash, firme digitali.',
+      learn: [
+        { href: '/crypto-studio.html', label: 'Studio cifratura' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "Hash crittografico (SHA-256) è:",
-          "Funzione unidirezionale: impronta dati, non reversibile per ottenere input.",
+        Q(B,
+          'Che cos’è una funzione hash crittografica come SHA-256?',
+          "Una funzione unidirezionale che produce un'impronta di lunghezza fissa: dall'hash non si risale all'input. Non è cifratura (non c'è chiave né decifratura) e non è una codifica come Base64, che si inverte senza alcun segreto.",
           [
-        { text: "Crittografia reversibile", correct: false },
-        { text: "Impronta unidirezionale dei dati", correct: true },
-        { text: "Password in chiaro", correct: false },
-        { text: "Protocollo email", correct: false }
-          ]
-        ),
-        Q(
-          "AES simmetrico significa:",
-          "Stessa chiave per cifrare e decifrare; veloce per grandi volumi.",
+            { text: "Una funzione unidirezionale che produce un'impronta di lunghezza fissa", correct: true },
+            { text: 'Un algoritmo di cifratura reversibile con una chiave', correct: false },
+            { text: 'Una codifica come Base64, reversibile senza chiave', correct: false },
+            { text: 'Un algoritmo di compressione dei dati', correct: false },
+          ]),
+        Q(B,
+          'AES è un cifrario simmetrico. Che cosa significa?',
+          "La stessa chiave segreta serve per cifrare e per decifrare. È veloce ed è usato per grandi volumi di dati; la coppia chiave pubblica/privata è invece tipica della crittografia asimmetrica (RSA, ECC).",
           [
-        { text: "Chiavi pubblica/privata diverse per cifrare/decifrare messaggio", correct: false },
-        { text: "Stessa chiave segreta per cifratura e decifratura", correct: true },
-        { text: "Solo firma", correct: false },
-        { text: "Solo hash", correct: false }
-          ]
-        ),
-        Q(
-          "RSA/ECC sono usati principalmente per:",
-          "Scambio chiavi, firme digitali, certificati TLS.",
+            { text: 'Che una chiave pubblica cifra e una privata decifra', correct: false },
+            { text: 'Che la stessa chiave segreta cifra e decifra', correct: true },
+            { text: 'Che non usa chiavi ma solo una funzione hash', correct: false },
+            { text: 'Che serve solo a firmare, non a cifrare', correct: false },
+          ]),
+        Q(I,
+          'Per che cosa si usano principalmente RSA e la crittografia a curve ellittiche (ECC)?',
+          "Sono algoritmi asimmetrici: servono per scambiare chiavi, firmare e nei certificati. Per cifrare grandi quantità di dati si usa un cifrario simmetrico come AES, con una chiave scambiata proprio tramite l'asimmetrica (cifratura ibrida).",
           [
-        { text: "Solo compressione", correct: false },
-        { text: "Crittografia asimmetrica e firme", correct: true },
-        { text: "Solo antivirus", correct: false },
-        { text: "Formattazione disco", correct: false }
-          ]
-        ),
-        Q(
-          "Salt nel hashing password serve a:",
-          "Rendere rainbow table inefficaci con valore casuale per utente.",
+            { text: 'Per scambio di chiavi, firme digitali e certificati', correct: true },
+            { text: 'Per cifrare grandi volumi di dati su disco', correct: false },
+            { text: "Per calcolare hash di integrità dei file", correct: false },
+            { text: 'Per comprimere i dati prima della cifratura', correct: false },
+          ]),
+        Q(I,
+          "A che cosa serve il salt nell'hashing delle password?",
+          "Un valore casuale diverso per ogni utente rende diverso l'hash anche di password uguali e vanifica le tabelle precalcolate (rainbow table). Non rende l'hash reversibile e non sostituisce un algoritmo volutamente lento come Argon2, scrypt o bcrypt, che frena gli attacchi a dizionario.",
           [
-        { text: "Rendere password più corte", correct: false },
-        { text: "Impedire attacchi con tabelle precalcolate (rainbow table)", correct: true },
-        { text: "Eliminare MFA", correct: false },
-        { text: "Pubblicare hash", correct: false }
-          ]
-        ),
-        Q(
-          "TLS su sito web protegge principalmente:",
-          "Riservatezza e integrità in transito tra client e server.",
+            { text: "Rendere unico l'hash di ogni utente e vanificare le tabelle precalcolate", correct: true },
+            { text: "Cifrare l'hash in modo che solo l'amministratore possa invertirlo", correct: false },
+            { text: "Rendere l'hash più corto da memorizzare", correct: false },
+            { text: 'Rendere superfluo un algoritmo lento come bcrypt o Argon2', correct: false },
+          ]),
+        Q(B,
+          'Che cosa protegge TLS su un sito web?',
+          "Riservatezza e integrità dei dati in transito tra browser e server, oltre all'autenticazione del server. Non protegge i dati salvati nel database, non corregge vulnerabilità applicative e non distingue un sito onesto da uno di phishing.",
           [
-        { text: "Solo server da virus", correct: false },
-        { text: "Traffico in transito tra browser e server", correct: true },
-        { text: "Database a riposo automaticamente", correct: false },
-        { text: "Utente da phishing", correct: false }
-          ]
-        ),
-        Q(
-          "Firma digitale garantisce:",
-          "Autenticità e integrità del messaggio/documento.",
+            { text: 'I dati in transito tra browser e server', correct: true },
+            { text: 'I dati salvati nel database del server', correct: false },
+            { text: 'Il server da vulnerabilità come la SQL injection', correct: false },
+            { text: "L'utente dai siti di phishing", correct: false },
+          ]),
+        Q(I,
+          'Che cosa garantisce una firma digitale?',
+          "Autenticità (chi ha firmato possiede la chiave privata) e integrità (il contenuto non è cambiato). Non garantisce riservatezza: per quella serve la cifratura. Né dice nulla sull'assenza di malware.",
           [
-        { text: "Anonimato totale", correct: false },
-        { text: "Chi ha firmato e che non sia stato alterato", correct: true },
-        { text: "Velocità internet", correct: false },
-        { text: "Eliminazione malware", correct: false }
-          ]
-        ),
-        Q(
-          "MD5 per nuove applicazioni di sicurezza:",
-          "Collisioni note: non usare per sicurezza; preferire SHA-256 o superiore.",
+            { text: 'Autenticità del firmatario e integrità del contenuto', correct: true },
+            { text: 'Che solo il destinatario possa leggere il documento', correct: false },
+            { text: "L'anonimato del firmatario", correct: false },
+            { text: 'Che il documento non contenga malware', correct: false },
+          ]),
+        Q(I,
+          'Si può usare MD5 in una nuova applicazione di sicurezza?',
+          "No: per MD5 sono note collisioni pratiche da molti anni. Per l'integrità si usa SHA-256 o superiore; per le password un algoritmo dedicato e lento (Argon2, scrypt, bcrypt). Il salt non risolve le collisioni, e la velocità è un difetto per le password, non un pregio.",
           [
-        { text: "Raccomandato", correct: false },
-        { text: "Sconsigliato per sicurezza", correct: true },
-        { text: "Obbligatorio PCI", correct: false },
-        { text: "Uguale a AES", correct: false }
-          ]
-        ),
-        Q(
-          "End-to-end encryption (E2EE) in chat significa:",
-          "Solo i terminali conversano in chiaro; provider non legge contenuti.",
+            { text: 'Sì, se si aggiunge un salt', correct: false },
+            { text: 'No: ha collisioni note; si usa SHA-256 o superiore (e per le password Argon2 o bcrypt)', correct: true },
+            { text: 'Sì, per le firme digitali, perché è veloce', correct: false },
+            { text: 'Sì, è più sicuro di SHA-256 perché produce hash più corti', correct: false },
+          ]),
+        Q(I,
+          'Che cosa significa crittografia end-to-end (E2EE) in una chat?',
+          "Solo i partecipanti possiedono le chiavi: il fornitore del servizio trasporta messaggi che non può leggere. Con la sola cifratura del trasporto (TLS) il server invece decifra. L'E2EE in genere non nasconde i metadati (chi scrive a chi, quando).",
           [
-        { text: "Solo password sul server", correct: false },
-        { text: "Messaggi leggibili solo dai partecipanti", correct: true },
-        { text: "Nessuna crittografia", correct: false },
-        { text: "Solo HTTPS al login", correct: false }
-          ]
-        ),
+            { text: 'Che il fornitore del servizio non può leggere i messaggi: solo i partecipanti hanno le chiavi', correct: true },
+            { text: 'Che i messaggi sono cifrati tra telefono e server, che li decifra e li ricifra', correct: false },
+            { text: 'Che i messaggi sono protetti da una password sul server', correct: false },
+            { text: 'Che nessuno può sapere chi scrive a chi, né quando', correct: false },
+          ]),
       ],
     },
     'network-basics': {
       id: 'network-basics',
-      name: "Reti: Fondamenti",
+      name: 'Fondamenti di rete',
       pillar: 'tech',
+      level: B,
       icon: '◉',
       accent: '#22d3ee',
-      description: "TCP/IP, firewall, VPN, segmentazione.",
+      description: 'TCP/IP, firewall, VPN, segmentazione.',
+      learn: [
+        { href: '/virtual-lab.html', label: 'Lab virtuale' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "Firewall stateful controlla principalmente:",
-          "Traffico in base a regole, stato connessioni, porte e IP.",
+        Q(B,
+          'Che cosa controlla un firewall stateful?',
+          "Filtra il traffico in base a regole (indirizzi, porte, protocolli) e allo stato delle connessioni, ad esempio lasciando entrare solo le risposte a connessioni aperte dall'interno. Il contenuto delle richieste web è il compito di un WAF; i file scaricati dell'antivirus.",
           [
-        { text: "Solo temperatura CPU", correct: false },
-        { text: "Traffico di rete secondo policy", correct: true },
-        { text: "Ortografia email", correct: false },
-        { text: "Colore cavi", correct: false }
-          ]
-        ),
-        Q(
-          "VPN aziendale serve a:",
-          "Tunnel cifrato per accesso remoto sicuro alle risorse interne.",
+            { text: 'Il traffico secondo regole, tenendo traccia dello stato delle connessioni', correct: true },
+            { text: 'Il contenuto delle pagine web per bloccare XSS e SQL injection', correct: false },
+            { text: 'Solo gli indirizzi MAC dei dispositivi', correct: false },
+            { text: 'La presenza di malware nei file scaricati', correct: false },
+          ]),
+        Q(B,
+          'A che cosa serve una VPN aziendale?',
+          "A creare un tunnel cifrato per raggiungere da remoto le risorse interne. Non rende anonimi (l'azienda vede il traffico), non protegge il dispositivo dal malware e non sostituisce l'MFA, che anzi va richiesta per accedere alla VPN.",
           [
-        { text: "Accelerare gaming", correct: false },
-        { text: "Connessione remota cifrata alla rete aziendale", correct: true },
-        { text: "Sostituire MFA", correct: false },
-        { text: "Pubblicare password", correct: false }
-          ]
-        ),
-        Q(
-          "Porta 443 è tipicamente usata per:",
-          "HTTPS traffico web cifrato.",
+            { text: 'A creare un tunnel cifrato per accedere da remoto alle risorse interne', correct: true },
+            { text: 'A rendere anonima la navigazione su Internet', correct: false },
+            { text: 'A proteggere il dispositivo dal malware', correct: false },
+            { text: "A sostituire l'autenticazione a più fattori", correct: false },
+          ]),
+        Q(B,
+          'Quale servizio usa di norma la porta TCP 443?',
+          "HTTPS. HTTP usa la 80, SSH la 22 e DNS la 53. Le porte sono convenzioni: un servizio può essere configurato su una porta diversa, quindi la porta da sola non prova che cosa ci sia in ascolto.",
           [
-        { text: "FTP in chiaro", correct: false },
-        { text: "HTTPS", correct: true },
-        { text: "Telnet", correct: false },
-        { text: "SMTP senza TLS", correct: false }
-          ]
-        ),
-        Q(
-          "Segmentazione di rete mira a:",
-          "Limitare movimento laterale dell'attaccante.",
+            { text: 'HTTPS', correct: true },
+            { text: 'HTTP', correct: false },
+            { text: 'SSH', correct: false },
+            { text: 'DNS', correct: false },
+          ]),
+        Q(B,
+          'Qual è lo scopo della segmentazione di rete?',
+          "Dividere la rete in zone con regole di passaggio tra l'una e l'altra limita il movimento laterale: un PC compromesso non raggiunge direttamente server e sistemi critici. Non sostituisce il firewall perimetrale, anzi ne moltiplica l'uso.",
           [
-        { text: "Aumentare un unico flat network", correct: false },
-        { text: "Isolare zone per contenere compromissioni", correct: true },
-        { text: "Eliminare log", correct: false },
-        { text: "Disabilitare patch", correct: false }
-          ]
-        ),
-        Q(
-          "DNS poisoning può portare a:",
-          "Reindirizzamento a siti malevoli risolvendo nomi falsi.",
+            { text: 'Separare la rete in zone per limitare il movimento laterale', correct: true },
+            { text: 'Aumentare la velocità della rete', correct: false },
+            { text: 'Ridurre il numero di indirizzi IP necessari', correct: false },
+            { text: 'Eliminare la necessità di un firewall perimetrale', correct: false },
+          ]),
+        Q(I,
+          'A che cosa può portare il DNS poisoning?',
+          "Se un resolver memorizza risposte falsificate, gli utenti che digitano l'indirizzo corretto vengono mandati a un server dell'attaccante. HTTPS aiuta: senza il certificato del dominio vero, il browser mostra un errore.",
           [
-        { text: "Backup automatico", correct: false },
-        { text: "Utenti inviati a server fraudolenti", correct: true },
-        { text: "MFA più forte", correct: false },
-        { text: "Crittografia disco", correct: false }
-          ]
-        ),
-        Q(
-          "Indirizzo IP privato (es. 10.x) è:",
-          "Non routabile su Internet pubblico; uso interno LAN.",
+            { text: "A indirizzare gli utenti a server fraudolenti anche se digitano l'indirizzo corretto", correct: true },
+            { text: 'Solo a un rallentamento della risoluzione dei nomi', correct: false },
+            { text: 'Al furto dei certificati TLS del sito', correct: false },
+            { text: "Al blocco totale dell'accesso a Internet", correct: false },
+          ]),
+        Q(B,
+          'Che cos’è un indirizzo IP privato come 10.0.0.5?',
+          "Gli intervalli 10.0.0.0/8, 172.16.0.0/12 e 192.168.0.0/16 (RFC 1918) sono riservati alle reti interne e non vengono instradati su Internet: per uscire si passa da un NAT o da un proxy.",
           [
-        { text: "Sempre esposto su Internet", correct: false },
-        { text: "Usato in reti locali non direttamente internet-routable", correct: true },
-        { text: "Solo IPv6", correct: false },
-        { text: "Hash password", correct: false }
-          ]
-        ),
-        Q(
-          "Zero Trust in rete implica:",
-          "Verificare ogni accesso, non fidarsi solo del perimetro.",
+            { text: 'Un indirizzo delle reti interne, non instradato su Internet', correct: true },
+            { text: 'Un indirizzo pubblico riservato agli enti governativi', correct: false },
+            { text: 'Un indirizzo IPv6 abbreviato', correct: false },
+            { text: 'Un indirizzo irraggiungibile anche dalla rete locale', correct: false },
+          ]),
+        Q(I,
+          'Che cosa implica un approccio Zero Trust?',
+          "Nessuna richiesta è fidata solo perché arriva dall'interno della rete: identità, dispositivo e contesto si verificano a ogni accesso, con privilegi minimi. Firewall e segmentazione restano utili.",
           [
-        { text: "Nessun controllo interno", correct: false },
-        { text: "Verifica continua identità e contesto", correct: true },
-        { text: "Solo antivirus", correct: false },
-        { text: "Rete aperta", correct: false }
-          ]
-        ),
-        Q(
-          "MITM su Wi-Fi pubblico si mitiga con:",
-          "VPN, HTTPS, evitare login sensibili su reti non fidate.",
+            { text: "Verificare ogni richiesta (identità, dispositivo, contesto), anche dall'interno della rete", correct: true },
+            { text: 'Fidarsi di tutto ciò che si trova dentro il perimetro', correct: false },
+            { text: 'Eliminare i firewall, perché ogni applicazione si protegge da sola', correct: false },
+            { text: "Non concedere mai l'accesso remoto", correct: false },
+          ]),
+        Q(B,
+          'Come riduci il rischio di intercettazione (man-in-the-middle) su un Wi-Fi pubblico?',
+          "Usa siti in HTTPS (meglio con HSTS), una VPN fidata e rimanda le operazioni sensibili. Una password Wi-Fi condivisa con tutti i clienti non protegge da chi è collegato alla stessa rete; il segnale più forte può essere quello di un access point falso.",
           [
-        { text: "HTTP senza login", correct: false },
-        { text: "VPN e HTTPS, evitare transazioni su Wi-Fi aperto", correct: true },
-        { text: "Condividere password Wi-Fi", correct: false },
-        { text: "Disattivare firewall", correct: false }
-          ]
-        ),
+            { text: 'Usare HTTPS e una VPN fidata, rimandando le operazioni sensibili', correct: true },
+            { text: 'Collegarsi alla rete con il segnale più forte', correct: false },
+            { text: 'Usare la modalità in incognito del browser', correct: false },
+            { text: 'Scegliere reti protette da una password condivisa con tutti i clienti', correct: false },
+          ]),
       ],
     },
     'owasp-web': {
       id: 'owasp-web',
-      name: "Sicurezza Web (OWASP)",
+      name: 'Sicurezza web (OWASP)',
       pillar: 'tech',
+      level: I,
       icon: '🌐',
       accent: '#818cf8',
-      description: "Injection, XSS, CSRF, broken access control.",
+      description: 'Injection, XSS, CSRF, controllo degli accessi.',
+      learn: [
+        { href: '/web-simulator.html', label: 'Simulatore attacchi web' },
+        { href: '/vulnerability-scanner.html', label: 'Audit header HTTP' },
+        { href: '/virtual-lab.html', label: 'Lab virtuale' },
+      ],
       questions: [
-        Q(
-          "SQL injection sfrutta:",
-          "Input non validato concatenato in query SQL.",
+        Q(B,
+          'Su che cosa si basa una SQL injection?',
+          "Sull'input dell'utente inserito nel testo della query SQL invece di essere passato come parametro: l'attaccante può così cambiarne la struttura. Lo script nel browser è XSS; password deboli e connessioni in chiaro sono problemi diversi.",
           [
-        { text: "Cavi Ethernet", correct: false },
-        { text: "Input utente inserito in query SQL senza sanitizzazione", correct: true },
-        { text: "Solo CSS", correct: false },
-        { text: "Backup tape", correct: false }
-          ]
-        ),
-        Q(
-          "XSS (Cross-Site Scripting) permette di:",
-          "Eseguire script nel browser della vittima nel contesto del sito.",
+            { text: 'Input utente concatenato nella query SQL senza parametrizzazione', correct: true },
+            { text: "Password deboli sull'account del database", correct: false },
+            { text: 'Script iniettati nella pagina ed eseguiti nel browser', correct: false },
+            { text: 'Connessioni al database non cifrate', correct: false },
+          ]),
+        Q(B,
+          'Che cosa permette di fare un Cross-Site Scripting (XSS)?',
+          "Eseguire script nel browser della vittima nel contesto del sito vulnerabile: leggere dati della pagina, agire a nome dell'utente, a volte rubare la sessione. I comandi sul server sono RCE; le richieste del server verso la rete interna sono SSRF.",
           [
-        { text: "Solo leggere log server", correct: false },
-        { text: "Iniettare script eseguiti nel browser utente", correct: true },
-        { text: "Formattare SSD", correct: false },
-        { text: "Cambiare DNS root", correct: false }
-          ]
-        ),
-        Q(
-          "La protezione anti-CSRF difende principalmente da:",
-          "Impedisce che un altro sito faccia compiere azioni non volute a un utente già autenticato (token anti-CSRF, cookie SameSite).",
+            { text: 'Eseguire script nel browser della vittima, nel contesto del sito vulnerabile', correct: true },
+            { text: 'Eseguire comandi sul server', correct: false },
+            { text: 'Leggere direttamente il database del server', correct: false },
+            { text: 'Far inviare al server richieste verso la rete interna', correct: false },
+          ]),
+        Q(I,
+          'Da che cosa difende la protezione anti-CSRF?',
+          "Da richieste forgiate da un altro sito che sfruttano la sessione già aperta dell'utente (il browser allega i cookie). Si difende con token anti-CSRF, cookie SameSite e controllo dell'origine.",
           [
-        { text: "Brute force offline", correct: false },
-        { text: "Richieste forgiate che sfruttano sessione attiva", correct: true },
-        { text: "Furto fisico laptop", correct: false },
-        { text: "Ransomware", correct: false }
-          ]
-        ),
-        Q(
-          "Broken Access Control significa:",
-          "Utenti accedono a risorse oltre i permessi previsti.",
+            { text: "Da richieste forgiate da un altro sito che sfruttano la sessione già attiva dell'utente", correct: true },
+            { text: 'Dal furto della password tramite una pagina di login falsa', correct: false },
+            { text: "Dall'iniezione di script nella pagina", correct: false },
+            { text: 'Dai tentativi ripetuti di indovinare la password', correct: false },
+          ]),
+        Q(I,
+          'Che cosa si intende per Broken Access Control?',
+          "Un utente può leggere o modificare dati, o usare funzioni, oltre i propri permessi: ad esempio cambiando un ID nell'URL o chiamando un'API amministrativa. È in cima all'OWASP Top 10 da diverse edizioni.",
           [
-        { text: "Firewall spento", correct: false },
-        { text: "Accesso non autorizzato a dati/funzioni", correct: true },
-        { text: "Solo lentezza", correct: false },
-        { text: "Certificato scaduto solo estetico", correct: false }
-          ]
-        ),
-        Q(
-          "Content Security Policy (CSP) aiuta contro:",
-          "Limita origini script e risorse, riducendo XSS.",
+            { text: 'Un utente può accedere a dati o funzioni oltre i propri permessi', correct: true },
+            { text: 'Il sito usa un certificato TLS scaduto', correct: false },
+            { text: 'Le password sono salvate senza salt', correct: false },
+            { text: 'Il server non risponde sotto carico', correct: false },
+          ]),
+        Q(I,
+          "Contro che cosa aiuta una Content Security Policy (CSP)?",
+          "Limita da dove si possono caricare ed eseguire script e altre risorse, riducendo l'impatto dell'XSS (soprattutto se vieta gli script inline). Non filtra parametri SQL, non cifra i cookie e non sostituisce le difese anti-CSRF.",
           [
-        { text: "Solo spam fax", correct: false },
-        { text: "XSS limitando fonti di script/contenuti", correct: true },
-        { text: "SIM swap", correct: false },
-        { text: "Tailgating", correct: false }
-          ]
-        ),
-        Q(
-          "Security misconfiguration include:",
-          "Default password, directory listing, debug in produzione.",
+            { text: "Riduce l'impatto dell'XSS limitando le origini di script e risorse", correct: true },
+            { text: 'Impedisce la SQL injection filtrando i parametri', correct: false },
+            { text: 'Cifra i cookie di sessione', correct: false },
+            { text: 'Blocca le richieste CSRF verificando l’origine', correct: false },
+          ]),
+        Q(I,
+          'Quale di questi è un esempio di security misconfiguration?',
+          "Credenziali predefinite, servizi inutili esposti, debug attivo in produzione, elenco delle directory abilitato. Una libreria vulnerabile non aggiornata rientra in un'altra categoria OWASP (componenti vulnerabili e obsoleti); un bug nel flusso di pagamento è un difetto di logica.",
           [
-        { text: "Solo phishing", correct: false },
-        { text: "Default credenziali, servizi inutili esposti, debug attivo", correct: true },
-        { text: "Solo MFA", correct: false },
-        { text: "Hash bcrypt", correct: false }
-          ]
-        ),
-        Q(
-          "Validazione input lato server è necessaria perché:",
-          "Il client può essere bypassato; il server deve validare sempre.",
+            { text: 'Credenziali predefinite, servizi inutili esposti, debug attivo in produzione', correct: true },
+            { text: 'Un errore logico nella procedura di pagamento', correct: false },
+            { text: 'Una libreria con una vulnerabilità nota non aggiornata', correct: false },
+            { text: 'Un attacco di phishing contro gli amministratori', correct: false },
+          ]),
+        Q(B,
+          "Perché la validazione dell'input deve avvenire lato server?",
+          "Perché il client è sotto il controllo di chi lo usa: un attaccante può disattivare il JavaScript o inviare richieste costruite a mano. La validazione nel browser serve all'usabilità; quella sul server alla sicurezza.",
           [
-        { text: "Il browser è inviolabile", correct: false },
-        { text: "L'attaccante controlla il client e può inviare dati arbitrari", correct: true },
-        { text: "Solo per grafica", correct: false },
-        { text: "Sostituisce TLS", correct: false }
-          ]
-        ),
-        Q(
-          "OWASP Top 10 è:",
-          "Lista delle criticità web più rilevanti per sviluppatori e security.",
+            { text: "Perché l'attaccante controlla il client e può inviare richieste arbitrarie", correct: true },
+            { text: 'Perché la validazione lato client è vietata dal GDPR', correct: false },
+            { text: 'Perché il browser non esegue JavaScript sulle pagine HTTPS', correct: false },
+            { text: 'Perché la validazione lato client rallenta il sito', correct: false },
+          ]),
+        Q(B,
+          "Che cos'è l'OWASP Top 10?",
+          "Un documento di sensibilizzazione che elenca le categorie di rischio più critiche per le applicazioni web, aggiornato periodicamente. Non è uno standard di certificazione (per i requisiti verificabili OWASP pubblica l'ASVS) né un elenco di singole CVE.",
           [
-        { text: "Lista hardware", correct: false },
-        { text: "Classifica rischi applicativi web più critici", correct: true },
-        { text: "Standard Wi-Fi", correct: false },
-        { text: "Protocollo email", correct: false }
-          ]
-        ),
+            { text: 'Un documento sulle categorie di rischio più critiche per le applicazioni web', correct: true },
+            { text: 'Uno standard di certificazione obbligatorio per i siti web', correct: false },
+            { text: "Una classifica dei dieci attacchi più frequenti dell'anno", correct: false },
+            { text: "L'elenco delle dieci CVE più gravi", correct: false },
+          ]),
       ],
     },
     'cloud-security': {
       id: 'cloud-security',
-      name: "Sicurezza Cloud",
+      name: 'Sicurezza cloud',
       pillar: 'tech',
+      level: I,
       icon: '☁',
       accent: '#60a5fa',
-      description: "Shared responsibility, IAM, storage, logging.",
+      description: 'Responsabilità condivisa, IAM, storage, logging.',
+      learn: [
+        { href: '/historic-attacks.html', label: 'Violazioni storiche' },
+        { href: '/virtual-lab.html', label: 'Lab virtuale' },
+      ],
       questions: [
-        Q(
-          "Modello shared responsibility in cloud:",
-          "Provider protegge infrastruttura; cliente configura e dati.",
+        Q(I,
+          'Che cosa prevede il modello di responsabilità condivisa nel cloud?',
+          "Il provider protegge l'infrastruttura su cui gira il servizio; il cliente risponde di dati, identità, permessi e configurazioni. La divisione cambia con il modello: in IaaS il cliente gestisce anche sistema operativo e rete virtuale, in SaaS molto meno.",
           [
-        { text: "Provider fa tutto incluso dati", correct: false },
-        { text: "Divisione: provider infra, cliente dati e configurazione", correct: true },
-        { text: "Cliente zero responsabilità", correct: false },
-        { text: "Solo on-premise", correct: false }
-          ]
-        ),
-        Q(
-          "Bucket S3 pubblico per errore espone:",
-          "Dati accessibili da Internet senza autenticazione.",
+            { text: "Il provider protegge l'infrastruttura; il cliente risponde di dati, identità e configurazioni", correct: true },
+            { text: 'Il provider è responsabile di tutto, inclusi dati e permessi', correct: false },
+            { text: 'Il cliente è responsabile anche della sicurezza fisica dei data center', correct: false },
+            { text: 'La ripartizione è identica per IaaS, PaaS e SaaS', correct: false },
+          ]),
+        Q(B,
+          'Un bucket di storage è stato reso pubblico per errore. Che cosa rischi?',
+          "Chiunque conosca o trovi il nome può leggere e scaricare i dati: esistono strumenti che cercano proprio bucket aperti. HTTPS cifra il trasporto ma non limita chi accede, e un nome difficile non è un controllo di accesso.",
           [
-        { text: "Solo log", correct: false },
-        { text: "Possibile esfiltrazione massiva di dati", correct: true },
-        { text: "Niente se c'è HTTPS", correct: false },
-        { text: "Solo CPU", correct: false }
-          ]
-        ),
-        Q(
-          "Principio least privilege in IAM:",
-          "Permessi minimi necessari per il compito.",
+            { text: 'Che i dati vengano letti e scaricati in massa da chiunque', correct: true },
+            { text: 'Nulla, se il bucket è raggiungibile solo in HTTPS', correct: false },
+            { text: 'Nulla, se il nome del bucket è difficile da indovinare', correct: false },
+            { text: 'Solo che vengano letti i log di accesso del bucket', correct: false },
+          ]),
+        Q(B,
+          'Come si applica il principio del privilegio minimo (least privilege) in IAM?',
+          "Ogni identità (persona o servizio) riceve solo i permessi necessari al compito, possibilmente per il tempo necessario. L'account root si usa solo per poche operazioni amministrative, e le chiavi condivise tra servizi rendono impossibile limitare i danni e attribuire le azioni.",
           [
-        { text: "Admin a tutti", correct: false },
-        { text: "Solo permessi strettamente necessari", correct: true },
-        { text: "Nessun audit", correct: false },
-        { text: "Chiavi root condivise", correct: false }
-          ]
-        ),
-        Q(
-          "MFA sulla console cloud amministrativa:",
-          "Riduce compromissione account con credenziali rubate.",
+            { text: 'Concedendo solo i permessi necessari al compito, per il tempo necessario', correct: true },
+            { text: 'Dando permessi di amministratore a tutti gli sviluppatori per non bloccarli', correct: false },
+            { text: "Usando l'account root per le operazioni quotidiane, ma con MFA", correct: false },
+            { text: 'Assegnando a tutti i servizi la stessa chiave di accesso con permessi ampi', correct: false },
+          ]),
+        Q(B,
+          "Che cosa pensi dell'MFA sulla console di amministrazione cloud?",
+          "È fortemente raccomandata, soprattutto per l'account root e per gli amministratori: un furto di password su quegli account significa il controllo dell'intero ambiente. Molti provider la stanno rendendo obbligatoria.",
           [
-        { text: "Inutile", correct: false },
-        { text: "Fortemente raccomandato", correct: true },
-        { text: "Sostituisce backup", correct: false },
-        { text: "Vieta logging", correct: false }
-          ]
-        ),
-        Q(
-          "Logging e monitoring in cloud servono a:",
-          "Rilevare accessi anomali e incidenti.",
+            { text: "Fortemente raccomandata, soprattutto per root e amministratori", correct: true },
+            { text: 'Superflua se la password è lunga', correct: false },
+            { text: "Utile solo per l'accesso da reti esterne", correct: false },
+            { text: 'Sconsigliata perché rallenta la risposta agli incidenti', correct: false },
+          ]),
+        Q(B,
+          'A che cosa servono logging e monitoraggio nel cloud?',
+          "A rilevare accessi e modifiche anomale, ricostruire un incidente e dimostrare la conformità. I log devono essere attivi prima dell'incidente e protetti da modifiche.",
           [
-        { text: "Decorazione", correct: false },
-        { text: "Detection, forensics e compliance", correct: true },
-        { text: "Solo fatturazione", correct: false },
-        { text: "Eliminare patch", correct: false }
-          ]
-        ),
-        Q(
-          "Secrets in codice su repository pubblico:",
-          "Scanner e attaccanti li trovano rapidamente: usare secret manager.",
+            { text: 'Rilevamento, indagine forense e conformità', correct: true },
+            { text: 'Solo al controllo dei costi', correct: false },
+            { text: 'A sostituire i backup', correct: false },
+            { text: 'A migliorare le prestazioni delle applicazioni', correct: false },
+          ]),
+        Q(I,
+          'Scopri una chiave di accesso cloud in un repository pubblico. Cosa fai?',
+          "La chiave va considerata compromessa: i bot scansionano i repository pubblici in pochi minuti. Revocala o ruotala subito, controlla nei log se è stata usata e spostala in un secret manager. Cancellare il file non basta, perché resta nella cronologia di Git e nelle copie già fatte.",
           [
-        { text: "Sicuro se repo privato un giorno", correct: false },
-        { text: "Alto rischio: ruotare e usare vault/secret manager", correct: true },
-        { text: "Best practice", correct: false },
-        { text: "Solo in commenti", correct: false }
-          ]
-        ),
-        Q(
-          "Container security include:",
-          "Immagini aggiornate, scan vulnerabilità, non root di default.",
+            { text: 'La considero compromessa: la revoco subito, controllo i log e la sposto in un secret manager', correct: true },
+            { text: 'Cancello il file con un nuovo commit', correct: false },
+            { text: 'Rendo privato il repository', correct: false },
+            { text: 'Nulla, se il repository ha pochi visitatori', correct: false },
+          ]),
+        Q(I,
+          'Quale pratica migliora la sicurezza dei container?',
+          "Immagini minimali e aggiornate, scansione delle vulnerabilità, esecuzione senza privilegi di root e versioni fissate. Il tag latest rende le build non riproducibili e non garantisce patch; un container condivide il kernel dell'host e non isola quanto una macchina virtuale.",
           [
-        { text: "Solo password deboli", correct: false },
-        { text: "Patch immagini, least privilege, scan CVE", correct: true },
-        { text: "Disabilitare TLS", correct: false },
-        { text: "Privilegi root sempre", correct: false }
-          ]
-        ),
-        Q(
-          "Data residency/regolamento in cloud richiede:",
-          "Sapere dove risiedono i dati e contratti conformi (es. GDPR).",
+            { text: 'Immagini minimali e aggiornate, scansione delle vulnerabilità, esecuzione senza root', correct: true },
+            { text: 'Eseguire i container come root per evitare errori di permessi', correct: false },
+            { text: 'Usare sempre il tag latest per avere le ultime patch', correct: false },
+            { text: 'Considerare il container un confine di sicurezza pari a una macchina virtuale', correct: false },
+          ]),
+        Q(I,
+          'Che cosa richiede la residenza dei dati quando si usa il cloud?',
+          "Sapere in quali regioni sono trattati e conservati i dati e avere contratti (come il DPA previsto dal GDPR) e garanzie adeguate, soprattutto per i trasferimenti fuori dallo Spazio economico europeo. Il GDPR non impone che i dati restino in Italia, e né una certificazione ISO né la cifratura eliminano questi obblighi.",
           [
-        { text: "Ignorare regione", correct: false },
-        { text: "Scelta regione e DPA conformi ai requisiti legali", correct: true },
-        { text: "Solo USA sempre", correct: false },
-        { text: "Nessun contratto", correct: false }
-          ]
-        ),
+            { text: 'Sapere dove sono trattati i dati e avere contratti e garanzie conformi alla legge', correct: true },
+            { text: 'Che i dati restino sempre e solo in Italia', correct: false },
+            { text: 'Nulla, se il provider è certificato ISO 27001', correct: false },
+            { text: 'Nulla, se i dati sono cifrati', correct: false },
+          ]),
       ],
     },
     'privacy-gdpr': {
       id: 'privacy-gdpr',
-      name: "Privacy & GDPR",
+      name: 'Privacy e GDPR',
       pillar: 'intel',
+      level: B,
       icon: '⚖',
       accent: '#c084fc',
-      description: "Diritti interessato, basi giuridiche, DPO, breach.",
+      description: "Diritti dell'interessato, basi giuridiche, DPO, violazioni di dati.",
+      learn: [
+        { href: '/ethics.html', label: 'Etica e legge' },
+        { href: '/site-policies.html', label: 'Privacy e regole' },
+      ],
       questions: [
-        Q(
-          "GDPR si applica principalmente a:",
-          "Trattamento dati personali di persone nell'UE/SEE con alcuni extraterritorialità.",
+        Q(B,
+          'A chi si applica il GDPR?',
+          "A chi tratta dati personali nell'ambito di un'attività nell'UE e, in certi casi, anche a organizzazioni extra-UE che offrono beni o servizi a persone nell'UE o ne monitorano il comportamento. Non dipende dalle dimensioni dell'azienda e non riguarda solo i dati sanitari o finanziari.",
           [
-        { text: "Solo siti .com USA", correct: false },
-        { text: "Dati personali di persone in UE/SEE e organizzazioni che li trattano", correct: true },
-        { text: "Solo email", correct: false },
-        { text: "Solo governi", correct: false }
-          ]
-        ),
-        Q(
-          "Dato personale è:",
-          "Qualsiasi info che identifica o rende identificabile una persona.",
+            { text: "Al trattamento di dati personali nell'UE e, in certi casi, a organizzazioni extra-UE che si rivolgono a persone nell'UE", correct: true },
+            { text: "Solo alle aziende con sede legale nell'UE", correct: false },
+            { text: 'Solo ai dati sanitari e finanziari', correct: false },
+            { text: 'Solo alle aziende con più di 250 dipendenti', correct: false },
+          ]),
+        Q(B,
+          'Che cos’è un dato personale per il GDPR?',
+          "Qualsiasi informazione riguardante una persona identificata o identificabile, anche indirettamente: nome, email, indirizzo IP, identificativi online, posizione. Salute, religione e simili sono «categorie particolari», un sottoinsieme con tutele più forti.",
           [
-        { text: "Solo DNA", correct: false },
-        { text: "Nome, email, IP, ID che identificano persona", correct: true },
-        { text: "Solo password hash pubblico", correct: false },
-        { text: "Solo meteo", correct: false }
-          ]
-        ),
-        Q(
-          "Diritto all'oblio (cancellazione) permette:",
-          "Richiedere cancellazione in casi previsti dal regolamento.",
+            { text: 'Solo i dati sensibili come salute e religione', correct: false },
+            { text: 'Qualsiasi informazione su una persona identificata o identificabile (anche email e IP)', correct: true },
+            { text: 'Solo i dati che identificano direttamente, come nome e codice fiscale', correct: false },
+            { text: 'Solo i dati conservati su carta', correct: false },
+          ]),
+        Q(B,
+          'Che cosa permette il diritto alla cancellazione («diritto all’oblio»)?',
+          "Di ottenere la cancellazione dei propri dati nei casi previsti dall'art. 17 (ad esempio quando non sono più necessari o il consenso è revocato), con eccezioni come gli obblighi di legge o l'esercizio della libertà di espressione.",
           [
-        { text: "Cancellare qualsiasi dato sempre senza eccezioni", correct: false },
-        { text: "Cancellazione quando applicabile per legge", correct: true },
-        { text: "Solo per aziende USA", correct: false },
-        { text: "Eliminare log obbligatori sempre", correct: false }
-          ]
-        ),
-        Q(
-          "Data breach notificabile all'autorità entro:",
-          "72 ore dalla consapevolezza se rischio per diritti (salvo eccezioni).",
+            { text: 'Ottenere sempre la cancellazione di qualsiasi dato, senza eccezioni', correct: false },
+            { text: 'Ottenere la cancellazione nei casi previsti, con eccezioni come gli obblighi di legge', correct: true },
+            { text: 'Far cancellare una notizia da tutti i siti del mondo', correct: false },
+            { text: 'Solo la cancellazione dei dati raccolti con il consenso', correct: false },
+          ]),
+        Q(B,
+          "Entro quando il titolare deve notificare una violazione di dati personali all'autorità di controllo?",
+          "Entro 72 ore da quando ne è venuto a conoscenza, salvo che sia improbabile un rischio per i diritti delle persone; se la notifica arriva dopo, va motivato il ritardo. Le 24 ore sono il termine del preallarme previsto da un'altra norma, la direttiva NIS2, per gli incidenti significativi.",
           [
-        { text: "1 anno", correct: false },
-        { text: "72 ore dalla consapevolezza (se richiesto)", correct: true },
-        { text: "Mai", correct: false },
-        { text: "Solo se chiesto da hacker", correct: false }
-          ]
-        ),
-        Q(
-          "Base giuridica trattamento può essere:",
-          "Consenso, contratto, obbligo legale, interesse legittimo, ecc.",
+            { text: 'Entro 30 giorni', correct: false },
+            { text: 'Entro 72 ore da quando ne è venuto a conoscenza, salvo rischio improbabile', correct: true },
+            { text: "Solo dopo aver concluso l'indagine forense", correct: false },
+            { text: 'Entro 24 ore, in ogni caso', correct: false },
+          ]),
+        Q(I,
+          'Quali sono le basi giuridiche del trattamento previste dal GDPR?',
+          "L'art. 6 ne elenca sei: consenso, contratto, obbligo legale, interessi vitali, interesse pubblico, legittimo interesse. Il consenso non è sempre la base migliore (ad esempio nel rapporto di lavoro), e l'informativa non può inventarne di nuove.",
           [
-        { text: "Solo \"perché voglio\"", correct: false },
-        { text: "Consenso, contratto, obbligo legale, interesse legittimo tra altre", correct: true },
-        { text: "Solo marketing senza opt-out", correct: false },
-        { text: "Nessuna", correct: false }
-          ]
-        ),
-        Q(
-          "Privacy by design significa:",
-          "Integrare protezione dati fin dalla progettazione.",
+            { text: 'Solo il consenso esplicito', correct: false },
+            { text: 'Consenso, contratto, obbligo legale, interessi vitali, interesse pubblico, legittimo interesse', correct: true },
+            { text: "Qualsiasi finalità indicata nell'informativa", correct: false },
+            { text: 'Il consenso, da chiedere comunque per ogni trattamento', correct: false },
+          ]),
+        Q(B,
+          'Che cosa significa privacy by design?',
+          "Integrare la protezione dei dati fin dalla progettazione di un sistema e come impostazione predefinita (by default): raccogliere il minimo, limitare gli accessi, scegliere impostazioni protettive. Banner e informative sono adempimenti diversi.",
           [
-        { text: "Aggiungere privacy solo dopo breach", correct: false },
-        { text: "Protezione dati fin dalla fase di design", correct: true },
-        { text: "Solo cookie banner", correct: false },
-        { text: "Eliminare log", correct: false }
-          ]
-        ),
-        Q(
-          "DPO è obbligatorio quando:",
-          "Organizzazioni pubbliche o trattamenti su larga scala sensibili/monitoraggio.",
+            { text: 'Aggiungere un cookie banner al sito', correct: false },
+            { text: 'Integrare la protezione dei dati fin dalla progettazione e come impostazione predefinita', correct: true },
+            { text: "Scrivere l'informativa privacy prima del lancio", correct: false },
+            { text: 'Cifrare i dati dopo la prima violazione', correct: false },
+          ]),
+        Q(I,
+          'Quando è obbligatorio nominare un responsabile della protezione dei dati (DPO)?',
+          "Per autorità e organismi pubblici e quando le attività principali comportano un monitoraggio regolare e sistematico su larga scala o il trattamento su larga scala di categorie particolari di dati o di dati giudiziari (art. 37). Non dipende dal numero di dipendenti.",
           [
-        { text: "Mai", correct: false },
-        { text: "In casi previsti (PA, larga scala dati sensibili, monitoraggio sistematico)", correct: true },
-        { text: "Solo startup 2 persone sempre", correct: false },
-        { text: "Solo cloud", correct: false }
-          ]
-        ),
-        Q(
-          "Minimizzazione dati implica:",
-          "Raccogliere solo quanto necessario per lo scopo.",
+            { text: 'Sempre, per qualsiasi organizzazione che tratti dati personali', correct: false },
+            { text: 'Per enti pubblici e per chi monitora o tratta dati particolari su larga scala', correct: true },
+            { text: 'Solo per le aziende con più di 250 dipendenti', correct: false },
+            { text: 'Solo per le aziende che usano servizi cloud', correct: false },
+          ]),
+        Q(B,
+          'Che cosa implica il principio di minimizzazione dei dati?',
+          "Raccogliere e conservare solo i dati adeguati, pertinenti e limitati a quanto necessario per lo scopo. Cifrare tutto ciò che si raccoglie non risolve il problema: i dati che non hai non possono essere rubati.",
           [
-        { text: "Raccogliere tutto possibile", correct: false },
-        { text: "Limitare dati a quanto strettamente necessario", correct: true },
-        { text: "Vendere dati liberamente", correct: false },
-        { text: "Conservare per sempre", correct: false }
-          ]
-        ),
+            { text: 'Raccogliere tutto, ma cifrando i dati', correct: false },
+            { text: 'Raccogliere e conservare solo i dati necessari allo scopo', correct: true },
+            { text: 'Anonimizzare i dati dopo dieci anni', correct: false },
+            { text: 'Ridurre le dimensioni dei file tramite compressione', correct: false },
+          ]),
       ],
     },
     'incident-response': {
       id: 'incident-response',
-      name: "Incident Response",
+      name: 'Incident response',
       pillar: 'defend',
+      level: I,
       icon: '🚨',
       accent: '#fbbf24',
-      description: "Preparazione, contenimento, eradicazione, lessons learned.",
+      description: 'Preparazione, contenimento, eradicazione, lezioni apprese.',
+      learn: [
+        { href: '/hacked-timeline.html', label: 'Timeline incident response' },
+        { href: '/report-generator.html', label: 'Generatore di report' },
+      ],
       questions: [
-        Q(
-          "Prima fase IR (NIST/SANS) spesso include:",
-          "Preparazione: playbook, contatti, tool, formazione.",
+        Q(B,
+          'Nel ciclo classico di incident response (NIST SP 800-61, SANS), qual è la prima fase?',
+          "La preparazione: piani, ruoli, contatti, strumenti, log attivi ed esercitazioni, prima che accada qualcosa. Seguono rilevamento e analisi, contenimento, eradicazione e ripristino, e infine le attività post-incidente.",
           [
-        { text: "Pagare riscatto senza policy", correct: false },
-        { text: "Preparazione e pianificazione", correct: true },
-        { text: "Cancellare tutti i log", correct: false },
-        { text: "Comunicare su social", correct: false }
-          ]
-        ),
-        Q(
-          "Contenimento in incidente malware:",
-          "Isolare sistemi per fermare propagazione.",
+            { text: 'Il contenimento', correct: false },
+            { text: 'La preparazione', correct: true },
+            { text: 'Il rilevamento e l’analisi', correct: false },
+            { text: "L'eradicazione", correct: false },
+          ]),
+        Q(B,
+          'Che cosa si fa nella fase di contenimento di un incidente malware?',
+          "Si isolano host e segmenti colpiti per fermare la propagazione, preservando le evidenze. Reinstallare tutto è prematuro (prima va capito come è entrato l'attaccante), cancellare file distrugge le prove e spegnere i log acceca chi indaga.",
           [
-        { text: "Lasciare tutto online", correct: false },
-        { text: "Isolare host/segmenti affetti", correct: true },
-        { text: "Formattare tutta l'azienda subito", correct: false },
-        { text: "Ignorare", correct: false }
-          ]
-        ),
-        Q(
-          "Preservare evidenze forensi significa:",
-          "Log, immagini disco, timestamp prima di sovrascrivere.",
+            { text: 'Si isolano host e segmenti colpiti per fermare la propagazione', correct: true },
+            { text: 'Si reinstallano subito tutti i sistemi', correct: false },
+            { text: 'Si cancellano i file sospetti dai server', correct: false },
+            { text: 'Si disattivano i log per non sovraccaricare il SIEM', correct: false },
+          ]),
+        Q(I,
+          'Che cosa significa preservare le evidenze forensi?',
+          "Acquisire memoria, immagini dei dischi e log secondo procedura, prima di modificare i sistemi, lavorando su copie verificate con hash. L'originale non si analizza direttamente, e copiare solo i file «sospetti» fa perdere il contesto.",
           [
-        { text: "Spegnere e cancellare tutto", correct: false },
-        { text: "Acquisire log e immagini secondo procedura", correct: true },
-        { text: "Post su forum", correct: false },
-        { text: "Riavviare ripetutamente", correct: false }
-          ]
-        ),
-        Q(
-          "Comunicazione durante breach dati personali:",
-          "Seguire legge, DPO, legale; messaggi chiari agli interessati se richiesto.",
+            { text: 'Spegnere tutto e reinstallare per ripartire puliti', correct: false },
+            { text: 'Acquisire memoria, immagini disco e log secondo procedura, prima di modificare i sistemi', correct: true },
+            { text: 'Analizzare direttamente il disco originale per risparmiare tempo', correct: false },
+            { text: 'Copiare solo i file che sembrano sospetti', correct: false },
+          ]),
+        Q(I,
+          'Come si gestisce la comunicazione durante una violazione di dati personali?',
+          "Coordinandosi con legale e DPO, facendo le notifiche previste e dando messaggi chiari e verificati. Se la posta può essere compromessa, si usano canali alternativi: l'attaccante potrebbe leggere le comunicazioni sull'incidente.",
           [
-        { text: "Nascosto fino a leak stampa", correct: false },
-        { text: "Coordinamento legale/DPO e notifiche previste", correct: true },
-        { text: "Solo meme", correct: false },
-        { text: "Email da hacker", correct: false }
-          ]
-        ),
-        Q(
-          "Lesson learned si fa:",
-          "Dopo l'incidente per migliorare controlli e playbook.",
+            { text: 'Non dicendo nulla finché la notizia non diventa pubblica', correct: false },
+            { text: 'Coordinandosi con legale e DPO e facendo le notifiche previste', correct: true },
+            { text: 'Pubblicando subito tutti i dettagli tecnici sui social', correct: false },
+            { text: 'Usando la casella di posta compromessa per avvisare i clienti', correct: false },
+          ]),
+        Q(B,
+          'Quando si fa la revisione delle lezioni apprese (lessons learned)?',
+          "Dopo l'incidente, per migliorare controlli, procedure e capacità di rilevamento. Va fatta anche per gli incidenti senza perdite economiche, e senza cercare colpevoli: l'obiettivo è capire, non punire.",
           [
-        { text: "Mai", correct: false },
-        { text: "Post-incident review per migliorare difese", correct: true },
-        { text: "Prima dell'attacco", correct: false },
-        { text: "Solo per marketing", correct: false }
-          ]
-        ),
-        Q(
-          "Ransomware: pagare il riscatto:",
-          "Policy aziendale e legale; pagamento non garantisce recupero né stop attacco.",
+            { text: "Dopo l'incidente, per migliorare controlli, procedure e rilevamento", correct: true },
+            { text: "Solo se l'incidente ha causato perdite economiche", correct: false },
+            { text: 'Durante il contenimento, al posto delle azioni tecniche', correct: false },
+            { text: 'Per individuare chi ha sbagliato', correct: false },
+          ]),
+        Q(I,
+          'Che cosa sai del pagamento di un riscatto ransomware?',
+          "È una decisione di vertice da prendere con legali e autorità: non garantisce né il recupero dei dati né la cancellazione di quelli rubati, e può esporre a sanzioni se il destinatario è soggetto a misure restrittive. Non è vietato in assoluto in tutta l'UE, ma è fortemente sconsigliato.",
           [
-        { text: "Sempre obbligatorio", correct: false },
-        { text: "Decisione policy/legale; non garantisce recupero", correct: true },
-        { text: "Sostituisce backup", correct: false },
-        { text: "Elimina malware automaticamente", correct: false }
-          ]
-        ),
-        Q(
-          "SOC riceve allarme phishing interno. Priorità:",
-          "Valutare scope, bloccare indicatori, awareness.",
+            { text: 'È sempre la scelta più economica', correct: false },
+            { text: 'Non garantisce il recupero dei dati né la cancellazione di quelli rubati', correct: true },
+            { text: 'Garantisce la chiave di decifratura e la cancellazione dei dati rubati', correct: false },
+            { text: "È vietato per legge in tutti i paesi dell'UE", correct: false },
+          ]),
+        Q(I,
+          "Il SOC riceve la segnalazione di un'email di phishing arrivata a molti dipendenti. Qual è la priorità?",
+          "Capire la portata (chi l'ha ricevuta, chi ha cliccato o inserito credenziali), rimuovere il messaggio dalle caselle, bloccare gli indicatori (dominio, URL, mittente) e avvisare gli utenti. Bloccare tutta la posta è sproporzionato, attendere fa perdere tempo prezioso.",
           [
-        { text: "Ignorare", correct: false },
-        { text: "Analizzare scope, bloccare IoC, informare utenti", correct: true },
-        { text: "Cancellare mailbox globale", correct: false },
-        { text: "Disattivare Internet", correct: false }
-          ]
-        ),
-        Q(
-          "Tabletop exercise serve a:",
-          "Simulare incidenti per testare playbook senza crisi reale.",
+            { text: 'Avvisare solo chi lo ha segnalato', correct: false },
+            { text: 'Valutare chi ha ricevuto e cliccato, rimuovere i messaggi, bloccare gli indicatori, avvisare gli utenti', correct: true },
+            { text: "Bloccare la posta di tutta l'azienda fino a nuovo ordine", correct: false },
+            { text: 'Attendere altre segnalazioni per essere sicuri', correct: false },
+          ]),
+        Q(B,
+          "A che cosa serve un'esercitazione tabletop?",
+          "A simulare a tavolino uno scenario di incidente per verificare ruoli, decisioni, comunicazioni e playbook, senza toccare i sistemi. Penetration test e prove di ripristino dei backup sono attività diverse, altrettanto utili.",
           [
-        { text: "Giocare a scacchi", correct: false },
-        { text: "Esercitare risposta a scenari ipotetici", correct: true },
-        { text: "Solo vendita software", correct: false },
-        { text: "Eliminare MFA", correct: false }
-          ]
-        ),
+            { text: 'A simulare a tavolino uno scenario per verificare ruoli, decisioni e playbook', correct: true },
+            { text: 'A eseguire un penetration test sui sistemi di produzione', correct: false },
+            { text: 'A ripristinare completamente i backup', correct: false },
+            { text: 'A revisionare il codice sorgente', correct: false },
+          ]),
       ],
     },
     'secure-browsing': {
       id: 'secure-browsing',
-      name: "Navigazione Sicura",
+      name: 'Navigazione sicura',
       pillar: 'defend',
+      level: B,
       icon: '🛡',
       accent: '#4ade80',
-      description: "Estensioni, cookie, download, aggiornamenti.",
+      description: 'Avvisi del browser, estensioni, cookie, download, aggiornamenti.',
+      learn: [
+        { href: '/security-check.html', label: 'Check URL' },
+        { href: '/vulnerability-scanner.html', label: 'Audit header HTTP' },
+      ],
       questions: [
-        Q(
-          "Email sospetta con link al sito banca. Azione sicura:",
-          "Aprire sito digitando URL, non cliccare link.",
+        Q(B,
+          'Aprendo un link ricevuto, il browser mostra un avviso a tutta pagina «Sito ingannevole». Cosa fai?',
+          "L'avviso indica che il sito è segnalato come phishing o distribuzione di malware: torna indietro e non inserire dati. HTTPS non c'entra (anche i siti di phishing lo usano) e la modalità in incognito non disattiva la protezione.",
           [
-        { text: "Cliccare link", correct: false },
-        { text: "Digitare URL ufficiale nella barra indirizzi", correct: true },
-        { text: "Rispondere con password", correct: false },
-        { text: "Cliccare se ben formattata", correct: false }
-          ]
-        ),
-        Q(
-          "Hai cliccato per errore link phishing. Subito:",
-          "Cambia password da dispositivo pulito e monitora account.",
+            { text: 'Proseguo, se il sito ha HTTPS', correct: false },
+            { text: 'Torno indietro e non inserisco dati', correct: true },
+            { text: 'Disattivo temporaneamente la protezione per vedere il sito', correct: false },
+            { text: "Apro il link in incognito, dove l'avviso non compare", correct: false },
+          ]),
+        Q(B,
+          'Hai aperto per errore un link di phishing, ma non hai inserito nessun dato. Qual è la cosa più importante da fare?',
+          "Se hai solo aperto la pagina, la password non è stata rubata (non l'hai digitata): il rischio da verificare è un download o un exploit del browser. Chiudi la pagina, non aprire file scaricati e segnala subito all'IT o al SOC, che può controllare il dispositivo e bloccare il sito per tutti. Se invece avessi inserito credenziali, andrebbero cambiate subito da un dispositivo fidato.",
           [
-        { text: "Aspettare", correct: false },
-        { text: "Cambia password da dispositivo sicuro e monitora", correct: true },
-        { text: "Formattare tutto senza altro", correct: false },
-        { text: "Nulla se non hai digitato", correct: false }
-          ]
-        ),
-        Q(
-          "Download software: fonte più sicura:",
-          "Sito ufficiale o store gestito, non pop-up random.",
+            { text: 'Cambiare subito tutte le password: è la priorità assoluta', correct: false },
+            { text: "Chiudere la pagina, non aprire file scaricati e segnalarlo subito all'IT o al SOC", correct: true },
+            { text: 'Niente: senza dati inseriti non può essere successo nulla', correct: false },
+            { text: 'Formattare il computer', correct: false },
+          ]),
+        Q(B,
+          'Qual è la fonte più sicura per scaricare un programma?',
+          "Il sito ufficiale del produttore (digitato a mano o da un segnalibro) o uno store ufficiale. I risultati sponsorizzati sono stati usati per distribuire installer falsi, e i siti di download e i link nei forum possono servire versioni modificate.",
           [
-        { text: "Pop-up \"aggiorna flash\"", correct: false },
-        { text: "Sito ufficiale editore o store certificato", correct: true },
-        { text: "Forum pirata", correct: false },
-        { text: "Email allegato exe", correct: false }
-          ]
-        ),
-        Q(
-          "Aggiornamenti browser e OS:",
-          "Patchano vulnerabilità sfruttabili da malware.",
+            { text: 'Il primo risultato sponsorizzato del motore di ricerca', correct: false },
+            { text: 'Il sito ufficiale del produttore o uno store ufficiale', correct: true },
+            { text: 'Un sito di download che lo offre in versione «portable»', correct: false },
+            { text: 'Un link condiviso in un forum di supporto', correct: false },
+          ]),
+        Q(B,
+          'Quanto contano gli aggiornamenti del browser e del sistema operativo?',
+          "Molto: correggono vulnerabilità, alcune già sfruttate attivamente, che una pagina malevola può usare senza che tu faccia altro che visitarla. Un antivirus non sostituisce le patch.",
           [
-        { text: "Opzionali e inutili", correct: false },
-        { text: "Importanti per chiudere vulnerabilità", correct: true },
-        { text: "Rallentano solo", correct: false },
-        { text: "Da evitare sempre", correct: false }
-          ]
-        ),
-        Q(
-          "Cookie di terze parti e tracking:",
-          "Limitare con impostazioni browser e policy privacy.",
+            { text: 'Sono utili solo per le nuove funzioni', correct: false },
+            { text: 'Sono importanti: chiudono vulnerabilità sfruttate attivamente', correct: true },
+            { text: 'Vanno rimandati finché non si nota un problema', correct: false },
+            { text: "Sono superflui se c'è un antivirus", correct: false },
+          ]),
+        Q(I,
+          'A che cosa servono soprattutto i cookie di terze parti?',
+          "Soprattutto al tracciamento tra siti diversi a fini pubblicitari e statistici: limitarli dalle impostazioni del browser riduce la profilazione senza compromettere i login, che usano cookie del sito stesso (di prima parte).",
           [
-        { text: "Sempre necessari per sicurezza", correct: false },
-        { text: "Gestire consenso e bloccare tracker non necessari", correct: true },
-        { text: "Sostituiscono antivirus", correct: false },
-        { text: "Obbligatori per login banca", correct: false }
-          ]
-        ),
-        Q(
-          "Estensione browser chiede accesso a tutte le pagine:",
-          "Valutare necessità; rischio se da fonte non fidata.",
+            { text: 'Sono indispensabili per la sicurezza del login', correct: false },
+            { text: 'Al tracciamento tra siti; limitarli riduce la profilazione senza rompere i login', correct: true },
+            { text: 'Contengono codice eseguibile', correct: false },
+            { text: 'Proteggono dal CSRF', correct: false },
+          ]),
+        Q(B,
+          "Un'estensione del browser chiede il permesso di «leggere e modificare i dati su tutti i siti». Cosa fai?",
+          "Con quel permesso un'estensione può leggere ciò che digiti, password comprese. Installala solo se ti serve davvero e se il permesso è giustificato. Recensioni e store ufficiali non bastano: estensioni legittime sono state vendute o aggiornate con codice malevolo.",
           [
-        { text: "Sempre installare", correct: false },
-        { text: "Installare solo da fonti fidate e permessi minimi", correct: true },
-        { text: "Disabilita HTTPS", correct: false },
-        { text: "Condivide password", correct: false }
-          ]
-        ),
-        Q(
-          "Sito mostra lucchetto ma certificato per altro dominio:",
-          "Possibile MITM o configurazione errata: non procedere.",
+            { text: 'Accetto: è normale per tutte le estensioni', correct: false },
+            { text: 'Valuto se il permesso è giustificato e la installo solo se mi serve davvero', correct: true },
+            { text: 'Accetto, se ha molte recensioni positive', correct: false },
+            { text: 'Accetto, se proviene dallo store ufficiale', correct: false },
+          ]),
+        Q(B,
+          'Il browser segnala che il certificato del sito è valido per un altro dominio. Cosa fai?',
+          "Non prosegui: il certificato non corrisponde al sito visitato e potrebbe trattarsi di un'intercettazione o di un errore di configurazione. Il lucchetto non serve a nulla se non sai con chi stai parlando, e un'eccezione permanente nasconderebbe anche i problemi futuri.",
           [
-        { text: "Procedere", correct: false },
-        { text: "Non procedere: errore certificato sospetto", correct: true },
-        { text: "Ignorare sempre", correct: false },
-        { text: "Inserire dati", correct: false }
-          ]
-        ),
-        Q(
-          "Navigazione in incognito:",
-          "Non rende anonimi su rete; non salva storico locale.",
+            { text: 'Proseguo: la connessione è comunque cifrata', correct: false },
+            { text: 'Non proseguo: il certificato non corrisponde e potrebbe essere un’intercettazione', correct: true },
+            { text: 'Proseguo, se il certificato è emesso da una CA nota', correct: false },
+            { text: "Aggiungo un'eccezione permanente nel browser", correct: false },
+          ]),
+        Q(B,
+          'Che cosa fa la navigazione in incognito?',
+          "Non salva cronologia, cookie e dati dei moduli sul dispositivo al termine della sessione. Non ti rende anonimo verso i siti, la rete aziendale o il provider, non blocca il malware e non cifra il traffico come una VPN.",
           [
-        { text: "Nasconde da ISP e employer sempre", correct: false },
-        { text: "Non salva storico locale ma non è anonimato completo", correct: true },
-        { text: "Blocca tutti i malware", correct: false },
-        { text: "Sostituisce VPN aziendale", correct: false }
-          ]
-        ),
+            { text: 'Nasconde la navigazione al datore di lavoro e al provider', correct: false },
+            { text: 'Non salva cronologia e cookie sul dispositivo, ma non rende anonimi', correct: true },
+            { text: 'Blocca malware e phishing', correct: false },
+            { text: 'Cifra il traffico come una VPN', correct: false },
+          ]),
       ],
     },
     'insider-threats': {
       id: 'insider-threats',
-      name: "Insider Threat",
+      name: 'Minacce interne',
       pillar: 'intel',
+      level: I,
       icon: '👤',
       accent: '#f97316',
-      description: "Maliziosi, negligenza, furto dati, UEBA.",
+      description: 'Insider malintenzionati o negligenti, furto di dati, UEBA, DLP.',
+      learn: [
+        { href: '/historic-attacks.html', label: 'Violazioni storiche' },
+        { href: '/ethics.html', label: 'Etica e legge' },
+      ],
       questions: [
-        Q(
-          "Insider threat può essere:",
-          "Dipendente malevolo, negligente o account compromesso interno.",
+        Q(B,
+          'Chi può essere una minaccia interna (insider threat)?',
+          "Un dipendente o collaboratore con accessi legittimi che agisce con dolo o per negligenza, oppure un account interno compromesso da un attaccante esterno. Gli errori involontari sono una parte rilevante degli incidenti.",
           [
-        { text: "Solo hacker esterni", correct: false },
-        { text: "Persona interna o account interno abusato", correct: true },
-        { text: "Solo DDoS", correct: false },
-        { text: "Solo phishing", correct: false }
-          ]
-        ),
-        Q(
-          "Segnale possibile insider data exfiltration:",
-          "Download massivi, accessi fuori orario, USB non autorizzate.",
+            { text: 'Solo un attaccante esterno che ha superato il firewall', correct: false },
+            { text: 'Un dipendente o collaboratore, malintenzionato o negligente, o un account interno compromesso', correct: true },
+            { text: 'Solo un dipendente con intenzioni malevole', correct: false },
+            { text: 'Solo un ex dipendente scontento', correct: false },
+          ]),
+        Q(I,
+          'Quale di questi può indicare un’esfiltrazione di dati da parte di un insider?',
+          "Accessi insoliti a dati sensibili non legati al ruolo, volumi di download anomali, uso di supporti esterni o servizi cloud personali, spesso fuori orario o poco prima delle dimissioni. Gli altri sono comportamenti ordinari.",
           [
-        { text: "Un solo login normale", correct: false },
-        { text: "Accesso anomalo a dati sensibili e volumi insoliti", correct: true },
-        { text: "Schermo spento", correct: false },
-        { text: "Patch Tuesday", correct: false }
-          ]
-        ),
-        Q(
-          "Principio need-to-know:",
-          "Accesso ai dati solo se necessario per il ruolo.",
+            { text: "Un login dalla solita postazione in orario d'ufficio", correct: false },
+            { text: 'Accessi insoliti a dati sensibili e volumi di download anomali', correct: true },
+            { text: "Molti ticket aperti all'helpdesk", correct: false },
+            { text: "L'installazione degli aggiornamenti mensili", correct: false },
+          ]),
+        Q(B,
+          'Che cosa prevede il principio need-to-know?',
+          "Accedere a un'informazione solo se serve per il proprio ruolo, indipendentemente da anzianità o livello gerarchico. Riduce i danni sia di un insider sia di un account compromesso.",
           [
-        { text: "Tutti vedono tutto", correct: false },
-        { text: "Accesso limitato al necessario per mansione", correct: true },
-        { text: "Admin condiviso", correct: false },
-        { text: "Nessun log", correct: false }
-          ]
-        ),
-        Q(
-          "Offboarding dipendente deve includere:",
-          "Revoca accessi, recupero asset, cambio password condivise.",
+            { text: 'Tutti possono vedere tutto, ma solo i manager modificano', correct: false },
+            { text: 'Accesso alle informazioni solo se servono per il proprio ruolo', correct: true },
+            { text: 'Accesso concesso a chiunque lo chieda con una motivazione', correct: false },
+            { text: "Accesso ai dati in base all'anzianità aziendale", correct: false },
+          ]),
+        Q(B,
+          "Che cosa deve includere l'uscita (offboarding) di un dipendente?",
+          "La disattivazione tempestiva di tutti gli accessi (anche SaaS, VPN, token), il recupero dei dispositivi e la rotazione delle credenziali condivise che conosceva. Account lasciati attivi sono un rischio sia di abuso sia di compromissione.",
           [
-        { text: "Lasciare account attivi", correct: false },
-        { text: "Disabilitare account e recuperare dispositivi", correct: true },
-        { text: "Condividere password team", correct: false },
-        { text: "Nessuna azione", correct: false }
-          ]
-        ),
-        Q(
-          "UEBA aiuta a:",
-          "Rilevare comportamenti utente anomali rispetto al baseline.",
+            { text: "Disattivare solo l'account email", correct: false },
+            { text: 'Disattivare tutti gli accessi, recuperare i dispositivi, ruotare le credenziali condivise', correct: true },
+            { text: 'Lasciare gli account attivi un mese per il passaggio di consegne', correct: false },
+            { text: 'Chiedere al dipendente di rimuovere da solo i propri accessi', correct: false },
+          ]),
+        Q(I,
+          'A che cosa serve un sistema UEBA?',
+          "User and Entity Behavior Analytics: costruisce una linea di base del comportamento di utenti e sistemi e segnala le deviazioni (orari, volumi, risorse insolite). Non blocca il phishing né gestisce password.",
           [
-        { text: "Solo marketing", correct: false },
-        { text: "Identificare anomalie comportamentali", correct: true },
-        { text: "Sostituire firewall", correct: false },
-        { text: "Eliminare MFA", correct: false }
-          ]
-        ),
-        Q(
-          "Segnalazione whistleblowing etica:",
-          "Canale confidenziale per comportamenti illeciti o rischiosi.",
+            { text: 'A rilevare comportamenti anomali di utenti ed entità rispetto a una linea di base', correct: true },
+            { text: 'A bloccare le email di phishing in arrivo', correct: false },
+            { text: 'A cifrare i dati degli utenti', correct: false },
+            { text: 'A gestire le password aziendali', correct: false },
+          ]),
+        Q(I,
+          "Sospetti un comportamento illecito di un collega. Come lo segnali in modo corretto?",
+          "Usando i canali di segnalazione previsti (whistleblowing), che tutelano la riservatezza di chi segnala; in Italia li disciplina il d.lgs. 24/2023. Copiare dati riservati «come prova» su supporti personali è a sua volta una violazione.",
           [
-        { text: "Da evitare sempre", correct: false },
-        { text: "Usare canali aziendali previsti per segnalazioni", correct: true },
-        { text: "Solo social pubblico", correct: false },
-        { text: "Minacciare il collega", correct: false }
-          ]
-        ),
-        Q(
-          "Negligent insider esempio:",
-          "Invio PII al destinatario sbagliato o laptop smarrito senza cifratura.",
+            { text: 'Pubblico le prove sui social per fare pressione', correct: false },
+            { text: 'Uso i canali di segnalazione previsti, che tutelano la riservatezza', correct: true },
+            { text: 'Affronto il collega e lo minaccio di denuncia', correct: false },
+            { text: 'Copio i dati riservati su una chiavetta personale come prova', correct: false },
+          ]),
+        Q(B,
+          'Quale di questi è un esempio di insider negligente?',
+          "Il dipendente che invia per errore un file con dati dei clienti al destinatario sbagliato non ha intenzioni malevole, ma causa una violazione. Vendere credenziali o cancellare dati per vendetta sono casi di insider malintenzionato; l'APT è un attaccante esterno.",
           [
-        { text: "Attacco nation-state solo", correct: false },
-        { text: "Errore umano che espone dati", correct: true },
-        { text: "Solo ransomware", correct: false },
-        { text: "Solo tailgating", correct: false }
-          ]
-        ),
-        Q(
-          "DLP (Data Loss Prevention) monitora:",
-          "Uscita non autorizzata di dati sensibili da canali aziendali.",
+            { text: 'Un dipendente invia per errore un file con dati dei clienti al destinatario sbagliato', correct: true },
+            { text: 'Un dipendente vende le proprie credenziali a un gruppo criminale', correct: false },
+            { text: 'Un gruppo APT compromette la VPN aziendale', correct: false },
+            { text: 'Un ex dipendente cancella dati per vendetta', correct: false },
+          ]),
+        Q(I,
+          'Che cosa monitora un sistema DLP (Data Loss Prevention)?',
+          "Il movimento di dati classificati come sensibili verso email, servizi cloud, supporti esterni o stampa, applicando policy (avviso, blocco, cifratura). Non cerca vulnerabilità nei server né controlla gli accessi fisici.",
           [
-        { text: "Solo temperatura", correct: false },
-        { text: "Trasferimenti/email/cloud con dati classificati", correct: true },
-        { text: "Colore desktop", correct: false },
-        { text: "Luminosità", correct: false }
-          ]
-        ),
+            { text: 'Il movimento di dati sensibili verso email, cloud o supporti esterni', correct: true },
+            { text: 'Le vulnerabilità dei server web', correct: false },
+            { text: 'Le prestazioni della rete', correct: false },
+            { text: "Gli accessi fisici all'edificio", correct: false },
+          ]),
       ],
     },
     'iot-smart': {
       id: 'iot-smart',
-      name: "IoT & Smart Device",
+      name: 'IoT e dispositivi smart',
       pillar: 'tech',
+      level: B,
       icon: '📡',
       accent: '#2dd4bf',
-      description: "Default password, firmware, rete domestica.",
+      description: 'Password predefinite, firmware, rete domestica.',
+      learn: [
+        { href: '/malware-db.html', label: 'Catalogo malware' },
+        { href: '/glossary.html', label: 'Glossario' },
+      ],
       questions: [
-        Q(
-          "Router domestico default password admin:",
-          "Cambiare subito; credenziali note sono sfruttate da botnet.",
+        Q(B,
+          'Il router di casa usa ancora la password di amministrazione predefinita. Cosa fai?',
+          "La cambi con una password lunga e unica: le credenziali predefinite sono pubbliche e provate in automatico da botnet e malware già presenti in rete. Nascondere l'SSID non protegge l'interfaccia di amministrazione.",
           [
-        { text: "Lasciare admin/admin", correct: false },
-        { text: "Cambiare con password forte unica", correct: true },
-        { text: "Scriverla su sticker esterno", correct: false },
-        { text: "Disabilitare WPA3", correct: false }
-          ]
-        ),
-        Q(
-          "Aggiornamenti firmware dispositivi IoT:",
-          "Spesso ignorati ma chiudono vulnerabilità remote.",
+            { text: 'La lascio: il router è raggiungibile solo dalla rete di casa', correct: false },
+            { text: 'La cambio con una password lunga e unica', correct: true },
+            { text: 'La cambio solo se il router è esposto su Internet', correct: false },
+            { text: "Nascondo il nome della rete Wi-Fi (SSID)", correct: false },
+          ]),
+        Q(B,
+          'Quanto contano gli aggiornamenti firmware dei dispositivi IoT?',
+          "Molto: correggono vulnerabilità spesso sfruttabili da remoto e vengono ignorati di frequente. Essere dietro al router non basta, perché un dispositivo compromesso può attaccare dall'interno o essere raggiunto tramite il cloud del produttore.",
           [
-        { text: "Inutili", correct: false },
-        { text: "Importanti quando disponibili dal produttore", correct: true },
-        { text: "Solo estetici", correct: false },
-        { text: "Vietati", correct: false }
-          ]
-        ),
-        Q(
-          "Telecamera IP esposta su Internet con password default:",
-          "Accesso remoto non autorizzato e streaming abusivo.",
+            { text: 'Sono da evitare perché possono bloccare il dispositivo', correct: false },
+            { text: 'Sono importanti: correggono vulnerabilità spesso sfruttabili da remoto', correct: true },
+            { text: 'Servono solo ad aggiungere funzioni', correct: false },
+            { text: 'Sono superflui se il dispositivo è dietro il router', correct: false },
+          ]),
+        Q(B,
+          'Una telecamera IP è raggiungibile da Internet con la password predefinita. Come valuti il rischio?',
+          "Alto: motori di ricerca specializzati indicizzano i dispositivi esposti, quindi l'indirizzo non è un segreto. Chi accede vede il video e può usare la telecamera come punto d'ingresso nella rete. Cifrare il flusso non serve se chiunque può autenticarsi.",
           [
-        { text: "Sempre sicuro", correct: false },
-        { text: "Alto rischio di compromissione e spionaggio", correct: true },
-        { text: "Obbligatorio per cloud", correct: false },
-        { text: "Solo problema estetico", correct: false }
-          ]
-        ),
-        Q(
-          "Rete guest per ospiti e IoT serve a:",
-          "Segmentare dispositivi meno affidabili dal PC principale.",
+            { text: "Basso: nessuno conosce l'indirizzo IP", correct: false },
+            { text: "Alto: chiunque la trovi può vedere il video e usarla come punto d'ingresso", correct: true },
+            { text: 'Nullo, se il flusso video è cifrato', correct: false },
+            { text: 'Rilevante solo se la telecamera è dentro casa', correct: false },
+          ]),
+        Q(B,
+          'A che cosa serve una rete Wi-Fi separata per ospiti e dispositivi IoT?',
+          "A isolarli dalla rete con PC e dati personali: un dispositivo compromesso, o quello di un ospite, non raggiunge direttamente il resto. Non aumenta la velocità e non serve a nascondere la rete principale.",
           [
-        { text: "Rallentare tutto", correct: false },
-        { text: "Isolare IoT/ospiti dalla rete principale", correct: true },
-        { text: "Condividere password admin", correct: false },
-        { text: "Eliminare Wi-Fi", correct: false }
-          ]
-        ),
-        Q(
-          "MQTT/IoT senza TLS:",
-          "Traffico leggibile e modificabile in rete.",
+            { text: 'A isolarli dalla rete con PC e dati personali', correct: true },
+            { text: 'Ad aumentare la velocità della rete principale', correct: false },
+            { text: 'A permettere agli ospiti di usare le stampanti di casa', correct: false },
+            { text: 'A nascondere la rete principale ai vicini', correct: false },
+          ]),
+        Q(I,
+          'Un sistema IoT usa MQTT senza TLS. Che cosa comporta?',
+          "Comandi e dati viaggiano in chiaro e chi è sulla rete può leggerli o alterarli. Username e password del broker non aiutano: senza TLS passano anche loro in chiaro.",
           [
-        { text: "Più sicuro", correct: false },
-        { text: "Espone comandi e dati in chiaro", correct: true },
-        { text: "Obbligatorio GDPR", correct: false },
-        { text: "Solo per blockchain", correct: false }
-          ]
-        ),
-        Q(
-          "Botnet IoT (es. Mirai) sfrutta spesso:",
-          "Telnet/SSH con password default su dispositivi.",
+            { text: 'È più veloce e altrettanto sicuro in rete locale', correct: false },
+            { text: 'Comandi e dati viaggiano in chiaro e possono essere letti o alterati', correct: true },
+            { text: 'È sicuro se il broker richiede username e password', correct: false },
+            { text: 'È un problema solo per i dispositivi a batteria', correct: false },
+          ]),
+        Q(B,
+          'Che cosa sfruttava la botnet Mirai per infettare i dispositivi IoT?',
+          "Provava un elenco di credenziali predefinite su servizi Telnet (e SSH) esposti su Internet. Nel 2016 ha usato centinaia di migliaia di telecamere e router per attacchi DDoS record.",
           [
-        { text: "Schermi OLED", correct: false },
-        { text: "Credenziali default e servizi esposti", correct: true },
-        { text: "Solo iPhone aggiornati", correct: false },
-        { text: "MFA hardware", correct: false }
-          ]
-        ),
-        Q(
-          "Prima di acquistare dispositivo smart:",
-          "Verificare policy privacy, aggiornamenti e reputazione sicurezza.",
+            { text: 'Credenziali predefinite su servizi Telnet/SSH esposti', correct: true },
+            { text: 'Vulnerabilità zero-day nei browser', correct: false },
+            { text: 'Email di phishing agli utenti', correct: false },
+            { text: 'Chiavette USB infette', correct: false },
+          ]),
+        Q(B,
+          'Che cosa valuti prima di acquistare un dispositivo smart?',
+          "Per quanti anni il produttore garantisce aggiornamenti di sicurezza, che dati raccoglie e dove li invia, e come ha gestito le vulnerabilità in passato. Il prezzo e il numero di funzioni non dicono nulla sulla sicurezza.",
           [
-        { text: "Solo il prezzo più basso", correct: false },
-        { text: "Valutare supporto patch, privacy e recensioni sicurezza", correct: true },
-        { text: "Solo colore", correct: false },
-        { text: "Ignorare EOL", correct: false }
-          ]
-        ),
-        Q(
-          "Dispositivo IoT non più supportato dal vendor:",
-          "Isolare, sostituire o rimuovere dalla rete sensibile.",
+            { text: 'Il numero di funzioni smart', correct: false },
+            { text: 'Durata del supporto agli aggiornamenti, politica privacy e reputazione del produttore', correct: true },
+            { text: 'Il prezzo più basso, tanto i dispositivi sono tutti simili', correct: false },
+            { text: 'La compatibilità con il maggior numero di app di terze parti', correct: false },
+          ]),
+        Q(I,
+          'Un dispositivo IoT non riceve più aggiornamenti dal produttore (fine vita). Cosa fai?',
+          "Lo isoli o lo sostituisci: le vulnerabilità scoperte da ora in poi non verranno corrette. Metterlo in DMZ significherebbe esporlo a Internet; un reset periodico non corregge nulla.",
           [
-        { text: "Esporre su DMZ produzione", correct: false },
-        { text: "Isolare o dismettere: rischio vulnerabilità non patchate", correct: true },
-        { text: "Collegare a dominio admin", correct: false },
-        { text: "Condividere VPN aziendale", correct: false }
-          ]
-        ),
+            { text: 'Continuo a usarlo: se finora ha funzionato, è sicuro', correct: false },
+            { text: 'Lo isolo o lo sostituisco', correct: true },
+            { text: 'Lo sposto in DMZ, così non tocca la rete interna', correct: false },
+            { text: 'Lo riporto alle impostazioni di fabbrica ogni mese', correct: false },
+          ]),
       ],
     },
   };
 
-  window.QUIZ_HUB = { PILLARS, CATEGORIES, version: 1 };
+  window.QUIZ_HUB = { PILLARS, LEVELS, CATEGORIES, version: 3 };
 })();

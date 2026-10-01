@@ -434,6 +434,190 @@
   color: var(--mt-emerald);
 }
 
+/* Introduzione e scheda del modulo */
+.mt-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
+  align-items: start;
+  margin-top: 1.5rem;
+}
+
+.mt-intro__text .mt-section-title {
+  margin-top: 0.5rem;
+}
+
+.mt-intro__text p,
+.mt-legend p {
+  margin: 0 0 0.85rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: #cbd5e1;
+  max-width: 68ch;
+}
+
+.mt-intro__text a,
+.mt-legend a,
+.mt-facts a {
+  color: var(--mt-emerald);
+}
+
+.mt-intro__text strong,
+.mt-legend strong {
+  color: #f8fafc;
+}
+
+.mt-facts {
+  padding: 1.15rem 1.25rem;
+  background: var(--mt-glass);
+  border: 1px solid var(--mt-border);
+  border-top: 3px solid var(--mt-amber);
+  border-radius: 10px;
+}
+
+.mt-facts__title {
+  margin: 0 0 0.75rem;
+  font-family: var(--mt-mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--mt-amber);
+}
+
+.mt-facts__list,
+.mt-legend__list {
+  margin: 0;
+}
+
+.mt-facts__list > div {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mt-facts__list dt,
+.mt-legend__list dt {
+  font-family: var(--mt-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7c8aa0;
+}
+
+.mt-facts__list dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #e2e8f0;
+}
+
+.mt-facts__subtitle {
+  margin: 0.9rem 0 0.4rem;
+  font-family: var(--mt-mono);
+  font-size: 0.64rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7c8aa0;
+}
+
+.mt-facts__goals {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+.mt-facts__goals li + li {
+  margin-top: 0.3rem;
+}
+
+/* Legenda dei valori */
+.mt-legend {
+  margin-top: 2.25rem;
+}
+
+.mt-legend__list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mt-legend__list > div {
+  padding: 0.85rem 1rem;
+  background: var(--mt-glass);
+  border: 1px solid var(--mt-border);
+  border-radius: 10px;
+}
+
+.mt-legend__list dt {
+  color: #fda4af;
+}
+
+.mt-legend__list dd {
+  margin: 0.35rem 0 0;
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+}
+
+/* Rilevamento e livelli nella scheda */
+.mt-card__label--det {
+  color: #7dd3fc;
+}
+
+.mt-card__label--mit {
+  color: var(--mt-emerald);
+}
+
+.mt-list--det li::before {
+  content: '◉';
+  position: absolute;
+  left: 0;
+  color: #7dd3fc;
+  font-size: 0.65rem;
+  top: 0.32rem;
+}
+
+.mt-card__levels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.9rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mt-card__levels dt {
+  font-family: var(--mt-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7c8aa0;
+}
+
+.mt-card__levels dd {
+  margin: 0.15rem 0 0;
+}
+
+.mt-compare td:last-child {
+  min-width: 14rem;
+}
+
+.mt-compare tbody th {
+  white-space: normal;
+  min-width: 11rem;
+  font-family: inherit;
+}
+
+@media (max-width: 860px) {
+  .mt-intro {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 576px) {
   .mt-stats {
     grid-template-columns: 1fr;

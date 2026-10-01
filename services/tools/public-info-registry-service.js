@@ -8,6 +8,34 @@ const {
   buildTerritorySearch,
   applyRegistryPostFilters
 } = require('./public-info-filters');
+const { t } = require('../../server/i18n');
+
+// Filtro professione: solo lettere, spazi, apostrofi e trattini (finisce in una stringa SPARQL)
+const PROFESSION_RE = /^[\p{L} '’-]{1,60}$/u; // spazio semplice: niente a capo o tab
+const QID_RE = /^Q\d{1,12}$/;
+
+/** Escape per un letterale stringa SPARQL tra virgolette doppie: prima \, poi " e i caratteri di controllo. */
+function sparqlString(value) {
+  return String(value)
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
+}
+
+/** Errore con messaggio già scritto per l'utente (la route lo restituisce così com'è). */
+function userError(message, status = 400) {
+  const err = new Error(message);
+  err.status = status;
+  err.expose = true;
+  return err;
+}
+
+function assertQid(qid) {
+  if (!QID_RE.test(String(qid || ''))) throw userError('ID Wikidata non valido');
+  return qid;
+}
 
 const HTTP = {
   timeout: 45000,
@@ -60,15 +88,24 @@ const REGISTRY_LIMITATIONS = [
   'Omonimia possibile: verifica sempre la scheda Wikidata prima di trarre conclusioni.'
 ];
 
-function normalizeTerritoryInput(input) {
+function normalizeProfession(value, lang) {
+  const profession = String(value || '').trim();
+  if (!profession) return null;
+  if (!PROFESSION_RE.test(profession)) {
+    throw userError(t(lang, 'Professione non valida: usa solo lettere, spazi, apostrofi e trattini (massimo 60 caratteri).'));
+  }
+  return profession;
+}
+
+function normalizeTerritoryInput(input, lang) {
   const country = String(input.country || '').trim();
-  if (!country) throw new Error('Nazione obbligatoria per l’esplorazione elenco');
+  if (!country) throw userError(t(lang, 'La nazione è obbligatoria.'));
   return {
     country,
     region: String(input.region || '').trim() || null,
     province: String(input.province || '').trim() || null,
     municipality: String(input.municipality || input.city || input.comune || '').trim() || null,
-    profession: String(input.profession || '').trim() || null,
+    profession: normalizeProfession(input.profession, lang),
     limit: Math.min(100, Math.max(10, parseInt(input.limit, 10) || 50)),
     offset: Math.max(0, parseInt(input.offset, 10) || 0)
   };
@@ -198,7 +235,8 @@ function buildCountryOnlySparql(countryQid, query) {
 }
 
 function buildRegistrySparql(territory, query) {
-  const country = territory.country.qid;
+  const country = assertQid(territory.country.qid);
+  for (const k of ['region', 'province', 'municipality']) if (territory[k]) assertQid(territory[k].qid);
 
   if (!territory.municipality && !territory.region && !territory.province) {
     return buildCountryOnlySparql(country, query);
@@ -236,7 +274,8 @@ function buildRegistrySparql(territory, query) {
   lines.push('  OPTIONAL { ?person wdt:P19 ?birthPlace. }');
   lines.push('  OPTIONAL { ?person wdt:P551 ?residence. }');
   if (query.profession) {
-    const safe = query.profession.replace(/"/g, '\\"');
+    // validato in normalizeTerritoryInput; l'escape completo resta come seconda difesa
+    const safe = sparqlString(query.profession);
     lines.push('  ?person wdt:P106 ?occ.');
     lines.push('  ?occ rdfs:label ?occLabel.');
     lines.push('  FILTER(LANG(?occLabel) IN ("it", "en"))');
@@ -270,7 +309,7 @@ async function runSparql(query, retries = 2) {
   return [];
 }
 
-async function resolvePersonLabelsBatch(qids) {
+async function resolvePersonLabelsBatch(qids, lang) {
   const unique = [...new Set(qids.filter(Boolean))];
   if (!unique.length) return {};
   const res = await axios.get('https://www.wikidata.org/w/api.php', {
@@ -286,7 +325,7 @@ async function resolvePersonLabelsBatch(qids) {
   });
   const map = {};
   for (const [id, entity] of Object.entries(res.data?.entities || {})) {
-    map[id] = entity.labels?.it?.value || entity.labels?.en?.value || id;
+    map[id] = pickText(entity.labels, lang) || id;
   }
   return map;
 }
@@ -503,9 +542,9 @@ async function fetchRegionWikipediaPeople(territory, query) {
   return people;
 }
 
-async function runPublicInfoRegistrySearch(input) {
+async function runPublicInfoRegistrySearch(input, { lang } = {}) {
   const started = Date.now();
-  const query = normalizeTerritoryInput(input);
+  const query = normalizeTerritoryInput(input, lang);
   const territory = await resolveTerritory(query);
   const isCountryOnly = !territory.municipality && !territory.region && !territory.province;
 
@@ -595,25 +634,137 @@ async function runPublicInfoRegistrySearch(input) {
   };
 }
 
-async function runPublicInfoPersonDetail(wikidataId) {
-  const qid = String(wikidataId || '').trim().replace(/^.*:/, '');
-  if (!/^Q\d+$/i.test(qid)) throw new Error('ID Wikidata non valido (es. Q7186)');
+// ------------------------------------------------------------------ figure pubbliche
+// La ricerca per nome è limitata alle figure pubbliche: persone (Q5) con almeno una voce
+// su Wikipedia. Niente dossier su privati cittadini (GDPR art. 5, 6 e 14).
+
+/** true se l'entità ha almeno una voce su una Wikipedia (itwiki, enwiki, zh_yuewiki…). */
+function hasWikipediaArticle(entity) {
+  return Object.keys(entity?.sitelinks || {}).some((k) => /^[a-z]{2,3}(?:_[a-z]+)?wiki$/.test(k));
+}
+
+function isHuman(entity) {
+  return (entity?.claims?.P31 || []).some((c) => c.mainsnak?.datavalue?.value?.id === 'Q5');
+}
+
+function wikipediaUrlOf(entity, lang) {
+  const links = entity?.sitelinks || {};
+  const pref = lang === 'en' ? ['enwiki', 'itwiki'] : ['itwiki', 'enwiki'];
+  for (const key of pref) {
+    if (links[key]?.title) {
+      const host = key.replace(/wiki$/, '');
+      return `https://${host}.wikipedia.org/wiki/${encodeURIComponent(links[key].title.replace(/ /g, '_'))}`;
+    }
+  }
+  const any = Object.keys(links).find((k) => /^[a-z]{2,3}wiki$/.test(k));
+  return any ? `https://${any.replace(/wiki$/, '')}.wikipedia.org/wiki/${encodeURIComponent(links[any].title.replace(/ /g, '_'))}` : null;
+}
+
+function pickText(map, lang) {
+  const order = lang === 'en' ? ['en', 'it'] : ['it', 'en'];
+  for (const l of order) if (map?.[l]?.value) return map[l].value;
+  return null;
+}
+
+function yearOf(entity, prop) {
+  const time = entity?.claims?.[prop]?.[0]?.mainsnak?.datavalue?.value?.time;
+  const m = time && String(time).match(/^\+?(\d{4})/);
+  return m ? +m[1] : null;
+}
+
+const NAME_RE = /^[\p{L}\p{M}][\p{L}\p{M}\s'’.-]{1,79}$/u;
+
+/**
+ * Cerca figure pubbliche per nome su Wikidata. Restituisce solo persone con una voce
+ * su Wikipedia: nessuna informazione su privati cittadini.
+ */
+async function runPublicFigureSearch(input, { lang } = {}) {
+  const started = Date.now();
+  const name = String(input?.name || '').trim().replace(/\s+/g, ' ');
+  if (!NAME_RE.test(name)) {
+    throw userError(t(lang, 'Scrivi nome e cognome della figura pubblica (2-80 caratteri, solo lettere, spazi, apostrofi, punti e trattini).'));
+  }
+  const res = await axios.get('https://www.wikidata.org/w/api.php', {
+    ...HTTP,
+    params: {
+      action: 'wbsearchentities',
+      search: name,
+      language: lang === 'en' ? 'en' : 'it',
+      uselang: lang === 'en' ? 'en' : 'it',
+      type: 'item',
+      limit: 20,
+      format: 'json',
+      origin: '*'
+    }
+  });
+  const ids = (res.data?.search || []).map((h) => h.id).filter((id) => QID_RE.test(id));
+  let people = [];
+  if (ids.length) {
+    const ent = await axios.get('https://www.wikidata.org/w/api.php', {
+      ...HTTP,
+      params: {
+        action: 'wbgetentities',
+        ids: ids.join('|'),
+        props: 'labels|descriptions|claims|sitelinks',
+        languages: 'it|en',
+        format: 'json',
+        origin: '*'
+      }
+    });
+    const entities = ent.data?.entities || {};
+    people = ids
+      .map((id) => entities[id])
+      .filter((e) => e && isHuman(e) && hasWikipediaArticle(e))
+      .slice(0, 10)
+      .map((e) => ({
+        wikidataId: e.id,
+        name: pickText(e.labels, lang) || e.id,
+        description: pickText(e.descriptions, lang),
+        birthYear: yearOf(e, 'P569'),
+        deathYear: yearOf(e, 'P570'),
+        wikipediaUrl: wikipediaUrlOf(e, lang),
+        wikidataUrl: `https://www.wikidata.org/wiki/${e.id}`
+      }));
+  }
+  return {
+    mode: 'public_figure',
+    scanType: 'public_figure_search',
+    timestamp: new Date().toISOString(),
+    scanDurationMs: Date.now() - started,
+    query: { name },
+    totalReturned: people.length,
+    people,
+    limitations: [
+      t(lang, 'Sono mostrate solo persone con una voce su Wikipedia (figure pubbliche). I privati cittadini sono esclusi.'),
+      t(lang, 'Omonimie possibili: controlla descrizione e voce di Wikipedia prima di trarre conclusioni.'),
+      t(lang, 'I dati vengono da Wikidata e possono essere incompleti o sbagliati: verifica sempre la fonte.')
+    ],
+    status: 'success'
+  };
+}
+
+async function runPublicInfoPersonDetail(wikidataId, { lang } = {}) {
+  const qid = String(wikidataId || '').trim().replace(/^.*:/, '').toUpperCase();
+  if (!QID_RE.test(qid)) throw userError(t(lang, 'ID Wikidata non valido (esempio: Q7186).'));
 
   const res = await axios.get(`https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`, HTTP);
   const entity = res.data?.entities?.[qid];
-  if (!entity) throw new Error('Entità Wikidata non trovata');
+  if (!entity) throw userError(t(lang, 'Voce Wikidata non trovata.'), 404);
+  if (!isHuman(entity) || !hasWikipediaArticle(entity)) {
+    throw userError(t(lang, 'La scheda è disponibile solo per figure pubbliche con una voce su Wikipedia.'), 403);
+  }
 
-  const label = entity.labels?.it?.value || entity.labels?.en?.value || qid;
-  const description = entity.descriptions?.it?.value || entity.descriptions?.en?.value || null;
+  const label = pickText(entity.labels, lang) || qid;
+  const description = pickText(entity.descriptions, lang);
   const claims = entity.claims || {};
 
   const getClaimLabels = async (prop) => {
     const ids = (claims[prop] || [])
       .map((c) => c.mainsnak?.datavalue?.value?.id)
-      .filter(Boolean)
+      .filter((id) => QID_RE.test(String(id || '')))
       .slice(0, 5);
     if (!ids.length) return [];
-    const labels = await resolvePersonLabelsBatch(ids);
+    const labels = await resolvePersonLabelsBatch(ids, lang);
     return ids.map((id) => ({
       qid: id,
       label: labels[id] || id,
@@ -621,20 +772,13 @@ async function runPublicInfoPersonDetail(wikidataId) {
     }));
   };
 
-  const [birthPlaces, residences, occupations, citizenships, employers] = await Promise.all([
+  // Niente residenza (P551): non serve a capire il ruolo pubblico di una persona (minimizzazione)
+  const [birthPlaces, occupations, citizenships, employers] = await Promise.all([
     getClaimLabels('P19'),
-    getClaimLabels('P551'),
     getClaimLabels('P106'),
     getClaimLabels('P27'),
     getClaimLabels('P108')
   ]);
-
-  let birthYear = null;
-  const dob = claims.P569?.[0]?.mainsnak?.datavalue?.value?.time;
-  if (dob) {
-    const m = dob.match(/^\+?(\d{4})/);
-    if (m) birthYear = +m[1];
-  }
 
   return {
     mode: 'person_detail',
@@ -642,15 +786,15 @@ async function runPublicInfoPersonDetail(wikidataId) {
     wikidataId: qid,
     name: label,
     description,
-    birthYear,
+    birthYear: yearOf(entity, 'P569'),
+    deathYear: yearOf(entity, 'P570'),
     birthPlaces,
-    residences,
     occupations,
     citizenships,
     employers,
     wikidataUrl: `https://www.wikidata.org/wiki/${qid}`,
+    wikipediaUrl: wikipediaUrlOf(entity, lang),
     sources: [{ name: 'Wikidata EntityData', url: `https://www.wikidata.org/wiki/${qid}`, reliability: 'high' }],
-    limitations: REGISTRY_LIMITATIONS,
     status: 'success'
   };
 }
@@ -658,5 +802,10 @@ async function runPublicInfoPersonDetail(wikidataId) {
 module.exports = {
   runPublicInfoRegistrySearch,
   runPublicInfoPersonDetail,
-  normalizeTerritoryInput
+  runPublicFigureSearch,
+  normalizeTerritoryInput,
+  buildRegistrySparql,
+  sparqlString,
+  hasWikipediaArticle,
+  PROFESSION_RE
 };

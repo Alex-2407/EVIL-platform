@@ -6,6 +6,10 @@
  * - altrimenti SMTP (Mailtrap Sandbox/Live, Gmail, ...)
  * - solo con NODE_ENV=development, se l'invio non è possibile il messaggio viene
  *   salvato come file HTML in EMAIL_OUTBOX_DIR (mai in produzione)
+ *
+ * Lingua: ogni email per l'utente è in italiano o in inglese (parametro `lang`, di solito
+ * user.lang salvato alla registrazione). Le traduzioni sono in
+ * i18n/en/server/services__email-service.json. L'email allo staff resta in italiano.
  */
 
 const fs = require('fs');
@@ -15,6 +19,8 @@ const axios = require('axios');
 const crypto = require('crypto');
 const { logger } = require('../middleware/logger');
 const { isDevelopment, isTest } = require('../utils/env');
+const { maskEmail } = require('../utils/mask');
+const { t, normalizeLang, DEFAULT_LANG } = require('../server/i18n');
 
 const MAILTRAP_SEND_API = 'https://send.api.mailtrap.io/api/send';
 
@@ -29,11 +35,15 @@ const SMTP_PLACEHOLDERS = new Set([
   'incolla_password_da_mailtrap_sandboxes'
 ]);
 
-/** Nei log basta riconoscere il destinatario, non serve l'indirizzo completo. */
-function maskEmail(email) {
-  const [local = '', domain = ''] = String(email || '').split('@');
-  if (!domain) return '***';
-  return `${local.slice(0, 2)}***@${domain}`;
+/** Lingua delle email: quella dell'account o della richiesta, italiano se sconosciuta. */
+function mailLang(lang) {
+  return normalizeLang(lang) || DEFAULT_LANG;
+}
+
+/** Prefisso delle pagine nella lingua (/en/...); l'italiano resta alla radice. */
+function langPrefix(lang) {
+  const l = mailLang(lang);
+  return l === DEFAULT_LANG ? '' : `/${l}`;
 }
 
 /** Oggetto e intestazioni su una sola riga. */
@@ -126,7 +136,7 @@ class EmailService {
     return this.useMailtrapApi() ? 'mailtrap_api' : 'smtp';
   }
 
-  async sendViaMailtrapApi({ to, subject, text, html, replyTo = null, category = 'Account' }) {
+  async sendViaMailtrapApi({ to, subject, text, html, replyTo = null, category = 'Account', lang = DEFAULT_LANG }) {
     const token = this.getMailtrapApiToken();
     if (!token) {
       return { success: false, error: 'MAILTRAP_API_TOKEN mancante (token Sending Mailtrap).' };
@@ -166,7 +176,7 @@ class EmailService {
         success: true,
         delivery: 'mailtrap_api',
         messageId: res.data?.message_ids?.[0] || res.data?.message_id || null,
-        hint: this.getDeliveryHint('mailtrap_api'),
+        hint: this.getDeliveryHint('mailtrap_api', lang),
       };
     } catch (err) {
       const detail =
@@ -198,10 +208,11 @@ class EmailService {
    * @param {object} [opts.outbox] anteprima da salvare in sviluppo:
    *   { actionLink, buildMail: () => mail con logo incorporato, titleLabel, buttonLabel }
    */
-  async deliver({ to, mail, replyTo = null, category = 'Account', label = 'Invio email', timeoutMs, outbox = null }) {
+  async deliver({ to, mail, replyTo = null, category = 'Account', label = 'Invio email', timeoutMs, outbox = null, lang = DEFAULT_LANG }) {
     const saveToOutbox = (reason) => {
       if (!this.outboxAllowed()) return null;
       const result = this.writeOutboxPreview({
+        lang,
         email: to,
         actionLink: outbox?.actionLink || '#',
         mail: outbox?.buildMail ? outbox.buildMail() : mail,
@@ -229,6 +240,7 @@ class EmailService {
         html: mail.html,
         replyTo,
         category,
+        lang,
       });
       if (result.success) return result;
       return saveToOutbox(result.error) || result;
@@ -257,7 +269,7 @@ class EmailService {
         success: true,
         delivery,
         messageId: info.messageId,
-        hint: this.getDeliveryHint(delivery),
+        hint: this.getDeliveryHint(delivery, lang),
       };
     } catch (err) {
       logger.error('Errore invio SMTP', { error: err.message, recipient: maskEmail(to), category, host: this.smtpHost });
@@ -273,17 +285,18 @@ class EmailService {
     }
   }
 
-  async sendVerificationEmail(email, token, name = 'Utente') {
-    const verificationLink = this.buildVerificationLink(token);
+  async sendVerificationEmail(email, token, name, lang) {
+    const verificationLink = this.buildVerificationLink(token, lang);
     return this.deliver({
       to: email,
-      mail: this.buildVerificationMail(name, verificationLink),
+      lang,
+      mail: this.buildVerificationMail(name, verificationLink, { lang }),
       category: 'Account',
       label: 'Invio email di verifica',
       timeoutMs: this.registerSmtpTimeoutMs,
       outbox: {
         actionLink: verificationLink,
-        buildMail: () => this.buildVerificationMail(name, verificationLink, { embedLogo: true }),
+        buildMail: () => this.buildVerificationMail(name, verificationLink, { embedLogo: true, lang }),
         titleLabel: 'verifica',
         buttonLabel: 'Apri link di verifica',
       },
@@ -379,22 +392,31 @@ class EmailService {
   }
 
   /** Frase mostrata all'utente dopo l'invio: tecnica solo in sviluppo. */
-  getDeliveryHint(delivery) {
+  getDeliveryHint(delivery, lang) {
     if (delivery === 'sandbox') {
-      return 'Sviluppo: l\'email è nella Sandbox di Mailtrap (https://mailtrap.io/sandboxes), non nella tua casella.';
+      return t(lang, 'Sviluppo: l\'email è nella Sandbox di Mailtrap (https://mailtrap.io/sandboxes), non nella tua casella.');
     }
     if (delivery === 'outbox') {
-      return `Sviluppo: email non inviata, salvata come file in ${this.outboxDir}.`;
+      return t(lang, 'Sviluppo: email non inviata, salvata come file in {dir}.', { dir: this.outboxDir });
     }
-    return 'Se non la vedi entro qualche minuto, controlla la cartella spam o promozioni.';
+    return t(lang, 'Se non la vedi entro qualche minuto, controlla la cartella spam o promozioni.');
   }
 
   generateVerificationToken() {
     return crypto.randomBytes(32).toString('hex');
   }
 
-  buildVerificationLink(token) {
-    return `${this.baseUrl}/api/auth/verify-email?token=${encodeURIComponent(token)}`;
+  /**
+   * Link di verifica: porta alla pagina, che chiede conferma e chiama POST /api/auth/verify.
+   * Il token sta nel frammento (#token=…): non arriva nei log del server né nel Referer.
+   * Aprire il link non attiva l'account e non fa accedere (S-05).
+   */
+  buildVerificationLink(token, lang) {
+    return `${this.baseUrl}${langPrefix(lang)}/verify-email.html#token=${encodeURIComponent(token)}`;
+  }
+
+  brandUrl(lang) {
+    return (process.env.EMAIL_BRAND_URL || '').trim() || `${this.baseUrl}${langPrefix(lang)}/`;
   }
 
   escapeHtml(value) {
@@ -482,35 +504,35 @@ class EmailService {
   }
 
   buildVerificationMail(name, verificationLink, options = {}) {
-    const safeName = this.escapeHtml(name);
+    const lang = mailLang(options.lang);
+    const who = name || t(lang, 'Utente');
+    const safeName = this.escapeHtml(who);
     const safeLink = this.escapeHtml(verificationLink);
-    const brandUrl = this.escapeHtml(
-      (process.env.EMAIL_BRAND_URL || `${this.baseUrl}/html/home.html`).replace(/\/$/, '')
-    );
+    const brandUrl = this.brandUrl(lang);
     const logo = this.resolveEmailLogo({ embed: options.embedLogo === true });
     const logoHtml = this.buildLogoHtml(logo.src);
     const year = new Date().getFullYear();
 
     const text = [
-      `Ciao ${name},`,
+      t(lang, 'Ciao {name},', { name: who }),
       '',
-      'Grazie per esserti registrato su EVIL Cybersecurity Platform.',
-      'Apri questo link per verificare la tua email e attivare l\'account:',
+      t(lang, 'Grazie per esserti registrato su EVIL, la piattaforma didattica di cybersecurity.'),
+      t(lang, 'Apri questo link e conferma il tuo indirizzo per attivare l\'account:'),
       verificationLink,
       '',
-      'Il link scade tra 24 ore.',
-      'Se non ti sei registrato, ignora questo messaggio.',
+      t(lang, 'Il link scade tra 24 ore.'),
+      t(lang, 'Se non ti sei registrato tu, ignora questo messaggio: senza conferma l\'account viene cancellato entro 7 giorni.'),
       '',
-      '— EVIL Platform'
+      '— EVIL'
     ].join('\n');
 
     const html = `<!DOCTYPE html>
-<html lang="it" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="${lang}" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Conferma email — EVIL Platform</title>
+  <title>${t(lang, 'Conferma email — EVIL')}</title>
   <!--[if mso]>
   <noscript>
     <xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>
@@ -544,7 +566,7 @@ class EmailService {
 </head>
 <body style="margin:0;padding:0;background-color:#06080e;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
   <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
-    Conferma la tua email per attivare l'account EVIL — link valido 24 ore.
+    ${t(lang, 'Conferma la tua email per attivare l\'account EVIL — link valido 24 ore.')}
   </div>
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#06080e;background-image:linear-gradient(180deg,#070a11 0%,#06080e 50%,#05070c 100%);">
     <tr>
@@ -578,7 +600,7 @@ class EmailService {
                                       ${logoHtml}
                                     </td>
                                     <td valign="middle">
-                                      <p style="margin:0;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#7dd3fc;font-weight:600;">Cybersecurity Platform</p>
+                                      <p style="margin:0;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#7dd3fc;font-weight:600;">${t(lang, 'Piattaforma di cybersecurity')}</p>
                                       <p style="margin:4px 0 0;font-size:22px;font-weight:800;color:#f8fafc;letter-spacing:0.04em;">EVIL</p>
                                     </td>
                                   </tr>
@@ -586,23 +608,23 @@ class EmailService {
                               </td>
                             </tr>
                           </table>
-                          <p style="margin:28px 0 8px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;font-weight:600;">Quasi fatto</p>
-                          <h1 class="evil-title" style="margin:0 0 16px;font-size:28px;font-weight:700;color:#f8fafc;line-height:1.25;">Conferma la tua email</h1>
+                          <p style="margin:28px 0 8px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;font-weight:600;">${t(lang, 'Quasi fatto')}</p>
+                          <h1 class="evil-title" style="margin:0 0 16px;font-size:28px;font-weight:700;color:#f8fafc;line-height:1.25;">${t(lang, 'Conferma la tua email')}</h1>
                           <p style="margin:0 0 20px;font-size:16px;line-height:1.65;color:#cbd5e1;">
-                            Ciao <strong style="color:#f8fafc;">${safeName}</strong>,
+                            ${t(lang, 'Ciao {name},', { name: `<strong style="color:#f8fafc;">${safeName}</strong>` })}
                           </p>
                           <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#94a3b8;">
-                            Grazie per esserti registrato. Un ultimo passo per attivare l'account e accedere a laboratori, strumenti e intelligence della piattaforma EVIL.
+                            ${t(lang, 'Grazie per esserti registrato. Manca un ultimo passo per attivare l\'account e usare laboratori, quiz e strumenti di EVIL.')}
                           </p>
                           <!-- steps -->
                           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:28px;background:rgba(15,23,42,0.55);border-radius:12px;border:1px solid rgba(125,211,252,0.1);">
                             <tr>
                               <td class="evil-pad" style="padding:20px 22px;">
-                                <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7dd3fc;">Come procedere</p>
+                                <p style="margin:0 0 14px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#7dd3fc;">${t(lang, 'Come procedere')}</p>
                                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
-                                  <tr><td style="padding:6px 0;font-size:14px;line-height:1.5;color:#cbd5e1;"><span style="color:#f59e0b;font-weight:700;margin-right:8px;">1.</span> Clicca il pulsante qui sotto</td></tr>
-                                  <tr><td style="padding:6px 0;font-size:14px;line-height:1.5;color:#cbd5e1;"><span style="color:#f59e0b;font-weight:700;margin-right:8px;">2.</span> Verrai reindirizzato su EVIL con account attivo</td></tr>
-                                  <tr><td style="padding:6px 0;font-size:14px;line-height:1.5;color:#cbd5e1;"><span style="color:#f59e0b;font-weight:700;margin-right:8px;">3.</span> Accedi con email e password</td></tr>
+                                  <tr><td style="padding:6px 0;font-size:14px;line-height:1.5;color:#cbd5e1;"><span style="color:#f59e0b;font-weight:700;margin-right:8px;">1.</span> ${t(lang, 'Apri il link con il pulsante qui sotto')}</td></tr>
+                                  <tr><td style="padding:6px 0;font-size:14px;line-height:1.5;color:#cbd5e1;"><span style="color:#f59e0b;font-weight:700;margin-right:8px;">2.</span> ${t(lang, 'Sulla pagina di EVIL conferma il tuo indirizzo')}</td></tr>
+                                  <tr><td style="padding:6px 0;font-size:14px;line-height:1.5;color:#cbd5e1;"><span style="color:#f59e0b;font-weight:700;margin-right:8px;">3.</span> ${t(lang, 'Accedi con email e password')}</td></tr>
                                 </table>
                               </td>
                             </tr>
@@ -614,20 +636,20 @@ class EmailService {
                                 <!--[if mso]>
                                 <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${safeLink}" style="height:48px;v-text-anchor:middle;width:260px;" arcsize="50%" strokecolor="#f59e0b" fillcolor="#f59e0b">
                                   <w:anchorlock/>
-                                  <center style="color:#1a1208;font-family:sans-serif;font-size:16px;font-weight:bold;">Verifica email</center>
+                                  <center style="color:#1a1208;font-family:sans-serif;font-size:16px;font-weight:bold;">${t(lang, 'Verifica email')}</center>
                                 </v:roundrect>
                                 <![endif]-->
                                 <!--[if !mso]><!-->
-                                <a href="${safeLink}" class="evil-pulse" style="display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#f59e0b 0%,#fbbf24 100%);color:#1a1208;text-decoration:none;border-radius:999px;font-size:16px;font-weight:700;letter-spacing:0.02em;animation:evilBtnPulse 2.8s ease-in-out infinite;">Verifica email</a>
+                                <a href="${safeLink}" class="evil-pulse" style="display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#f59e0b 0%,#fbbf24 100%);color:#1a1208;text-decoration:none;border-radius:999px;font-size:16px;font-weight:700;letter-spacing:0.02em;animation:evilBtnPulse 2.8s ease-in-out infinite;">${t(lang, 'Verifica email')}</a>
                                 <!--<![endif]-->
                               </td>
                             </tr>
                           </table>
                           <p class="evil-scan" style="margin:0 0 12px;font-size:13px;line-height:1.5;color:#64748b;text-align:center;animation:evilScanline 4s ease-in-out infinite;">
-                            Il link scade tra <strong style="color:#7dd3fc;">24 ore</strong>
+                            ${t(lang, 'Il link scade tra <strong style="color:#7dd3fc;">24 ore</strong>')}
                           </p>
                           <p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;text-align:center;">
-                            Oppure copia nel browser:<br>
+                            ${t(lang, 'Oppure copia l\'indirizzo nel browser:')}<br>
                             <a href="${safeLink}" style="color:#7dd3fc;word-break:break-all;text-decoration:underline;">${safeLink}</a>
                           </p>
                         </td>
@@ -638,10 +660,10 @@ class EmailService {
                             <tr>
                               <td style="border-top:1px solid rgba(125,211,252,0.1);padding-top:24px;">
                                 <p style="margin:0 0 8px;font-size:12px;line-height:1.5;color:#475569;text-align:center;">
-                                  Non ti sei registrato? Ignora questa email — nessuna azione richiesta.
+                                  ${t(lang, 'Non ti sei registrato? Ignora questa email: senza conferma l\'account viene cancellato.')}
                                 </p>
                                 <p style="margin:0;font-size:12px;line-height:1.5;color:#475569;text-align:center;">
-                                  <a href="${this.escapeHtml(brandUrl)}" style="color:#7dd3fc;text-decoration:none;">EVIL Platform</a>
+                                  <a href="${this.escapeHtml(brandUrl)}" style="color:#7dd3fc;text-decoration:none;">EVIL</a>
                                   · © ${year} projectevil.it
                                 </p>
                               </td>
@@ -657,7 +679,7 @@ class EmailService {
           </tr>
           <tr>
             <td style="padding:20px 8px 0;font-size:11px;line-height:1.5;color:#475569;text-align:center;">
-              Messaggio automatico — non rispondere a questa email.
+              ${t(lang, 'Messaggio automatico: non rispondere a questa email.')}
             </td>
           </tr>
         </table>
@@ -668,14 +690,14 @@ class EmailService {
 </html>`;
 
     return {
-      subject: 'EVIL Platform — Conferma la tua email',
+      subject: t(lang, 'EVIL — Conferma la tua email'),
       text,
       html,
       attachments: logo.attachment ? [logo.attachment] : []
     };
   }
 
-  writeOutboxPreview({ email, actionLink, mail, titleLabel, buttonLabel }) {
+  writeOutboxPreview({ email, actionLink, mail, titleLabel, buttonLabel, lang = DEFAULT_LANG }) {
     try {
       fs.mkdirSync(this.outboxDir, { recursive: true });
       const safeLocal = email.replace(/[^a-zA-Z0-9._-]/g, '_');
@@ -688,15 +710,14 @@ class EmailService {
       fs.writeFileSync(filePath, preview, 'utf8');
       logger.warn('Email salvata in outbox locale (nessun SMTP reale)', {
         filePath,
-        email,
-        actionLink
+        email: maskEmail(email)
       });
       return {
         success: true,
         delivery: 'outbox',
         outboxFile: filePath,
         actionLink,
-        hint: this.getDeliveryHint('outbox')
+        hint: this.getDeliveryHint('outbox', lang)
       };
     } catch (err) {
       logger.error('Outbox email write failed', { error: err.message });
@@ -704,9 +725,10 @@ class EmailService {
     }
   }
 
-  sendViaOutbox(email, name, verificationLink) {
-    const mail = this.buildVerificationMail(name, verificationLink, { embedLogo: true });
+  sendViaOutbox(email, name, verificationLink, lang) {
+    const mail = this.buildVerificationMail(name, verificationLink, { embedLogo: true, lang });
     return this.writeOutboxPreview({
+      lang,
       email,
       actionLink: verificationLink,
       mail,
@@ -734,50 +756,50 @@ class EmailService {
   }
 
   /** Registrazione e reinvio: senza email di verifica l'account non si crea. */
-  async sendRegistrationVerification(email, token, name = 'Utente') {
+  async sendRegistrationVerification(email, token, name, lang) {
     if (this.outboxAllowed() && process.env.EMAIL_REGISTER_SKIP_SMTP === '1') {
-      return this.sendViaOutbox(email, name, this.buildVerificationLink(token));
+      return this.sendViaOutbox(email, name, this.buildVerificationLink(token, lang), lang);
     }
-    return this.sendVerificationEmail(email, token, name);
+    return this.sendVerificationEmail(email, token, name, lang);
   }
 
-  async sendVerificationLink(email, token, name = 'Utente') {
-    return this.sendRegistrationVerification(email, token, name);
+  async sendVerificationLink(email, token, name, lang) {
+    return this.sendRegistrationVerification(email, token, name, lang);
   }
 
-  buildPasswordResetLink(token) {
-    return `${this.baseUrl}/html/reset-password.html?token=${encodeURIComponent(token)}`;
+  buildPasswordResetLink(token, lang) {
+    return `${this.baseUrl}${langPrefix(lang)}/reset-password.html?token=${encodeURIComponent(token)}`;
   }
 
   buildPasswordResetMail(name, resetLink, options = {}) {
-    const safeName = this.escapeHtml(name);
+    const lang = mailLang(options.lang);
+    const who = name || t(lang, 'Utente');
+    const safeName = this.escapeHtml(who);
     const safeLink = this.escapeHtml(resetLink);
-    const brandUrl = this.escapeHtml(
-      (process.env.EMAIL_BRAND_URL || `${this.baseUrl}/html/home.html`).replace(/\/$/, '')
-    );
+    const brandUrl = this.escapeHtml(this.brandUrl(lang));
     const logo = this.resolveEmailLogo({ embed: options.embedLogo === true });
     const logoHtml = this.buildLogoHtml(logo.src);
     const year = new Date().getFullYear();
 
     const text = [
-      `Ciao ${name},`,
+      t(lang, 'Ciao {name},', { name: who }),
       '',
-      'Hai richiesto il reset della password su EVIL Platform.',
-      'Apri questo link per impostare una nuova password:',
+      t(lang, 'Abbiamo ricevuto una richiesta di reimpostare la password del tuo account EVIL.'),
+      t(lang, 'Apri questo link per scegliere una nuova password:'),
       resetLink,
       '',
-      'Il link scade tra 15 minuti.',
-      'Se non hai richiesto il reset, ignora questa email.',
+      t(lang, 'Il link scade tra 15 minuti e vale una sola volta.'),
+      t(lang, 'Se non sei stato tu, ignora questa email: la password attuale resta valida.'),
       '',
-      '— EVIL Platform'
+      '— EVIL'
     ].join('\n');
 
     const html = `<!DOCTYPE html>
-<html lang="it">
+<html lang="${lang}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset password — EVIL Platform</title>
+  <title>${t(lang, 'Reimposta la password — EVIL')}</title>
   <style type="text/css">
     body, table, td, p, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-collapse: collapse; }
@@ -790,7 +812,7 @@ class EmailService {
   </style>
 </head>
 <body style="margin:0;padding:0;background-color:#06080e;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
-  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">Reimposta la password del tuo account EVIL — link valido 15 minuti.</div>
+  <div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">${t(lang, 'Reimposta la password del tuo account EVIL — link valido 15 minuti.')}</div>
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:linear-gradient(180deg,#070a11 0%,#06080e 50%,#05070c 100%);">
     <tr><td align="center" style="padding:32px 16px;">
       <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(125,211,252,0.22);">
@@ -800,32 +822,32 @@ class EmailService {
             <td style="padding-bottom:20px;border-bottom:1px solid rgba(125,211,252,0.12);">
               <table role="presentation" cellspacing="0" cellpadding="0" border="0"><tr>
                 <td valign="middle" style="padding-right:14px;">${logoHtml}</td>
-                <td valign="middle"><p style="margin:0;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#7dd3fc;">EVIL Platform</p>
-                <p style="margin:4px 0 0;font-size:20px;font-weight:800;color:#f8fafc;">Reset password</p></td>
+                <td valign="middle"><p style="margin:0;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#7dd3fc;">EVIL</p>
+                <p style="margin:4px 0 0;font-size:20px;font-weight:800;color:#f8fafc;">${t(lang, 'Reimposta la password')}</p></td>
               </tr></table>
             </td>
           </tr></table>
-          <p style="margin:24px 0 8px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;">Sicurezza account</p>
-          <h1 style="margin:0 0 16px;font-size:26px;color:#f8fafc;">Reimposta la password</h1>
-          <p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#cbd5e1;">Ciao <strong style="color:#f8fafc;">${safeName}</strong>,</p>
-          <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#94a3b8;">Abbiamo ricevuto una richiesta di reset per il tuo account. Clicca il pulsante per scegliere una nuova password.</p>
+          <p style="margin:24px 0 8px;font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#f59e0b;">${t(lang, 'Sicurezza dell\'account')}</p>
+          <h1 style="margin:0 0 16px;font-size:26px;color:#f8fafc;">${t(lang, 'Reimposta la password')}</h1>
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#cbd5e1;">${t(lang, 'Ciao {name},', { name: `<strong style="color:#f8fafc;">${safeName}</strong>` })}</p>
+          <p style="margin:0 0 24px;font-size:15px;line-height:1.65;color:#94a3b8;">${t(lang, 'Abbiamo ricevuto una richiesta di reimpostare la password del tuo account. Usa il pulsante per sceglierne una nuova.')}</p>
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-bottom:24px;background:rgba(15,23,42,0.55);border-radius:12px;border:1px solid rgba(125,211,252,0.1);">
             <tr><td style="padding:18px 20px;font-size:14px;line-height:1.55;color:#cbd5e1;">
-              <span style="color:#f59e0b;font-weight:700;">1.</span> Apri il link entro 15 minuti<br>
-              <span style="color:#f59e0b;font-weight:700;">2.</span> Inserisci la nuova password<br>
-              <span style="color:#f59e0b;font-weight:700;">3.</span> Accedi con le nuove credenziali
+              <span style="color:#f59e0b;font-weight:700;">1.</span> ${t(lang, 'Apri il link entro 15 minuti')}<br>
+              <span style="color:#f59e0b;font-weight:700;">2.</span> ${t(lang, 'Inserisci la nuova password')}<br>
+              <span style="color:#f59e0b;font-weight:700;">3.</span> ${t(lang, 'Accedi con le nuove credenziali')}
             </td></tr>
           </table>
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
             <td align="center" style="padding:8px 0 24px;">
-              <a href="${safeLink}" class="evil-pulse" style="display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a1208;text-decoration:none;border-radius:999px;font-size:16px;font-weight:700;animation:evilBtnPulse 2.8s ease-in-out infinite;">Reimposta password</a>
+              <a href="${safeLink}" class="evil-pulse" style="display:inline-block;padding:16px 36px;background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1a1208;text-decoration:none;border-radius:999px;font-size:16px;font-weight:700;animation:evilBtnPulse 2.8s ease-in-out infinite;">${t(lang, 'Reimposta la password')}</a>
             </td>
           </tr></table>
-          <p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;text-align:center;">Link alternativo:<br><a href="${safeLink}" style="color:#7dd3fc;word-break:break-all;">${safeLink}</a></p>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;text-align:center;">${t(lang, 'Oppure copia l\'indirizzo nel browser:')}<br><a href="${safeLink}" style="color:#7dd3fc;word-break:break-all;">${safeLink}</a></p>
         </td></tr>
         <tr><td style="padding:0 40px 28px;border-top:1px solid rgba(125,211,252,0.1);">
-          <p style="margin:20px 0 8px;font-size:12px;color:#475569;text-align:center;">Non hai richiesto il reset? Ignora questa email.</p>
-          <p style="margin:0;font-size:12px;color:#475569;text-align:center;"><a href="${brandUrl}" style="color:#7dd3fc;text-decoration:none;">EVIL Platform</a> · © ${year}</p>
+          <p style="margin:20px 0 8px;font-size:12px;color:#475569;text-align:center;">${t(lang, 'Non hai chiesto tu il reset? Ignora questa email.')}</p>
+          <p style="margin:0;font-size:12px;color:#475569;text-align:center;"><a href="${brandUrl}" style="color:#7dd3fc;text-decoration:none;">EVIL</a> · © ${year}</p>
         </td></tr>
       </table>
     </td></tr>
@@ -834,26 +856,80 @@ class EmailService {
 </html>`;
 
     return {
-      subject: 'EVIL Platform — Reimposta la password',
+      subject: t(lang, 'EVIL — Reimposta la password'),
       text,
       html,
       attachments: logo.attachment ? [logo.attachment] : []
     };
   }
 
-  async sendPasswordResetEmail(email, resetToken, name = 'Utente') {
-    const resetLink = this.buildPasswordResetLink(resetToken);
+  async sendPasswordResetEmail(email, resetToken, name, lang) {
+    const resetLink = this.buildPasswordResetLink(resetToken, lang);
     return this.deliver({
       to: email,
-      mail: this.buildPasswordResetMail(name, resetLink),
+      lang,
+      mail: this.buildPasswordResetMail(name, resetLink, { lang }),
       category: 'Account',
       label: 'Invio email reset password',
       outbox: {
         actionLink: resetLink,
-        buildMail: () => this.buildPasswordResetMail(name, resetLink, { embedLogo: true }),
+        buildMail: () => this.buildPasswordResetMail(name, resetLink, { embedLogo: true, lang }),
         titleLabel: 'reset password',
         buttonLabel: 'Apri link reset password',
       },
+    });
+  }
+
+  /**
+   * Qualcuno ha provato a registrarsi con un indirizzo che ha già un account verificato
+   * (S-06): la risposta dell'API è identica a una registrazione nuova, l'avviso arriva
+   * solo al proprietario della casella.
+   */
+  buildAccountExistsMail(name, options = {}) {
+    const lang = mailLang(options.lang);
+    const who = name || t(lang, 'Utente');
+    const loginLink = `${this.baseUrl}${langPrefix(lang)}/login.html`;
+    const resetLink = `${this.baseUrl}${langPrefix(lang)}/forgot-password.html`;
+    const text = [
+      t(lang, 'Ciao {name},', { name: who }),
+      '',
+      t(lang, 'Qualcuno (forse tu) ha provato a creare un nuovo account EVIL con questo indirizzo email, ma un account esiste già.'),
+      t(lang, 'Puoi accedere qui:'),
+      loginLink,
+      t(lang, 'Se non ricordi la password, reimpostala qui:'),
+      resetLink,
+      '',
+      t(lang, 'Se non sei stato tu, puoi ignorare questa email: il tuo account non è stato modificato.'),
+      '',
+      '— EVIL'
+    ].join('\n');
+    const e = (v) => this.escapeHtml(v);
+    const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"><title>${e(t(lang, 'Hai già un account EVIL'))}</title></head><body style="margin:0;padding:24px;background:#06080e;color:#e2e8f0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td align="center">
+      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;width:100%;background:#0c1019;border:1px solid rgba(125,211,252,0.22);border-radius:16px;">
+        <tr><td style="padding:32px 36px;">
+          <h1 style="margin:0 0 16px;font-size:24px;color:#f8fafc;">${e(t(lang, 'Hai già un account EVIL'))}</h1>
+          <p style="margin:0 0 16px;font-size:15px;line-height:1.65;color:#cbd5e1;">${e(t(lang, 'Ciao {name},', { name: who }))}</p>
+          <p style="margin:0 0 20px;font-size:15px;line-height:1.65;color:#94a3b8;">${e(t(lang, 'Qualcuno (forse tu) ha provato a creare un nuovo account EVIL con questo indirizzo email, ma un account esiste già.'))}</p>
+          <p style="margin:0 0 24px;"><a href="${e(loginLink)}" style="display:inline-block;padding:14px 30px;background:#f59e0b;color:#1a1208;text-decoration:none;border-radius:999px;font-weight:700;">${e(t(lang, 'Accedi'))}</a></p>
+          <p style="margin:0 0 16px;font-size:14px;line-height:1.6;color:#94a3b8;">${e(t(lang, 'Se non ricordi la password, reimpostala qui:'))} <a href="${e(resetLink)}" style="color:#7dd3fc;">${e(resetLink)}</a></p>
+          <p style="margin:0;font-size:13px;line-height:1.6;color:#64748b;">${e(t(lang, 'Se non sei stato tu, puoi ignorare questa email: il tuo account non è stato modificato.'))}</p>
+        </td></tr>
+      </table>
+      <p style="font-size:11px;color:#475569;">${e(t(lang, 'Messaggio automatico: non rispondere a questa email.'))}</p>
+      </td></tr></table>
+    </body></html>`;
+    return { subject: t(lang, 'EVIL — Hai già un account'), text, html, attachments: [] };
+  }
+
+  async sendAccountExistsEmail(email, name, lang) {
+    return this.deliver({
+      to: email,
+      lang,
+      mail: this.buildAccountExistsMail(name, { lang }),
+      category: 'Account',
+      label: 'Invio avviso account esistente',
+      outbox: { actionLink: `${this.baseUrl}${langPrefix(lang)}/login.html`, titleLabel: 'account esistente', buttonLabel: 'Apri login' },
     });
   }
 
@@ -889,36 +965,38 @@ class EmailService {
     return { subject: `[EVIL Help] ${oneLine(subject, 120)}`, text, html, attachments: [] };
   }
 
-  buildHelpConfirmationMail(name) {
-    const safeName = this.escapeHtml(name);
+  buildHelpConfirmationMail(name, lang) {
+    lang = mailLang(lang);
+    const who = name || t(lang, 'Utente');
+    const safeName = this.escapeHtml(who);
     const text = [
-      `Ciao ${name},`,
+      t(lang, 'Ciao {name},', { name: who }),
       ``,
-      `Abbiamo ricevuto la tua richiesta di supporto su EVIL Platform.`,
-      `Il team la esaminerà e ti risponderà all'indirizzo indicato entro 2–5 giorni lavorativi.`,
+      t(lang, 'Abbiamo ricevuto la tua richiesta di supporto su EVIL.'),
+      t(lang, 'Ti risponderemo all\'indirizzo indicato entro 2–5 giorni lavorativi.'),
       ``,
-      `Per urgenze su account compromessi, indicalo nell'oggetto delle prossime comunicazioni.`,
+      t(lang, 'Se il tuo account potrebbe essere stato compromesso, scrivilo nell\'oggetto dei prossimi messaggi.'),
       ``,
-      '— EVIL Platform'
+      '— EVIL'
     ].join('\n');
 
-    const html = `<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"></head><body style="font-family:system-ui,sans-serif;background:#06080e;color:#e2e8f0;padding:24px;">
-      <h2 style="color:#7dd3fc;margin:0 0 12px;">Richiesta ricevuta</h2>
-      <p>Ciao <strong>${safeName}</strong>,</p>
-      <p>Abbiamo ricevuto la tua richiesta di supporto. Ti risponderemo all'indirizzo email indicato entro <strong>2–5 giorni lavorativi</strong>.</p>
-      <p style="color:#64748b;font-size:13px;">Messaggio automatico — non rispondere a questa email.</p>
+    const html = `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"></head><body style="font-family:system-ui,sans-serif;background:#06080e;color:#e2e8f0;padding:24px;">
+      <h2 style="color:#7dd3fc;margin:0 0 12px;">${t(lang, 'Richiesta ricevuta')}</h2>
+      <p>${t(lang, 'Ciao {name},', { name: `<strong>${safeName}</strong>` })}</p>
+      <p>${t(lang, 'Abbiamo ricevuto la tua richiesta di supporto. Ti risponderemo all\'indirizzo email indicato entro <strong>2–5 giorni lavorativi</strong>.')}</p>
+      <p style="color:#64748b;font-size:13px;">${t(lang, 'Messaggio automatico: non rispondere a questa email.')}</p>
     </body></html>`;
 
     return {
-      subject: 'EVIL Platform — Richiesta di supporto ricevuta',
+      subject: t(lang, 'EVIL — Richiesta di supporto ricevuta'),
       text,
       html,
       attachments: []
     };
   }
 
-  async sendMailTo({ to, mail, replyTo = null, category = 'Support' }) {
-    return this.deliver({ to, mail, replyTo, category, label: 'Invio email di supporto' });
+  async sendMailTo({ to, mail, replyTo = null, category = 'Support', lang = DEFAULT_LANG }) {
+    return this.deliver({ to, mail, replyTo, category, lang, label: 'Invio email di supporto' });
   }
 
   /**
@@ -927,19 +1005,21 @@ class EmailService {
    * (account con email verificata): così il modulo non può essere usato per mandare
    * email a indirizzi di terzi.
    */
-  async sendHelpRequest({ name, email, subject, message, page, account = null, confirmTo = null, confirmName = null }) {
+  async sendHelpRequest({ name, email, subject, message, page, account = null, confirmTo = null, confirmName = null, lang = DEFAULT_LANG }) {
     const supportTo =
       (process.env.HELP_SUPPORT_EMAIL || process.env.SMTP_FROM_EMAIL || 'support@projectevil.it').trim();
     const staffMail = this.buildHelpMail({ name, email, subject, message, page, account });
 
-    const staffResult = await this.sendMailTo({ to: supportTo, mail: staffMail, replyTo: email });
+    // allo staff in italiano; gli hint per l'utente nella sua lingua
+    const staffResult = await this.sendMailTo({ to: supportTo, mail: staffMail, replyTo: email, lang });
     if (!staffResult.success) return staffResult;
 
     let confirmationSent = false;
     if (confirmTo) {
       const userResult = await this.sendMailTo({
         to: confirmTo,
-        mail: this.buildHelpConfirmationMail(confirmName || name),
+        lang,
+        mail: this.buildHelpConfirmationMail(confirmName || name, lang),
       });
       confirmationSent = Boolean(userResult.success);
     }
@@ -953,3 +1033,4 @@ class EmailService {
 }
 
 module.exports = new EmailService();
+module.exports.maskEmail = maskEmail;

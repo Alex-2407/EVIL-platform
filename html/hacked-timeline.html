@@ -1,16 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Timeline Incident Response - EVIL</title>
-  <meta name="description" content="Simulazione didattica della cronologia di un attacco: kill chain, vista SOC, MITRE ATT&CK e contenimento.">
+  <title>Timeline incident response — EVIL</title>
+  <meta name="description" content="Cinque incidenti simulati ricostruiti evento per evento dal punto di vista del SOC: cosa si vede nei log, quali decisioni prendere, come contenere e ripristinare.">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/hacked-timeline.css?v=20260622">
+  <link rel="stylesheet" href="/css/hacked-timeline.css?v=20261001">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -29,61 +29,100 @@
 
   <main>
     <section class="ir-hero" aria-labelledby="ir-title">
-      <p class="ir-kicker">Simula — Correlazione — Contieni</p>
-      <h1 id="ir-title">Timeline Incident Response</h1>
+      <p class="ir-kicker">Rileva — Analizza — Contieni</p>
+      <h1 id="ir-title">Timeline incident response</h1>
       <p class="ir-hero__lead">
-        Ricostruisci un incidente simulato come farebbe un SOC: dalla ricognizione al contenimento.
-        Cinque scenari, fasi kill chain, analisi tecnica e contromisure MITRE.
+        Ricostruisci cinque incidenti simulati evento per evento, dal punto di vista di chi difende:
+        un analista del SOC (Security Operations Center) che legge gli allarmi, decide le priorità e
+        coordina contenimento, eradicazione e ripristino.
       </p>
       <div class="ir-chips">
         <span class="ir-chip">5 scenari</span>
-        <span class="ir-chip">MITRE ATT&CK</span>
-        <a class="ir-chip" href="quiz-hub.html?cat=siem-detection">Quiz Log &amp; Detection ?</a>
-        <a class="ir-chip" href="/virtual-lab.html">Lab Virtuale ?</a>
+        <span class="ir-chip">Livello intermedio</span>
+        <a class="ir-chip" href="/quiz-hub.html?cat=siem-detection">Quiz su log e rilevamento →</a>
+        <a class="ir-chip" href="/virtual-lab.html">Lab virtuale →</a>
       </div>
     </section>
 
     <div class="ir-wrap">
+      <section class="ir-module" aria-labelledby="ir-module-title">
+        <h2 id="ir-module-title" class="ir-module__title">Scheda del modulo</h2>
+        <dl class="ir-module__facts">
+          <div class="ir-module__fact">
+            <dt>A chi serve</dt>
+            <dd>Analisti SOC alle prime armi, studenti di sicurezza, sviluppatori e amministratori di sistema che vogliono capire come si gestisce un incidente.</dd>
+          </div>
+          <div class="ir-module__fact">
+            <dt>Livello</dt>
+            <dd>Intermedio</dd>
+          </div>
+          <div class="ir-module__fact">
+            <dt>Durata</dt>
+            <dd>Circa 60 minuti (10–15 minuti per scenario)</dd>
+          </div>
+          <div class="ir-module__fact">
+            <dt>Prerequisiti</dt>
+            <dd>Nozioni di base di reti (IP, porte, HTTP), di sistemi Linux e Windows e di autenticazione (password, MFA, sessioni).</dd>
+          </div>
+        </dl>
+        <h3 class="ir-module__sub">Obiettivi di apprendimento</h3>
+        <ul class="ir-module__goals">
+          <li>riconoscere le fasi di un attacco (ricognizione, accesso iniziale, persistenza, esfiltrazione e impatto) a partire da log e allarmi;</li>
+          <li>distinguere un segnale debole da un incidente confermato e decidere quando dichiarare l'incidente;</li>
+          <li>scegliere le azioni di contenimento conservando le prove per l'analisi forense;</li>
+          <li>collegare ogni evento alle mitigazioni che lo avrebbero impedito o rilevato prima;</li>
+          <li>conoscere gli obblighi di notifica (per esempio le 72 ore del GDPR verso il Garante).</li>
+        </ul>
+        <p class="ir-module__note">
+          <strong>Punto di vista:</strong> sei nel SOC. Per ogni evento la scheda mostra cosa è successo,
+          cosa vedi nei tuoi strumenti, la decisione chiave e le mitigazioni. Le tecniche offensive sono
+          descritte solo quanto serve a riconoscerle: leggi <a href="/ethics.html">Etica e legge</a> prima
+          di provare qualsiasi tecnica, e solo su sistemi per cui hai un'autorizzazione scritta.
+        </p>
+      </section>
+
       <p class="ir-notice">
         <strong>Simulazione didattica.</strong>
-        Nessun log reale né sistema compromesso reale. I timestamp e gli eventi sono ispirati a casi noti per insegnare incident response e lettura SOC.
+        Nessun log reale e nessun sistema reale compromesso. Orari ed eventi sono ispirati a casi tipici;
+        indirizzi IP e domini sono quelli riservati alla documentazione (RFC 5737 e dominio <code translate="no">.example</code>).
       </p>
 
       <div class="ir-controls">
         <div class="ir-field">
           <label for="ir-scenario">Scenario</label>
-          <select id="ir-scenario" aria-label="Scegli scenario">
+          <select id="ir-scenario">
             <option value="web-attack">Web server — RCE e ransomware</option>
             <option value="db-breach">Database — SQL injection</option>
-            <option value="ransomware">Ransomware — phishing</option>
+            <option value="ransomware">Ransomware — phishing iniziale</option>
             <option value="account-breach">Email — credential stuffing</option>
-            <option value="insider-threat">Insider — exfiltrazione DBA</option>
+            <option value="insider-threat">Minaccia interna — esfiltrazione da parte di un DBA</option>
           </select>
         </div>
         <div class="ir-btns">
-          <button type="button" class="ir-btn" id="ir-play" aria-pressed="false">Play</button>
-          <button type="button" class="ir-btn ir-btn--ghost" id="ir-reset">Reset</button>
+          <button type="button" class="ir-btn" id="ir-play" aria-pressed="false">Avvia</button>
+          <button type="button" class="ir-btn ir-btn--ghost" id="ir-reset">Ricomincia</button>
         </div>
         <div class="ir-field">
           <label for="ir-speed">Velocità</label>
           <select id="ir-speed">
-            <option value="0.5">×0.5</option>
+            <option value="0.5">×0,5</option>
             <option value="1" selected>×1</option>
             <option value="2">×2</option>
           </select>
         </div>
         <div class="ir-field ir-field--grow">
-          <label for="ir-seek"><span id="ir-seek-label">Evento 1 / 1</span></label>
-          <input type="range" id="ir-seek" min="0" max="0" value="0" aria-label="Scorri timeline">
+          <label for="ir-seek"><span id="ir-seek-label">Evento 1 di 1</span></label>
+          <input type="range" id="ir-seek" min="0" max="0" value="0" aria-label="Scorri la timeline">
         </div>
       </div>
 
       <div class="ir-scenario-head">
         <h2 id="ir-scenario-title">—</h2>
         <p id="ir-scenario-lead">—</p>
+        <p class="ir-scenario-context" id="ir-scenario-context"></p>
       </div>
 
-      <div class="ir-phases" id="ir-phases" aria-label="Fasi kill chain"></div>
+      <div class="ir-phases" id="ir-phases" role="list" aria-label="Fasi dell'attacco"></div>
 
       <div class="ir-layout">
         <div class="ir-timeline">
@@ -93,36 +132,38 @@
         <aside class="ir-panel" id="ir-panel" aria-labelledby="ir-detail-title">
           <div class="ir-panel__head">
             <h3 id="ir-detail-title">Dettaglio evento</h3>
-            <button type="button" class="ir-panel__close" id="ir-panel-close" aria-label="Chiudi pannello">—</button>
+            <button type="button" class="ir-panel__close" id="ir-panel-close" aria-label="Chiudi il dettaglio">×</button>
           </div>
           <dl class="ir-detail">
             <dt>Orario</dt>
             <dd id="ir-detail-time">—</dd>
-            <dt>Severità</dt>
+            <dt>Gravità</dt>
             <dd><span id="ir-detail-severity" class="ir-sev">—</span></dd>
-            <dt>Descrizione tecnica</dt>
+            <dt>Cosa è successo</dt>
             <dd id="ir-detail-desc">—</dd>
-            <dt>Vista SOC</dt>
+            <dt>Cosa vede il SOC</dt>
             <dd id="ir-detail-soc">—</dd>
-            <dt>Contromisure</dt>
+            <dt id="ir-detail-decision-label">Decisione chiave</dt>
+            <dd id="ir-detail-decision">—</dd>
+            <dt>Mitigazioni</dt>
             <dd><ul id="ir-detail-mit"></ul></dd>
-            <dt>MITRE ATT&CK</dt>
-            <dd id="ir-detail-mitre">—</dd>
+            <dt>Riferimento</dt>
+            <dd id="ir-detail-mitre" translate="no">—</dd>
           </dl>
         </aside>
       </div>
 
-      <div class="ir-stats" aria-label="Stato incidente">
+      <div class="ir-stats" role="group" aria-label="Stato dell'incidente">
         <div class="ir-stat">
-          <span class="ir-stat__label">Stato sistema</span>
-          <span class="ir-stat__value ir-stat--ok" id="ir-status-system">PULITO</span>
+          <span class="ir-stat__label">Stato dei sistemi</span>
+          <span class="ir-stat__value ir-stat--ok" id="ir-status-system">INTEGRO</span>
         </div>
         <div class="ir-stat">
-          <span class="ir-stat__label">Severità</span>
+          <span class="ir-stat__label">Gravità</span>
           <span class="ir-stat__value ir-stat--ok" id="ir-status-severity">NORMALE</span>
         </div>
         <div class="ir-stat">
-          <span class="ir-stat__label">Durata (simulata)</span>
+          <span class="ir-stat__label">Tempo trascorso (simulato)</span>
           <span class="ir-stat__value" id="ir-status-duration">—</span>
         </div>
         <div class="ir-stat">
@@ -137,7 +178,7 @@
 
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/progress-manager.js" defer></script>
-  <script src="/js/hacked-timeline-data.js?v=20260622"></script>
-  <script src="/js/hacked-timeline.js?v=20260622"></script>
+  <script src="/js/hacked-timeline-data.js?v=20261001"></script>
+  <script src="/js/hacked-timeline.js?v=20261001"></script>
 </body>
 </html>

@@ -1,29 +1,19 @@
 /**
- * Mappa incidenti documentati — feed pubblici (CISA, NVD, CERT)
+ * Mappa di avvisi e vulnerabilità sfruttate — fonti pubbliche (CISA KEV, NIST NVD, CERT-AGID,
+ * CERT-EU, CISA Advisories, Cisco Talos). I testi arrivano dal server già nella lingua della
+ * pagina; le descrizioni originali delle fonti restano nella loro lingua (attributo lang).
  */
 (function () {
   'use strict';
 
+  const { t, fmtNumber, fmtDate, lang, locale } = window.EVIL_I18N;
+
   const API = '/api/realtime-incidents';
-  const MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
-  const OFFLINE_DEMO_INCIDENTS = [
-    { country: 'Stati Uniti', latitude: 38.9, longitude: -77.0, type: 'Ransomware', severity: 'critical' },
-    { country: 'Germania', latitude: 52.5, longitude: 13.4, type: 'Data Breach', severity: 'high' },
-    { country: 'Italia', latitude: 41.9, longitude: 12.5, type: 'Phishing', severity: 'medium' },
-    { country: 'Regno Unito', latitude: 51.5, longitude: -0.12, type: 'Malware', severity: 'high' },
-    { country: 'Giappone', latitude: 35.7, longitude: 139.7, type: 'Exploit', severity: 'critical' },
-    { country: 'Brasile', latitude: -15.8, longitude: -47.9, type: 'DDoS', severity: 'medium' },
-  ];
-  const SEV = {
-    critical: { color: '#f87171', cls: 'critical' },
-    high: { color: '#fb923c', cls: 'high' },
-    medium: { color: '#fbbf24', cls: 'medium' },
-    low: { color: '#22c55e', cls: 'medium' },
-  };
+  const SEV_CLASS = { critical: 'critical', high: 'high', medium: 'medium', low: 'low' };
 
   let map = null;
   let layerGroup = null;
-  let markerByCountry = {};
+  let markerByArea = {};
   let lastPayload = null;
   let ws = null;
   let wsReconnectTimer = null;
@@ -49,7 +39,7 @@
 
   function formatUtc(ts) {
     const d = new Date(ts);
-    if (Number.isNaN(d.getTime())) return '—';
+    if (!ts || Number.isNaN(d.getTime())) return '—';
     return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')} UTC`;
   }
 
@@ -59,24 +49,24 @@
   }
 
   function debounce(fn, ms) {
-    let t;
+    let tm;
     return function (...args) {
-      clearTimeout(t);
-      t = setTimeout(() => fn.apply(this, args), ms);
+      clearTimeout(tm);
+      tm = setTimeout(() => fn.apply(this, args), ms);
     };
   }
 
-  function animateValue(el, end, formatter) {
+  function animateValue(el, end) {
     if (!el) return;
-    const start = parseFloat(String(el.textContent).replace(/[^\d.-]/g, '')) || 0;
+    const start = Number(el.dataset.value) || 0;
     const target = typeof end === 'number' ? end : 0;
+    el.dataset.value = String(target);
     const duration = 900;
     const t0 = performance.now();
-    function frame(t) {
-      const p = Math.min(1, (t - t0) / duration);
+    function frame(now) {
+      const p = Math.min(1, (now - t0) / duration);
       const eased = 1 - Math.pow(1 - p, 3);
-      const val = start + (target - start) * eased;
-      el.textContent = formatter ? formatter(val) : Math.round(val).toLocaleString('it-IT');
+      el.textContent = fmtNumber(Math.round(start + (target - start) * eased));
       if (p < 1) requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame);
@@ -86,10 +76,17 @@
     const pill = $('live-mode-pill');
     if (!pill) return;
     pill.classList.remove('is-cache', 'is-error');
-    if (mode === 'cache' || mode === 'simulated') pill.classList.add('is-cache');
-    if (mode === 'error') pill.classList.add('is-error');
+    if (mode === 'cache' || mode === 'sample') pill.classList.add('is-cache');
+    if (mode === 'error' || mode === 'empty') pill.classList.add('is-error');
     const lbl = pill.querySelector('.am-live-pill__label');
     if (lbl) lbl.textContent = label;
+  }
+
+  function setStatusMessage(text) {
+    const el = $('am-status-msg');
+    if (!el) return;
+    el.textContent = text || '';
+    el.hidden = !text;
   }
 
   function initRadar() {
@@ -232,7 +229,7 @@
       }).addTo(map);
 
       layerGroup = L.layerGroup().addTo(map);
-      markerByCountry = {};
+      markerByArea = {};
 
       if (window.EvilLeafletMap) {
         window.EvilLeafletMap.bindAutoResize(map, frame);
@@ -266,10 +263,10 @@
     }
   }
 
-  function markerHtml(count, index) {
+  /** Colore del marker = quante voci arrivano dall'area (non la gravità). */
+  function markerHtml(count) {
     const cls = count > 15 ? 'critical' : count > 8 ? 'high' : 'medium';
-    const c = SEV[cls] || SEV.medium;
-    return `<div class="am-marker am-marker--${cls}" style="color:${c.color};--am-marker-i:${index}">
+    return `<div class="am-marker am-marker--${cls}">
       <span class="am-marker__ring"></span>
       <span class="am-marker__ring"></span>
       <span class="am-marker__core"></span>
@@ -278,14 +275,14 @@
 
   function regionsFingerprint(regions) {
     return (regions || [])
-      .map((r) => `${r.country}|${r.count}|${Number(r.lat).toFixed(2)}|${Number(r.lon).toFixed(2)}`)
+      .map((r) => `${r.area}|${r.name}|${r.count}|${Number(r.lat).toFixed(2)}|${Number(r.lon).toFixed(2)}`)
       .sort()
       .join(';;');
   }
 
-  function registerMarker(country, lat, lon, marker) {
-    if (!country) return;
-    markerByCountry[country] = { marker, lat, lon };
+  function registerMarker(area, lat, lon, marker) {
+    if (!area) return;
+    markerByArea[area] = { marker, lat, lon };
   }
 
   function renderRegions(regions) {
@@ -300,7 +297,7 @@
     lastRegionsKey = fp;
 
     layerGroup.clearLayers();
-    markerByCountry = {};
+    markerByArea = {};
 
     (regions || []).forEach((region, i) => {
       const lat = Number(region.lat);
@@ -310,20 +307,22 @@
       const count = region.count || 1;
       const typesHtml = Object.entries(region.types || {})
         .slice(0, 5)
-        .map(([t, n]) => `<li>${escapeHtml(t)}: <strong>${n}</strong></li>`)
+        .map(([label, n]) => `<li>${escapeHtml(label)}: <strong>${fmtNumber(n)}</strong></li>`)
         .join('');
+      const sources = (region.sources || []).join(', ');
 
       const popupHtml = `
         <div class="attacks-popup">
-          <h4>${escapeHtml(region.country)}</h4>
-          <p><strong>${count}</strong> segnalazioni aggregate</p>
-          <ul style="margin:6px 0;padding-left:16px;font-size:12px;color:#94a3b8">${typesHtml || '<li>Advisory / CVE</li>'}</ul>
-          <p style="font-size:11px;color:#7c8aa0">Coordinate regionali — non vittime reali</p>
+          <h4>${escapeHtml(region.name || region.area)}</h4>
+          <p>${escapeHtml(count === 1 ? t('{n} voce pubblicata da enti di quest’area', { n: fmtNumber(count) }) : t('{n} voci pubblicate da enti di quest’area', { n: fmtNumber(count) }))}</p>
+          ${sources ? `<p class="attacks-popup__sources">${escapeHtml(t('Fonti: {list}', { list: sources }))}</p>` : ''}
+          <ul class="attacks-popup__types">${typesHtml}</ul>
+          <p class="attacks-popup__note">${escapeHtml(t('Posizione = sede di chi pubblica, non luogo delle vittime.'))}</p>
         </div>`;
 
       const icon = L.divIcon({
         className: 'am-leaflet-icon',
-        html: markerHtml(count, i),
+        html: markerHtml(count),
         iconSize: [28, 28],
         iconAnchor: [14, 14],
       });
@@ -331,20 +330,21 @@
       const marker = L.marker([lat, lon], {
         icon,
         interactive: true,
-        title: `${region.country}: ${count} ${count === 1 ? 'segnalazione' : 'segnalazioni'}`,
+        title: count === 1 ? t('{area}: {n} voce', { area: region.name || region.area, n: count }) : t('{area}: {n} voci', { area: region.name || region.area, n: count }),
       });
+      marker.on('add', () => marker.getElement()?.querySelector('.am-marker')?.style.setProperty('--am-marker-i', String(i)));
       marker.bindPopup(popupHtml, POPUP_OPTS);
       marker.on('click', () => marker.openPopup());
       layerGroup.addLayer(marker);
-      registerMarker(region.country, lat, lon, marker);
+      registerMarker(region.area, lat, lon, marker);
     });
 
     mapViewLocked = true;
     scheduleMapResize();
   }
 
-  function focusCountryMarker(country) {
-    const entry = markerByCountry[country];
+  function focusAreaMarker(area) {
+    const entry = markerByArea[area];
     if (!entry || !map) return;
     entry.marker.openPopup();
   }
@@ -352,93 +352,120 @@
   function updateStats(payload) {
     const agg = payload.aggregated_stats || {};
     const total = payload.total_incidents ?? (payload.incidents?.length || 0);
+    const unlocated = agg.unlocated || 0;
 
     animateValue($('stat-total'), total);
-    animateValue($('stat-ransomware'), agg.ransomware || 0);
-    animateValue($('stat-breaches'), agg.data_breaches || 0);
-    animateValue($('stat-cve'), agg.vulnerability_disclosures || 0);
-    animateValue($('stat-countries'), agg.countries_affected || 0);
-    animateValue($('stat-critical'), agg.critical_count || 0);
-
-    const damageEl = $('stat-damage');
-    if (damageEl) {
-      if (agg.estimated_damage_usd) {
-        animateValue(damageEl, agg.estimated_damage_usd / 1e9, (v) => `${v.toFixed(1)}B$`);
-      } else {
-        damageEl.textContent = '—';
-      }
+    animateValue($('stat-exploited'), agg.exploited || 0);
+    animateValue($('stat-critical'), agg.critical || 0);
+    animateValue($('stat-cve'), agg.with_cve || 0);
+    animateValue($('stat-ransomware'), agg.ransomware_known || 0);
+    animateValue($('stat-unlocated'), unlocated);
+    const srcEl = $('stat-sources');
+    if (srcEl) {
+      srcEl.textContent = agg.sources_total
+        ? t('{ok} di {n}', { ok: fmtNumber(agg.sources_ok || 0), n: fmtNumber(agg.sources_total) })
+        : '—';
     }
 
     const hud = $('hud-count');
     if (hud) {
-      hud.textContent = String(total);
+      hud.textContent = fmtNumber(agg.located ?? total - unlocated);
       hud.classList.remove('is-bump');
       void hud.offsetWidth;
       hud.classList.add('is-bump');
     }
+    if ($('hud-unlocated')) $('hud-unlocated').textContent = fmtNumber(unlocated);
 
     if ($('last-update')) $('last-update').textContent = formatUtc(payload.timestamp);
 
-    const mode = payload.data_mode || 'cache';
-    if (mode === 'live') {
-      setLivePill('live', 'Feed live attivo');
-    } else if (mode === 'simulated') {
-      setLivePill('simulated', 'Dati demo — feed offline');
-    } else {
-      setLivePill('cache', 'Cache / fallback');
-    }
+    const mode = payload.data_mode || 'empty';
+    if (mode === 'live') setLivePill('live', t('Dati aggiornati'));
+    else if (mode === 'cache') setLivePill('cache', t('Ultimi dati reali (fonti non raggiungibili)'));
+    else if (mode === 'sample') setLivePill('sample', t('Solo esempi — fonti non raggiungibili'));
+    else setLivePill('empty', t('Nessun dato disponibile'));
+    setStatusMessage(mode === 'live' ? '' : payload.status_message);
 
-    if (payload.monthly_trends) renderMonthly(payload.monthly_trends);
-    if (payload.sources) renderSourceChips(payload.sources);
+    renderMonthly(payload.monthly || []);
+    renderSourceChips(payload.sources || [], mode);
   }
 
-  function renderSourceChips(sources) {
+  function renderSourceChips(sources, mode) {
     const wrap = $('sources-strip');
     if (!wrap) return;
-    wrap.innerHTML = (sources || [])
-      .slice(0, 10)
-      .map(
-        (s, i) =>
-          `<span class="am-source-chip" style="animation-delay:${i * 0.05}s">${escapeHtml(s)}</span>`
-      )
-      .join('');
+    wrap.textContent = '';
+    if (!sources.length) return;
+    const label = document.createElement('span');
+    label.className = 'am-sources__label';
+    label.textContent = t('Stato delle fonti:');
+    wrap.appendChild(label);
+    sources.forEach((s, i) => {
+      const chip = document.createElement('span');
+      chip.className = `am-source-chip ${s.ok ? 'is-ok' : 'is-down'}`;
+      chip.style.setProperty('animation-delay', `${i * 0.05}s`);
+      chip.textContent = s.ok
+        ? s.count === 1
+          ? t('{name}: {n} voce', { name: s.name, n: fmtNumber(s.count) })
+          : t('{name}: {n} voci', { name: s.name, n: fmtNumber(s.count) })
+        : t('{name}: non raggiungibile', { name: s.name });
+      if (mode === 'cache' && !s.ok) chip.title = t('Mostriamo gli ultimi dati scaricati da questa fonte, se presenti.');
+      wrap.appendChild(chip);
+    });
   }
 
-  function renderMonthly(values) {
+  function monthLabel(ym) {
+    const [y, m] = String(ym).split('-').map(Number);
+    if (!y || !m) return '';
+    try {
+      return new Intl.DateTimeFormat(locale, { month: 'short', timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, 1)));
+    } catch {
+      return ym;
+    }
+  }
+
+  function renderMonthly(months) {
     const grid = $('month-grid');
+    const empty = $('month-empty');
     if (!grid) return;
-    const arr = values || [];
-    grid.innerHTML = arr
-      .map(
-        (v, i) => `
-        <div class="am-month-cell" style="animation-delay:${i * 0.04}s">
-          <div class="am-month-cell__val">${v}</div>
-          <div class="am-month-cell__lbl">${MONTHS[i] || ''}</div>
-        </div>`
-      )
-      .join('');
-    renderSparkline(arr);
+    const values = months.map((m) => m.count || 0);
+    const totalInRange = values.reduce((a, b) => a + b, 0);
+    grid.textContent = '';
+    months.forEach((m, i) => {
+      const cell = document.createElement('div');
+      cell.className = 'am-month-cell';
+      cell.style.setProperty('animation-delay', `${i * 0.04}s`);
+      const val = document.createElement('div');
+      val.className = 'am-month-cell__val';
+      val.textContent = fmtNumber(m.count || 0);
+      const lbl = document.createElement('div');
+      lbl.className = 'am-month-cell__lbl';
+      lbl.textContent = monthLabel(m.month);
+      cell.append(val, lbl);
+      grid.appendChild(cell);
+    });
+    if (empty) {
+      empty.hidden = totalInRange > 0 || !months.length;
+      empty.textContent = t('Nessuna delle voci caricate è stata pubblicata negli ultimi 12 mesi.');
+    }
+    renderSparkline(values);
   }
 
   function renderSparkline(values) {
     const el = $('monthly-sparkline');
-    if (!el || !values?.length) return;
+    if (!el) return;
+    if (!values?.length || !values.some((v) => v > 0)) {
+      el.textContent = '';
+      return;
+    }
     const w = 800;
     const h = 80;
     const pad = 10;
     const max = Math.max(...values, 1);
-    const min = Math.min(...values);
-    const range = Math.max(1, max - min);
     const step = values.length > 1 ? (w - pad * 2) / (values.length - 1) : 0;
-    const pts = values.map((v, i) => {
-      const x = pad + i * step;
-      const y = pad + (1 - (v - min) / range) * (h - pad * 2);
-      return `${x},${y}`;
-    });
+    const pts = values.map((v, i) => `${pad + i * step},${pad + (1 - v / max) * (h - pad * 2)}`);
     const line = pts.join(' ');
     const area = `${line} ${w - pad},${h - pad} ${pad},${h - pad}`;
     el.innerHTML = `
-      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Grafico trend mensile">
+      <svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="${escapeHtml(t('Grafico delle voci caricate per mese'))}">
         <defs>
           <linearGradient id="amSparkGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#00ff9c" stop-opacity="0.35"/>
@@ -456,21 +483,24 @@
     if (!track) return;
 
     const items = (incidents || []).slice(0, 12);
-    const key = items.map((i) => i.id || i.description?.slice(0, 40)).join('|');
+    const key = items.map((i) => `${lang}:${i.id}`).join('|');
     if (key === lastTickerKey && track.childElementCount > 1) return;
     lastTickerKey = key;
 
     if (!items.length) {
-      track.innerHTML = '<span>Nessun aggiornamento disponibile</span>';
+      track.textContent = '';
+      const span = document.createElement('span');
+      span.textContent = t('Nessuna voce disponibile');
+      track.appendChild(span);
       if (wrap) wrap.style.setProperty('--ticker-duration', '0s');
       return;
     }
 
     const html = items
-      .map(
-        (inc) =>
-          `<span><em>${escapeHtml(inc.type || 'Advisory')}</em> — ${escapeHtml((inc.description || '').slice(0, 90))} · ${escapeHtml(inc.country || 'Globale')}</span>`
-      )
+      .map((inc) => {
+        const sample = inc.is_sample ? `${escapeHtml(t('Esempio'))} · ` : '';
+        return `<span>${sample}<em>${escapeHtml(inc.type)}</em> — <span lang="${escapeHtml(inc.description_lang || 'en')}">${escapeHtml((inc.description || '').slice(0, 90))}</span> · ${escapeHtml(inc.source || '')}</span>`;
+      })
       .join('');
 
     track.style.animation = 'none';
@@ -485,12 +515,11 @@
   }
 
   function bindIncidentCard(card, inc) {
-    const country = inc.country || '';
     const go = () => {
       const feed = $('incidents-feed');
       feed?.querySelectorAll('.am-incident').forEach((c) => c.classList.remove('is-highlight'));
       card.classList.add('is-highlight');
-      if (country) focusCountryMarker(country);
+      if (inc.area) focusAreaMarker(inc.area);
     };
 
     card.addEventListener('click', (e) => {
@@ -498,13 +527,11 @@
       go();
     });
     card.addEventListener('keydown', (e) => {
+      if (e.target.closest('a')) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         go();
       }
-    });
-    card.querySelectorAll('a').forEach((a) => {
-      a.addEventListener('click', (e) => e.stopPropagation());
     });
   }
 
@@ -513,46 +540,47 @@
     const empty = $('incidents-feed-empty');
     if (!feed) return;
 
-    feed.innerHTML = '';
+    feed.textContent = '';
     const list = (incidents || []).slice(0, 12);
 
     if (!list.length) {
       if (empty) {
         empty.hidden = false;
-        empty.textContent = 'Nessuna segnalazione disponibile al momento.';
+        empty.textContent = t('Nessuna voce disponibile al momento.');
       }
       return;
     }
     if (empty) empty.hidden = true;
 
     list.forEach((inc, i) => {
-      const sev = (inc.severity || 'medium').toLowerCase();
-      const sevCls = SEV[sev]?.cls || 'medium';
-      const date = new Date(inc.timestamp);
-      const dateStr = Number.isNaN(date.getTime())
-        ? '—'
-        : date.toLocaleDateString('it-IT', { dateStyle: 'medium' });
+      const sevCls = SEV_CLASS[inc.severity] || 'none';
+      const dateStr = inc.timestamp ? fmtDate(inc.timestamp) : '—';
       const link = /^https?:\/\//i.test(inc.link || '')
-        ? `<a href="${escapeHtml(inc.link)}" target="_blank" rel="noopener noreferrer">Fonte ufficiale ↗</a>`
+        ? `<a href="${escapeHtml(inc.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t('Fonte originale ↗'))}</a>`
         : '';
+      const cvss = typeof inc.cvss === 'number' ? ` (CVSS ${escapeHtml(fmtNumber(inc.cvss, { minimumFractionDigits: 1, maximumFractionDigits: 1 }))})` : '';
+      const area = inc.area ? inc.area_name : t('Senza area geografica');
 
       const card = document.createElement('article');
-      card.className = `am-incident am-incident--${sevCls}`;
-      card.style.animationDelay = `${Math.min(i * 0.06, 0.6)}s`;
+      card.className = `am-incident am-incident--${sevCls}${inc.is_sample ? ' am-incident--sample' : ''}`;
+      card.style.setProperty('animation-delay', `${Math.min(i * 0.06, 0.6)}s`);
       card.tabIndex = 0;
       card.setAttribute('role', 'button');
-      card.setAttribute('aria-label', `Segnalazione: ${(inc.description || '').slice(0, 80)}`);
+      card.setAttribute('aria-label', t('Voce: {text}', { text: (inc.description || '').slice(0, 80) }));
       card.innerHTML = `
         <div class="am-incident__head">
-          <div class="am-incident__title">${escapeHtml((inc.description || '').slice(0, 160))}</div>
-          <time class="am-incident__date">${dateStr}</time>
+          <div class="am-incident__title" lang="${escapeHtml(inc.description_lang || 'en')}">${escapeHtml((inc.description || '').slice(0, 220))}</div>
+          <time class="am-incident__date"${inc.timestamp ? ` datetime="${escapeHtml(inc.timestamp)}"` : ''}>${escapeHtml(dateStr)}</time>
         </div>
         <div class="am-incident__tags">
-          <span class="am-incident__tag">${escapeHtml(inc.type || 'Incident')}</span>
-          <span class="am-incident__tag am-incident__tag--sev-${sevCls}">${sev}</span>
-          ${inc.is_simulated ? '<span class="am-incident__tag">Demo</span>' : ''}
+          ${inc.is_sample ? `<span class="am-incident__tag am-incident__tag--sample">${escapeHtml(t('Esempio'))}</span>` : ''}
+          <span class="am-incident__tag">${escapeHtml(inc.type)}</span>
+          ${inc.exploited ? `<span class="am-incident__tag am-incident__tag--sev-critical">${escapeHtml(t('Sfruttata attivamente'))}</span>` : ''}
+          ${inc.ransomware_known ? `<span class="am-incident__tag am-incident__tag--sev-high">${escapeHtml(t('Usata da ransomware'))}</span>` : ''}
+          <span class="am-incident__tag am-incident__tag--sev-${sevCls}">${escapeHtml(inc.severity_label)}${cvss}</span>
+          ${inc.cve ? `<span class="am-incident__tag" translate="no">${escapeHtml(inc.cve)}</span>` : ''}
         </div>
-        <p class="am-incident__meta"><strong>Area:</strong> ${escapeHtml(inc.country || 'Multi-regione')} · <strong>Impatto:</strong> ${inc.impact_score ?? '—'}/100</p>
+        <p class="am-incident__meta"><strong>${escapeHtml(t('Area della fonte:'))}</strong> ${escapeHtml(area)}</p>
         <p class="am-incident__source">${escapeHtml(inc.source || '')} ${link}</p>`;
 
       bindIncidentCard(card, inc);
@@ -560,74 +588,9 @@
     });
   }
 
-  function aggregateClientSide(incidents) {
-    const mapByCountry = {};
-    incidents.forEach((inc) => {
-      const key = inc.country || 'Globale';
-      const lat = Number(inc.latitude);
-      const lon = Number(inc.longitude);
-      if (!mapByCountry[key]) {
-        mapByCountry[key] = {
-          country: key,
-          lat: Number.isFinite(lat) ? lat : null,
-          lon: Number.isFinite(lon) ? lon : null,
-          count: 0,
-          types: {},
-        };
-      }
-      mapByCountry[key].count += 1;
-      const t = inc.type || 'Other';
-      mapByCountry[key].types[t] = (mapByCountry[key].types[t] || 0) + 1;
-      if (Number.isFinite(lat) && Number.isFinite(lon)) {
-        const prev = mapByCountry[key].count - 1;
-        mapByCountry[key].lat = Number.isFinite(mapByCountry[key].lat)
-          ? (mapByCountry[key].lat * prev + lat) / mapByCountry[key].count
-          : lat;
-        mapByCountry[key].lon = Number.isFinite(mapByCountry[key].lon)
-          ? (mapByCountry[key].lon * prev + lon) / mapByCountry[key].count
-          : lon;
-      }
-    });
-    return Object.values(mapByCountry).filter((r) => Number.isFinite(r.lat) && Number.isFinite(r.lon));
-  }
-
-  function buildOfflinePayload() {
-    const incidents = OFFLINE_DEMO_INCIDENTS.map((row, i) => ({
-      id: `OFFLINE-${i}`,
-      timestamp: new Date(Date.now() - i * 3600000).toISOString(),
-      type: row.type,
-      country: row.country,
-      latitude: row.latitude,
-      longitude: row.longitude,
-      severity: row.severity,
-      source: 'Dati dimostrativi (server non raggiungibile)',
-      description: `${row.type} — esempio didattico offline per ${row.country}`,
-      is_simulated: true,
-    }));
-    const regions = aggregateClientSide(incidents);
-    return {
-      timestamp: new Date().toISOString(),
-      data_mode: 'simulated',
-      total_incidents: incidents.length,
-      incidents,
-      regions,
-      aggregated_stats: {
-        total_incidents: incidents.length,
-        ransomware: 1,
-        data_breaches: 1,
-        vulnerability_disclosures: 1,
-        countries_affected: regions.length,
-        critical_count: 2,
-      },
-      monthly_trends: [1, 2, 2, 3, 2, 4, 3, 2, 3, 2, 1, 2],
-      sources: ['Modalità offline — avvia npm start per il feed live'],
-      source: 'Dati dimostrativi locali',
-    };
-  }
-
   async function fetchIncidents(force) {
     const url = force ? `${API}?refresh=1` : API;
-    const res = await fetch(url, { cache: 'no-store', credentials: 'same-origin' });
+    const res = await fetch(url, { cache: 'no-store', credentials: 'same-origin', headers: { 'X-EVIL-Lang': lang } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   }
@@ -635,8 +598,8 @@
   function applyPayload(payload, options = {}) {
     if (!payload) return;
 
-    const stamp = payload.timestamp || payload.lastUpdate || '';
-    if (!options.force && stamp && stamp === lastPayloadStamp && lastPayload) return;
+    const stamp = `${payload.timestamp || ''}|${payload.data_mode || ''}`;
+    if (!options.force && stamp === lastPayloadStamp && lastPayload) return;
     lastPayloadStamp = stamp;
     lastPayload = payload;
 
@@ -645,23 +608,14 @@
       mapViewLocked = false;
     }
 
-    const regions =
-      payload.regions?.length > 0
-        ? payload.regions.filter((r) => Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lon)))
-        : aggregateClientSide(payload.incidents || []);
+    const regions = (payload.regions || []).filter((r) => Number.isFinite(Number(r.lat)) && Number.isFinite(Number(r.lon)));
 
     renderRegions(regions);
     updateStats(payload);
     renderTicker(payload.incidents);
     renderTimeline(payload.incidents);
 
-    if ($('feed-source-line')) {
-      $('feed-source-line').textContent = payload.source
-        ? ` · ${payload.source}`
-        : ' · Fonti pubbliche verificate';
-    }
-
-    if (!loggedView && (payload.incidents?.length || regions.length)) {
+    if (!loggedView && payload.incidents?.length) {
       loggedView = true;
       window.progressManager?.logActivity?.('attacks_map_viewed', {
         total: payload.total_incidents,
@@ -676,34 +630,31 @@
     if (refreshInFlight) return;
     refreshInFlight = true;
     const btn = $('am-refresh-btn');
-    const prevLabel = btn?.textContent;
     if (btn) {
       btn.disabled = true;
-      btn.textContent = 'Aggiornamento…';
+      btn.textContent = t('Aggiornamento…');
     }
-    if (force) setLivePill('cache', 'Aggiornamento feed…');
 
     try {
       const data = await fetchIncidents(force);
       applyPayload(data, { force: true });
     } catch (err) {
-      console.warn('Mappa incidenti:', err.message);
-      setLivePill('error', 'Feed offline — dati dimostrativi');
-      $('am-refresh-btn')?.removeAttribute('hidden');
+      console.warn('[attacks-map]', err.message);
+      // Nessun dato inventato: se il server non risponde la pagina lo dice e basta
       if (!lastPayload) {
-        applyPayload(buildOfflinePayload(), { force: true });
-        const help = $('incidents-feed-empty');
-        if (help) {
-          help.hidden = false;
-          help.textContent =
-            'Feed non raggiungibile: mappa con dati dimostrativi. Avvia il server EVIL (npm start) e ricarica.';
-        }
+        setLivePill('error', t('Server non raggiungibile'));
+        setStatusMessage(t('Il server di EVIL non risponde: nessun dato da mostrare. Riprova tra poco.'));
+        renderTimeline([]);
+        renderTicker([]);
+      } else {
+        setStatusMessage(t('Aggiornamento non riuscito: restano i dati mostrati prima.'));
       }
+      $('am-refresh-btn')?.removeAttribute('hidden');
     } finally {
       refreshInFlight = false;
       if (btn) {
         btn.disabled = false;
-        btn.textContent = prevLabel || 'Ricarica feed';
+        btn.textContent = t('Ricarica dati');
       }
     }
   }
@@ -714,7 +665,7 @@
     }
     try {
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      ws = new WebSocket(`${proto}//${location.host}/ws/incidents`);
+      ws = new WebSocket(`${proto}//${location.host}/ws/incidents?lang=${encodeURIComponent(lang)}`);
       ws.onmessage = (ev) => {
         try {
           applyPayload(JSON.parse(ev.data));
@@ -742,7 +693,7 @@
     initRadar();
     initReveal();
 
-    // Un errore della mappa non deve bloccare il feed (pill ferma su "Caricamento feed…")
+    // Un errore della mappa non deve bloccare il feed (pill ferma su "Caricamento…")
     const safeInitMap = () => {
       try {
         initMap();

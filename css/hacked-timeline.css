@@ -475,3 +475,105 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Scheda del modulo: pubblico, livello, durata, obiettivi */
+.ir-module {
+  margin-bottom: 1.5rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-radius: 14px;
+  border: 1px solid var(--ir-border);
+  background: var(--ir-glass);
+  color: #cbd5e1;
+}
+
+.ir-module__title {
+  margin: 0 0 1rem;
+  font-family: var(--ir-serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #f8fafc;
+}
+
+.ir-module__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.ir-module__fact dt {
+  font-family: var(--ir-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ir-amber);
+  margin-bottom: 0.25rem;
+}
+
+.ir-module__fact dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.ir-module__sub {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+
+.ir-module__goals {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.ir-module__note {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.ir-module a,
+.ir-notice a {
+  color: var(--ir-cyan);
+}
+
+.ir-notice code {
+  font-family: var(--ir-mono);
+  color: #e2e8f0;
+}
+
+.ir-scenario-head .ir-scenario-context {
+  margin-top: 0.5rem;
+  max-width: 60em;
+  line-height: 1.55;
+  color: #94a3b8;
+}
+
+.ir-scenario-context:empty {
+  display: none;
+}
+
+.ir-detail dt[hidden],
+.ir-detail dd[hidden] {
+  display: none;
+}
+
+.ir-detail #ir-detail-decision {
+  color: var(--ir-amber);
+}
+
+@media (max-width: 520px) {
+  .ir-controls {
+    padding: 1rem;
+  }
+  .ir-field,
+  .ir-field select {
+    max-width: 100%;
+  }
+  .ir-field select {
+    width: 100%;
+  }
+}

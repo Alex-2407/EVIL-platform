@@ -3,6 +3,7 @@
  */
 // Client HTTP con protezione SSRF (anche i redirect vengono verificati)
 const { axios } = require('../../server/lib/safe-http');
+const { t } = require('../../server/i18n');
 
 const USERNAME_RE = /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]{0,30}[a-zA-Z0-9])?$/;
 
@@ -19,18 +20,28 @@ const PLATFORMS = [
   { id: 'pypi', name: 'PyPI', category: 'dev', buildUrl: (u) => `https://pypi.org/user/${u}/`, probe: 'head' }
 ];
 
-const AUDIT_LIMITATIONS = [
-  'Analizza solo username e fonti pubbliche — non effettua login né scraping autenticato.',
-  'I check HTTP (HEAD) sui social non sono affidabili al 100%: molte piattaforme rispondono 200 anche senza profilo.',
-  'Have I Been Pwned richiede un indirizzo email, non un nickname.',
-  'Usare solo per formazione etica e su target per cui hai autorizzazione o proprio account.'
-];
+function auditLimitations(lang) {
+  return [
+    t(lang, 'Analizza solo lo username e fonti pubbliche: niente login, niente scraping di aree riservate.'),
+    t(lang, 'I controlli HTTP (HEAD) sui social sono indicativi: molte piattaforme rispondono 200 anche se il profilo non esiste.'),
+    t(lang, 'Il controllo dei data breach riguarda solo l\'email del tuo account EVIL.'),
+    t(lang, 'Usalo sul tuo account o su un profilo per cui hai il consenso scritto della persona interessata. La profilazione di terzi senza base giuridica viola il GDPR.')
+  ];
+}
 
-function normalizeUsername(input) {
+/** Errore con messaggio già scritto per l'utente (la route lo restituisce così com'è). */
+function userError(message, status = 400) {
+  const err = new Error(message);
+  err.status = status;
+  err.expose = true;
+  return err;
+}
+
+function normalizeUsername(input, lang) {
   let u = String(input || '').trim();
   u = u.replace(/^@/, '').replace(/\s+/g, '');
   if (!u || !USERNAME_RE.test(u)) {
-    throw new Error('Username non valido (3–32 caratteri, lettere/numeri . _ -)');
+    throw userError(t(lang, 'Username non valido: da 1 a 32 caratteri tra lettere, numeri, punto, trattino e trattino basso.'));
   }
   return u;
 }
@@ -107,7 +118,7 @@ async function probeReddit(username) {
   }
 }
 
-async function probeHead(url) {
+async function probeHead(url, lang) {
   try {
     const res = await axios.head(url, {
       timeout: 5000,
@@ -122,7 +133,7 @@ async function probeHead(url) {
         confidence: 'low',
         httpStatus: res.status,
         dataSource: 'http-head',
-        note: 'HTTP 404 — probabile assenza profilo (conferma aprendo il link)'
+        note: t(lang, 'HTTP 404: probabilmente il profilo non esiste (conferma aprendo il link).')
       };
     }
     return {
@@ -130,7 +141,7 @@ async function probeHead(url) {
       confidence: 'low',
       httpStatus: res.status,
       dataSource: 'http-head',
-      note: `HTTP ${res.status} — non prova esistenza account; verifica manuale sul link`
+      note: t(lang, 'HTTP {status}: non prova che l\'account esista; verifica aprendo il link.', { status: res.status })
     };
   } catch (err) {
     return {
@@ -138,12 +149,12 @@ async function probeHead(url) {
       confidence: 'low',
       error: err.message,
       dataSource: 'http-head',
-      note: 'Richiesta bloccata o timeout — verifica manuale sul link'
+      note: t(lang, 'Richiesta bloccata o scaduta: verifica aprendo il link.')
     };
   }
 }
 
-async function probePlatform(platform, username) {
+async function probePlatform(platform, username, lang) {
   const url = platform.buildUrl(username);
   const base = { platform: platform.name, id: platform.id, category: platform.category, url };
 
@@ -153,7 +164,7 @@ async function probePlatform(platform, username) {
   if (platform.probe === 'reddit') {
     return { ...base, ...(await probeReddit(username)) };
   }
-  const head = await probeHead(url);
+  const head = await probeHead(url, lang);
   return { ...base, ...head };
 }
 
@@ -170,8 +181,8 @@ async function mapPool(items, limit, fn) {
   return out;
 }
 
-async function checkBreaches(email) {
-  if (!email) return { checked: false, reason: 'Email non fornita' };
+async function checkBreaches(email, lang) {
+  if (!email) return { checked: false, reason: t(lang, 'Controllo non richiesto.') };
   try {
     const res = await axios.get(
       `https://haveibeenpwned.com/api/v3/breachedaccount/${encodeURIComponent(email)}`,
@@ -182,7 +193,7 @@ async function checkBreaches(email) {
       }
     );
     if (res.status === 401) {
-      return { checked: false, reason: 'HIBP richiede API key (HIBP_API_KEY) — usa haveibeenpwned.com manualmente' };
+      return { checked: false, reason: t(lang, 'Il controllo automatico non è configurato su questo server: verifica la tua email direttamente su haveibeenpwned.com.') };
     }
     if (res.status === 404) {
       return { checked: true, breachCount: 0, breaches: [] };
@@ -198,21 +209,21 @@ async function checkBreaches(email) {
         }))
       };
     }
-    return { checked: false, reason: `HIBP HTTP ${res.status}` };
-  } catch (err) {
-    return { checked: false, reason: err.message };
+    return { checked: false, reason: t(lang, 'Have I Been Pwned ha risposto con HTTP {status}: riprova più tardi.', { status: res.status }) };
+  } catch (_) {
+    return { checked: false, reason: t(lang, 'Have I Been Pwned non è raggiungibile in questo momento: riprova più tardi.') };
   }
 }
 
-function buildFindings(username, platforms, breaches, summary) {
+function buildFindings(username, platforms, breaches, lang) {
   const findings = [];
   const confirmed = platforms.filter((p) => p.found === true && p.confidence === 'high');
 
   if (confirmed.length >= 4) {
     findings.push({
       severity: 'medium',
-      title: 'Ampia impronta digitale',
-      detail: `${confirmed.length} piattaforme con verifica affidabile per @${username}.`,
+      title: t(lang, 'Impronta digitale ampia'),
+      detail: t(lang, '{n} piattaforme con verifica affidabile per @{username}.', { n: confirmed.length, username }),
       module: 'footprint'
     });
   }
@@ -220,8 +231,8 @@ function buildFindings(username, platforms, breaches, summary) {
   if (platforms.some((p) => p.id === 'github' && p.found && p.profile?.publicRepos > 0)) {
     findings.push({
       severity: 'low',
-      title: 'Profilo GitHub pubblico',
-      detail: 'Repository e metadati possono rivelare stack, progetti e collaborazioni.',
+      title: t(lang, 'Profilo GitHub pubblico'),
+      detail: t(lang, 'Repository e metadati possono rivelare tecnologie usate, progetti e collaborazioni.'),
       module: 'dev'
     });
   }
@@ -230,8 +241,8 @@ function buildFindings(username, platforms, breaches, summary) {
   if (manualLinks.length) {
     findings.push({
       severity: 'info',
-      title: 'Link profilo da verificare',
-      detail: `${manualLinks.length} URL generati (HEAD non prova esistenza account).`,
+      title: t(lang, 'Link a profili da verificare'),
+      detail: t(lang, '{n} link generati: una risposta HTTP non prova che l\'account esista.', { n: manualLinks.length }),
       module: 'footprint'
     });
   }
@@ -239,7 +250,9 @@ function buildFindings(username, platforms, breaches, summary) {
   if (breaches.checked && breaches.breachCount > 0) {
     findings.push({
       severity: 'high',
-      title: `${breaches.breachCount} data breach (email)`,
+      title: breaches.breachCount === 1
+        ? t(lang, 'La tua email compare in 1 data breach')
+        : t(lang, 'La tua email compare in {n} data breach', { n: breaches.breachCount }),
       detail: breaches.breaches.map((b) => b.name).slice(0, 5).join(', '),
       module: 'breach'
     });
@@ -248,8 +261,8 @@ function buildFindings(username, platforms, breaches, summary) {
   if (!findings.length) {
     findings.push({
       severity: 'info',
-      title: 'Superficie limitata rilevata',
-      detail: 'Poche correlazioni automatiche — amplia con ricerca manuale.',
+      title: t(lang, 'Esposizione limitata'),
+      detail: t(lang, 'Poche corrispondenze automatiche: completa con una ricerca manuale sul tuo nome e sui tuoi username.'),
       module: 'summary'
     });
   }
@@ -257,7 +270,7 @@ function buildFindings(username, platforms, breaches, summary) {
   return findings;
 }
 
-function computeScore(platforms, breaches, findings) {
+function computeScore(platforms, breaches, lang) {
   const breakdown = [];
   let score = 100;
   const add = (id, label, delta, severity) => {
@@ -266,10 +279,10 @@ function computeScore(platforms, breaches, findings) {
   };
 
   const confirmed = platforms.filter((p) => p.found === true && p.confidence === 'high').length;
-  if (confirmed >= 4) add('many_accounts', `${confirmed} account verificati (API)`, -15, 'medium');
-  else if (confirmed >= 2) add('some_accounts', `${confirmed} account verificati (API)`, -8, 'low');
+  if (confirmed >= 4) add('many_accounts', t(lang, '{n} account verificati tramite API', { n: confirmed }), -15, 'medium');
+  else if (confirmed >= 2) add('some_accounts', t(lang, '{n} account verificati tramite API', { n: confirmed }), -8, 'low');
 
-  if (breaches.breachCount > 0) add('breaches', `${breaches.breachCount} breach email`, -20, 'high');
+  if (breaches.breachCount > 0) add('breaches', t(lang, 'Email in {n} data breach', { n: breaches.breachCount }), -20, 'high');
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 55 ? 'D' : 'F';
@@ -279,13 +292,17 @@ function computeScore(platforms, breaches, findings) {
   return { score, grade, footprint, breakdown };
 }
 
-async function runSocialProfiling(input) {
+/**
+ * @param {{ username: string, email?: string }} input  email: solo quella dell'account (la route lo garantisce)
+ * @param {{ lang?: string }} opts
+ */
+async function runSocialProfiling(input, { lang } = {}) {
   const started = Date.now();
-  const username = normalizeUsername(input.username);
+  const username = normalizeUsername(input.username, lang);
   const email = normalizeEmail(input.email);
 
-  const platforms = await mapPool(PLATFORMS, 4, (p) => probePlatform(p, username));
-  const breaches = await checkBreaches(email);
+  const platforms = await mapPool(PLATFORMS, 4, (p) => probePlatform(p, username, lang));
+  const breaches = await checkBreaches(email, lang);
 
   const summary = {
     platformsChecked: platforms.length,
@@ -297,8 +314,8 @@ async function runSocialProfiling(input) {
     inconclusive: platforms.filter((p) => p.found == null).length
   };
 
-  const findings = buildFindings(username, platforms, breaches, summary);
-  const scoring = computeScore(platforms, breaches, findings);
+  const findings = buildFindings(username, platforms, breaches, lang);
+  const scoring = computeScore(platforms, breaches, lang);
 
   return {
     username,
@@ -312,11 +329,11 @@ async function runSocialProfiling(input) {
     ...scoring,
     scoreBreakdown: scoring.breakdown,
     searchLinks: [
-      { label: 'Google dork', url: `https://www.google.com/search?q="${encodeURIComponent(username)}"` },
+      { label: 'Google', url: `https://www.google.com/search?q="${encodeURIComponent(username)}"` },
       { label: 'DuckDuckGo', url: `https://duckduckgo.com/?q=${encodeURIComponent(username)}` }
     ],
-    limitations: AUDIT_LIMITATIONS,
-    note: 'OSINT passivo su username — correlazione account e metadati pubblici, senza accesso autenticato.',
+    limitations: auditLimitations(lang),
+    note: t(lang, 'OSINT passivo sullo username: corrispondenze tra account e metadati pubblici, senza accesso autenticato.'),
     scanType: 'social_profiling',
     status: 'success'
   };

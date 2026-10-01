@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -34,7 +34,7 @@
     <div class="auth-page">
       <div class="auth-page__grid">
         <section class="auth-panel" aria-labelledby="login-title">
-          <p class="auth-panel__kicker">Autenticazione</p>
+          <p class="auth-panel__kicker">Accesso</p>
           <h1 id="login-title">Accedi a EVIL</h1>
           <p id="loginReason" class="auth-message auth-message--info" role="status" hidden></p>
           <form id="loginForm" novalidate>
@@ -59,11 +59,11 @@
 
         <aside class="auth-aside">
           <h2>Benvenuto in EVIL</h2>
-          <p>Con l'account usi gli strumenti di analisi e ritrovi progressi e trofei su ogni dispositivo.</p>
+          <p>Con l'account usi gli strumenti di analisi e ritrovi progressi e trofei su ogni dispositivo. Gli strumenti vanno usati solo su sistemi tuoi o per cui hai un'autorizzazione scritta (<a href="/ethics.html">Etica e legge</a>).</p>
           <ul>
-            <li>Check URL e controllo degli header HTTP</li>
-            <li>DNS, sottodomini e certificati SSL</li>
-            <li>Analisi di file e ricerche OSINT</li>
+            <li>Check URL e audit degli header HTTP</li>
+            <li>Ricognizione dominio e certificato TLS</li>
+            <li>Analisi file e strumenti OSINT difensivi</li>
             <li>Progressi, trofei e registro attività</li>
           </ul>
         </aside>
@@ -74,133 +74,7 @@
   <!--evil:footer-->
 
   <script src="/js/auth-feedback.js?v=20260702"></script>
-  <script>
-    const API_URL = '/api';
-
-    // Pagine che richiedono l'accesso: il login spiega perché l'utente è arrivato qui
-    const PROTECTED_PAGES = {
-      'security-check.html': 'Check URL',
-      'vulnerability-scanner.html': 'Header HTTP',
-      'dns-enumerator.html': 'Enumerazione DNS',
-      'subdomain-finder.html': 'Ricerca sottodomini',
-      'ssl-analyzer.html': 'Analisi SSL',
-      'file-analysis.html': 'Analisi file',
-      'social-profiling.html': 'Social profiling',
-      'public-info.html': 'Informazioni pubbliche',
-      'profile.html': 'il tuo profilo'
-    };
-
-    /** Solo pagine del sito (nome.html con eventuale query): niente redirect verso altri domini. */
-    function getRedirectTarget() {
-      const redirect = new URLSearchParams(window.location.search).get('redirect') || '';
-      if (!/^[a-z0-9][a-z0-9._-]*\.html(\?[a-z0-9=&%._+-]*)?$/i.test(redirect)) return '/home.html';
-      return '/' + redirect;
-    }
-
-    (function explainRedirect() {
-      const redirect = new URLSearchParams(window.location.search).get('redirect') || '';
-      const page = redirect.split('?')[0];
-      const label = PROTECTED_PAGES[page];
-      const note = document.getElementById('loginReason');
-      if (!label || !note) return;
-      note.textContent = page === 'profile.html'
-        ? 'Accedi per vedere il tuo profilo, i progressi e i trofei.'
-        : `Per usare ${label} serve un account EVIL (è gratuito). Accedi oppure registrati: dopo l'accesso torni direttamente allo strumento.`;
-      note.hidden = false;
-    })();
-
-    (async function skipLoginIfSessionActive() {
-      if (!new URLSearchParams(window.location.search).get('redirect')) return;
-      try {
-        if (window.__evilAuthReady) await window.__evilAuthReady;
-        if (typeof syncUserFromServer === 'function') {
-          const user = await syncUserFromServer();
-          if (user) window.location.replace(getRedirectTarget());
-        }
-      } catch (_) { /* resta sul login */ }
-    })();
-
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const errorDiv = document.getElementById('loginError');
-      const submitBtn = e.target.querySelector('button[type="submit"]');
-      const showErr = (opts) => {
-        if (window.EvilAuthFeedback) {
-          window.EvilAuthFeedback.showAuthError(errorDiv, { action: 'login', ...opts });
-        } else {
-          errorDiv.textContent = opts.message || 'Errore';
-          errorDiv.hidden = false;
-          errorDiv.style.display = 'block';
-        }
-      };
-      const hideErr = () => {
-        if (window.EvilAuthFeedback) window.EvilAuthFeedback.hideAuthError(errorDiv);
-        else errorDiv.style.display = 'none';
-      };
-
-      hideErr();
-      if (!email || !password) {
-        showErr({ message: 'Scrivi email e password.', status: 400 });
-        return;
-      }
-      if (submitBtn) submitBtn.disabled = true;
-
-      try {
-        const response = await fetch(`${API_URL}/auth/login`, {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        let data = {};
-        try {
-          data = await response.json();
-        } catch (_) {
-          const invalid = new Error('Il server non ha risposto correttamente. Riprova tra qualche istante.');
-          invalid.status = response.status;
-          throw invalid;
-        }
-
-        if (!response.ok) {
-          if (data.requiresVerification && data.userId && data.email) {
-            window.location.href = `verify-email.html?userId=${encodeURIComponent(data.userId)}&email=${encodeURIComponent(data.email)}`;
-            return;
-          }
-          const message = response.status === 429
-            ? 'Troppi tentativi di accesso. Aspetta qualche minuto e riprova, oppure reimposta la password.'
-            : data.error || 'Accesso non riuscito.';
-          showErr({
-            message,
-            status: response.status,
-            raw: data,
-            hint: response.status >= 500 ? 'Se il problema continua, scrivici dalla pagina Help.' : undefined,
-          });
-          return;
-        }
-
-        if (window.AUTH_STORAGE && typeof AUTH_STORAGE.setUser === 'function') {
-          AUTH_STORAGE.setUser(data.user);
-        }
-        if (typeof notifyAuthVerified === 'function') notifyAuthVerified();
-
-        window.location.href = getRedirectTarget();
-      } catch (err) {
-        const local = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-        showErr({
-          message: err.status ? err.message : 'Connessione non riuscita. Controlla la rete e riprova.',
-          status: err.status,
-          raw: err.stack || err.message,
-          hint: local ? 'In locale: il server deve essere avviato con npm start.' : 'Se il problema continua, scrivici dalla pagina Help.',
-        });
-      } finally {
-        if (submitBtn) submitBtn.disabled = false;
-      }
-    });
-  </script>
+  <script src="/js/login-page.js?v=20261001" defer></script>
 
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/js.js" defer></script>

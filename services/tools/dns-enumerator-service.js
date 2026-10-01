@@ -1,49 +1,58 @@
 /**
- * EVIL DNS Records Enumerator — risoluzione + analisi passiva
+ * EVIL — DNS e WHOIS: risoluzione dei record pubblici di un dominio + analisi passiva.
+ *
+ * S-12: i nomi interni (localhost, *.internal, *.corp…) sono rifiutati prima di interrogare
+ * il DNS e gli indirizzi non pubblici eventualmente restituiti non compaiono nei risultati.
  */
 const dns = require('dns').promises;
+const { t } = require('../../server/i18n');
+const { normalizeToolDomain, splitPublicAddresses } = require('./tool-i18n');
 
-const RECORD_TYPES = [
-  { key: 'A', label: 'A', title: 'Indirizzi IPv4', icon: 'ipv4' },
-  { key: 'AAAA', label: 'AAAA', title: 'Indirizzi IPv6', icon: 'ipv6' },
-  { key: 'MX', label: 'MX', title: 'Mail exchange', icon: 'mail' },
-  { key: 'NS', label: 'NS', title: 'Name server', icon: 'ns' },
-  { key: 'TXT', label: 'TXT', title: 'Record testuali', icon: 'txt' },
-  { key: 'CNAME', label: 'CNAME', title: 'Alias canonico', icon: 'cname' },
-  { key: 'SOA', label: 'SOA', title: 'Start of authority', icon: 'soa' }
-];
+const RECORD_TYPES = ['A', 'AAAA', 'MX', 'NS', 'TXT', 'CNAME', 'SOA'];
+
+function recordTitle(lang, key) {
+  switch (key) {
+    case 'A': return t(lang, 'Indirizzi IPv4');
+    case 'AAAA': return t(lang, 'Indirizzi IPv6');
+    case 'MX': return t(lang, 'Server di posta');
+    case 'NS': return t(lang, 'Name server');
+    case 'TXT': return t(lang, 'Record di testo');
+    case 'CNAME': return t(lang, 'Alias (nome canonico)');
+    case 'SOA': return t(lang, 'Zona (start of authority)');
+    default: return key;
+  }
+}
 
 const PROVIDER_HINTS = [
-  { id: 'cloudflare', name: 'Cloudflare', patterns: [/cloudflare/i, /\.ns\.cloudflare\.com$/i] },
-  { id: 'aws', name: 'Amazon Route 53', patterns: [/awsdns/i, /amazonaws/i] },
-  { id: 'google', name: 'Google Cloud DNS', patterns: [/googledomains/i, /google\.com$/i] },
-  { id: 'azure', name: 'Microsoft Azure DNS', patterns: [/azure/i, /microsoft/i] },
-  { id: 'ovh', name: 'OVH', patterns: [/ovh/i] },
-  { id: 'godaddy', name: 'GoDaddy', patterns: [/domaincontrol\.com/i, /godaddy/i] }
+  { name: 'Cloudflare', patterns: [/\.ns\.cloudflare\.com$/i] },
+  { name: 'Amazon Route 53', patterns: [/awsdns/i] },
+  { name: 'Google Cloud DNS', patterns: [/googledomains\.com$/i, /^ns-cloud-[a-e]\d\.googledomains/i] },
+  { name: 'Microsoft Azure DNS', patterns: [/azure-dns\./i] },
+  { name: 'OVHcloud', patterns: [/\.ovh\.net$/i] },
+  { name: 'GoDaddy', patterns: [/domaincontrol\.com$/i] },
+  { name: 'Aruba', patterns: [/\.aruba\.it$/i] },
 ];
 
 const CDN_HINTS = [
   { name: 'Cloudflare', patterns: [/cloudflare/i] },
   { name: 'Fastly', patterns: [/fastly/i] },
-  { name: 'Akamai', patterns: [/akamai/i, /edgesuite/i] },
-  { name: 'AWS CloudFront', patterns: [/cloudfront/i] },
-  { name: 'Azure CDN', patterns: [/azureedge/i] }
+  { name: 'Akamai', patterns: [/akamai/i, /edgesuite/i, /edgekey/i] },
+  { name: 'Amazon CloudFront', patterns: [/cloudfront\.net/i] },
+  { name: 'Azure Front Door / CDN', patterns: [/azureedge\.net/i, /azurefd\.net/i] },
 ];
 
-const AUDIT_LIMITATIONS = [
-  'Risolve record pubblici del dominio inserito — non effettua zone transfer (AXFR) né brute-force sottodomini.',
-  'SPF/DMARC sono inferiti da TXT e _dmarc; non verifica consegna email né reputation IP.',
-  'WHOIS dipende dal comando di sistema e dalla registry — può essere incompleto o assente.',
-  'Non sostituisce un audit infrastrutturale completo (firewall, TLS, applicazione).'
-];
+function auditLimitations(lang) {
+  return [
+    t(lang, 'Legge solo i record pubblici del nome inserito: non tenta trasferimenti di zona (AXFR) né la ricerca di sottodomini.'),
+    t(lang, 'SPF e DMARC sono letti dai record TXT; DKIM non è verificabile senza conoscere il selettore usato dal mittente.'),
+    t(lang, 'Il WHOIS usa RDAP (HTTPS) e, se non disponibile, il servizio WHOIS del registro sulla porta 43: alcuni registri mostrano pochi dati per privacy.'),
+    t(lang, 'Gli indirizzi non pubblici (reti private, loopback) eventualmente presenti nei record non vengono mostrati.'),
+  ];
+}
 
-function normalizeDomain(input) {
-  let d = String(input || '').trim().toLowerCase();
-  d = d.replace(/^https?:\/\//, '').split('/')[0].split(':')[0].replace(/\.$/, '');
-  if (!d || !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+\.?$/i.test(d)) {
-    throw new Error('Formato dominio non valido');
-  }
-  return d.replace(/\.$/, '');
+/** Compatibilità: alcuni moduli importano normalizeDomain da qui. */
+function normalizeDomain(input, lang) {
+  return normalizeToolDomain(input, lang);
 }
 
 async function safeResolve(fn, fallback) {
@@ -58,34 +67,37 @@ function flattenTxt(txtRecords) {
   return (txtRecords || []).map((r) => (Array.isArray(r) ? r.join('') : String(r)));
 }
 
-function classifyTxtRecord(text) {
-  const t = String(text);
-  if (/^v=spf1/i.test(t)) return { kind: 'spf', label: 'SPF' };
-  if (/^v=DMARC1/i.test(t)) return { kind: 'dmarc', label: 'DMARC' };
-  if (/google-site-verification|facebook-domain-verification|ms=|apple-domain-verification/i.test(t)) {
-    return { kind: 'verification', label: 'Verifica dominio' };
+function classifyTxtRecord(text, lang) {
+  const s = String(text);
+  if (/^v=spf1/i.test(s)) return { kind: 'spf', label: 'SPF' };
+  if (/^v=DMARC1/i.test(s)) return { kind: 'dmarc', label: 'DMARC' };
+  if (/^v=DKIM1/i.test(s)) return { kind: 'dkim', label: 'DKIM' };
+  if (/google-site-verification|facebook-domain-verification|^ms=|apple-domain-verification|_?globalsign|atlassian-domain-verification/i.test(s)) {
+    return { kind: 'verification', label: t(lang, 'Verifica di proprietà') };
   }
-  if (/^v=DKIM1/i.test(t) || /dkim/i.test(t)) return { kind: 'dkim', label: 'DKIM' };
-  return { kind: 'other', label: 'Generico' };
+  return { kind: 'other', label: t(lang, 'Altro') };
 }
 
-function analyzeSpf(spf) {
+function analyzeSpf(spf, lang) {
   const issues = [];
-  if (/\+all/i.test(spf)) {
-    issues.push({ severity: 'high', title: 'SPF permissivo (+all)', detail: 'Qualsiasi server può inviare mail per il dominio.' });
-  } else if (/\?all/i.test(spf)) {
-    issues.push({ severity: 'medium', title: 'SPF neutro (?all)', detail: 'Protezione anti-spoofing debole.' });
-  } else if (/~all/i.test(spf)) {
-    issues.push({ severity: 'low', title: 'SPF soft fail (~all)', detail: 'Accettabile; preferibile -all in produzione.' });
+  if (/\+all\b/i.test(spf)) {
+    issues.push({ id: 'spf_plus_all', severity: 'high', title: t(lang, 'SPF permissivo (+all)'), detail: t(lang, 'Qualsiasi server al mondo è autorizzato a inviare posta a nome del dominio: l’SPF non protegge.') });
+  } else if (/\?all\b/i.test(spf)) {
+    issues.push({ id: 'spf_neutral', severity: 'medium', title: t(lang, 'SPF neutro (?all)'), detail: t(lang, 'Non dice cosa fare con i server non elencati: protezione contro lo spoofing quasi nulla.') });
+  } else if (/~all\b/i.test(spf)) {
+    issues.push({ id: 'spf_softfail', severity: 'low', title: t(lang, 'SPF in soft fail (~all)'), detail: t(lang, 'I messaggi non autorizzati vengono solo marcati: accettabile se c’è DMARC con policy restrittiva, altrimenti meglio -all.') });
+  } else if (!/-all\b/i.test(spf) && !/redirect=/i.test(spf)) {
+    issues.push({ id: 'spf_no_all', severity: 'low', title: t(lang, 'SPF senza regola finale'), detail: t(lang, 'Manca il meccanismo «all» finale: i server non elencati restano in uno stato neutro.') });
   }
-  if (/include:[^;]+/gi.test(spf) && spf.split('include:').length > 6) {
-    issues.push({ severity: 'low', title: 'SPF con molti include', detail: 'Catena SPF lunga — rischio lookup DNS >10.' });
+  const lookups = (spf.match(/\b(?:include:|a\b|a:|mx\b|mx:|ptr\b|ptr:|exists:|redirect=)/gi) || []).length;
+  if (lookups > 10) {
+    issues.push({ id: 'spf_lookups', severity: 'medium', title: t(lang, 'SPF oltre il limite di 10 lookup'), detail: t(lang, 'Il record richiede {n} interrogazioni DNS: oltre 10 la verifica fallisce (RFC 7208) e l’SPF diventa inefficace.', { n: lookups }) });
   }
   return issues;
 }
 
 function extractDmarcPolicy(txt) {
-  const m = String(txt).match(/;\s*p=([^;\s]+)/i);
+  const m = String(txt).match(/(?:^|;)\s*p\s*=\s*([a-z]+)/i);
   return m ? m[1].toLowerCase() : 'unknown';
 }
 
@@ -100,7 +112,7 @@ async function lookupDmarc(domain) {
       present: !!policy,
       records,
       policy: policy ? extractDmarcPolicy(policy) : null,
-      value: policy || records[0] || null
+      value: policy || records[0] || null,
     };
   } catch {
     return { host, present: false, records: [], policy: null, value: null };
@@ -116,11 +128,10 @@ async function reversePtr(ip) {
   }
 }
 
-function detectProviders(nsList, cnameList) {
-  const haystack = [...nsList, ...cnameList].join(' ').toLowerCase();
+function detectProviders(nsList) {
   const found = [];
   for (const p of PROVIDER_HINTS) {
-    if (p.patterns.some((re) => re.test(haystack))) found.push(p.name);
+    if (nsList.some((ns) => p.patterns.some((re) => re.test(ns)))) found.push(p.name);
   }
   return [...new Set(found)];
 }
@@ -134,23 +145,21 @@ function detectCdn(cnameList) {
 }
 
 function formatRecordValue(key, value) {
-  if (key === 'MX' && value && typeof value === 'object') {
-    return `${value.priority} ${value.exchange}`;
-  }
+  if (key === 'MX' && value && typeof value === 'object') return `${value.priority} ${value.exchange}`;
   if (key === 'SOA' && value && typeof value === 'object') {
-    return `${value.nsname} · serial ${value.serial} · refresh ${value.refresh}s`;
+    return `${value.nsname} · ${value.hostmaster} · serial ${value.serial} · refresh ${value.refresh}s`;
   }
   if (Array.isArray(value)) return value.join(', ');
   return String(value);
 }
 
 function summarizeRecords(records) {
-  const populated = RECORD_TYPES.filter(({ key }) => {
+  const populated = RECORD_TYPES.filter((key) => {
     const v = records[key];
     if (v == null) return false;
     if (Array.isArray(v)) return v.length > 0;
     return true;
-  }).map((t) => t.key);
+  });
 
   return {
     typesFound: populated.length,
@@ -161,117 +170,117 @@ function summarizeRecords(records) {
     mxCount: records.MX?.length || 0,
     txtCount: records.TXT?.length || 0,
     nsCount: records.NS?.length || 0,
-    hasCname: (records.CNAME?.length || 0) > 0
+    hasCname: (records.CNAME?.length || 0) > 0,
   };
 }
 
-function buildEmailPosture(records, dmarcLookup) {
+function buildEmailPosture(records, dmarcLookup, lang) {
   const txtFlat = flattenTxt(records.TXT);
-  const spfValue = txtFlat.find((t) => /^v=spf1/i.test(t));
+  const spfValue = txtFlat.find((x) => /^v=spf1/i.test(x));
   const spf = spfValue
-    ? { present: true, value: spfValue, issues: analyzeSpf(spfValue) }
+    ? { present: true, value: spfValue, issues: analyzeSpf(spfValue, lang) }
     : { present: false, value: null, issues: [] };
 
   const dmarc = dmarcLookup.present
-    ? {
-        present: true,
-        host: dmarcLookup.host,
-        value: dmarcLookup.value,
-        policy: dmarcLookup.policy,
-        records: dmarcLookup.records
-      }
+    ? { present: true, host: dmarcLookup.host, value: dmarcLookup.value, policy: dmarcLookup.policy, records: dmarcLookup.records }
     : { present: false, host: dmarcLookup.host, value: null, policy: null, records: [] };
-
-  const txtAnalysis = txtFlat.map((text) => ({
-    text: text.length > 160 ? text.slice(0, 160) + '…' : text,
-    ...classifyTxtRecord(text)
-  }));
 
   return {
     hasMx: (records.MX?.length || 0) > 0,
     mx: [...(records.MX || [])].sort((a, b) => a.priority - b.priority),
     spf,
     dmarc,
-    txtAnalysis
+    txtAnalysis: txtFlat.map((text) => ({ text: text.length > 160 ? text.slice(0, 160) + '…' : text, ...classifyTxtRecord(text, lang) })),
   };
 }
 
-function buildFindings(records, summary, email, infra) {
+function buildFindings(summary, email, infra, hiddenAddresses, lang) {
   const findings = [];
+  const push = (f) => findings.push(f);
 
-  if (summary.ipv4Count === 0 && summary.ipv6Count === 0) {
-    findings.push({
-      severity: 'high',
-      title: 'Dominio non risolvibile (A/AAAA)',
-      detail: 'Nessun record IPv4/IPv6 — il nome potrebbe essere inattivo o errato.',
-      module: 'resolution'
+  if (summary.ipv4Count === 0 && summary.ipv6Count === 0 && !summary.hasCname) {
+    push({
+      severity: 'medium',
+      title: t(lang, 'Nessun indirizzo IP per il nome'),
+      detail: t(lang, 'Mancano i record A e AAAA: il nome non punta a un server web. Può essere voluto (dominio solo per la posta) o un errore di configurazione.'),
+      module: 'resolution',
+    });
+  }
+
+  if (hiddenAddresses > 0) {
+    push({
+      severity: 'low',
+      title: t(lang, 'Il DNS pubblico espone indirizzi interni'),
+      detail: t(lang, '{n} indirizzi di reti private o riservate sono pubblicati nei record: rivelano informazioni sulla rete interna (non vengono mostrati qui).', { n: hiddenAddresses }),
+      module: 'resolution',
+      recommendation: t(lang, 'Pubblica gli indirizzi interni solo nel DNS interno (split-horizon).'),
     });
   }
 
   if (email.hasMx && !email.spf.present) {
-    findings.push({
+    push({
       severity: 'medium',
-      title: 'Posta attiva senza SPF',
-      detail: 'Record MX presenti ma nessun v=spf1 in TXT — rischio spoofing email.',
+      title: t(lang, 'Posta attiva senza SPF'),
+      detail: t(lang, 'Ci sono record MX ma nessun record TXT «v=spf1»: chiunque può spacciarsi più facilmente per il dominio (spoofing).'),
       module: 'email',
-      recommendation: 'Pubblica un record SPF con meccanismo -all o ~all appropriato.'
+      recommendation: t(lang, 'Pubblica un record SPF che elenchi i server autorizzati e termini con -all o ~all.'),
     });
   }
 
   if (email.hasMx && !email.dmarc.present) {
-    findings.push({
+    push({
       severity: 'medium',
-      title: 'Posta attiva senza DMARC',
-      detail: `Nessun record DMARC su ${email.dmarc.host}.`,
+      title: t(lang, 'Posta attiva senza DMARC'),
+      detail: t(lang, 'Nessun record DMARC su {host}: chi riceve la posta non sa come trattare i messaggi falsificati.', { host: email.dmarc.host }),
       module: 'email',
-      recommendation: 'Aggiungi TXT su _dmarc con policy p=quarantine o p=reject.'
+      recommendation: t(lang, 'Aggiungi un record TXT su _dmarc con policy p=quarantine o p=reject (si può partire da p=none per raccogliere i report).'),
     });
   }
 
   if (email.dmarc.present && email.dmarc.policy === 'none') {
-    findings.push({
+    push({
       severity: 'low',
-      title: 'DMARC in monitoraggio (p=none)',
-      detail: 'La policy non applica ancora quarantena/rifiuto.',
-      module: 'email'
+      title: t(lang, 'DMARC solo in monitoraggio (p=none)'),
+      detail: t(lang, 'La policy raccoglie i report ma non chiede di mettere in quarantena o rifiutare i messaggi falsificati.'),
+      module: 'email',
     });
   }
 
   for (const issue of email.spf.issues || []) {
-    findings.push({ ...issue, module: 'email', recommendation: 'Rivedi la policy SPF.' });
+    push({ ...issue, module: 'email', recommendation: t(lang, 'Rivedi il record SPF.') });
   }
 
   if (summary.nsCount === 1) {
-    findings.push({
+    push({
       severity: 'low',
-      title: 'Singolo name server',
-      detail: 'Un solo NS riduce la resilienza DNS.',
-      module: 'infra'
+      title: t(lang, 'Un solo name server'),
+      detail: t(lang, 'Con un solo NS, se quel server non risponde il dominio sparisce da Internet. Le buone pratiche (RFC 2182) chiedono almeno due name server su reti diverse.'),
+      module: 'infra',
     });
   }
 
   if (infra.cdn) {
-    findings.push({
+    push({
       severity: 'info',
-      title: `Possibile CDN: ${infra.cdn}`,
-      detail: 'Rilevato da CNAME — utile per mappare la superficie.',
-      module: 'infra'
+      title: t(lang, 'Probabile CDN: {cdn}', { cdn: infra.cdn }),
+      detail: t(lang, 'Dedotto dal record CNAME: gli indirizzi IP sono quelli della CDN, non del server di origine.'),
+      module: 'infra',
     });
   }
 
   if (!findings.length) {
-    findings.push({
+    push({
       severity: 'info',
-      title: 'Profilo DNS coerente',
-      detail: 'Nessun gap prioritario sui controlli configurati.',
-      module: 'summary'
+      title: t(lang, 'Configurazione DNS coerente'),
+      detail: t(lang, 'Nessun problema rilevato nei controlli eseguiti.'),
+      module: 'summary',
     });
   }
 
   return findings;
 }
 
-function computeScore(findings, summary, email) {
+function computeScore(summary, email, lang) {
   const breakdown = [];
   let score = 100;
 
@@ -280,25 +289,23 @@ function computeScore(findings, summary, email) {
     breakdown.push({ id, label, delta, severity });
   };
 
-  if (summary.ipv4Count === 0 && summary.ipv6Count === 0) add('no_a', 'Nessun A/AAAA', -35, 'high');
-  if (email.hasMx && !email.spf.present) add('no_spf', 'MX senza SPF', -12, 'medium');
-  if (email.hasMx && !email.dmarc.present) add('no_dmarc', 'MX senza DMARC', -10, 'medium');
-  if (email.dmarc.present && email.dmarc.policy === 'none') add('dmarc_none', 'DMARC p=none', -4, 'low');
+  if (summary.ipv4Count === 0 && summary.ipv6Count === 0 && !summary.hasCname) add('no_a', t(lang, 'Nessun record A/AAAA'), -20, 'medium');
+  if (email.hasMx && !email.spf.present) add('no_spf', t(lang, 'Posta senza SPF'), -12, 'medium');
+  if (email.hasMx && !email.dmarc.present) add('no_dmarc', t(lang, 'Posta senza DMARC'), -10, 'medium');
+  if (email.dmarc.present && email.dmarc.policy === 'none') add('dmarc_none', t(lang, 'DMARC p=none'), -4, 'low');
   for (const issue of email.spf.issues || []) {
-    if (issue.severity === 'high') add('spf_permissive', issue.title, -15, 'high');
-    else if (issue.severity === 'medium') add('spf_weak', issue.title, -8, 'medium');
-    else add('spf_note', issue.title, -3, 'low');
+    const delta = issue.severity === 'high' ? -15 : issue.severity === 'medium' ? -8 : -3;
+    add(issue.id, issue.title, delta, issue.severity);
   }
-  if (summary.nsCount === 1) add('single_ns', 'Singolo NS', -3, 'low');
+  if (summary.nsCount === 1) add('single_ns', t(lang, 'Un solo name server'), -3, 'low');
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 55 ? 'D' : 'F';
-
   return { score, grade, breakdown };
 }
 
-async function enumerateRecords(domain) {
-  const [A, AAAA, MX, NS, TXT, CNAME, SOA, dmarcLookup] = await Promise.all([
+async function enumerateRecords(domain, lang) {
+  const [rawA, rawAAAA, MX, NS, TXT, CNAME, SOA, dmarcLookup] = await Promise.all([
     safeResolve(() => dns.resolve4(domain), []),
     safeResolve(() => dns.resolve6(domain), []),
     safeResolve(() => dns.resolveMx(domain), []),
@@ -306,38 +313,44 @@ async function enumerateRecords(domain) {
     safeResolve(() => dns.resolveTxt(domain), []),
     safeResolve(() => dns.resolveCname(domain), []),
     safeResolve(() => dns.resolveSoa(domain), null),
-    lookupDmarc(domain)
+    lookupDmarc(domain),
   ]);
+
+  // Indirizzi non pubblici: contati ma non mostrati (S-12)
+  const v4 = splitPublicAddresses(rawA);
+  const v6 = splitPublicAddresses(rawAAAA);
+  const hiddenAddresses = v4.hidden + v6.hidden;
+  const A = v4.shown;
+  const AAAA = v6.shown;
 
   const records = { A, AAAA, MX, NS, TXT, CNAME, SOA };
   const summary = summarizeRecords(records);
-  const email = buildEmailPosture(records, dmarcLookup);
+  summary.hiddenAddresses = hiddenAddresses;
+  const email = buildEmailPosture(records, dmarcLookup, lang);
 
   const ptr = A[0] ? await reversePtr(A[0]) : null;
   const infra = {
-    providers: detectProviders(NS, CNAME),
+    providers: detectProviders(NS),
     cdn: detectCdn(CNAME),
     ptr,
-    primaryIpv4: A[0] || null
+    primaryIpv4: A[0] || null,
   };
 
-  const findings = buildFindings(records, summary, email, infra);
-  const scoring = computeScore(findings, summary, email);
+  const findings = buildFindings(summary, email, infra, hiddenAddresses, lang);
+  const scoring = computeScore(summary, email, lang);
 
-  const recordSections = RECORD_TYPES.map(({ key, label, title }) => {
+  const recordSections = RECORD_TYPES.map((key) => {
     const raw = records[key];
     let values = [];
     if (raw == null) values = [];
     else if (Array.isArray(raw)) {
       values = key === 'TXT'
-        ? flattenTxt(raw).map((text) => ({ text, ...classifyTxtRecord(text) }))
+        ? flattenTxt(raw).map((text) => ({ text, ...classifyTxtRecord(text, lang) }))
         : raw.map((v) => formatRecordValue(key, v));
-    } else if (key === 'SOA') {
-      values = [formatRecordValue(key, raw)];
     } else {
       values = [formatRecordValue(key, raw)];
     }
-    return { key, label, title, count: Array.isArray(values) ? values.length : values ? 1 : 0, values, empty: !values.length };
+    return { key, label: key, title: recordTitle(lang, key), count: values.length, values, empty: !values.length };
   });
 
   return {
@@ -351,19 +364,19 @@ async function enumerateRecords(domain) {
     findings,
     ...scoring,
     scoreBreakdown: scoring.breakdown,
-    limitations: AUDIT_LIMITATIONS,
-    note: 'Enumerazione DNS passiva con analisi SPF/DMARC e fingerprint infrastruttura.',
+    limitations: auditLimitations(lang),
+    note: t(lang, 'Lettura passiva dei record DNS pubblici, con controllo di SPF e DMARC e riconoscimento di provider DNS e CDN.'),
     scanType: 'dns_enumeration',
-    status: 'success'
+    status: 'success',
   };
 }
 
-async function runDnsEnumeration(inputDomain) {
-  const domain = normalizeDomain(inputDomain);
+async function runDnsEnumeration(inputDomain, lang) {
+  const domain = normalizeToolDomain(inputDomain, lang);
   const started = Date.now();
-  const result = await enumerateRecords(domain);
+  const result = await enumerateRecords(domain, lang);
   result.scanDurationMs = Date.now() - started;
   return result;
 }
 
-module.exports = { runDnsEnumeration, normalizeDomain };
+module.exports = { runDnsEnumeration, normalizeDomain, analyzeSpf, extractDmarcPolicy };

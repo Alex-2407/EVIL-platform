@@ -5,6 +5,7 @@
 
 const helmet = require('helmet');
 const { isSecureRequest, shouldEnforceHttps } = require('./https-enforce');
+const { isProduction } = require('../utils/env');
 
 const CDN = 'https://cdnjs.cloudflare.com';
 
@@ -30,7 +31,7 @@ function buildCsp(req) {
     "base-uri 'self'",
     "form-action 'self'",
   ];
-  if (shouldEnforceHttps() && process.env.NODE_ENV === 'production') {
+  if (shouldEnforceHttps() && isProduction()) {
     directives.push('upgrade-insecure-requests');
   }
   return directives.join('; ');

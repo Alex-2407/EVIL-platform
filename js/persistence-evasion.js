@@ -4,19 +4,23 @@
 (function () {
   'use strict';
 
+  const { t } = window.EVIL_I18N;
   const DATA = window.PERSISTENCE_EVASION_DATA || { techniques: [] };
 
-  const STEALTH_LABEL = {
-    low: 'Bassa',
-    medium: 'Media',
-    high: 'Alta',
+  // stealth, prevalence e detection usano la stessa scala qualitativa
+  const LEVEL_LABEL = {
+    low: t('Bassa'),
+    medium: t('Media'),
+    high: t('Alta'),
   };
 
-  const PREVALENCE_LABEL = {
-    low: 'Bassa',
-    medium: 'Media',
-    high: 'Alta',
-  };
+  function categoryLabel(cat) {
+    return cat === 'evasion' ? t('Evasione') : t('Persistenza');
+  }
+
+  function listHtml(items, cls) {
+    return `<ul class="mt-list ${cls}">${(items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`;
+  }
 
   let activeCategory = 'all';
   let searchQuery = '';
@@ -31,10 +35,10 @@
   }
 
   function debounce(fn, ms) {
-    let t;
+    let timer;
     return function (...args) {
-      clearTimeout(t);
-      t = setTimeout(() => fn.apply(this, args), ms);
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), ms);
     };
   }
 
@@ -46,10 +50,18 @@
 
   function filteredTechniques() {
     const q = searchQuery.trim().toLowerCase();
-    return DATA.techniques.filter((t) => {
-      if (activeCategory !== 'all' && t.category !== activeCategory) return false;
+    return DATA.techniques.filter((tech) => {
+      if (activeCategory !== 'all' && tech.category !== activeCategory) return false;
       if (!q) return true;
-      const hay = [t.title, t.mitre, t.mitreLabel, t.description, ...(t.indicators || []), ...(t.mitigation || [])]
+      const hay = [
+        tech.title,
+        tech.mitre,
+        tech.mitreLabel,
+        tech.description,
+        ...(tech.indicators || []),
+        ...(tech.detect || []),
+        ...(tech.prevent || []),
+      ]
         .join(' ')
         .toLowerCase();
       return hay.includes(q);
@@ -70,27 +82,27 @@
     }
 
     grid.innerHTML = list
-      .map((t) => {
-        const catLabel = t.category === 'evasion' ? 'Evasione' : 'Persistenza';
-        return `
-        <article class="mt-card" data-id="${escapeHtml(t.id)}">
+      .map((tech) => `
+        <article class="mt-card" data-id="${escapeHtml(tech.id)}">
           <div class="mt-card__meta">
-            <span class="mt-chip mt-chip--${escapeHtml(t.category)}">${escapeHtml(catLabel)}</span>
-            <span class="mt-mitre" title="${escapeHtml(t.mitreLabel)}">${escapeHtml(t.mitre)}</span>
+            <span class="mt-chip mt-chip--${escapeHtml(tech.category)}">${escapeHtml(categoryLabel(tech.category))}</span>
+            <span class="mt-mitre" translate="no" title="${escapeHtml(t('ID MITRE ATT&CK: {id}', { id: tech.mitre }))}">${escapeHtml(tech.mitre)}</span>
           </div>
-          <h2 class="mt-card__title">${escapeHtml(t.title)}</h2>
-          <p class="mt-card__mitre-name">${escapeHtml(t.mitreLabel)}</p>
-          <p class="mt-card__desc">${escapeHtml(t.description)}</p>
-          <p class="mt-card__label">Indicatori (IoC comportamentali)</p>
-          <ul class="mt-list mt-list--ioc">
-            ${(t.indicators || []).map((i) => `<li>${escapeHtml(i)}</li>`).join('')}
-          </ul>
-          <p class="mt-card__label">Mitigazione difensiva</p>
-          <ul class="mt-list mt-list--mit">
-            ${(t.mitigation || []).map((m) => `<li>${escapeHtml(m)}</li>`).join('')}
-          </ul>
-        </article>`;
-      })
+          <h3 class="mt-card__title">${escapeHtml(tech.title)}</h3>
+          <p class="mt-card__mitre-name" translate="no">${escapeHtml(tech.mitreLabel)}</p>
+          <p class="mt-card__desc">${escapeHtml(tech.description)}</p>
+          <p class="mt-card__label mt-card__label--ioc">${escapeHtml(t('Segnali da cercare'))}</p>
+          ${listHtml(tech.indicators, 'mt-list--ioc')}
+          <p class="mt-card__label mt-card__label--det">${escapeHtml(t('Come si rileva'))}</p>
+          ${listHtml(tech.detect, 'mt-list--det')}
+          <p class="mt-card__label mt-card__label--mit">${escapeHtml(t('Come si previene'))}</p>
+          ${listHtml(tech.prevent, 'mt-list--mit')}
+          <dl class="mt-card__levels">
+            <div><dt>${escapeHtml(t('Stealth'))}</dt><dd><span class="mt-level ${levelClass(tech.stealth)}">${escapeHtml(LEVEL_LABEL[tech.stealth] || tech.stealth)}</span></dd></div>
+            <div><dt>${escapeHtml(t('Prevalenza'))}</dt><dd><span class="mt-level ${levelClass(tech.prevalence)}">${escapeHtml(LEVEL_LABEL[tech.prevalence] || tech.prevalence)}</span></dd></div>
+            <div><dt>${escapeHtml(t('Difficoltà di rilevamento'))}</dt><dd><span class="mt-level ${levelClass(tech.detection)}">${escapeHtml(LEVEL_LABEL[tech.detection] || tech.detection)}</span></dd></div>
+          </dl>
+        </article>`)
       .join('');
   }
 
@@ -101,26 +113,23 @@
     const list =
       activeCategory === 'all'
         ? DATA.techniques
-        : DATA.techniques.filter((t) => t.category === activeCategory);
+        : DATA.techniques.filter((tech) => tech.category === activeCategory);
 
     tbody.innerHTML = list
-      .map((t) => {
-        const cat = t.category === 'evasion' ? 'Evasione' : 'Persistenza';
-        return `
+      .map((tech) => `
         <tr>
-          <th scope="row">${escapeHtml(t.title)} <span class="mt-table-cat">${escapeHtml(cat)}</span></th>
-          <td><span class="mt-level ${levelClass(t.stealth)}">${escapeHtml(STEALTH_LABEL[t.stealth] || t.stealth)}</span></td>
-          <td><span class="mt-level ${levelClass(t.prevalence)}">${escapeHtml(PREVALENCE_LABEL[t.prevalence] || t.prevalence)}</span></td>
-          <td><span class="mt-level ${levelClass(t.detection)}">${escapeHtml(STEALTH_LABEL[t.detection] || t.detection)}</span></td>
-          <td>${escapeHtml(t.mainMitigation)}</td>
-        </tr>`;
-      })
+          <th scope="row">${escapeHtml(tech.title)} <span class="mt-table-cat">${escapeHtml(categoryLabel(tech.category))} · <span translate="no">${escapeHtml(tech.mitre)}</span></span></th>
+          <td><span class="mt-level ${levelClass(tech.stealth)}">${escapeHtml(LEVEL_LABEL[tech.stealth] || tech.stealth)}</span></td>
+          <td><span class="mt-level ${levelClass(tech.prevalence)}">${escapeHtml(LEVEL_LABEL[tech.prevalence] || tech.prevalence)}</span></td>
+          <td><span class="mt-level ${levelClass(tech.detection)}">${escapeHtml(LEVEL_LABEL[tech.detection] || tech.detection)}</span></td>
+          <td>${escapeHtml(tech.mainMitigation)}</td>
+        </tr>`)
       .join('');
   }
 
   function renderStats() {
-    const p = DATA.techniques.filter((t) => t.category === 'persistence').length;
-    const e = DATA.techniques.filter((t) => t.category === 'evasion').length;
+    const p = DATA.techniques.filter((tech) => tech.category === 'persistence').length;
+    const e = DATA.techniques.filter((tech) => tech.category === 'evasion').length;
     const shown = filteredTechniques().length;
     if ($('mt-stat-persistence')) $('mt-stat-persistence').textContent = String(p);
     if ($('mt-stat-evasion')) $('mt-stat-evasion').textContent = String(e);
@@ -136,7 +145,9 @@
   function setCategory(cat) {
     activeCategory = cat;
     document.querySelectorAll('.mt-filter-btn').forEach((btn) => {
-      btn.classList.toggle('is-active', btn.dataset.category === cat);
+      const on = btn.dataset.category === cat;
+      btn.classList.toggle('is-active', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     render();
   }

@@ -281,8 +281,12 @@
   line-height: 1.5;
 }
 
-.auth-message--info:not([hidden]) {
+.auth-message:not([hidden]) {
   display: block;
+}
+
+.auth-message[hidden] {
+  display: none !important;
 }
 
 .auth-field input[aria-invalid="true"] {
@@ -482,4 +486,44 @@
   justify-content: center;
   text-decoration: none;
   box-sizing: border-box;
+}
+
+/* L'attributo hidden vince sempre sui display dei componenti (campi, pulsanti, viste) */
+.auth-page [hidden] {
+  display: none !important;
+}
+
+/* Casella di accettazione delle regole in registrazione */
+.auth-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.auth-consent input {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-top: 0.15rem;
+  accent-color: #f59e0b;
+}
+
+.auth-consent a {
+  color: #fcd34d;
+}
+
+.auth-consent input[aria-invalid="true"] {
+  outline: 2px solid #f87171;
+  outline-offset: 2px;
+}
+
+.auth-note {
+  margin: 0 0 1rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
 }

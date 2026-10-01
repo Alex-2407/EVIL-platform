@@ -10,6 +10,11 @@
 const { rateLimit, MemoryStore } = require('express-rate-limit');
 const Redis = require('ioredis');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { isTest } = require('../utils/env');
+
+// Segna i messaggi per l'estrazione delle traduzioni; tradotti nel handler con req.t()
+const t = (s) => s;
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;
@@ -22,7 +27,7 @@ function envInt(name, fallback) {
 // ---------------------------------------------------------------- Redis (opzionale)
 let redis = null;
 const redisUrl = (process.env.REDIS_URL || '').trim();
-if (redisUrl && process.env.NODE_ENV !== 'test') {
+if (redisUrl && !isTest()) {
   redis = new Redis(redisUrl, { maxRetriesPerRequest: 1, enableOfflineQueue: false, lazyConnect: false });
   let logged = false;
   redis.on('error', (err) => {
@@ -120,6 +125,66 @@ function emailKey(req) {
   return String(req.body?.email || '').trim().toLowerCase().slice(0, 254) || 'none';
 }
 
+function emailHash(email) {
+  return crypto.createHash('sha256').update(String(email)).digest('hex').slice(0, 32);
+}
+
+// ---------------------------------------------------------------- ritardo progressivo (login)
+/**
+ * Dopo LOGIN_DELAY_AFTER errori consecutivi sulla stessa email, ogni nuovo tentativo
+ * aspetta un po' di più (raddoppia fino a LOGIN_DELAY_MAX_MS). L'attesa è un timer: non
+ * occupa CPU. Vale per qualunque email, esistente o no (nessuna differenza di tempi).
+ * Contatori in memoria del processo, azzerati da un login riuscito o dal reset password.
+ */
+function createLoginDelay({
+  after = envInt('LOGIN_DELAY_AFTER', 3),
+  baseMs = envInt('LOGIN_DELAY_BASE_MS', isTest() ? 5 : 250),
+  maxMs = envInt('LOGIN_DELAY_MAX_MS', 8000),
+  windowMs = HOUR,
+  maxEntries = 50000,
+} = {}) {
+  const failures = new Map(); // hash email → { count, first }
+
+  function entry(email) {
+    const key = emailHash(String(email || '').trim().toLowerCase());
+    const e = failures.get(key);
+    if (e && Date.now() - e.first > windowMs) {
+      failures.delete(key);
+      return { key, e: null };
+    }
+    return { key, e };
+  }
+
+  function delayFor(email) {
+    const { e } = entry(email);
+    if (!e || e.count < after) return 0;
+    return Math.min(maxMs, baseMs * 2 ** (e.count - after));
+  }
+
+  async function wait(email) {
+    const ms = delayFor(email);
+    if (ms > 0) await new Promise((r) => setTimeout(r, ms));
+    return ms;
+  }
+
+  function fail(email) {
+    const { key, e } = entry(email);
+    if (e) e.count += 1;
+    else {
+      if (failures.size >= maxEntries) failures.delete(failures.keys().next().value);
+      failures.set(key, { count: 1, first: Date.now() });
+    }
+  }
+
+  function reset(email) {
+    failures.delete(entry(email).key);
+  }
+
+  return { wait, fail, reset, delayFor };
+}
+
+const loginDelay = createLoginDelay();
+
 // ---------------------------------------------------------------- fabbrica
 function makeLimiter(name, { windowMs, max, message, keyGenerator = userOrIpKey, skip, skipSuccessfulRequests = false }) {
   return rateLimit({
@@ -133,7 +198,7 @@ function makeLimiter(name, { windowMs, max, message, keyGenerator = userOrIpKey,
     skip,
     handler: (req, res, next, options) => {
       const retryAfter = Math.ceil(options.windowMs / 1000);
-      res.status(429).json({ error: message, code: 'RATE_LIMITED', retryAfter });
+      res.status(429).json({ error: req.t ? req.t(message) : message, code: 'RATE_LIMITED', retryAfter });
     },
   });
 }
@@ -150,7 +215,7 @@ const GLOBAL_EXEMPT = new Set([
 const globalLimiter = makeLimiter('global', {
   windowMs: envInt('RATE_LIMIT_GLOBAL_WINDOW_MS', 15 * MINUTE),
   max: envInt('RATE_LIMIT_GLOBAL_MAX', 1000),
-  message: 'Troppe richieste in poco tempo. Riprova tra qualche minuto.',
+  message: t('Troppe richieste in poco tempo. Riprova tra qualche minuto.'),
   keyGenerator: globalKey,
   skip: (req) => GLOBAL_EXEMPT.has(req.path) || GLOBAL_EXEMPT.has(req.baseUrl + req.path),
 });
@@ -159,15 +224,25 @@ const globalLimiter = makeLimiter('global', {
 const authLimiter = makeLimiter('login', {
   windowMs: envInt('RATE_LIMIT_LOGIN_WINDOW_MS', 15 * MINUTE),
   max: envInt('RATE_LIMIT_LOGIN_MAX', 10),
-  message: 'Troppi tentativi di accesso con questa email. Riprova tra 15 minuti.',
+  message: t('Troppi tentativi di accesso con questa email. Riprova tra 15 minuti.'),
   keyGenerator: (req) => `${emailKey(req)}|${req.ip || 'unknown'}`,
+  skipSuccessfulRequests: true,
+});
+
+// Per account (S-09): tetto ai tentativi falliti su una stessa email da qualunque IP
+// (contro gli attacchi distribuiti). Si azzera con il reset della password.
+const accountLoginLimiter = makeLimiter('login-account', {
+  windowMs: envInt('RATE_LIMIT_LOGIN_ACCOUNT_WINDOW_MS', HOUR),
+  max: envInt('RATE_LIMIT_LOGIN_ACCOUNT_MAX', 30),
+  message: t('Troppi tentativi di accesso a questo account. Riprova tra un\'ora o reimposta la password.'),
+  keyGenerator: (req) => `acct:${emailHash(emailKey(req))}`,
   skipSuccessfulRequests: true,
 });
 
 const loginIpLimiter = makeLimiter('login-ip', {
   windowMs: 15 * MINUTE,
   max: envInt('RATE_LIMIT_LOGIN_IP_MAX', 50),
-  message: 'Troppi tentativi di accesso da questa rete. Riprova tra 15 minuti.',
+  message: t('Troppi tentativi di accesso da questa rete. Riprova tra 15 minuti.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
   skipSuccessfulRequests: true,
 });
@@ -175,14 +250,14 @@ const loginIpLimiter = makeLimiter('login-ip', {
 const registerLimiter = makeLimiter('register', {
   windowMs: envInt('RATE_LIMIT_REGISTER_WINDOW_MS', HOUR),
   max: envInt('RATE_LIMIT_REGISTER_MAX', 5),
-  message: 'Troppi tentativi di registrazione. Riprova più tardi.',
+  message: t('Troppi tentativi di registrazione. Riprova più tardi.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
 const passwordResetLimiter = makeLimiter('reset', {
   windowMs: envInt('RATE_LIMIT_RESET_WINDOW_MS', HOUR),
   max: envInt('RATE_LIMIT_RESET_MAX', 10),
-  message: 'Troppe richieste di reset password. Riprova più tardi.',
+  message: t('Troppe richieste di reset password. Riprova più tardi.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
@@ -190,35 +265,35 @@ const passwordResetLimiter = makeLimiter('reset', {
 const passwordResetEmailLimiter = makeLimiter('reset-email', {
   windowMs: HOUR,
   max: envInt('RATE_LIMIT_RESET_EMAIL_MAX', 3),
-  message: 'Abbiamo già inviato alcune email di reset a questo indirizzo. Controlla la casella o riprova tra un\'ora.',
+  message: t('Abbiamo già inviato alcune email di reset a questo indirizzo. Controlla la casella o riprova tra un\'ora.'),
   keyGenerator: emailKey,
 });
 
 const verificationLimiter = makeLimiter('verify', {
   windowMs: HOUR,
   max: envInt('RATE_LIMIT_VERIFY_MAX', 5),
-  message: 'Troppe richieste di invio email di verifica. Riprova più tardi.',
+  message: t('Troppe richieste di invio email di verifica. Riprova più tardi.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
 const verificationStatusLimiter = makeLimiter('verify-status', {
   windowMs: 15 * MINUTE,
   max: envInt('RATE_LIMIT_VERIFY_STATUS_MAX', 200),
-  message: 'Troppe richieste di stato verifica. Riprova tra qualche minuto.',
+  message: t('Troppe richieste di stato verifica. Riprova tra qualche minuto.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
 const refreshTokenLimiter = makeLimiter('refresh', {
   windowMs: 15 * MINUTE,
   max: envInt('RATE_LIMIT_REFRESH_MAX', 60),
-  message: 'Troppi rinnovi di sessione. Riprova più tardi.',
+  message: t('Troppi rinnovi di sessione. Riprova più tardi.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
 const helpLimiter = makeLimiter('help', {
   windowMs: envInt('RATE_LIMIT_HELP_WINDOW_MS', HOUR),
   max: envInt('RATE_LIMIT_HELP_MAX', 5),
-  message: 'Troppe richieste dal modulo Help. Riprova più tardi.',
+  message: t('Troppe richieste dal modulo Help. Riprova più tardi.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
@@ -226,25 +301,25 @@ const helpLimiter = makeLimiter('help', {
 const scanLimiter = makeLimiter('scan', {
   windowMs: envInt('RATE_LIMIT_SCAN_WINDOW_MS', HOUR),
   max: envInt('RATE_LIMIT_SCAN_MAX', 50),
-  message: 'Hai raggiunto il limite di scansioni per quest\'ora. Riprova più tardi.',
+  message: t('Hai raggiunto il limite di scansioni per quest\'ora. Riprova più tardi.'),
 });
 
 const dnsLimiter = makeLimiter('dns', {
   windowMs: envInt('RATE_LIMIT_DNS_WINDOW_MS', HOUR),
   max: envInt('RATE_LIMIT_DNS_MAX', 100),
-  message: 'Hai raggiunto il limite di interrogazioni DNS/WHOIS per quest\'ora.',
+  message: t('Hai raggiunto il limite di interrogazioni DNS/WHOIS per quest\'ora.'),
 });
 
 const uploadLimiter = makeLimiter('upload', {
   windowMs: envInt('RATE_LIMIT_UPLOAD_WINDOW_MS', 24 * HOUR),
   max: envInt('RATE_LIMIT_UPLOAD_MAX', 50),
-  message: 'Hai raggiunto il limite di file analizzati per oggi.',
+  message: t('Hai raggiunto il limite di file analizzati per oggi.'),
 });
 
 const incidentsPublicLimiter = makeLimiter('incidents', {
   windowMs: 15 * MINUTE,
   max: envInt('RATE_LIMIT_INCIDENTS_MAX', 120),
-  message: 'Troppe richieste al feed incidenti. Riprova tra qualche minuto.',
+  message: t('Troppe richieste al feed incidenti. Riprova tra qualche minuto.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
@@ -259,14 +334,14 @@ function labKey(req) {
 const virtualLabSessionLimiter = makeLimiter('lab-start', {
   windowMs: 15 * MINUTE,
   max: envInt('RATE_LIMIT_VLAB_SESSION_MAX', 30),
-  message: 'Troppi avvii di laboratorio. Riprova tra qualche minuto.',
+  message: t('Troppi avvii di laboratorio. Riprova tra qualche minuto.'),
   keyGenerator: labKey,
 });
 
 const virtualLabLimiter = makeLimiter('lab-exec', {
   windowMs: envInt('RATE_LIMIT_VLAB_WINDOW_MS', HOUR),
   max: envInt('RATE_LIMIT_VLAB_MAX', 600),
-  message: 'Limite comandi del laboratorio raggiunto per quest\'ora.',
+  message: t('Limite comandi del laboratorio raggiunto per quest\'ora.'),
   keyGenerator: labKey,
 });
 
@@ -274,13 +349,16 @@ const virtualLabLimiter = makeLimiter('lab-exec', {
 const virtualLabIpLimiter = makeLimiter('lab-ip', {
   windowMs: 15 * MINUTE,
   max: envInt('RATE_LIMIT_VLAB_IP_MAX', 3000),
-  message: 'Troppe richieste al laboratorio da questa rete. Riprova tra qualche minuto.',
+  message: t('Troppe richieste al laboratorio da questa rete. Riprova tra qualche minuto.'),
   keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
 });
 
 module.exports = {
   globalLimiter,
   authLimiter,
+  accountLoginLimiter,
+  loginDelay,
+  createLoginDelay,
   loginIpLimiter,
   registerLimiter,
   passwordResetLimiter,
@@ -297,5 +375,5 @@ module.exports = {
   virtualLabLimiter,
   virtualLabIpLimiter,
   ResilientRedisStore,
-  _internals: { userOrIpKey, globalKey, labKey, GLOBAL_EXEMPT },
+  _internals: { userOrIpKey, globalKey, labKey, emailKey, emailHash, GLOBAL_EXEMPT },
 };

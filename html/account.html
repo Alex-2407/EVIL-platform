@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -37,20 +37,20 @@
           <h2>Perché registrarsi?</h2>
           <p>L'account è gratuito: serve solo un'email da confermare.</p>
           <ul>
-            <li>Tutti gli strumenti di analisi: Check URL, header HTTP, DNS, SSL, file e OSINT</li>
+            <li>Tutti gli strumenti di analisi: Check URL, audit degli header HTTP, ricognizione dominio, certificato TLS, analisi file e OSINT difensivo</li>
             <li>Progressi, trofei e registro attività salvati sul tuo account</li>
-            <li>Password conservata cifrata; cambiandola chiudi le sessioni aperte</li>
-            <li>I dati servono solo a far funzionare la piattaforma e non vengono venduti (<a href="/site-policies.html">policy</a>)</li>
+            <li>Password conservata solo come hash; cambiandola chiudi le sessioni aperte</li>
+            <li>I dati servono solo a far funzionare la piattaforma e non vengono venduti (<a href="/site-policies.html">Privacy e regole</a>)</li>
           </ul>
         </aside>
 
         <section class="auth-panel" aria-labelledby="register-title">
-          <p class="auth-panel__kicker">Nuovo utente</p>
+          <p class="auth-panel__kicker">Registrazione</p>
           <h1 id="register-title">Crea un account</h1>
           <form id="registerForm" novalidate>
             <div class="auth-field">
               <label for="name">Nome completo</label>
-              <input type="text" id="name" name="name" placeholder="Mario Rossi" autocomplete="name" required>
+              <input type="text" id="name" name="name" placeholder="Nome e cognome" autocomplete="name" required>
             </div>
             <div class="auth-field">
               <label for="email">Email</label>
@@ -73,8 +73,16 @@
               <label for="confirm-password">Conferma password</label>
               <input type="password" id="confirm-password" name="confirm-password" placeholder="Ripeti la password" autocomplete="new-password" minlength="12" required>
             </div>
-            <div id="registerError" class="auth-message auth-message--error" role="alert" aria-live="polite"></div>
-            <div id="registerSuccess" class="auth-message auth-message--success" role="status"></div>
+            <label class="auth-consent" for="accept-terms">
+              <input type="checkbox" id="accept-terms" name="acceptedTerms" required>
+              <span>Ho letto e accetto <a href="/site-policies.html" target="_blank" rel="noopener">Privacy e regole</a> e il codice di condotta di <a href="/ethics.html" target="_blank" rel="noopener">Etica e legge</a>: userò gli strumenti solo su sistemi miei o con autorizzazione scritta.</span>
+            </label>
+            <label class="auth-consent" for="accept-age">
+              <input type="checkbox" id="accept-age" name="ageConfirmed" required>
+              <span>Dichiaro di avere almeno 14 anni (età minima in Italia per il consenso ai servizi digitali, art. 2-quinquies del Codice privacy).</span>
+            </label>
+            <div id="registerError" class="auth-message auth-message--error" role="alert" aria-live="polite" hidden></div>
+            <div id="registerSuccess" class="auth-message auth-message--success" role="status" hidden></div>
             <button type="submit" class="auth-submit">Registrati</button>
           </form>
           <p class="auth-switch">

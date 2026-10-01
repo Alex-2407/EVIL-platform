@@ -3,12 +3,18 @@
 // dei dati di registrazione e login.
 
 const { body, validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
+const passwords = require('../server/lib/passwords');
 const {
   getAccessTokenFromRequest,
   getRefreshTokenFromCookie,
   setAccessCookie,
+  setAuthCookies,
 } = require('../utils/token-utils');
+
+// Segna un testo da tradurre (lo trova `node scripts/i18n.js extract-server`): la traduzione
+// avviene dopo, con req.t(), quando si conosce la lingua della richiesta.
+const t = (s) => s;
+const PASSWORD_MAX = 200;
 
 // Lettere di qualunque alfabeto (accenti inclusi), spazi, apostrofi, punti e trattini: Nicolò, José, D'Alò, J. R.
 const NAME_REGEX = /^[\p{L}\p{M}][\p{L}\p{M}\s'’.-]*$/u;
@@ -44,7 +50,9 @@ function createAuthMiddleware({ sessions }) {
     if (refreshToken) {
       const refreshed = await sessions.refresh(refreshToken);
       if (refreshed.user) {
-        setAccessCookie(res, refreshed.accessToken, refreshed.accessMs);
+        // rotazione (S-10): nuovo refresh token a ogni rinnovo, salvo nella finestra di tolleranza
+        if (refreshed.refreshToken) setAuthCookies(res, refreshed);
+        else setAccessCookie(res, refreshed.accessToken, refreshed.accessMs);
         return { user: refreshed.user, sid: refreshed.sid, refreshed: true };
       }
       return { error: refreshed.error === 'expired' ? 'expired' : 'revoked' };
@@ -63,8 +71,8 @@ function createAuthMiddleware({ sessions }) {
         if (!found.user) {
           const code = found.error === 'missing' ? 'NO_TOKEN' : found.error === 'expired' ? 'TOKEN_EXPIRED' : 'SESSION_REVOKED';
           const error =
-            found.error === 'missing' ? 'Accedi per continuare.' : 'Sessione scaduta: accedi di nuovo.';
-          return res.status(401).json({ error, code });
+            found.error === 'missing' ? t('Accedi per continuare.') : t('Sessione scaduta: accedi di nuovo.');
+          return res.status(401).json({ error: req.t ? req.t(error) : error, code });
         }
         attach(req, found);
         return next();
@@ -96,24 +104,26 @@ function createAuthMiddleware({ sessions }) {
 // ---------------------------------------------------------------- password e validazione
 
 /**
- * Requisiti password: almeno 12 caratteri, una maiuscola, un numero e un carattere speciale.
- * Messaggi in italiano, mostrati così come sono nell'interfaccia.
+ * Requisiti password: da 12 a 200 caratteri, una maiuscola, un numero e un carattere speciale.
+ * `reason` è il testo italiano: le route lo traducono con req.t(reason).
+ * Il massimo di 200 caratteri non dipende più da bcrypt (72 byte): scrypt non ha limiti, ma
+ * una password enorme costerebbe CPU per niente (S-11).
  */
 const validatePasswordStrength = (password) => {
   if (typeof password !== 'string' || password.length < 12) {
-    return { valid: false, reason: 'La password deve avere almeno 12 caratteri.' };
+    return { valid: false, reason: t('La password deve avere almeno 12 caratteri.') };
   }
-  if (password.length > 200) {
-    return { valid: false, reason: 'La password è troppo lunga (massimo 200 caratteri).' };
+  if (password.length > PASSWORD_MAX) {
+    return { valid: false, reason: t('La password è troppo lunga (massimo 200 caratteri).') };
   }
   if (!/[A-Z]/.test(password)) {
-    return { valid: false, reason: 'La password deve contenere almeno una lettera maiuscola.' };
+    return { valid: false, reason: t('La password deve contenere almeno una lettera maiuscola.') };
   }
   if (!/\d/.test(password)) {
-    return { valid: false, reason: 'La password deve contenere almeno un numero.' };
+    return { valid: false, reason: t('La password deve contenere almeno un numero.') };
   }
   if (!PASSWORD_SPECIALS.test(password)) {
-    return { valid: false, reason: 'La password deve contenere almeno un simbolo (per esempio ! ? @ # % . -).' };
+    return { valid: false, reason: t('La password deve contenere almeno un simbolo (per esempio ! ? @ # % . -).') };
   }
   return { valid: true };
 };
@@ -121,9 +131,10 @@ const validatePasswordStrength = (password) => {
 function handleValidation(req, res, next) {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const details = errors.array().map((e) => ({ field: e.path || e.param, message: e.msg }));
+    const tr = (m) => (req.t ? req.t(String(m)) : String(m));
+    const details = errors.array().map((e) => ({ field: e.path || e.param, message: tr(e.msg) }));
     return res.status(400).json({
-      error: details[0]?.message || 'Dati non validi.',
+      error: details[0]?.message || tr(t('Dati non validi.')),
       code: 'VALIDATION_FAILED',
       details,
     });
@@ -133,19 +144,19 @@ function handleValidation(req, res, next) {
 
 const validateRegister = [
   body('name')
-    .isString().withMessage('Inserisci il nome.')
+    .isString().withMessage(t('Inserisci il nome.'))
     .bail()
     .trim()
-    .isLength({ min: 2, max: 100 }).withMessage('Il nome deve avere tra 2 e 100 caratteri.')
+    .isLength({ min: 2, max: 100 }).withMessage(t('Il nome deve avere tra 2 e 100 caratteri.'))
     .bail()
-    .matches(NAME_REGEX).withMessage('Il nome può contenere solo lettere (anche accentate), spazi, apostrofi, punti e trattini.'),
+    .matches(NAME_REGEX).withMessage(t('Il nome può contenere solo lettere (anche accentate), spazi, apostrofi, punti e trattini.')),
   body('email')
-    .isString().withMessage('Inserisci un indirizzo email.')
+    .isString().withMessage(t('Inserisci un indirizzo email.'))
     .bail()
     .trim()
-    .isLength({ max: 254 }).withMessage('Indirizzo email troppo lungo.')
+    .isLength({ max: 254 }).withMessage(t('Indirizzo email troppo lungo.'))
     .bail()
-    .isEmail().withMessage('Indirizzo email non valido.')
+    .isEmail().withMessage(t('Indirizzo email non valido.'))
     .bail()
     .customSanitizer((v) => String(v).toLowerCase()),
   body('password').custom((value) => {
@@ -154,7 +165,12 @@ const validateRegister = [
     return true;
   }),
   body('confirmPassword').custom((value, { req }) => {
-    if (value !== req.body.password) throw new Error('Le password non coincidono.');
+    if (value !== req.body.password) throw new Error(t('Le password non coincidono.'));
+    return true;
+  }),
+  // GDPR (S-15): accettazione esplicita di termini e informativa, salvata con la data
+  body('acceptedTerms').custom((value) => {
+    if (value !== true) throw new Error(t('Per registrarti devi accettare i termini d\'uso e l\'informativa privacy.'));
     return true;
   }),
   handleValidation,
@@ -162,28 +178,26 @@ const validateRegister = [
 
 const validateLogin = [
   body('email')
-    .isString().withMessage('Inserisci un indirizzo email.')
+    .isString().withMessage(t('Inserisci un indirizzo email.'))
     .bail()
     .trim()
-    .isEmail().withMessage('Indirizzo email non valido.')
+    .isEmail().withMessage(t('Indirizzo email non valido.'))
     .bail()
     .customSanitizer((v) => String(v).toLowerCase()),
   body('password')
-    .isString().withMessage('Inserisci la password.')
+    .isString().withMessage(t('Inserisci la password.'))
     .bail()
-    .isLength({ min: 1, max: 200 }).withMessage('Inserisci la password.'),
+    .isLength({ min: 1 }).withMessage(t('Inserisci la password.'))
+    .bail()
+    .isLength({ max: PASSWORD_MAX }).withMessage(t('La password è troppo lunga (massimo 200 caratteri).')),
   handleValidation,
 ];
 
-const hashPassword = async (password) => {
-  const rounds = parseInt(process.env.BCRYPT_ROUNDS || 12, 10);
-  return bcrypt.hash(password, rounds);
-};
+// scrypt nel threadpool (server/lib/passwords.js); bcryptjs resta solo per i vecchi hash
+const hashPassword = (password) => passwords.hashPassword(password);
 
-const verifyPassword = async (plainPassword, hashedPassword) => {
-  if (typeof plainPassword !== 'string' || typeof hashedPassword !== 'string') return false;
-  return bcrypt.compare(plainPassword, hashedPassword);
-};
+/** true/false; per sapere se l'hash va aggiornato usare passwords.verifyPassword. */
+const verifyPassword = async (plainPassword, hashedPassword) => (await passwords.verifyPassword(plainPassword, hashedPassword)).ok;
 
 module.exports = {
   createAuthMiddleware,
@@ -194,4 +208,5 @@ module.exports = {
   hashPassword,
   verifyPassword,
   NAME_REGEX,
+  PASSWORD_MAX,
 };

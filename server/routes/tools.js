@@ -15,8 +15,8 @@ module.exports = function registerTools(app, ctx) {
   } = ctx;
   const {
     runUrlScan, runHttpHeaderAudit, runDnsEnumeration, runWhoisLookup, runSubdomainFinder,
-    runSslAnalysis, runFileScan, runSocialProfiling, runPublicInfoPersonSearch,
-    runPublicInfoDomainSearch, runPublicInfoRegistrySearch, runPublicInfoPersonDetail,
+    runSslAnalysis, runFileScan, runSocialProfiling,
+    runPublicInfoDomainSearch, runPublicInfoPersonDetail,
   } = tools;
 
   /** Risposta d'errore uniforme: messaggio per l'utente, dettaglio tecnico solo nei log. */
@@ -241,49 +241,72 @@ module.exports = function registerTools(app, ctx) {
   // ========================
   // ENDPOINT SOCIAL PROFILING
   // ========================
+  // Messaggi già scritti per l'utente dai servizi OSINT (err.expose): si restituiscono così come sono
+  function sendOsintError(res, err, tool) {
+    if (err && err.expose) return res.status(err.status || 400).json({ error: err.message, status: 'error' });
+    return sendToolError(res, err, tool);
+  }
+
   app.post('/api/social-profile', authenticateTools, scanLimiter, async (req, res) => {
-    const { username, email } = req.body;
+    const { username, checkOwnEmail, email } = req.body || {};
     if (!username) {
-      return res.status(400).json({ error: 'Inserisci uno username.', status: 'error' });
+      return res.status(400).json({ error: req.t('Inserisci uno username.'), status: 'error' });
+    }
+    // Data breach (HIBP): solo l'email dell'account, mai quella di terzi
+    const ownEmail = req.user && req.user.id !== 'guest' ? req.user.email : null;
+    if (email && (!ownEmail || String(email).trim().toLowerCase() !== String(ownEmail).toLowerCase())) {
+      return res.status(403).json({
+        error: req.t('Il controllo dei data breach è disponibile solo per l\'email del tuo account EVIL.'),
+        status: 'error'
+      });
     }
     try {
-      const result = await runSocialProfiling({ username, email });
+      const result = await runSocialProfiling(
+        { username, email: checkOwnEmail || email ? ownEmail : null },
+        { lang: req.lang }
+      );
       res.json(result);
     } catch (err) {
-      sendToolError(res, err, 'Social profiling');
+      sendOsintError(res, err, 'Social profiling');
     }
   });
 
   // ========================
   // ENDPOINT PUBLIC INFO GATHERING
   // ========================
+  // Ricerche su persone solo per figure pubbliche (voce su Wikipedia). Gli elenchi di persone per
+  // comune di nascita e i dossier per nome/cognome/azienda/alias sono profilazione di terzi
+  // (GDPR art. 6 e 14) e non sono più disponibili.
+  const { runPublicFigureSearch } = require('../../services/tools/public-info-registry-service');
+
   app.post('/api/osint-search', authenticateTools, scanLimiter, async (req, res) => {
     req.setTimeout(120000);
     res.setTimeout(120000);
+    const body = req.body || {};
     try {
-      if (req.body.mode === 'person_detail' && req.body.wikidataId) {
-        const result = await runPublicInfoPersonDetail(req.body.wikidataId);
-        return res.json(result);
+      if (body.mode === 'person_detail' && body.wikidataId) {
+        return res.json(await runPublicInfoPersonDetail(body.wikidataId, { lang: req.lang }));
       }
-      if (req.body.mode === 'registry' || (req.body.country && !req.body.firstName)) {
-        const result = await runPublicInfoRegistrySearch({ ...req.body, mode: 'registry' });
-        return res.json(result);
+      if (body.mode === 'public_figure') {
+        return res.json(await runPublicFigureSearch({ name: body.name }, { lang: req.lang }));
       }
-      if (req.body.firstName && req.body.lastName) {
-        const result = await runPublicInfoPersonSearch(req.body);
-        return res.json(result);
+      if (body.mode === 'registry' || body.country || body.firstName || body.lastName) {
+        return res.status(410).json({
+          error: req.t('Le ricerche su persone per luogo, nome, azienda o alias non sono più disponibili: profilano persone senza una base giuridica. Puoi cercare solo figure pubbliche o valutare la tua esposizione online.'),
+          status: 'error'
+        });
       }
-      const { target, type } = req.body;
+      const { target, type } = body;
       if (type === 'domain' && target) {
         const result = await runPublicInfoDomainSearch(target);
         return res.json(result);
       }
       return res.status(400).json({
-        error: 'Indica una nazione (elenco del territorio) oppure nome e cognome (dossier).',
+        error: req.t('Scrivi il nome di una figura pubblica.'),
         status: 'error'
       });
     } catch (err) {
-      sendToolError(res, err, 'OSINT');
+      sendOsintError(res, err, 'OSINT');
     }
   });
 
@@ -352,17 +375,21 @@ module.exports = function registerTools(app, ctx) {
 
 
   // ==================== REPORT GENERATOR ====================
-  const REPORT_FIELDS = {
-    title: 'Titolo',
-    target: 'Organizzazione',
-    severity: 'Severità',
-    author: 'Autore',
-    summary: 'Descrizione',
-    findings: 'Impatto',
-    systems: 'Sistemi coinvolti',
-    usersAffected: 'Utenti coinvolti',
-    recommendations: 'Raccomandazioni',
-  };
+  // Struttura del report: sintesi, perimetro e autorizzazione, timeline, evidenze e IoC,
+  // impatto, raccomandazioni. Le etichette sono tradotte con req.t() al momento della stampa.
+  const REPORT_SECTIONS = [
+    ['summary', 'Sintesi'],
+    ['scope', 'Perimetro e autorizzazione'],
+    ['timeline', 'Timeline'],
+    ['evidence', 'Evidenze e indicatori di compromissione (IoC)'],
+    ['findings', 'Impatto'],
+    ['systems', 'Sistemi coinvolti'],
+    ['usersAffected', 'Utenti coinvolti'],
+    ['recommendations', 'Raccomandazioni'],
+  ];
+  const REPORT_SHORT_FIELDS = new Set(['title', 'target', 'author', 'date', 'severity', 'incidentTypes']);
+  const REPORT_FIELDS = ['title', 'target', 'severity', 'author', 'date', 'incidentTypes', ...REPORT_SECTIONS.map(([k]) => k)];
+  const SEVERITY_LABELS = { critical: 'Critica', high: 'Alta', medium: 'Media', low: 'Bassa' };
 
   function cleanText(value, max = 4000) {
     if (value == null) return '';
@@ -375,19 +402,29 @@ module.exports = function registerTools(app, ctx) {
 
   app.post('/api/report-generator', authenticateTools, (req, res) => {
     const user = req.userRecord || null;
+    const locale = req.lang === 'en' ? 'en-GB' : 'it-IT';
     const raw = req.body?.incident && typeof req.body.incident === 'object' ? req.body.incident : {};
     const incident = {};
-    for (const key of Object.keys(REPORT_FIELDS)) {
-      incident[key] = cleanText(raw[key], key === 'title' || key === 'author' || key === 'target' ? 200 : 4000);
+    for (const key of REPORT_FIELDS) {
+      incident[key] = cleanText(raw[key], REPORT_SHORT_FIELDS.has(key) ? 200 : 4000);
+    }
+    if (SEVERITY_LABELS[incident.severity]) incident.severity = req.t(SEVERITY_LABELS[incident.severity]);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(incident.date)) {
+      const d = new Date(`${incident.date}T12:00:00Z`);
+      if (!Number.isNaN(d.getTime())) incident.date = d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
     }
 
     try {
-      const doc = new PDFDocument({ size: 'A4', margin: 56, info: { Title: incident.title || 'Report EVIL', Author: incident.author || 'EVIL Platform' } });
+      const doc = new PDFDocument({
+        size: 'A4',
+        margin: 56,
+        info: { Title: incident.title || req.t('Report di sicurezza'), Author: incident.author || 'EVIL' },
+      });
       const chunks = [];
       doc.on('data', (c) => chunks.push(c));
       doc.on('error', (err) => {
         logger.error('PDF error', { error: err.message });
-        if (!res.headersSent) res.status(500).json({ error: 'Errore nella generazione del PDF.' });
+        if (!res.headersSent) res.status(500).json({ error: req.t('Errore nella generazione del PDF.') });
       });
       doc.on('end', () => {
         res.setHeader('Content-Type', 'application/pdf');
@@ -396,16 +433,21 @@ module.exports = function registerTools(app, ctx) {
       });
 
       const now = new Date();
-      doc.font('Helvetica-Bold').fontSize(20).fillColor('#111111').text(incident.title || 'Report di sicurezza');
+      doc.font('Helvetica-Bold').fontSize(20).fillColor('#111111').text(incident.title || req.t('Report di sicurezza'));
       doc.moveDown(0.3);
       doc.font('Helvetica').fontSize(10).fillColor('#555555')
-        .text(`Generato il ${now.toLocaleDateString('it-IT')} alle ${now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} con EVIL Platform`);
+        .text(req.t('Generato il {date} alle {time} con EVIL', {
+          date: now.toLocaleDateString(locale),
+          time: now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+        }));
       doc.moveDown(1);
 
       const meta = [
-        ['Organizzazione', incident.target],
-        ['Severità', incident.severity],
-        ['Autore', incident.author || user?.name],
+        [req.t('Organizzazione'), incident.target],
+        [req.t('Data dell\'incidente'), incident.date],
+        [req.t('Severità'), incident.severity],
+        [req.t('Tipo di incidente'), incident.incidentTypes],
+        [req.t('Autore'), incident.author || user?.name],
       ].filter(([, v]) => v);
       for (const [label, value] of meta) {
         doc.font('Helvetica-Bold').fontSize(10).fillColor('#111111').text(`${label}: `, { continued: true });
@@ -413,29 +455,33 @@ module.exports = function registerTools(app, ctx) {
       }
       if (meta.length) doc.moveDown(1);
 
-      for (const key of ['summary', 'findings', 'systems', 'usersAffected', 'recommendations']) {
-        if (!incident[key]) continue;
-        doc.font('Helvetica-Bold').fontSize(13).fillColor('#111111').text(REPORT_FIELDS[key]);
+      REPORT_SECTIONS.forEach(([key, label], i) => {
+        if (!incident[key]) return;
+        doc.font('Helvetica-Bold').fontSize(13).fillColor('#111111').text(`${i + 1}. ${req.t(label)}`);
         doc.moveDown(0.2);
         doc.font('Helvetica').fontSize(10.5).fillColor('#222222').text(incident[key], { align: 'left' });
         doc.moveDown(0.9);
-      }
+      });
 
       if (user) {
         const p = normalizeProgress(user.progress);
         doc.moveDown(0.5);
-        doc.font('Helvetica-Bold').fontSize(11).fillColor('#111111').text('Attività su EVIL');
+        doc.font('Helvetica-Bold').fontSize(11).fillColor('#111111').text(req.t('Attività su EVIL'));
         doc.font('Helvetica').fontSize(10).fillColor('#333333')
-          .text(`Scansioni completate: ${p.totalScans} · Attività: ${p.totalActivities} · Trofei sbloccati: ${p.unlockedAchievements.length}`);
+          .text(req.t('Scansioni completate: {scans} · Attività: {activities} · Trofei sbloccati: {trophies}', {
+            scans: p.totalScans,
+            activities: p.totalActivities,
+            trophies: p.unlockedAchievements.length,
+          }));
       }
 
       doc.moveDown(2);
       doc.font('Helvetica').fontSize(8).fillColor('#777777')
-        .text('Documento generato a scopo didattico e professionale. Verificare i contenuti prima della diffusione.', { align: 'center' });
+        .text(req.t('Documento generato con EVIL a scopo didattico e professionale. Verificane i contenuti e la classificazione prima di diffonderlo.'), { align: 'center' });
       doc.end();
     } catch (err) {
       logger.error('Report generator error', { error: err.message });
-      if (!res.headersSent) res.status(500).json({ error: 'Errore nella generazione del PDF.' });
+      if (!res.headersSent) res.status(500).json({ error: req.t('Errore nella generazione del PDF.') });
     }
   });
 };

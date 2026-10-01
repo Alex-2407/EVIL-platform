@@ -1,10 +1,14 @@
 /**
- * EVIL Subdomain Finder — wordlist + Certificate Transparency (crt.sh)
+ * EVIL — Sottodomini: wordlist + Certificate Transparency (crt.sh)
+ *
+ * S-12: il dominio passa dalla guardia anti-SSRF (niente *.internal, *.corp…) e gli
+ * indirizzi non pubblici a cui risolvono i sottodomini non compaiono nei risultati.
  */
 const dns = require('dns').promises;
 // Client HTTP con protezione SSRF (anche i redirect vengono verificati)
-const { axios } = require('../../server/lib/safe-http');
-const { normalizeDomain } = require('./dns-enumerator-service');
+const { axios, isPublicAddress } = require('../../server/lib/safe-http');
+const { t } = require('../../server/i18n');
+const { normalizeToolDomain } = require('./tool-i18n');
 
 const WORDLIST = [
   'www', 'mail', 'ftp', 'webmail', 'smtp', 'pop', 'imap', 'ns1', 'ns2',
@@ -16,22 +20,38 @@ const WORDLIST = [
 ];
 
 const CATEGORY_RULES = [
-  { id: 'admin', label: 'Amministrazione', risk: 'high', patterns: [/^admin/i, /^cpanel/i, /^whm/i, /^panel/i] },
-  { id: 'api', label: 'API / integrazione', risk: 'medium', patterns: [/^api/i, /^gateway/i, /^graphql/i] },
-  { id: 'auth', label: 'Autenticazione', risk: 'medium', patterns: [/^auth/i, /^sso/i, /^login/i, /^idp/i] },
-  { id: 'dev', label: 'Sviluppo / staging', risk: 'high', patterns: [/^dev/i, /^staging/i, /^stage/i, /^test/i, /^beta/i, /^uat/i, /^qa/i] },
-  { id: 'mail', label: 'Posta', risk: 'low', patterns: [/^mail/i, /^smtp/i, /^webmail/i, /^mx/i, /^imap/i, /^pop/i] },
-  { id: 'cdn', label: 'CDN / asset', risk: 'low', patterns: [/^cdn/i, /^static/i, /^assets/i, /^img/i, /^media/i] },
-  { id: 'infra', label: 'Infrastruttura', risk: 'medium', patterns: [/^vpn/i, /^jenkins/i, /^gitlab/i, /^grafana/i, /^kibana/i, /^ci/i] },
-  { id: 'web', label: 'Web pubblico', risk: 'low', patterns: [/^www/i, /^app/i, /^portal/i, /^shop/i, /^blog/i] }
+  { id: 'admin', risk: 'high', patterns: [/^admin/i, /^cpanel$/i, /^whm$/i, /^panel$/i, /^plesk$/i] },
+  { id: 'api', risk: 'medium', patterns: [/^api(?:$|[\d-])/i, /^gateway$/i, /^graphql$/i] },
+  { id: 'auth', risk: 'medium', patterns: [/^auth/i, /^sso$/i, /^login$/i, /^idp$/i] },
+  { id: 'dev', risk: 'high', patterns: [/^dev(?:$|[\d-])/i, /^staging/i, /^stage$/i, /^test(?:$|[\d-])/i, /^beta$/i, /^uat$/i, /^qa$/i] },
+  { id: 'mail', risk: 'low', patterns: [/^mail/i, /^smtp/i, /^webmail$/i, /^mx\d*$/i, /^imap$/i, /^pop3?$/i, /^autodiscover$/i, /^autoconfig$/i] },
+  { id: 'cdn', risk: 'low', patterns: [/^cdn/i, /^static$/i, /^assets$/i, /^img$/i, /^images?$/i, /^media$/i] },
+  { id: 'infra', risk: 'medium', patterns: [/^vpn/i, /^remote$/i, /^jenkins$/i, /^git(?:lab)?$/i, /^grafana$/i, /^kibana$/i, /^ci$/i, /^ftp$/i] },
+  { id: 'web', risk: 'low', patterns: [/^www\d*$/i, /^app$/i, /^portal$/i, /^shop$/i, /^blog$/i, /^m$/i, /^mobile$/i] },
 ];
 
-const AUDIT_LIMITATIONS = [
-  'Wordlist limitata (~50 prefix comuni) — non è un brute-force completo.',
-  'crt.sh fornisce nomi da certificati storici; non tutti risolvono ancora in A record.',
-  'Solo risoluzione DNS passiva — nessun port scan o probe HTTP.',
-  'Usare solo su domini per cui hai autorizzazione esplicita.'
-];
+function categoryLabel(lang, id) {
+  switch (id) {
+    case 'admin': return t(lang, 'Amministrazione');
+    case 'api': return t(lang, 'API / integrazione');
+    case 'auth': return t(lang, 'Autenticazione');
+    case 'dev': return t(lang, 'Sviluppo / test');
+    case 'mail': return t(lang, 'Posta');
+    case 'cdn': return t(lang, 'CDN / contenuti statici');
+    case 'infra': return t(lang, 'Infrastruttura');
+    case 'web': return t(lang, 'Sito pubblico');
+    default: return t(lang, 'Altro');
+  }
+}
+
+function auditLimitations(lang) {
+  return [
+    t(lang, 'La wordlist contiene circa 50 prefissi comuni: non è un elenco completo dei sottodomini.'),
+    t(lang, 'crt.sh riporta i nomi presenti nei certificati, anche vecchi: non tutti esistono ancora nel DNS.'),
+    t(lang, 'Solo risoluzione DNS: nessuna scansione di porte e nessuna richiesta ai siti trovati.'),
+    t(lang, 'Gli indirizzi non pubblici (reti private, loopback) non vengono mostrati.'),
+  ];
+}
 
 async function mapPool(items, limit, fn) {
   const results = [];
@@ -54,14 +74,14 @@ function apexFromHost(host, domain) {
   return h.split('.')[0];
 }
 
-function classifyHost(host, domain) {
+function classifyHost(host, domain, lang) {
   const prefix = apexFromHost(host, domain);
   for (const rule of CATEGORY_RULES) {
     if (rule.patterns.some((p) => p.test(prefix))) {
-      return { category: rule.id, categoryLabel: rule.label, risk: rule.risk, prefix };
+      return { category: rule.id, categoryLabel: categoryLabel(lang, rule.id), risk: rule.risk, prefix };
     }
   }
-  return { category: 'other', categoryLabel: 'Altro', risk: 'low', prefix };
+  return { category: 'other', categoryLabel: categoryLabel(lang, 'other'), risk: 'low', prefix };
 }
 
 async function resolveHost(fqdn) {
@@ -87,7 +107,11 @@ async function resolveHost(fqdn) {
     /* no CNAME */
   }
   if (!ipv4 && !ipv6 && !cname) return null;
-  return { ipv4, ipv6, cname };
+  // Indirizzi non pubblici: il nome esiste ma l'indirizzo non viene mostrato (S-12)
+  const hidden = (ipv4 && !isPublicAddress(ipv4)) || (ipv6 && !isPublicAddress(ipv6));
+  if (ipv4 && !isPublicAddress(ipv4)) ipv4 = null;
+  if (ipv6 && !isPublicAddress(ipv6)) ipv6 = null;
+  return { ipv4, ipv6, cname, hiddenAddress: !!hidden };
 }
 
 async function fetchCrtShNames(domain) {
@@ -112,7 +136,7 @@ async function fetchCrtShNames(domain) {
   return names;
 }
 
-function buildFindings(found, summary) {
+function buildFindings(found, summary, lang) {
   const findings = [];
   const risky = found.filter((s) => s.risk === 'high');
   const medium = found.filter((s) => s.risk === 'medium');
@@ -120,60 +144,71 @@ function buildFindings(found, summary) {
   if (risky.length) {
     findings.push({
       severity: 'high',
-      title: `${risky.length} host ad alto rischio esposti`,
+      title: risky.length === 1
+        ? t(lang, '1 host sensibile raggiungibile dal DNS pubblico')
+        : t(lang, '{n} host sensibili raggiungibili dal DNS pubblico', { n: risky.length }),
       detail: risky.map((s) => s.subdomain).slice(0, 5).join(', ') + (risky.length > 5 ? '…' : ''),
       module: 'surface',
-      recommendation: 'Verifica che admin/dev/staging non siano esposti pubblicamente senza hardening.'
+      recommendation: t(lang, 'Verifica che pannelli di amministrazione e ambienti di sviluppo o test siano protetti (VPN, autenticazione forte) o non pubblicati.'),
     });
   }
 
   if (medium.length >= 3) {
     findings.push({
       severity: 'medium',
-      title: 'Superficie API/auth ampia',
-      detail: `${medium.length} host classificati come API, auth o infrastruttura.`,
-      module: 'surface'
+      title: t(lang, 'Molti servizi di API, autenticazione o infrastruttura'),
+      detail: t(lang, '{n} host di questo tipo: ognuno è un punto di accesso da inventariare e aggiornare.', { n: medium.length }),
+      module: 'surface',
     });
   }
 
   if (summary.activeCount >= 15) {
     findings.push({
       severity: 'low',
-      title: 'Ampia superficie di sottodomini',
-      detail: `${summary.activeCount} host risolti — più entry point da monitorare.`,
-      module: 'surface'
+      title: t(lang, 'Superficie esposta ampia'),
+      detail: t(lang, '{n} sottodomini risolti: più punti di ingresso da tenere monitorati.', { n: summary.activeCount }),
+      module: 'surface',
     });
   }
 
-  if (summary.ctNames > 0 && summary.ctUnresolved > summary.ctNames * 0.7) {
+  if (summary.hiddenCount > 0) {
+    findings.push({
+      severity: 'low',
+      title: t(lang, 'Sottodomini che puntano a indirizzi interni'),
+      detail: t(lang, '{n} nomi pubblici risolvono a reti private o riservate: rivelano la struttura della rete interna (indirizzi non mostrati).', { n: summary.hiddenCount }),
+      module: 'surface',
+    });
+  }
+
+  if (summary.ctNames > 0 && summary.ctUnresolved > summary.ctChecked * 0.7) {
     findings.push({
       severity: 'info',
-      title: 'Molti nomi CT senza A record',
-      detail: 'Certificati storici con hostname non più attivi — normale su domini maturi.',
-      module: 'ct'
+      title: t(lang, 'Molti nomi dai certificati non esistono più'),
+      detail: t(lang, 'È normale per domini attivi da anni: i certificati vecchi restano nei registri pubblici.'),
+      module: 'ct',
     });
   }
 
   if (!found.length) {
     findings.push({
       severity: 'info',
-      title: 'Nessun sottodominio risolto',
-      detail: 'Wordlist e crt.sh non hanno prodotto host con A/AAAA/CNAME nella finestra analizzata.',
-      module: 'summary'
+      title: t(lang, 'Nessun sottodominio trovato'),
+      detail: t(lang, 'Né la wordlist né crt.sh hanno restituito nomi che risolvono nel DNS.'),
+      module: 'summary',
     });
   } else if (!findings.length) {
     findings.push({
       severity: 'info',
-      title: 'Superficie contenuta',
-      detail: 'Nessun pattern ad alto rischio evidente nei host trovati.',
-      module: 'summary'
+      title: t(lang, 'Superficie contenuta'),
+      detail: t(lang, 'Nessun host sensibile evidente tra quelli trovati.'),
+      module: 'summary',
     });
   }
 
   return findings;
 }
 
-function computeScore(found, findings) {
+function computeScore(found, lang) {
   const breakdown = [];
   let score = 100;
 
@@ -185,10 +220,10 @@ function computeScore(found, findings) {
   const high = found.filter((s) => s.risk === 'high').length;
   const med = found.filter((s) => s.risk === 'medium').length;
 
-  if (high) add('risky_high', `${high} host ad alto rischio`, -high * 12, 'high');
-  if (med) add('risky_med', `${med} host a rischio medio`, -Math.min(med * 5, 20), 'medium');
-  if (found.length > 12) add('many_hosts', 'Superficie ampia', -8, 'low');
-  if (found.length > 20) add('very_many', 'Superficie molto ampia', -7, 'low');
+  if (high) add('risky_high', t(lang, 'Host sensibili: {n}', { n: high }), -Math.min(high * 12, 48), 'high');
+  if (med) add('risky_med', t(lang, 'Host di API, autenticazione o infrastruttura: {n}', { n: med }), -Math.min(med * 5, 20), 'medium');
+  if (found.length > 12) add('many_hosts', t(lang, 'Superficie ampia (più di 12 host)'), -8, 'low');
+  if (found.length > 20) add('very_many', t(lang, 'Superficie molto ampia (più di 20 host)'), -7, 'low');
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 55 ? 'D' : 'F';
@@ -208,9 +243,9 @@ function summarizeByCategory(found) {
   }));
 }
 
-async function runSubdomainFinder(inputDomain) {
+async function runSubdomainFinder(inputDomain, lang) {
   const started = Date.now();
-  const domain = normalizeDomain(inputDomain);
+  const domain = normalizeToolDomain(inputDomain, lang);
   const domainLower = domain.toLowerCase();
 
   const wordlistHosts = WORDLIST.map((p) => `${p}.${domainLower}`);
@@ -238,7 +273,7 @@ async function runSubdomainFinder(inputDomain) {
     if (wordlistHosts.includes(key)) sources.push('wordlist');
     if (ctNames.has(key)) sources.push('crt.sh');
 
-    const cls = classifyHost(key, domainLower);
+    const cls = classifyHost(key, domainLower, lang);
     const entry = {
       subdomain: key,
       ip: item.ipv4,
@@ -248,6 +283,7 @@ async function runSubdomainFinder(inputDomain) {
       category: cls.category,
       categoryLabel: cls.categoryLabel,
       risk: cls.risk,
+      hiddenAddress: !!item.hiddenAddress,
       sources
     };
 
@@ -272,11 +308,12 @@ async function runSubdomainFinder(inputDomain) {
     ctUnresolved: ctUnresolved.length,
     totalCandidates: candidates.length,
     riskyCount: found.filter((s) => s.risk === 'high').length,
+    hiddenCount: found.filter((s) => s.hiddenAddress).length,
     byCategory: summarizeByCategory(found)
   };
 
-  const findings = buildFindings(found, summary);
-  const scoring = computeScore(found, findings);
+  const findings = buildFindings(found, summary, lang);
+  const scoring = computeScore(found, lang);
 
   return {
     domain,
@@ -294,8 +331,8 @@ async function runSubdomainFinder(inputDomain) {
     findings,
     ...scoring,
     scoreBreakdown: scoring.breakdown,
-    limitations: AUDIT_LIMITATIONS,
-    note: 'Enumerazione passiva: wordlist comune + nomi da crt.sh, risoluzione A/AAAA/CNAME.',
+    limitations: auditLimitations(lang),
+    note: t(lang, 'Ricerca passiva: prefissi comuni e nomi dai registri pubblici dei certificati (crt.sh), verificati con il DNS (A, AAAA, CNAME).'),
     scanType: 'subdomain_finder',
     status: 'success'
   };

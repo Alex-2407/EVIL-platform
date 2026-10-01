@@ -1,6 +1,9 @@
 'use strict';
 /**
- * Feed incidenti pubblico (mappa attacchi) + WebSocket.
+ * Feed pubblico della mappa di avvisi e vulnerabilità (/api/realtime-incidents) + WebSocket.
+ *
+ * - la cache contiene dati neutri rispetto alla lingua; risposta HTTP e messaggi WebSocket
+ *   escono nella lingua del client (req.lang; per il WebSocket ?lang= o cookie evil_lang)
  *
  * - un solo aggiornamento alla volta: richieste concorrenti aspettano lo stesso (single-flight)
  * - ?refresh=1 viene rispettato solo se i dati hanno più di MIN_FORCED_REFRESH_MS: nessuno
@@ -15,6 +18,8 @@ const fs = require('fs');
 const WebSocket = require('ws');
 const { isOriginAllowed } = require('../lib/origins');
 const { isDevelopment, trustProxy } = require('../../utils/env');
+const { localizePayload, SCHEMA } = require('../../services/incidents-service');
+const { normalizeLang, DEFAULT_LANG, LANGS } = require('../i18n');
 
 const root = path.resolve(__dirname, '..', '..');
 
@@ -36,6 +41,8 @@ module.exports = function createIncidents(ctx) {
     try {
       if (fs.existsSync(cacheFile)) {
         const cached = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+        // le cache del formato precedente avevano paesi dedotti e dati demo: si scartano
+        if (cached?.schema !== SCHEMA || cached.data_mode !== 'live') return null;
         console.log('💾 Cache incidenti caricata dal disco:', cached.lastUpdate);
         return cached;
       }
@@ -71,23 +78,9 @@ module.exports = function createIncidents(ctx) {
     return Number.isFinite(t) ? Date.now() - t : Infinity;
   }
 
-  function buildIncidentsApiResponse(cache) {
-    const payload = cache || incidentsCache || { incidents: [] };
-    return {
-      status: 'success',
-      timestamp: payload.lastUpdate || new Date().toISOString(),
-      source: payload.source || 'Fonti pubbliche',
-      data_mode: payload.data_mode || 'cache',
-      update_frequency: payload.update_frequency || 'Aggiornamento automatico ogni 5 minuti',
-      data_classification: 'Vulnerabilità e avvisi da fonti pubbliche',
-      total_incidents: payload.total_incidents ?? (payload.incidents?.length || 0),
-      monthly_trends: payload.monthly_trends || null,
-      aggregated_stats: payload.aggregated_stats || null,
-      regions: payload.regions || [],
-      sources: payload.sources || [],
-      incidents: payload.incidents || [],
-      disclaimer: payload.disclaimer || 'Solo a scopo educativo.',
-    };
+  /** Risposta nella lingua richiesta: i dati in cache sono neutri, i testi si traducono qui. */
+  function buildIncidentsApiResponse(cache, lang) {
+    return { status: 'success', ...localizePayload(cache || incidentsCache, lang) };
   }
 
   // ------------------------------------------------------------ WebSocket
@@ -96,15 +89,15 @@ module.exports = function createIncidents(ctx) {
 
   function broadcastIncidents() {
     if (!wsClients.size) return;
-    let message;
+    const messages = {};
     try {
-      message = JSON.stringify(buildIncidentsApiResponse(incidentsCache));
+      for (const l of LANGS) messages[l] = JSON.stringify(buildIncidentsApiResponse(incidentsCache, l));
     } catch (err) {
       logger.error('Errore broadcast incidenti', { error: err.message });
       return;
     }
     for (const client of wsClients) {
-      if (client.readyState === WebSocket.OPEN) client.send(message);
+      if (client.readyState === WebSocket.OPEN) client.send(messages[client.lang] || messages[DEFAULT_LANG]);
     }
   }
 
@@ -127,7 +120,7 @@ module.exports = function createIncidents(ctx) {
 
     if (payload.data_mode !== 'live') lastFailureAt = Date.now();
     incidentsCache = payload;
-    saveCacheToDisk(incidentsCache);
+    if (payload.data_mode === 'live') saveCacheToDisk(incidentsCache); // gli esempi non si salvano
     broadcastIncidents();
     console.log(
       '✅ Cache incidenti aggiornata:',
@@ -173,10 +166,10 @@ module.exports = function createIncidents(ctx) {
           await refreshIncidentsCache();
         }
         res.setHeader('Cache-Control', 'no-cache');
-        res.json(buildIncidentsApiResponse(incidentsCache));
+        res.json(buildIncidentsApiResponse(incidentsCache, req.lang));
       } catch (err) {
         logger.error('Feed incidenti non disponibile', { error: err.message });
-        res.json({ ...buildIncidentsApiResponse(incidentsCache), status: 'degraded' });
+        res.json({ ...buildIncidentsApiResponse(incidentsCache, req.lang), status: 'degraded' });
       }
     });
   }
@@ -190,6 +183,15 @@ module.exports = function createIncidents(ctx) {
       if (forwarded.length) return forwarded[forwarded.length - 1];
     }
     return request.socket?.remoteAddress || 'unknown';
+  }
+
+  /** Lingua del client WebSocket: ?lang= nell'URL, poi cookie evil_lang, altrimenti italiano. */
+  function wsLang(request) {
+    const q = /[?&]lang=([a-z]{2})/i.exec(request.url || '');
+    const fromQuery = q && normalizeLang(q[1]);
+    if (fromQuery) return fromQuery;
+    const c = /(?:^|;\s*)evil_lang=([a-z]{2})/i.exec(String(request.headers.cookie || ''));
+    return (c && normalizeLang(c[1])) || DEFAULT_LANG;
   }
 
   function reject(socket, status, text) {
@@ -221,6 +223,7 @@ module.exports = function createIncidents(ctx) {
       }
 
       wss.handleUpgrade(request, socket, head, (ws) => {
+        ws.lang = wsLang(request);
         wsClients.add(ws);
         wsPerIp.set(ip, (wsPerIp.get(ip) || 0) + 1);
         ws.isAlive = true;
@@ -237,7 +240,7 @@ module.exports = function createIncidents(ctx) {
           else wsPerIp.set(ip, n);
         });
         ws.on('error', (err) => logger.warn('WebSocket errore', { error: err.message }));
-        ws.send(JSON.stringify(buildIncidentsApiResponse(incidentsCache)));
+        ws.send(JSON.stringify(buildIncidentsApiResponse(incidentsCache, ws.lang)));
       });
     });
 
