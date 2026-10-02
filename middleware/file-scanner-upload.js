@@ -1,8 +1,9 @@
 /**
- * Upload in RAM per File Scanner — nessun salvataggio su disco
+ * Upload in memoria per l'Analisi file: il file non viene mai scritto su disco.
  */
 const multer = require('multer');
 const path = require('path');
+const { t } = require('../server/i18n');
 
 const MAX_BYTES = parseInt(process.env.FILE_SCAN_MAX_BYTES || String(32 * 1024 * 1024), 10);
 
@@ -18,19 +19,25 @@ const ALLOWED_EXT = new Set(
 // eslint-disable-next-line no-control-regex -- il byte nullo nei nomi di file va bloccato
 const BLOCKED_NAME = /(\.\.|\/|\\|\x00|%00|^\s|\.$|<|>|:|"|\||\?|\*)/;
 
+/** Errore di validazione dell'upload, già scritto per l'utente nella sua lingua. */
+function uploadError(message) {
+  const err = new Error(message);
+  err.userFacing = true;
+  return err;
+}
+
 function fileFilter(req, file, cb) {
+  const lang = req.lang;
   const name = file.originalname || '';
   if (name.length > 240) {
-    return cb(new Error('Nome file troppo lungo'));
+    return cb(uploadError(t(lang, 'Il nome del file è troppo lungo (massimo 240 caratteri).')));
   }
   if (BLOCKED_NAME.test(name)) {
-    return cb(new Error('Nome file non consentito'));
+    return cb(uploadError(t(lang, 'Il nome del file contiene caratteri non consentiti.')));
   }
   const ext = path.extname(name).toLowerCase();
   if (!ext || !ALLOWED_EXT.has(ext)) {
-    return cb(
-      new Error(`Estensione non consentita per la scansione. Consentite: ${[...ALLOWED_EXT].slice(0, 12).join(', ')}…`)
-    );
+    return cb(uploadError(t(lang, 'Tipo di file non accettato. Estensioni consentite: {list}.', { list: [...ALLOWED_EXT].join(', ') })));
   }
   cb(null, true);
 }
@@ -47,15 +54,20 @@ const scanUpload = multer({
 });
 
 function handleScanUploadError(err, req, res, next) {
+  const lang = req.lang;
   if (err instanceof multer.MulterError) {
     if (err.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({
-        error: `File troppo grande. Massimo ${Math.round(MAX_BYTES / 1024 / 1024)} MB per scansione.`
+        error: t(lang, 'File troppo grande: il massimo è {mb} MB.', { mb: Math.round(MAX_BYTES / 1024 / 1024) }),
+        status: 'error',
       });
     }
-    return res.status(400).json({ error: err.message });
+    return res.status(400).json({ error: t(lang, 'Caricamento non valido: invia un solo file nel campo «file».'), status: 'error' });
   }
-  if (err) return res.status(400).json({ error: err.message });
+  if (err) {
+    const message = err.userFacing ? err.message : t(lang, 'Caricamento del file non riuscito.');
+    return res.status(400).json({ error: message, status: 'error' });
+  }
   next();
 }
 

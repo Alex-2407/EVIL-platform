@@ -1,23 +1,92 @@
 /**
- * EVIL Public Info — elenco territoriale + dossier
+ * EVIL — La tua esposizione online (public-info.html)
+ * - Autovalutazione: ricerche su sé stessi da aprire nel browser e checklist con punteggio,
+ *   tutto locale (nessun dato inviato o salvato).
+ * - Figure pubbliche: ricerca su Wikidata limitata a persone con una voce su Wikipedia
+ *   (POST /api/osint-search, mode public_figure / person_detail).
  */
 (function () {
-  const $ = (id) => document.getElementById(id);
-  let lastReport = null;
-  let uiMode = 'registry';
-  let registryOffset = 0;
+  'use strict';
 
-  const CAT_LABELS = {
-    professional_profiles: 'Profili professionali',
-    websites: 'Siti web',
-    public_quotes: 'Citazioni pubbliche',
-    organizations: 'Organizzazioni',
-    social_profiles: 'Profili social (API)',
-    public_images: 'Immagini pubbliche',
-    articles_publications: 'Articoli / pubblicazioni',
-    associated_domains: 'Domini associati',
-    corporate_data: 'Dati aziendali pubblici'
-  };
+  const { t, fmtNumber } = window.EVIL_I18N;
+  const $ = (id) => document.getElementById(id);
+  let uiMode = 'self';
+
+  // peso: quanto la voce aumenta il rischio (furto d'identità, phishing mirato, stalking)
+  const CHECKLIST = [
+    {
+      id: 'realName',
+      weight: 1,
+      label: () => t('Ho profili social pubblici con nome e cognome reali'),
+      tip: () => t('Rendi privati i profili personali o limita chi vede post, amici e foto.'),
+    },
+    {
+      id: 'birthDate',
+      weight: 2,
+      label: () => t('La mia data di nascita completa è visibile online'),
+      tip: () => t('Nascondi giorno e anno di nascita: servono spesso per verificare l\'identità e recuperare account.'),
+    },
+    {
+      id: 'address',
+      weight: 3,
+      label: () => t('Il mio indirizzo di casa si trova online'),
+      tip: () => t('Chiedi la rimozione ai siti che lo pubblicano e non indicarlo in annunci o curriculum pubblici.'),
+    },
+    {
+      id: 'phone',
+      weight: 2,
+      label: () => t('Il mio numero di cellulare personale è pubblicato'),
+      tip: () => t('Toglilo dai profili pubblici: è usato per smishing e per attacchi di SIM swap.'),
+    },
+    {
+      id: 'email',
+      weight: 1,
+      label: () => t('La mia email personale compare su pagine pubbliche (CV, forum, siti)'),
+      tip: () => t('Usa un indirizzo diverso per i contatti pubblici e uno privato per banca e account importanti.'),
+    },
+    {
+      id: 'breach',
+      weight: 2,
+      label: () => t('La mia email compare in un data breach noto (verificalo su haveibeenpwned.com)'),
+      tip: () => t('Cambia la password dei servizi coinvolti e attiva l\'autenticazione a più fattori.'),
+    },
+    {
+      id: 'reuse',
+      weight: 3,
+      label: () => t('Uso la stessa password, o quasi, su più siti'),
+      tip: () => t('Usa un password manager e una password diversa per ogni servizio.'),
+    },
+    {
+      id: 'username',
+      weight: 1,
+      label: () => t('Uso lo stesso username su molte piattaforme'),
+      tip: () => t('Uno username unico rende facile collegare tra loro tutti i tuoi account: usane di diversi per ambiti diversi.'),
+    },
+    {
+      id: 'location',
+      weight: 2,
+      label: () => t('Pubblico foto o post che rivelano dove sono in tempo reale o i luoghi che frequento'),
+      tip: () => t('Pubblica a posteriori e togli la posizione dalle foto (metadati EXIF e geotag).'),
+    },
+    {
+      id: 'family',
+      weight: 2,
+      label: () => t('Familiari o figli sono riconoscibili nelle mie foto pubbliche'),
+      tip: () => t('Limita il pubblico dei post di famiglia ed evita nomi, scuole e luoghi abituali dei minori.'),
+    },
+    {
+      id: 'work',
+      weight: 1,
+      label: () => t('Il mio profilo professionale descrive in dettaglio ruolo, strumenti e colleghi'),
+      tip: () => t('Ruolo e tecnologie bastano: elenchi di sistemi interni e organigrammi aiutano il phishing mirato.'),
+    },
+    {
+      id: 'mfa',
+      weight: 2,
+      label: () => t('Non ho attivato l\'autenticazione a più fattori su email e social'),
+      tip: () => t('Attivala subito, preferendo app di autenticazione o chiavi di sicurezza agli SMS.'),
+    },
+  ];
 
   function esc(s) {
     if (s == null) return '';
@@ -25,7 +94,12 @@
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function safeUrl(u) {
+    return /^https:\/\//i.test(String(u || '')) ? String(u) : '';
   }
 
   function log(msg, type) {
@@ -33,302 +107,262 @@
     box.classList.add('is-active');
     const line = document.createElement('div');
     line.className = 'sc-log__line sc-log__line--' + (type || 'run');
-    line.textContent = `[${new Date().toLocaleTimeString('it-IT')}] ${msg}`;
+    line.textContent = msg;
     box.appendChild(line);
     box.scrollTop = box.scrollHeight;
   }
 
-  function bindSections(root) {
-    (root || document).querySelectorAll('.sc-section__head').forEach((head) => {
-      head.addEventListener('click', () => {
-        const body = head.nextElementSibling;
-        body.hidden = !body.hidden;
-      });
+  // ------------------------------------------------------------------ autovalutazione
+  function renderSearchLinks() {
+    const box = $('piSearchLinks');
+    const name = $('piSelfName').value.trim().replace(/\s+/g, ' ');
+    box.replaceChildren();
+    if (name.length < 3) return;
+    const q = encodeURIComponent(`"${name}"`);
+    const links = [
+      { label: t('Google: il tuo nome'), href: `https://www.google.com/search?q=${q}` },
+      { label: t('Google Immagini'), href: `https://www.google.com/search?tbm=isch&q=${q}` },
+      { label: t('DuckDuckGo'), href: `https://duckduckgo.com/?q=${q}` },
+      { label: t('Bing'), href: `https://www.bing.com/search?q=${q}` },
+    ];
+    links.forEach((l) => {
+      const a = document.createElement('a');
+      a.className = 'sc-btn sc-btn--ghost evil-external-link';
+      a.href = l.href;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.textContent = l.label;
+      box.appendChild(a);
     });
+    const hint = document.createElement('p');
+    hint.className = 'sc-muted';
+    hint.textContent = t('Annota cosa trovi: indirizzi, numeri di telefono, foto, vecchi profili. Puoi chiedere la rimozione al sito o, per i motori di ricerca, la deindicizzazione (diritto all\'oblio, art. 17 GDPR).');
+    box.appendChild(hint);
   }
 
+  function renderChecklist() {
+    const box = $('piChecklist');
+    box.replaceChildren();
+    CHECKLIST.forEach((item) => {
+      const label = document.createElement('label');
+      label.className = 'pi-check';
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.value = item.id;
+      input.addEventListener('change', updateScore);
+      const span = document.createElement('span');
+      span.textContent = item.label();
+      label.append(input, span);
+      box.appendChild(label);
+    });
+    updateScore();
+  }
+
+  function updateScore() {
+    const checked = Array.from($('piChecklist').querySelectorAll('input:checked')).map((el) => el.value);
+    const items = CHECKLIST.filter((i) => checked.includes(i.id));
+    const max = CHECKLIST.reduce((sum, i) => sum + i.weight, 0);
+    const points = items.reduce((sum, i) => sum + i.weight, 0);
+    const pct = Math.round((points / max) * 100);
+    let level;
+    let cls;
+    if (pct === 0) {
+      level = t('Esposizione minima');
+      cls = 'low';
+    } else if (pct < 25) {
+      level = t('Esposizione bassa');
+      cls = 'low';
+    } else if (pct < 50) {
+      level = t('Esposizione media');
+      cls = 'medium';
+    } else {
+      level = t('Esposizione alta');
+      cls = 'high';
+    }
+
+    const score = $('piScore');
+    score.className = `pi-score pi-score--${cls}`;
+    score.replaceChildren();
+    const strong = document.createElement('strong');
+    strong.textContent = level;
+    const span = document.createElement('span');
+    span.textContent = t('Indice di esposizione: {pct} su 100', { pct: fmtNumber(pct) });
+    score.append(strong, span);
+
+    const advice = $('piAdvice');
+    advice.replaceChildren();
+    if (!items.length) {
+      const p = document.createElement('p');
+      p.className = 'sc-muted';
+      p.textContent = t('Nessun punto spuntato. Ripeti il controllo ogni tanto: profili e servizi cambiano.');
+      advice.appendChild(p);
+      return;
+    }
+    const h = document.createElement('h3');
+    h.textContent = t('Cosa fare, dalle azioni più importanti');
+    const ol = document.createElement('ol');
+    items
+      .slice()
+      .sort((a, b) => b.weight - a.weight)
+      .forEach((i) => {
+        const li = document.createElement('li');
+        li.textContent = i.tip();
+        ol.appendChild(li);
+      });
+    advice.append(h, ol);
+  }
+
+  // ------------------------------------------------------------------ figure pubbliche
   function setMode(mode) {
     uiMode = mode;
-    $('piTabRegistry')?.classList.toggle('is-active', mode === 'registry');
-    $('piTabDossier')?.classList.toggle('is-active', mode === 'dossier');
-    $('piTabRegistry')?.setAttribute('aria-selected', String(mode === 'registry'));
-    $('piTabDossier')?.setAttribute('aria-selected', String(mode === 'dossier'));
-    $('piPanelRegistry').hidden = mode !== 'registry';
-    $('piPanelDossier').hidden = mode !== 'dossier';
-    $('piScanBtn').textContent = mode === 'registry' ? 'Carica elenco' : 'Avvia dossier OSINT';
-    $('piMeta').textContent =
-      mode === 'registry'
-        ? 'Wikidata SPARQL · comune nascita/residenza · paginazione 50 · ~5–25 s'
-        : 'OpenAlex · ORCID · Wikipedia · Crossref · ~5–20 s';
+    $('piTabSelf').classList.toggle('is-active', mode === 'self');
+    $('piTabFigure').classList.toggle('is-active', mode === 'figure');
+    $('piTabSelf').setAttribute('aria-selected', String(mode === 'self'));
+    $('piTabFigure').setAttribute('aria-selected', String(mode === 'figure'));
+    $('piPanelSelf').hidden = mode !== 'self';
+    $('piPanelFigure').hidden = mode !== 'figure';
+    ['piLog', 'piResults', 'piDetail'].forEach((id) => { $(id).hidden = mode !== 'figure'; });
     syncBtn();
   }
 
   function syncBtn() {
-    const auth = $('piAuth').checked;
-    if (uiMode === 'registry') {
-      $('piScanBtn').disabled = !auth || !$('piRegCountry').value.trim();
-    } else {
-      $('piScanBtn').disabled = !auth || !$('piFirstName').value.trim() || !$('piLastName').value.trim();
-    }
+    $('piScanBtn').disabled = !$('piAuth').checked || $('piFigureName').value.trim().length < 2;
   }
 
-  function renderRegistryReport(data) {
-    lastReport = data;
-    registryOffset = data.query?.offset || 0;
-    const t = data.territory || {};
-    const terrLine = [
-      t.country?.label,
-      t.region?.label,
-      t.province?.label,
-      t.municipality?.label
-    ]
-      .filter(Boolean)
-      .join(' → ');
+  function years(p) {
+    if (p.birthYear && p.deathYear) return `${p.birthYear}–${p.deathYear}`;
+    if (p.birthYear) return t('nascita: {year}', { year: p.birthYear });
+    return '—';
+  }
 
-    const rows = (data.people || [])
-      .map(
-        (p) => `<tr>
-          <td>${esc(p.id)}</td>
-          <td><strong>${esc(p.name)}</strong>${p.wikidataId ? `<br><span class="sc-muted">${esc(p.wikidataId)}</span>` : ''}</td>
-          <td>${esc(p.birthMunicipality || '—')}</td>
-          <td>${esc(p.residenceMunicipality || '—')}</td>
-          <td>${esc(p.occupation || '—')}</td>
-          <td>${esc(p.birthYear || '—')}</td>
-          <td class="pi-conf--${esc(p.confidence)}">${esc(p.confidence)}</td>
-          <td>${p.wikidataId ? `<button type="button" class="pi-detail-btn" data-qid="${esc(p.wikidataId)}">Scheda</button>` : p.wikipediaUrl ? `<a class="evil-external-link" href="${esc(p.wikipediaUrl)}" target="_blank" rel="noopener">Wiki</a>` : '—'}</td>
-        </tr>`
-      )
+  function renderFigures(data) {
+    const people = data.people || [];
+    const rows = people
+      .map((p) => {
+        const wiki = safeUrl(p.wikipediaUrl);
+        return `<tr>
+          <td><strong>${esc(p.name)}</strong></td>
+          <td>${esc(p.description || '—')}</td>
+          <td>${esc(years(p))}</td>
+          <td class="pi-actions-cell">
+            <button type="button" class="pi-detail-btn" data-qid="${esc(p.wikidataId)}">${esc(t('Scheda'))}</button>
+            ${wiki ? `<a class="evil-external-link" href="${esc(wiki)}" target="_blank" rel="noopener">${esc(t('Wikipedia'))}</a>` : ''}
+          </td>
+        </tr>`;
+      })
       .join('');
-
-    const limitList = (data.limitations || []).map((l) => `<li>${esc(l)}</li>`).join('');
-    const pag = data.pagination || {};
-
-    const q = data.query || {};
-    const applied = data.appliedFilters || {};
-    const filterLine = Object.entries(applied)
-      .filter(([, v]) => v)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join(' · ');
-
+    const limits = (data.limitations || []).map((l) => `<li>${esc(l)}</li>`).join('');
     $('piResults').innerHTML = `
-      <div class="sc-summary">
-        <div class="sc-score-ring sc-score-ring--b">
-          <span class="sc-score-ring__num">${data.totalReturned}</span>
-          <span class="sc-score-ring__grade">Persone</span>
-        </div>
-        <div>
-          <div class="sc-summary-grid">
-            <div><div class="sc-kv__label">Territorio</div><div class="sc-kv__val">${esc(terrLine)}</div></div>
-            <div><div class="sc-kv__label">Con comune nascita</div><div class="sc-kv__val">${data.withBirthMunicipality ?? 0}</div></div>
-            <div><div class="sc-kv__label">Filtri attivi</div><div class="sc-kv__val">${esc(filterLine || 'solo nazione')}</div></div>
-            <div><div class="sc-kv__label">Durata</div><div class="sc-kv__val">${esc(data.scanDurationMs)} ms</div></div>
-          </div>
-          <div class="sc-export-row">
-            <button type="button" class="sc-btn sc-btn--ghost" id="piExportJson">Esporta JSON elenco</button>
-          </div>
-        </div>
-      </div>
-      <p class="sc-callout"><strong>Nota:</strong> ${esc(data.note)}</p>
-      ${limitList ? `<div class="sc-callout sc-callout--muted"><ul class="sc-limit-list">${limitList}</ul></div>` : ''}
       <div class="sc-section">
-        <div class="sc-section__head"><h2>Elenco persone (fonte Wikidata/Wikipedia)</h2></div>
-        <div class="sc-section__body" style="overflow-x:auto">
+        <div class="sc-section__head"><h2>${esc(t('Figure pubbliche trovate: {n}', { n: fmtNumber(people.length) }))}</h2></div>
+        <div class="sc-section__body pi-table-wrap">
           <table class="pi-registry-table">
             <thead><tr>
-              <th>ID</th><th>Nome</th><th>Comune nascita</th><th>Residenza</th><th>Professione</th><th>Anno</th><th>Conf.</th><th></th>
+              <th scope="col">${esc(t('Nome'))}</th><th scope="col">${esc(t('Descrizione'))}</th><th scope="col">${esc(t('Anni'))}</th><th scope="col"><span class="pi-sr-only">${esc(t('Azioni'))}</span></th>
             </tr></thead>
-            <tbody>${rows || '<tr><td colspan="8">Nessun record — prova ad aggiungere comune o regione.</td></tr>'}</tbody>
+            <tbody>${rows || `<tr><td colspan="4">${esc(t('Nessuna figura pubblica con questo nome. Controlla l\'ortografia o prova con il nome completo.'))}</td></tr>`}</tbody>
           </table>
-          <div class="pi-pagination">
-            ${pag.prevOffset != null ? `<button type="button" class="sc-btn sc-btn--ghost" id="piPrevPage">← Precedenti</button>` : ''}
-            ${pag.nextOffset != null ? `<button type="button" class="sc-btn sc-btn--ghost" id="piNextPage">Successivi →</button>` : ''}
-          </div>
         </div>
-      </div>`;
-
+      </div>
+      ${limits ? `<div class="sc-callout sc-callout--limits"><ul>${limits}</ul></div>` : ''}`;
     $('piResults').classList.add('is-active');
-    bindSections($('piResults'));
-
-    document.getElementById('piExportJson')?.addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `evil-elenco-${Date.now()}.json`;
-      a.click();
-    });
-    document.getElementById('piPrevPage')?.addEventListener('click', () => runRegistry(pag.prevOffset));
-    document.getElementById('piNextPage')?.addEventListener('click', () => runRegistry(pag.nextOffset));
     $('piResults').querySelectorAll('.pi-detail-btn').forEach((btn) => {
       btn.addEventListener('click', () => loadPersonDetail(btn.dataset.qid));
     });
   }
 
   async function loadPersonDetail(wikidataId) {
-    $('piDetail').innerHTML = '<p class="sc-muted">Caricamento scheda…</p>';
-    $('piDetail').classList.add('is-active');
+    const box = $('piDetail');
+    box.innerHTML = `<p class="sc-muted">${esc(t('Caricamento della scheda…'))}</p>`;
+    box.classList.add('is-active');
     try {
-      const d = await EvilTools.postToolJson('/api/osint-search', { mode: 'person_detail', wikidataId });
-      const list = (arr) => (arr || []).map((x) => `<li><a class="evil-external-link" href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.label)}</a></li>`).join('') || '<li>—</li>';
-      $('piDetail').innerHTML = `
+      const d = await window.EvilTools.postToolJson('/api/osint-search', { mode: 'person_detail', wikidataId });
+      const list = (arr) =>
+        (arr || [])
+          .map((x) => {
+            const u = safeUrl(x.url);
+            return u
+              ? `<li><a class="evil-external-link" href="${esc(u)}" target="_blank" rel="noopener">${esc(x.label)}</a></li>`
+              : `<li>${esc(x.label)}</li>`;
+          })
+          .join('') || '<li>—</li>';
+      const wiki = safeUrl(d.wikipediaUrl);
+      const wd = safeUrl(d.wikidataUrl);
+      box.innerHTML = `
         <div class="sc-section">
-          <div class="sc-section__head"><h2>Scheda ${esc(d.wikidataId)} — ${esc(d.name)}</h2></div>
+          <div class="sc-section__head"><h2>${esc(d.name)} <span class="sc-muted">${esc(d.wikidataId)}</span></h2></div>
           <div class="sc-section__body">
             ${d.description ? `<p>${esc(d.description)}</p>` : ''}
             <div class="sc-summary-grid">
-              <div><div class="sc-kv__label">Anno nascita</div><div class="sc-kv__val">${esc(d.birthYear || '—')}</div></div>
+              <div><div class="sc-kv__label">${esc(t('Anno di nascita'))}</div><div class="sc-kv__val">${esc(d.birthYear || '—')}</div></div>
+              ${d.deathYear ? `<div><div class="sc-kv__label">${esc(t('Anno di morte'))}</div><div class="sc-kv__val">${esc(d.deathYear)}</div></div>` : ''}
             </div>
-            <p><strong>Luoghi di nascita</strong></p><ul>${list(d.birthPlaces)}</ul>
-            <p><strong>Residenze</strong></p><ul>${list(d.residences)}</ul>
-            <p><strong>Professioni</strong></p><ul>${list(d.occupations)}</ul>
-            <p><strong>Cittadinanze</strong></p><ul>${list(d.citizenships)}</ul>
-            <p><strong>Organizzazioni</strong></p><ul>${list(d.employers)}</ul>
-            <p><a class="evil-external-link sc-btn sc-btn--ghost" href="${esc(d.wikidataUrl)}" target="_blank" rel="noopener">Apri Wikidata →</a></p>
+            <h3>${esc(t('Luogo di nascita'))}</h3><ul>${list(d.birthPlaces)}</ul>
+            <h3>${esc(t('Professioni'))}</h3><ul>${list(d.occupations)}</ul>
+            <h3>${esc(t('Cittadinanze'))}</h3><ul>${list(d.citizenships)}</ul>
+            <h3>${esc(t('Organizzazioni'))}</h3><ul>${list(d.employers)}</ul>
+            <p class="pi-detail-links">
+              ${wiki ? `<a class="evil-external-link sc-btn sc-btn--ghost" href="${esc(wiki)}" target="_blank" rel="noopener">${esc(t('Apri Wikipedia'))}</a>` : ''}
+              ${wd ? `<a class="evil-external-link sc-btn sc-btn--ghost" href="${esc(wd)}" target="_blank" rel="noopener">${esc(t('Apri Wikidata'))}</a>` : ''}
+            </p>
+            <p class="sc-muted">${esc(t('Dati di Wikidata: possono essere incompleti o sbagliati. Verifica sempre la fonte prima di citarli.'))}</p>
           </div>
         </div>`;
-      bindSections($('piDetail'));
-      log(`Scheda ${d.wikidataId} caricata`, 'ok');
+      box.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      $('piDetail').innerHTML = `<div class="sc-callout">${esc(err.message)}</div>`;
+      box.innerHTML = `<div class="sc-callout">${esc(err.message)}</div>`;
     }
   }
 
-  async function runRegistry(offset) {
-    registryOffset = offset || 0;
-    const body = {
-      mode: 'registry',
-      country: $('piRegCountry').value.trim(),
-      region: $('piRegRegion').value.trim() || undefined,
-      province: $('piRegProvince').value.trim() || undefined,
-      municipality: $('piRegMunicipality').value.trim() || undefined,
-      profession: $('piRegProfession').value.trim() || undefined,
-      limit: 50,
-      offset: registryOffset
-    };
+  async function runFigureSearch() {
+    if (!$('piAuth').checked) return;
+    const name = $('piFigureName').value.trim();
     $('piScanBtn').disabled = true;
+    $('piLog').replaceChildren();
     $('piResults').innerHTML = '';
     $('piDetail').innerHTML = '';
     try {
-      log('Risoluzione territorio Wikidata…', 'run');
-      log('Query SPARQL elenco persone…', 'run');
-      const data = await EvilTools.postToolJson('/api/osint-search', body);
-      log(`${data.totalReturned} record · ${data.withBirthMunicipality} con comune nascita`, 'ok');
-      renderRegistryReport(data);
-      window.progressManager?.logActivity?.('osint_collection', { mode: body.mode, total: data.totalReturned });
+      log(t('Ricerca su Wikidata in corso…'), 'run');
+      const data = await window.EvilTools.postToolJson('/api/osint-search', { mode: 'public_figure', name });
+      const n = data.totalReturned || 0;
+      log(n === 1 ? t('1 figura pubblica trovata') : t('{n} figure pubbliche trovate', { n: fmtNumber(n) }), 'ok');
+      renderFigures(data);
+      window.progressManager?.logActivity?.('osint_collection', { mode: 'public_figure', total: n });
     } catch (err) {
       log(err.message, 'err');
-      const hint =
-        /timeout/i.test(err.message)
-          ? '<br><span class="sc-muted">Wikidata può essere lento: riprova con comune obbligatorio (es. Roma) o attendi e riprova.</span>'
-          : '';
-      $('piResults').innerHTML = `<div class="sc-callout"><strong>Elenco non disponibile</strong><br>${esc(err.message)}${hint}</div>`;
+      $('piResults').innerHTML = `<div class="sc-callout"><strong>${esc(t('Ricerca non riuscita'))}</strong><br>${esc(err.message)}</div>`;
       $('piResults').classList.add('is-active');
     } finally {
       syncBtn();
     }
   }
 
-  function formatCatItem(item) {
-    if (typeof item === 'string') return esc(item);
-    const parts = [];
-    if (item.title) parts.push(`<strong>${esc(item.title)}</strong>`);
-    if (item.name) parts.push(esc(item.name));
-    if (item.text) parts.push(esc(item.text));
-    if (item.url) parts.push(`<a class="evil-external-link" href="${esc(item.url)}" target="_blank" rel="noopener">${esc(item.url)}</a>`);
-    return parts.join(' ') || esc(JSON.stringify(item));
-  }
-
-  function renderCandidate(c) {
-    const cats = Object.entries(c.categories || {})
-      .filter(([, items]) => items?.length)
-      .map(
-        ([key, items]) =>
-          `<div class="pi-cat-block"><h4>${esc(CAT_LABELS[key] || key)}</h4><ul>${items.map((i) => `<li>${formatCatItem(i)}</li>`).join('')}</ul></div>`
-      )
-      .join('');
-    return `<article class="pi-candidate"><div class="pi-candidate__head"><span class="pi-candidate__id">${esc(c.id)}</span> <strong>${esc(c.label)}</strong> <span class="pi-conf--${esc(c.confidence)}">${esc(c.confidence)}</span></div><div class="pi-cat-grid">${cats}</div></article>`;
-  }
-
-  function renderDossierReport(data) {
-    lastReport = data;
-    const q = data.query || {};
-    const f = q.filters || {};
-    const filterLine = Object.entries(f)
-      .filter(([, v]) => v)
-      .map(([k, v]) => `${k}: ${v}`)
-      .join(' · ');
-    const candidates = (data.candidates || []).map(renderCandidate).join('');
-    const excluded =
-      data.excludedByFilters > 0
-        ? `<p class="sc-muted">${data.excludedByFilters} schede escluse dai filtri${filterLine ? ` (${esc(filterLine)})` : ''}.</p>`
-        : '';
-    $('piResults').innerHTML = `
-      <div class="sc-summary">
-        <div class="sc-score-ring sc-score-ring--b"><span class="sc-score-ring__num">${data.candidateCount}</span><span class="sc-score-ring__grade">Schede</span></div>
-        <div><p class="sc-muted">${esc(q.fullName)}${filterLine ? ` · Filtri: ${esc(filterLine)}` : ''}</p>${excluded}</div>
-      </div>
-      <div class="sc-section"><div class="sc-section__head"><h2>Identità candidate</h2></div><div class="sc-section__body">${candidates || '<p class="sc-muted">Nessuna corrispondenza — modifica i filtri.</p>'}</div></div>`;
-    $('piResults').classList.add('is-active');
-  }
-
-  async function runDossier() {
-    const body = {
-      firstName: $('piFirstName').value.trim(),
-      lastName: $('piLastName').value.trim(),
-      filters: {
-        city: $('piCity').value.trim() || undefined,
-        province: $('piProvince').value.trim() || undefined,
-        region: $('piRegion').value.trim() || undefined,
-        country: $('piCountry').value.trim() || undefined,
-        profession: $('piProfession').value.trim() || undefined,
-        company: $('piCompany').value.trim() || undefined,
-        timeRange: $('piTimeRange').value.trim() || undefined
-      },
-      aliases: $('piAliases').value.split(/[,;\s]+/).filter(Boolean).slice(0, 5)
-    };
-    $('piScanBtn').disabled = true;
-    $('piLog').innerHTML = '';
-    $('piResults').innerHTML = '';
-    try {
-      log('Interrogazione fonti con filtri…', 'run');
-      const data = await EvilTools.postToolJson('/api/osint-search', body);
-      log(`${data.candidateCount} schede${data.excludedByFilters ? ` (${data.excludedByFilters} escluse)` : ''}`, 'ok');
-      renderDossierReport(data);
-    } catch (err) {
-      log(err.message, 'err');
-    } finally {
-      syncBtn();
-    }
-  }
-
-  function runSearch() {
-    if (!$('piAuth').checked) {
-      alert('Conferma autorizzazione.');
-      return;
-    }
-    $('piLog').innerHTML = '';
-    if (uiMode === 'registry') runRegistry(0);
-    else runDossier();
-  }
-
-  function resetForm() {
-    ['piRegCountry', 'piRegRegion', 'piRegProvince', 'piRegMunicipality', 'piRegProfession', 'piFirstName', 'piLastName', 'piCity', 'piProvince', 'piRegion', 'piCountry', 'piProfession', 'piCompany', 'piTimeRange', 'piAliases'].forEach((id) => {
-      if ($(id)) $(id).value = '';
-    });
+  function resetFigure() {
+    $('piFigureName').value = '';
     $('piAuth').checked = false;
-    $('piLog').innerHTML = '';
+    $('piLog').replaceChildren();
+    $('piLog').classList.remove('is-active');
     $('piResults').innerHTML = '';
     $('piDetail').innerHTML = '';
-    registryOffset = 0;
     syncBtn();
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  function init() {
+    if (!$('piChecklist')) return;
+    renderChecklist();
+    $('piSelfName').addEventListener('input', renderSearchLinks);
     $('piAuth').addEventListener('change', syncBtn);
-    ['piRegCountry', 'piFirstName', 'piLastName'].forEach((id) => $(id)?.addEventListener('input', syncBtn));
-    $('piScanBtn').addEventListener('click', runSearch);
-    $('piResetBtn').addEventListener('click', resetForm);
-    $('piTabRegistry').addEventListener('click', () => setMode('registry'));
-    $('piTabDossier').addEventListener('click', () => setMode('dossier'));
-    setMode('registry');
-  });
+    $('piFigureName').addEventListener('input', syncBtn);
+    $('piFigureName').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !$('piScanBtn').disabled) runFigureSearch();
+    });
+    $('piScanBtn').addEventListener('click', runFigureSearch);
+    $('piResetBtn').addEventListener('click', resetFigure);
+    $('piTabSelf').addEventListener('click', () => setMode('self'));
+    $('piTabFigure').addEventListener('click', () => setMode('figure'));
+    setMode(uiMode);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();

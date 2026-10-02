@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Violazioni Storiche — Hacker & Data Breach | EVIL</title>
-  <meta name="description" content="Archivio didattico di breach e violazioni documentate: Equifax, Target, Sony, Yahoo, OPM e altri casi con mappa geografica e analisi forense.">
+  <title>Violazioni storiche — EVIL</title>
+  <meta name="description" content="Dodici violazioni documentate, da Target a SolarWinds: cosa è successo, come, con quale impatto e quale lezione resta per chi difende, con mappa e tabella di confronto.">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
   <link rel="stylesheet" href="/css/style.css">
@@ -32,22 +32,55 @@
 
   <main>
     <section class="ha-hero" aria-labelledby="ha-hero-title">
-      <p class="ha-kicker">Threat intelligence — Breach & hacker</p>
+      <p class="ha-kicker">Casi di studio — Violazioni documentate</p>
       <h1 id="ha-hero-title">Violazioni storiche</h1>
       <p class="ha-hero__lead">
-        Archivio di <em>intrusioni, furto dati e leak</em> attribuiti a hacker, gruppi criminali o APT documentati.
-        Complementare alla <a href="/attacks-map.html">mappa incidenti</a> (OSINT attuale) e al
-        <a href="/malware-db.html">database malware</a> (famiglie e IOC).
+        Dodici violazioni che hanno cambiato il modo di fare sicurezza, ricostruite da fonti pubbliche:
+        cosa è successo, come, con quale impatto e quale lezione resta per chi difende.
+        Completa la <a href="/attacks-map.html">mappa di avvisi e vulnerabilità</a> (situazione attuale) e il
+        <a href="/malware-db.html">catalogo malware</a> (famiglie e indicatori).
       </p>
       <nav class="ha-nav-links" aria-label="Collegamenti correlati">
-        <a href="/attacks-map.html">Incidenti attuali</a>
-        <a href="/malware-db.html">Database Malware</a>
-        <a href="/persistence-evasion.html">Inganno sociale</a>
-        <a href="/hacked-timeline.html">Timeline IR</a>
+        <a href="/attacks-map.html">Mappa di avvisi e vulnerabilità</a>
+        <a href="/malware-db.html">Catalogo malware</a>
+        <a href="/persistence-evasion.html">Persistenza ed evasione</a>
+        <a href="/hacked-timeline.html">Timeline incident response</a>
       </nav>
     </section>
 
     <div class="ha-wrap">
+      <section class="ha-module ha-reveal" aria-labelledby="ha-module-title">
+        <h2 id="ha-module-title" class="ha-module__title">Scheda del modulo</h2>
+        <dl class="ha-module__facts">
+          <div class="ha-module__fact">
+            <dt>A chi serve</dt>
+            <dd>Studenti, sviluppatori, amministratori di sistema e analisti che vogliono capire perché le difese falliscono nei casi reali.</dd>
+          </div>
+          <div class="ha-module__fact">
+            <dt>Livello</dt>
+            <dd>Base–intermedio</dd>
+          </div>
+          <div class="ha-module__fact">
+            <dt>Durata</dt>
+            <dd>Circa 45 minuti</dd>
+          </div>
+          <div class="ha-module__fact">
+            <dt>Prerequisiti</dt>
+            <dd>Concetti di base di reti, applicazioni web e autenticazione.</dd>
+          </div>
+        </dl>
+        <h3 class="ha-module__sub">Obiettivi di apprendimento</h3>
+        <ul class="ha-module__goals">
+          <li>riconoscere le cause ricorrenti delle violazioni: patch mancanti, credenziali di terze parti, configurazioni cloud errate, phishing;</li>
+          <li>collegare ogni caso alle misure difensive che lo avrebbero evitato o limitato;</li>
+          <li>distinguere i fatti accertati (atti giudiziari, rapporti ufficiali) dalle cifre dichiarate da attaccanti o stampa.</li>
+        </ul>
+        <p class="ha-module__note">
+          I casi sono descritti per imparare a difendersi, non per replicarli: leggi <a href="/ethics.html">Etica e legge</a>.
+          Cifre e attribuzioni seguono le fonti pubbliche indicate in ogni scheda; dove non sono certe, il testo resta generico.
+        </p>
+      </section>
+
       <section class="ha-map-section ha-reveal" aria-labelledby="ha-map-title">
         <header class="ha-section-head">
           <p class="ha-kicker">Geografia</p>
@@ -55,20 +88,20 @@
         </header>
         <div class="ha-map-frame">
           <div class="ha-map-hud">
-            <span class="ha-map-hud__label">Breach documentati</span>
-            <strong class="ha-map-hud__val" id="ha-map-count">13</strong>
+            <span class="ha-map-hud__label">Violazioni documentate</span>
+            <strong class="ha-map-hud__val" id="ha-map-count">12</strong>
           </div>
-          <div id="historic-map" role="application" aria-label="Mappa mondiale attacchi storici"></div>
+          <div id="historic-map" role="application" aria-label="Mappa mondiale delle violazioni storiche"></div>
         </div>
         <p class="ha-map-help">
-          Clicca un marker o una scheda sotto per collegare mappa e dettaglio. Zoom senza effetti di distorsione.
+          Clicca un indicatore sulla mappa o una scheda qui sotto per collegare la posizione al dettaglio del caso.
         </p>
       </section>
 
       <section class="ha-reveal" aria-labelledby="ha-grid-title">
         <header class="ha-section-head">
           <p class="ha-kicker">Analisi</p>
-          <h2 id="ha-grid-title">Case study hacker & breach</h2>
+          <h2 id="ha-grid-title">I casi, uno per uno</h2>
         </header>
         <div class="ha-grid" id="historic-grid"></div>
       </section>
@@ -78,31 +111,33 @@
           <p class="ha-kicker">Confronto</p>
           <h2 id="ha-table-title">Tabella comparativa</h2>
         </header>
-        <table class="ha-compare" id="historic-compare">
-          <thead>
-            <tr>
-              <th>Violazione / vittima</th>
-              <th>Anno</th>
-              <th>Attore</th>
-              <th>Dati esposti</th>
-              <th>Lezione chiave</th>
-            </tr>
-          </thead>
-          <tbody id="historic-compare-body"></tbody>
-        </table>
+        <div class="ha-compare-scroll">
+          <table class="ha-compare" id="historic-compare">
+            <thead>
+              <tr>
+                <th>Violazione / vittima</th>
+                <th>Anno</th>
+                <th>Responsabili</th>
+                <th>Portata</th>
+                <th>Lezione chiave</th>
+              </tr>
+            </thead>
+            <tbody id="historic-compare-body"></tbody>
+          </table>
+        </div>
       </section>
 
       <section class="ha-cta ha-reveal" aria-labelledby="ha-cta-title">
         <h2 id="ha-cta-title">Lezioni dalla storia</h2>
         <p>
-          I breach insegnano dove falliscono accessi, logging e governance dei dati — spesso prima ancora del malware.
+          Le violazioni mostrano dove falliscono gestione degli accessi, registrazione degli eventi e governo dei dati, spesso ancora prima che entri in gioco un malware.
         </p>
         <ul>
-          <li>Da SQL injection adolescenziale a APT su infrastrutture governative</li>
-          <li>Da leak hacktivisti a esfiltrazione silenziosa di miliardi di account</li>
-          <li>Da POS compromessi a bucket cloud mal configurati</li>
+          <li>Dalla SQL injection su un sito dimenticato alle campagne di spionaggio contro le agenzie governative</li>
+          <li>Dalla pubblicazione di dati a scopo di ricatto all'esfiltrazione silenziosa di miliardi di account</li>
+          <li>Dai terminali di pagamento compromessi alle configurazioni cloud errate</li>
         </ul>
-        <a href="/persistence-evasion.html" class="ha-cta__btn">Tecniche di manipolazione ?</a>
+        <a href="/persistence-evasion.html" class="ha-cta__btn">Persistenza ed evasione →</a>
       </section>
     </div>
   </main>

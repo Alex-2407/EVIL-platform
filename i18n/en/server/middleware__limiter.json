@@ -1,0 +1,20 @@
+{
+  "Troppe richieste in poco tempo. Riprova tra qualche minuto.": "Too many requests in a short time. Please try again in a few minutes.",
+  "Troppi tentativi di accesso con questa email. Riprova tra 15 minuti.": "Too many sign-in attempts with this email. Please try again in 15 minutes.",
+  "Troppi tentativi di accesso a questo account. Riprova tra un'ora o reimposta la password.": "Too many sign-in attempts on this account. Try again in an hour or reset your password.",
+  "Troppi tentativi di accesso da questa rete. Riprova tra 15 minuti.": "Too many sign-in attempts from this network. Please try again in 15 minutes.",
+  "Troppi tentativi di registrazione. Riprova più tardi.": "Too many sign-up attempts. Please try again later.",
+  "Troppe richieste di reset password. Riprova più tardi.": "Too many password reset requests. Please try again later.",
+  "Abbiamo già inviato alcune email di reset a questo indirizzo. Controlla la casella o riprova tra un'ora.": "We have already sent several reset emails to this address. Check your inbox or try again in an hour.",
+  "Troppe richieste di invio email di verifica. Riprova più tardi.": "Too many verification email requests. Please try again later.",
+  "Troppe richieste di stato verifica. Riprova tra qualche minuto.": "Too many verification status requests. Please try again in a few minutes.",
+  "Troppi rinnovi di sessione. Riprova più tardi.": "Too many session renewals. Please try again later.",
+  "Troppe richieste dal modulo Help. Riprova più tardi.": "Too many requests from the help form. Please try again later.",
+  "Hai raggiunto il limite di scansioni per quest'ora. Riprova più tardi.": "You have reached this hour's scan limit. Please try again later.",
+  "Hai raggiunto il limite di interrogazioni DNS/WHOIS per quest'ora.": "You have reached this hour's DNS/WHOIS lookup limit.",
+  "Hai raggiunto il limite di file analizzati per oggi.": "You have reached today's file analysis limit.",
+  "Troppe richieste al feed incidenti. Riprova tra qualche minuto.": "Too many requests to the incident feed. Please try again in a few minutes.",
+  "Troppi avvii di laboratorio. Riprova tra qualche minuto.": "Too many lab launches. Please try again in a few minutes.",
+  "Limite comandi del laboratorio raggiunto per quest'ora.": "You have reached this hour's lab command limit.",
+  "Troppe richieste al laboratorio da questa rete. Riprova tra qualche minuto.": "Too many lab requests from this network. Please try again in a few minutes."
+}

@@ -42,7 +42,7 @@
       ]
     },
     'brute-force': {
-      title: 'Brute Force sul login',
+      title: t('Brute force sul login'),
       owasp: 'OWASP A07:2021 — Identification & Authentication Failures',
       risk: t('Alto'),
       plain: t("Non è un «trucco»: è provare molte password finché una funziona. Riesce solo dove le password sono deboli e il sistema non limita i tentativi, non blocca l'account e non chiede un secondo fattore."),
@@ -54,7 +54,7 @@
       ]
     },
     'file-upload': {
-      title: 'Upload file non sicuro',
+      title: t('Upload di file non sicuro'),
       owasp: 'OWASP A04:2021 — Insecure Design',
       risk: t('Critico'),
       plain: t("Caricare un avatar o un documento significa che il server salva un file. Se controlla solo l'estensione o il Content-Type dichiarato dal client, un file eseguibile (per esempio uno script) mascherato da immagine può, se la cartella esegue script, portare all'esecuzione di codice sul server."),

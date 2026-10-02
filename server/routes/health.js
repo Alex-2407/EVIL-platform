@@ -43,7 +43,7 @@ function registerDiagnostics(app, ctx) {
   });
 
   app.get('/api/health/smtp', async (req, res) => {
-    if (!diagnosticsAllowed(req)) return res.status(404).json({ error: 'Non trovato' });
+    if (!diagnosticsAllowed(req)) return res.status(404).json({ error: req.t ? req.t('Non trovato') : 'Non trovato' });
     try {
       const configured = emailService.isConfigured();
       const transport = emailService.getEmailTransport

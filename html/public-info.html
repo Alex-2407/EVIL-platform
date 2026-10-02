@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Raccolta Info Pubbliche — EVIL Strumenti</title>
-  <meta name="description" content="Elenco persone per nazione/comune da Wikidata e dossier OSINT. Solo dati pubblicamente documentati.">
+  <title>La tua esposizione online — EVIL</title>
+  <meta name="description" content="Valuta quanto sei esposto online con una checklist privata, cerca te stesso con i motori di ricerca e consulta le schede delle figure pubbliche su Wikidata. Niente profilazione di privati cittadini.">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/security-check.css?v=20260713">
   <link rel="stylesheet" href="/css/http-header-audit.css?v=20260707">
-  <link rel="stylesheet" href="/css/public-info.css?v=20260716">
+  <link rel="stylesheet" href="/css/public-info.css?v=20261001">
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -30,62 +30,61 @@
   <main>
     <section class="sc-hero">
       <p class="pi-parent-link"><a href="/osint-hub.html">← OSINT</a></p>
-      <p class="sc-kicker">Strumenti · OSINT — Persone</p>
-      <h1>Raccolta informazioni pubbliche</h1>
+      <p class="sc-kicker">Strumenti · OSINT difensivo</p>
+      <h1>La tua esposizione online</h1>
       <p class="sc-hero__lead">
-        <strong>Esplora elenco:</strong> scegli nazione (e opzionalmente regione/comune) → lista persone documentate su Wikidata con comune di nascita/residenza quando disponibile.
-        Non è l'anagrafe nazionale: solo figure pubblicamente registrate. Per username usa <a href="/social-profiling.html">Profilo social</a>.
+        Scopri quante informazioni su di te si trovano in rete e come ridurle. L'autovalutazione resta nel tuo browser: non inviamo né salviamo le risposte.
+        Puoi anche consultare le schede delle <strong>figure pubbliche</strong> (persone con una voce su Wikipedia), per esercitarti con le fonti aperte senza profilare privati cittadini.
       </p>
+      <p class="sc-hero__lead">A chi serve: chiunque voglia proteggere la propria identità digitale, studenti di OSINT. Livello base, circa 15 minuti. Per i tuoi username usa <a href="/social-profiling.html">Profilazione social</a>.</p>
     </section>
 
     <div class="sc-wrap">
       <div class="sc-panel">
-        <div class="pi-tabs" role="tablist" aria-label="Tipo di ricerca">
-          <button type="button" class="is-active" id="piTabRegistry" role="tab" aria-selected="true" aria-controls="piPanelRegistry">Esplora elenco territorio</button>
-          <button type="button" id="piTabDossier" role="tab" aria-selected="false" aria-controls="piPanelDossier">Dossier nome/cognome</button>
+        <div class="pi-tabs" role="tablist" aria-label="Sezioni dello strumento">
+          <button type="button" class="is-active" id="piTabSelf" role="tab" aria-selected="true" aria-controls="piPanelSelf">Autovalutazione</button>
+          <button type="button" id="piTabFigure" role="tab" aria-selected="false" aria-controls="piPanelFigure">Figure pubbliche</button>
         </div>
 
-        <div id="piPanelRegistry" role="tabpanel" aria-labelledby="piTabRegistry">
-          <div class="pi-filters">
-            <input type="text" id="piRegCountry" class="sc-input" placeholder="Nazione * (es. Italia)" autocomplete="off">
-            <input type="text" id="piRegRegion" class="sc-input" placeholder="Regione" autocomplete="off">
-            <input type="text" id="piRegProvince" class="sc-input" placeholder="Provincia" autocomplete="off">
-            <input type="text" id="piRegMunicipality" class="sc-input" placeholder="Comune / città" autocomplete="off">
-            <input type="text" id="piRegProfession" class="sc-input" placeholder="Professione (filtro)" autocomplete="off">
+        <div id="piPanelSelf" role="tabpanel" aria-labelledby="piTabSelf">
+          <h2 class="pi-panel-title">1. Cerca te stesso</h2>
+          <p class="sc-muted">Scrivi il tuo nome e cognome: prepariamo le ricerche da aprire nel tuo browser. Il nome non passa dai server di EVIL.</p>
+          <div class="pi-self-search">
+            <label class="pi-label" for="piSelfName">Il tuo nome e cognome</label>
+            <input type="text" id="piSelfName" class="sc-input" maxlength="80" autocomplete="name" spellcheck="false" placeholder="Nome Cognome">
+            <div class="pi-search-links" id="piSearchLinks" aria-live="polite"></div>
           </div>
+
+          <h2 class="pi-panel-title">2. Checklist di esposizione</h2>
+          <p class="sc-muted">Spunta ciò che è vero per te. Il punteggio si aggiorna subito e resta solo su questa pagina.</p>
+          <div class="pi-checklist" id="piChecklist"></div>
+          <div class="pi-score" id="piScore" aria-live="polite"></div>
+          <div class="pi-advice" id="piAdvice"></div>
         </div>
 
-        <div id="piPanelDossier" hidden role="tabpanel" aria-labelledby="piTabDossier">
-          <div class="sc-form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:0.65rem">
-            <input type="text" id="piFirstName" class="sc-input" placeholder="Nome *" autocomplete="off" spellcheck="false">
-            <input type="text" id="piLastName" class="sc-input" placeholder="Cognome *" autocomplete="off" spellcheck="false">
+        <div id="piPanelFigure" hidden role="tabpanel" aria-labelledby="piTabFigure">
+          <h2 class="pi-panel-title">Schede delle figure pubbliche</h2>
+          <p class="sc-muted">Cerca politici, sportivi, scienziati, artisti, dirigenti: compaiono solo persone con una voce su Wikipedia, e la scheda mostra solo informazioni legate al ruolo pubblico.</p>
+          <label class="pi-label" for="piFigureName">Nome della figura pubblica</label>
+          <input type="text" id="piFigureName" class="sc-input" maxlength="80" autocomplete="off" spellcheck="false" placeholder="Es.: Rita Levi-Montalcini">
+          <label class="sc-auth">
+            <input type="checkbox" id="piAuth">
+            <span>Dichiaro che cerco una figura pubblica per il suo ruolo pubblico, a scopo di studio. Non userò i risultati per profilare, contattare o esporre persone (doxxing).</span>
+          </label>
+          <div class="sc-actions">
+            <button type="button" class="sc-btn sc-btn--primary" id="piScanBtn" disabled>Cerca</button>
+            <button type="button" class="sc-btn sc-btn--ghost" id="piResetBtn">Svuota</button>
           </div>
-          <div class="pi-filters">
-            <input type="text" id="piCity" class="sc-input" placeholder="Comune" autocomplete="off">
-            <input type="text" id="piProvince" class="sc-input" placeholder="Provincia" autocomplete="off">
-            <input type="text" id="piRegion" class="sc-input" placeholder="Regione" autocomplete="off">
-            <input type="text" id="piCountry" class="sc-input" placeholder="Nazione" autocomplete="off">
-            <input type="text" id="piProfession" class="sc-input" placeholder="Professione" autocomplete="off">
-            <input type="text" id="piCompany" class="sc-input" placeholder="Azienda" autocomplete="off">
-            <input type="text" id="piTimeRange" class="sc-input" placeholder="Periodo" autocomplete="off">
-            <input type="text" id="piAliases" class="sc-input" placeholder="Alias" autocomplete="off">
-          </div>
+          <p class="sc-meta" id="piMeta">Fonte: Wikidata e Wikipedia · di solito 2-10 secondi</p>
         </div>
-
-        <label class="sc-auth">
-          <input type="checkbox" id="piAuth">
-          <span>Dichiaro autorizzazione esplicita e uso solo fonti pubbliche per finalità formative.</span>
-        </label>
-        <div class="sc-actions">
-          <button type="button" class="sc-btn sc-btn--primary" id="piScanBtn" disabled>Carica elenco</button>
-          <button type="button" class="sc-btn sc-btn--ghost" id="piResetBtn">Reset</button>
-        </div>
-        <p class="sc-meta" id="piMeta">Wikidata SPARQL · comune nascita/residenza — paginazione 50 — ~5–25 s</p>
       </div>
 
-      <aside class="sc-callout" role="note">
-        <strong>Importante:</strong> non esiste un API pubblica con tutti i cittadini di una nazione (registro civile protetto).
-        L'elenco copre persone presenti su Wikidata/Wikipedia. Aggiungi il <strong>comune</strong> per risalire al territorio di nascita con precisione.
+      <aside class="sc-callout pi-legal" role="note" aria-labelledby="piLegalTitle">
+        <h2 id="piLegalTitle">Informativa e regole d'uso</h2>
+        <p><strong>Cosa trattiamo.</strong> L'autovalutazione e la ricerca su te stesso restano nel tuo browser. Per le figure pubbliche EVIL interroga Wikidata con il nome che scrivi e mostra dati già pubblicati da Wikidata e Wikipedia, senza conservarli.</p>
+        <p><strong>Base giuridica (art. 6 GDPR).</strong> Leggere dati che una persona pubblica ha reso noti per il suo ruolo rientra nel legittimo interesse allo studio e all'informazione (art. 6, par. 1, lett. f). Non esiste invece una base giuridica per raccogliere e incrociare dati di privati cittadini: per questo EVIL non offre ricerche per nome, luogo di nascita, azienda o alias su persone qualsiasi.</p>
+        <p><strong>Informazione all'interessato (art. 14 GDPR).</strong> Chi raccoglie dati su una persona da fonti diverse da lei deve informarla. Se riusi i dati di una scheda fuori dallo studio personale (un articolo, un report, una ricerca), il titolare del trattamento diventi tu: valuta base giuridica e obblighi di informativa.</p>
+        <p><strong>Vietato il doxxing.</strong> Raccogliere e diffondere dati personali di qualcuno (indirizzo, telefono, familiari, luogo di lavoro) per esporlo, intimidirlo o molestarlo è vietato su EVIL e può costituire reato (per esempio trattamento illecito di dati, art. 167 Codice privacy; atti persecutori, art. 612-bis c.p.). Vedi <a href="/ethics.html">Etica e legge</a> e <a href="/site-policies.html">Privacy e regole</a>.</p>
       </aside>
 
       <div class="sc-log" id="piLog" aria-live="polite"></div>
@@ -99,6 +98,6 @@
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/js.js" defer></script>
 <script src="/js/tools-api.js" defer></script>
-  <script src="/js/public-info.js?v=20260718" defer></script>
+  <script src="/js/public-info.js?v=20261001" defer></script>
 </body>
 </html>

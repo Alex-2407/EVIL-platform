@@ -79,7 +79,20 @@
   line-height: 1.15;
 }
 
-/* Catalogo VM */
+.vlab-hero-lead {
+  margin: 0.9rem 0 0;
+  max-width: 62ch;
+  color: rgba(226, 232, 240, 0.82);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.vlab-hero-lead a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Catalogo scenari */
 .vlab-catalog {
   animation: vlabFadeUp 0.7s ease-out 0.06s both;
 }
@@ -159,6 +172,13 @@
   line-height: 1.55;
   color: #94a3b8;
   flex: 1;
+}
+
+.vlab-card__prereq {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: #64748b;
 }
 
 .vlab-card__actions {

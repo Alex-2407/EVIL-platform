@@ -32,7 +32,7 @@ module.exports = function registerProgress(app, ctx) {
       res.type('application/json').send(catalog.body);
     } catch (err) {
       logger.error('Achievements catalog error', { error: err.message });
-      res.status(500).json({ error: 'Catalogo trofei non disponibile' });
+      res.status(500).json({ error: req.t('Catalogo trofei non disponibile') });
     }
   }
 
@@ -59,11 +59,13 @@ module.exports = function registerProgress(app, ctx) {
       user.progress = mergeClientProgress(user.progress, req.body, ids);
       user.progressUpdatedAt = new Date().toISOString();
       await db.save(user);
-      res.json({ status: 'success', message: 'Progressi salvati', progress: user.progress });
+      res.json({ status: 'success', message: req.t('Progressi salvati'), progress: user.progress });
     } catch (err) {
-      if (err.status === 400) return res.status(400).json({ error: err.message });
+      if (err.status === 400) {
+        return res.status(400).json({ error: req.t('Progressi non validi: {detail}', { detail: err.detail || err.message }) });
+      }
       logger.error('Progress save error', { error: err.message, userId: user.id });
-      res.status(500).json({ error: 'Impossibile salvare i progressi. Riprova.' });
+      res.status(500).json({ error: req.t('Impossibile salvare i progressi. Riprova.') });
     }
   });
 };

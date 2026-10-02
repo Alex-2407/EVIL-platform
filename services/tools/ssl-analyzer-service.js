@@ -1,18 +1,21 @@
 /**
- * EVIL SSL Certificate Analyzer — TLS handshake + analisi certificato
+ * EVIL — Certificato TLS: handshake sulla porta 443 e analisi del certificato presentato.
+ * Testi per l'utente nella lingua della richiesta (t(lang, …)).
  */
 const { connectTls, assertPublicDestination } = require('../../server/lib/safe-http');
-const { normalizeDomain } = require('./dns-enumerator-service');
+const { t } = require('../../server/i18n');
+const { normalizeToolDomain } = require('./tool-i18n');
 
 const OBSOLETE_PROTOCOLS = ['SSLv2', 'SSLv3', 'TLSv1', 'TLSv1.1'];
 const WEAK_CIPHERS = [/NULL/i, /EXPORT/i, /DES/i, /RC4/i, /MD5/i, /anon/i];
 
-const AUDIT_LIMITATIONS = [
-  'Analisi da singola connessione TLS sulla porta 443 — non scansiona tutte le versioni/cipher supportate dal server.',
-  'rejectUnauthorized disabilitato per leggere certificati anche se non trusted (didattica/OSINT).',
-  'Non verifica OCSP stapling, CT logs né configurazioni HSTS lato HTTP.',
-  'Solo su domini per cui hai autorizzazione esplicita.'
-];
+function auditLimitations(lang) {
+  return [
+    t(lang, 'Una sola connessione TLS sulla porta 443: mostra il protocollo e la cipher suite negoziati, non tutte le versioni che il server accetta.'),
+    t(lang, 'Il certificato viene letto anche quando non è considerato affidabile, proprio per poterlo esaminare: la connessione serve solo all’analisi.'),
+    t(lang, 'Non controlla la revoca (OCSP, CRL), i registri Certificate Transparency né l’header HSTS (per quello usa l’Audit header HTTP).'),
+  ];
+}
 
 function parseCertField(field) {
   if (!field) return {};
@@ -79,7 +82,7 @@ function fetchTlsCertificate(domain) {
     try {
       socket = connectTls(domain, 443, { rejectUnauthorized: false, timeout: 12000 });
     } catch (err) {
-      resolve({ error: err.message });
+      resolve({ error: err.message, cause: err });
       return;
     }
     socket.once('secureConnect', function onConnect() {
@@ -88,17 +91,19 @@ function fetchTlsCertificate(domain) {
         protocol: socket.getProtocol?.() || null,
         cipher: socket.getCipher?.() || null,
         authorized: socket.authorized,
-        authorizationError: socket.authorizationError || null,
+        authorizationError: socket.authorizationError
+          ? String(socket.authorizationError.code || socket.authorizationError)
+          : null,
         cert
       };
       socket.end();
       resolve(result);
     });
 
-    socket.on('error', (err) => resolve({ error: err.message }));
+    socket.on('error', (err) => resolve({ error: err.message, code: err.code || null }));
     socket.setTimeout(12000, () => {
       socket.destroy();
-      resolve({ error: 'Timeout connessione TLS (12s)' });
+      resolve({ error: 'TLS handshake timeout', code: 'ETIMEDOUT' });
     });
   });
 }
@@ -156,151 +161,199 @@ function buildAnalysis(domain, raw) {
       : null,
     authorized: raw.authorized,
     authorizationError: raw.authorizationError,
-    algorithm: sigalg || 'Unknown',
+    algorithm: sigalg || '—',
     keySize: keyBits,
     subjectAltNames: sans,
     wildcard: sans.some((s) => s.startsWith('*.')) || (cn && cn.startsWith('*.'))
   };
 }
 
-function buildFindings(domain, analysis, cert) {
+function lifecycleLabel(lang, lc) {
+  switch (lc) {
+    case 'expired': return t(lang, 'Scaduto');
+    case 'not_yet_valid': return t(lang, 'Non ancora valido');
+    case 'critical_expiry': return t(lang, 'Scade a breve');
+    case 'warning_expiry': return t(lang, 'In scadenza');
+    default: return t(lang, 'Valido');
+  }
+}
+
+function severityLabel(lang, sev) {
+  switch (sev) {
+    case 'critical': return t(lang, 'critica');
+    case 'high': return t(lang, 'alta');
+    case 'medium': return t(lang, 'media');
+    case 'low': return t(lang, 'bassa');
+    default: return t(lang, 'informativa');
+  }
+}
+
+/** Messaggi di OpenSSL sulla validazione della catena, in parole semplici. */
+function trustErrorText(lang, code) {
+  switch (code) {
+    case 'DEPTH_ZERO_SELF_SIGNED_CERT':
+    case 'SELF_SIGNED_CERT_IN_CHAIN':
+      return t(lang, 'Il certificato è autofirmato: nessuna autorità di certificazione riconosciuta ne garantisce l’identità.');
+    case 'UNABLE_TO_VERIFY_LEAF_SIGNATURE':
+    case 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY':
+    case 'UNABLE_TO_GET_ISSUER_CERT':
+      return t(lang, 'Manca un certificato intermedio: il server non invia la catena completa fino a un’autorità riconosciuta.');
+    case 'CERT_HAS_EXPIRED':
+      return t(lang, 'Un certificato della catena è scaduto.');
+    case 'ERR_TLS_CERT_ALTNAME_INVALID':
+    case 'HOSTNAME_MISMATCH':
+      return t(lang, 'Il certificato non è stato emesso per questo nome.');
+    case 'CERT_NOT_YET_VALID':
+      return t(lang, 'Un certificato della catena non è ancora valido.');
+    default:
+      return code ? t(lang, 'Validazione della catena non riuscita ({code}).', { code }) : t(lang, 'Validazione della catena non riuscita.');
+  }
+}
+
+function buildFindings(domain, analysis, cert, lang) {
   const findings = [];
 
   if (analysis.isExpired) {
     findings.push({
       severity: 'critical',
-      title: 'Certificato scaduto',
-      detail: `Scadenza: ${cert.valid_to}`,
-      module: 'validity'
+      title: t(lang, 'Certificato scaduto'),
+      detail: t(lang, 'Scaduto il {date}: i browser mostrano un avviso di sicurezza ai visitatori.', { date: cert.valid_to }),
+      module: 'validity',
+      recommendation: t(lang, 'Rinnova subito il certificato e automatizza i rinnovi (per esempio con ACME/Let’s Encrypt).'),
     });
   } else if (analysis.notYetValid) {
     findings.push({
       severity: 'critical',
-      title: 'Certificato non ancora valido',
-      detail: `Valido da: ${cert.valid_from}`,
-      module: 'validity'
+      title: t(lang, 'Certificato non ancora valido'),
+      detail: t(lang, 'Valido solo dal {date}: controlla la data del server o il certificato installato.', { date: cert.valid_from }),
+      module: 'validity',
     });
   } else if (analysis.lifecycle === 'critical_expiry') {
     findings.push({
       severity: 'high',
-      title: `Scadenza imminente (${analysis.daysUntilExpiry} giorni)`,
-      detail: 'Rinnovare il certificato entro 14 giorni.',
-      module: 'validity'
+      title: t(lang, 'Scade tra {n} giorni', { n: analysis.daysUntilExpiry }),
+      detail: t(lang, 'Mancano meno di 14 giorni alla scadenza.'),
+      module: 'validity',
+      recommendation: t(lang, 'Rinnova il certificato adesso.'),
     });
   } else if (analysis.lifecycle === 'warning_expiry') {
     findings.push({
       severity: 'medium',
-      title: `Scadenza tra ${analysis.daysUntilExpiry} giorni`,
-      detail: 'Pianificare il rinnovo del certificato.',
-      module: 'validity'
+      title: t(lang, 'Scade tra {n} giorni', { n: analysis.daysUntilExpiry }),
+      detail: t(lang, 'Mancano meno di 30 giorni alla scadenza.'),
+      module: 'validity',
+      recommendation: t(lang, 'Pianifica il rinnovo del certificato.'),
     });
   }
 
   if (!analysis.hostnameMatch) {
     findings.push({
       severity: 'high',
-      title: 'Hostname non coperto dal certificato',
-      detail: `CN/SAN non corrispondono a ${domain}.`,
+      title: t(lang, 'Il certificato non copre questo nome'),
+      detail: t(lang, 'Né il Common Name né i SAN corrispondono a {domain}: il browser segnalerà un errore.', { domain }),
       module: 'names',
-      recommendation: 'Aggiungi il dominio ai SAN o usa un certificato corretto.'
+      recommendation: t(lang, 'Emetti un certificato che includa questo nome tra i SAN.'),
     });
   }
 
   if (!analysis.authorized) {
     findings.push({
       severity: 'high',
-      title: 'Catena non trusted',
-      detail: analysis.authorizationError || 'Validazione catena fallita.',
-      module: 'trust'
+      title: t(lang, 'Catena di fiducia non valida'),
+      detail: trustErrorText(lang, analysis.authorizationError),
+      module: 'trust',
+      recommendation: t(lang, 'Configura il server perché invii il certificato con tutti gli intermedi, emesso da un’autorità riconosciuta.'),
     });
   }
 
   if (analysis.selfSigned) {
     findings.push({
       severity: 'medium',
-      title: 'Possibile certificato self-signed',
-      detail: 'Subject e Issuer coincidono.',
-      module: 'trust'
+      title: t(lang, 'Probabile certificato autofirmato'),
+      detail: t(lang, 'Soggetto ed emittente coincidono: va bene in laboratorio, non su un sito pubblico.'),
+      module: 'trust',
     });
   }
 
   if (analysis.obsoleteProtocol) {
     findings.push({
       severity: 'critical',
-      title: `Protocollo TLS obsoleto (${analysis.protocol})`,
-      detail: 'Abilitare TLS 1.2+ e disabilitare versioni legacy.',
-      module: 'protocol'
+      title: t(lang, 'Protocollo obsoleto ({protocol})', { protocol: analysis.protocol }),
+      detail: t(lang, 'Le versioni precedenti a TLS 1.2 hanno debolezze note e non sono più accettate dai browser moderni.'),
+      module: 'protocol',
+      recommendation: t(lang, 'Abilita solo TLS 1.2 e TLS 1.3.'),
     });
   }
 
   if (analysis.weakCipher) {
     findings.push({
       severity: 'high',
-      title: 'Cipher suite debole',
-      detail: analysis.cipher?.name || 'Cipher non sicuro negoziato.',
-      module: 'cipher'
+      title: t(lang, 'Cipher suite debole'),
+      detail: t(lang, 'È stata negoziata {cipher}, che usa algoritmi non più sicuri.', { cipher: analysis.cipher?.name || '—' }),
+      module: 'cipher',
+      recommendation: t(lang, 'Disattiva le cipher suite con RC4, DES, 3DES, NULL, EXPORT o senza autenticazione.'),
     });
   }
 
   if (analysis.weakSignature) {
     findings.push({
       severity: 'medium',
-      title: 'Algoritmo firma debole',
-      detail: analysis.algorithm,
-      module: 'crypto'
+      title: t(lang, 'Algoritmo di firma debole'),
+      detail: t(lang, '{alg}: SHA-1 e MD5 non sono più considerati sicuri per firmare certificati.', { alg: analysis.algorithm }),
+      module: 'crypto',
     });
   }
 
   if (analysis.weakKey) {
     findings.push({
       severity: 'high',
-      title: 'Chiave RSA troppo corta',
-      detail: `${analysis.keySize} bit — minimo consigliato 2048.`,
-      module: 'crypto'
+      title: t(lang, 'Chiave troppo corta'),
+      detail: t(lang, '{bits} bit: per RSA il minimo raccomandato è 2048 bit.', { bits: analysis.keySize }),
+      module: 'crypto',
     });
   }
 
   if (analysis.chainLength < 2 && !analysis.selfSigned) {
     findings.push({
       severity: 'low',
-      title: 'Catena corta',
-      detail: `Solo ${analysis.chainLength} certificato/i nella catena fornita.`,
-      module: 'chain'
+      title: t(lang, 'Catena incompleta'),
+      detail: t(lang, 'Il server ha inviato solo {n} certificato: di solito servono anche gli intermedi.', { n: analysis.chainLength }),
+      module: 'chain',
     });
   }
 
   if (!findings.length) {
     findings.push({
       severity: 'info',
-      title: 'Profilo TLS adeguato',
-      detail: 'Nessun gap prioritario sui controlli eseguiti.',
-      module: 'summary'
+      title: t(lang, 'Configurazione TLS adeguata'),
+      detail: t(lang, 'Nessun problema importante nei controlli eseguiti.'),
+      module: 'summary',
     });
   }
 
-  return findings;
+  return findings.map((f) => ({ ...f, severityLabel: severityLabel(lang, f.severity) }));
 }
 
-function computeScore(analysis, findings) {
+function computeScore(analysis, lang) {
   const breakdown = [];
   let score = 100;
 
   const add = (id, label, delta, severity) => {
     score += delta;
-    breakdown.push({ id, label, delta, severity });
+    breakdown.push({ id, label, delta, severity, severityLabel: severityLabel(lang, severity) });
   };
 
-  if (analysis.isExpired) add('expired', 'Certificato scaduto', -50, 'critical');
-  if (analysis.notYetValid) add('not_valid_yet', 'Non ancora valido', -40, 'critical');
-  if (analysis.lifecycle === 'critical_expiry') add('expiry_14', 'Scade <14 giorni', -18, 'high');
-  else if (analysis.lifecycle === 'warning_expiry') add('expiry_30', 'Scade <30 giorni', -10, 'medium');
-  if (!analysis.hostnameMatch) add('hostname', 'Hostname mismatch', -15, 'high');
-  if (!analysis.authorized) add('untrusted', 'Catena non trusted', -12, 'high');
-  if (analysis.selfSigned) add('self_signed', 'Self-signed', -10, 'medium');
-  if (analysis.obsoleteProtocol) add('old_tls', 'TLS obsoleto', -25, 'critical');
-  if (analysis.weakCipher) add('weak_cipher', 'Cipher debole', -15, 'high');
-  if (analysis.weakSignature) add('weak_sig', 'Firma debole', -8, 'medium');
-  if (analysis.weakKey) add('weak_key', 'Chiave corta', -15, 'high');
+  if (analysis.isExpired) add('expired', t(lang, 'Certificato scaduto'), -50, 'critical');
+  if (analysis.notYetValid) add('not_valid_yet', t(lang, 'Certificato non ancora valido'), -40, 'critical');
+  if (analysis.lifecycle === 'critical_expiry') add('expiry_14', t(lang, 'Scade entro 14 giorni'), -18, 'high');
+  else if (analysis.lifecycle === 'warning_expiry') add('expiry_30', t(lang, 'Scade entro 30 giorni'), -10, 'medium');
+  if (!analysis.hostnameMatch) add('hostname', t(lang, 'Nome non coperto dal certificato'), -15, 'high');
+  if (!analysis.authorized) add('untrusted', t(lang, 'Catena di fiducia non valida'), -12, 'high');
+  if (analysis.selfSigned) add('self_signed', t(lang, 'Certificato autofirmato'), -10, 'medium');
+  if (analysis.obsoleteProtocol) add('old_tls', t(lang, 'Protocollo TLS obsoleto'), -25, 'critical');
+  if (analysis.weakCipher) add('weak_cipher', t(lang, 'Cipher suite debole'), -15, 'high');
+  if (analysis.weakSignature) add('weak_sig', t(lang, 'Algoritmo di firma debole'), -8, 'medium');
+  if (analysis.weakKey) add('weak_key', t(lang, 'Chiave troppo corta'), -15, 'high');
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   const grade = score >= 90 ? 'A' : score >= 80 ? 'B' : score >= 70 ? 'C' : score >= 55 ? 'D' : 'F';
@@ -308,9 +361,9 @@ function computeScore(analysis, findings) {
   return { score, grade, breakdown };
 }
 
-async function runSslAnalysis(inputDomain) {
+async function runSslAnalysis(inputDomain, lang) {
   const started = Date.now();
-  const domain = normalizeDomain(inputDomain);
+  const domain = normalizeToolDomain(inputDomain, lang);
   await assertPublicDestination(`https://${domain}/`);
 
   const raw = await fetchTlsCertificate(domain);
@@ -320,8 +373,10 @@ async function runSslAnalysis(inputDomain) {
       timestamp: new Date().toISOString(),
       scanDurationMs: Date.now() - started,
       error: raw.error,
+      code: raw.code || null,
+      cause: raw.cause || null,
       status: 'failed',
-      scanType: 'ssl_analysis'
+      scanType: 'ssl_analysis',
     };
   }
 
@@ -329,8 +384,10 @@ async function runSslAnalysis(inputDomain) {
   const subject = parseCertField(cert.subject);
   const issuer = parseCertField(cert.issuer);
   const analysis = buildAnalysis(domain, raw);
-  const findings = buildFindings(domain, analysis, cert);
-  const scoring = computeScore(analysis, findings);
+  analysis.lifecycleLabel = lifecycleLabel(lang, analysis.lifecycle);
+  analysis.authorizationErrorText = analysis.authorized ? null : trustErrorText(lang, analysis.authorizationError);
+  const findings = buildFindings(domain, analysis, cert, lang);
+  const scoring = computeScore(analysis, lang);
 
   return {
     domain,
@@ -344,24 +401,24 @@ async function runSslAnalysis(inputDomain) {
       fingerprint: cert.fingerprint,
       fingerprint256: cert.fingerprint256 || null,
       serialNumber: cert.serialNumber || null,
-      status: analysis.isExpired ? 'expired' : 'valid'
+      status: analysis.isExpired ? 'expired' : 'valid',
     },
     tls: {
       protocol: analysis.protocol,
       cipher: analysis.cipher,
       authorized: analysis.authorized,
       authorizationError: analysis.authorizationError,
-      chainLength: analysis.chainLength
+      chainLength: analysis.chainLength,
     },
     analysis,
     findings,
     ...scoring,
     scoreBreakdown: scoring.breakdown,
-    limitations: AUDIT_LIMITATIONS,
-    note: 'Handshake TLS su :443 con estrazione certificato peer e controlli su validità, SAN, trust e crittografia.',
+    limitations: auditLimitations(lang),
+    note: t(lang, 'Handshake TLS sulla porta 443: validità, nomi coperti (SAN), catena di fiducia, protocollo, cipher suite e robustezza della chiave.'),
     scanType: 'ssl_analysis',
-    status: 'success'
+    status: 'success',
   };
 }
 
-module.exports = { runSslAnalysis };
+module.exports = { runSslAnalysis, hostnameMatches };

@@ -1,87 +1,76 @@
 /**
- * EVIL Advanced URL Scanner — motore analisi passiva professionale
- * DNS · TLS · HTTP headers · redirect · discovery · scoring ponderato
+ * EVIL — Check URL: analisi passiva di un indirizzo.
+ * DNS · rete di appartenenza (RDAP) · TLS · header HTTP · redirect · file pubblici · punteggio.
+ *
+ * S-15: la vecchia geolocalizzazione via ip-api.com usava HTTP in chiaro (l'HTTPS di ip-api
+ * richiede una chiave a pagamento): sostituita da RDAP, il servizio pubblico dei registri
+ * Internet (RIR) che risponde in HTTPS senza chiave.
+ * Testi per l'utente nella lingua della richiesta (t(lang, …)).
  */
 const dns = require('dns').promises;
-const { axios, connectTls, assertPublicDestination } = require('../../server/lib/safe-http');
+const { axios, connectTls, assertPublicDestination, isPublicAddress } = require('../../server/lib/safe-http');
+const { t } = require('../../server/i18n');
+const { toolError } = require('../../server/lib/tool-errors');
+const { localizeToolMessage } = require('./tool-i18n');
+
+/** Errore di rete in parole semplici, nella lingua della richiesta. */
+function netError(lang, err) {
+  return localizeToolMessage(lang, toolError(err).error);
+}
 
 // Cosa questa analisi NON verifica: mostrato nel report, così il voto non viene
 // scambiato per un giudizio di affidabilità del sito.
-// (Prima c'era un elenco "threat intelligence" di tre domini inventati: rimosso, EVL-12.)
-const LIMITATIONS = [
-  {
-    id: 'reputation',
-    title: 'Reputazione del dominio non verificata',
-    detail:
-      'Il voto misura la configurazione tecnica (HTTPS, certificato, header), non se il sito è di phishing o distribuisce malware. ' +
-      'Un sito truffa può avere un voto alto. Per la reputazione usa Google Safe Browsing o VirusTotal.',
-    links: [
-      { label: 'Google Safe Browsing', url: 'https://transparencyreport.google.com/safe-browsing/search' },
-      { label: 'VirusTotal', url: 'https://www.virustotal.com/gui/home/url' }
-    ]
-  },
-  {
-    id: 'passive',
-    title: 'Solo controlli passivi',
-    detail: 'Nessun test di vulnerabilità: vengono lette solo le risposte pubbliche del server (come farebbe un browser).'
-  }
-];
+function scanLimitations(lang) {
+  return [
+    {
+      id: 'reputation',
+      title: t(lang, 'Reputazione del dominio non verificata'),
+      detail: t(lang, 'Il voto misura la configurazione tecnica (HTTPS, certificato, header), non se il sito è di phishing o distribuisce malware: anche un sito truffa può avere un voto alto. Per la reputazione usa Google Safe Browsing o VirusTotal.'),
+      links: [
+        { label: 'Google Safe Browsing', url: 'https://transparencyreport.google.com/safe-browsing/search' },
+        { label: 'VirusTotal', url: 'https://www.virustotal.com/gui/home/url' },
+      ],
+    },
+    {
+      id: 'passive',
+      title: t(lang, 'Solo controlli passivi'),
+      detail: t(lang, 'Nessun test di vulnerabilità: vengono lette solo le risposte pubbliche del server, come farebbe un browser.'),
+    },
+  ];
+}
 
 const HEADER_CHECKS = [
-  {
-    id: 'hsts',
-    header: 'strict-transport-security',
-    label: 'Strict-Transport-Security',
-    severity: 'high',
-    httpsOnly: true,
-    recommendation: 'Imposta HSTS con max-age ≥ 31536000 e includeSubDomains se applicabile.'
-  },
-  {
-    id: 'csp',
-    header: 'content-security-policy',
-    label: 'Content-Security-Policy',
-    severity: 'high',
-    recommendation: 'Definisci una CSP restrittiva per mitigare XSS e injection.'
-  },
-  {
-    id: 'xfo',
-    header: 'x-frame-options',
-    label: 'X-Frame-Options',
-    severity: 'medium',
-    altHeader: 'content-security-policy',
-    altMatch: /frame-ancestors/i,
-    recommendation: 'Imposta DENY/SAMEORIGIN o frame-ancestors in CSP.'
-  },
-  {
-    id: 'xcto',
-    header: 'x-content-type-options',
-    label: 'X-Content-Type-Options',
-    severity: 'medium',
-    recommendation: 'Imposta nosniff per bloccare MIME sniffing.'
-  },
-  {
-    id: 'referrer',
-    header: 'referrer-policy',
-    label: 'Referrer-Policy',
-    severity: 'low',
-    recommendation: 'Usa strict-origin-when-cross-origin o più restrittivo.'
-  },
-  {
-    id: 'permissions',
-    header: 'permissions-policy',
-    label: 'Permissions-Policy',
-    severity: 'low',
-    altHeader: 'feature-policy',
-    recommendation: 'Limita API browser non necessarie (camera, geolocation, …).'
-  },
-  {
-    id: 'coop',
-    header: 'cross-origin-opener-policy',
-    label: 'Cross-Origin-Opener-Policy',
-    severity: 'low',
-    recommendation: 'Considera same-origin per isolamento tab.'
-  }
+  { id: 'hsts', header: 'strict-transport-security', label: 'Strict-Transport-Security', severity: 'high', httpsOnly: true },
+  { id: 'csp', header: 'content-security-policy', label: 'Content-Security-Policy', severity: 'high' },
+  { id: 'xfo', header: 'x-frame-options', label: 'X-Frame-Options', severity: 'medium', altHeader: 'content-security-policy', altMatch: /frame-ancestors/i },
+  { id: 'xcto', header: 'x-content-type-options', label: 'X-Content-Type-Options', severity: 'medium' },
+  { id: 'referrer', header: 'referrer-policy', label: 'Referrer-Policy', severity: 'low' },
+  { id: 'permissions', header: 'permissions-policy', label: 'Permissions-Policy', severity: 'low', altHeader: 'feature-policy' },
+  { id: 'coop', header: 'cross-origin-opener-policy', label: 'Cross-Origin-Opener-Policy', severity: 'low' },
 ];
+
+function headerAdvice(lang, id) {
+  switch (id) {
+    case 'hsts': return t(lang, 'Imposta HSTS con max-age di almeno 31536000 e includeSubDomains se tutti i sottodomini usano HTTPS.');
+    case 'csp': return t(lang, 'Definisci una Content-Security-Policy restrittiva: è la difesa principale contro XSS e iniezioni di contenuti.');
+    case 'xfo': return t(lang, 'Imposta X-Frame-Options: DENY o SAMEORIGIN, oppure frame-ancestors nella CSP, contro il clickjacking.');
+    case 'xcto': return t(lang, 'Imposta X-Content-Type-Options: nosniff, così il browser non indovina il tipo dei file.');
+    case 'referrer': return t(lang, 'Usa Referrer-Policy: strict-origin-when-cross-origin o più restrittiva.');
+    case 'permissions': return t(lang, 'Disattiva con Permissions-Policy le funzioni del browser non usate (fotocamera, geolocalizzazione…).');
+    case 'coop': return t(lang, 'Valuta Cross-Origin-Opener-Policy: same-origin per isolare la finestra da altri siti.');
+    default: return '';
+  }
+}
+
+function severityLabel(lang, sev) {
+  switch (sev) {
+    case 'critical': return t(lang, 'critica');
+    case 'high': return t(lang, 'alta');
+    case 'medium': return t(lang, 'media');
+    case 'low': return t(lang, 'bassa');
+    default: return t(lang, 'informativa');
+  }
+}
 
 function parseCertSubject(subject) {
   if (!subject) return {};
@@ -135,39 +124,55 @@ async function gatherDns(domain) {
   return { records, reverse };
 }
 
-async function lookupGeo(ip) {
-  if (!ip || ip.includes(':')) return { source: 'none', note: 'GeoIP non disponibile per IPv6' };
+/**
+ * Rete a cui appartiene l'indirizzo (organizzazione, blocco, paese) dal registro Internet
+ * competente, via RDAP su HTTPS (rdap.org reindirizza al RIR giusto). Nessuna chiave API.
+ */
+async function lookupNetwork(ip, lang) {
+  if (!ip || !isPublicAddress(ip)) return { source: 'rdap', error: t(lang, 'Indirizzo non pubblico: nessun dato di registrazione.') };
   try {
-    const { data } = await axios.get(`http://ip-api.com/json/${ip}`, {
-      params: { fields: 'status,message,country,countryCode,isp,org,as,query,reverse,hosting' },
-      timeout: 5000
+    const { data, status } = await axios.get(`https://rdap.org/ip/${encodeURIComponent(ip)}`, {
+      timeout: 6000,
+      maxRedirects: 3,
+      maxContentLength: 512 * 1024,
+      validateStatus: () => true,
+      headers: { Accept: 'application/rdap+json, application/json' },
     });
-    if (data.status !== 'success') return { source: 'ip-api', error: data.message || 'Lookup failed' };
-    const asnMatch = String(data.as || '').match(/^(AS\d+)/);
+    if (status !== 200 || !data || typeof data !== 'object') {
+      return { source: 'rdap', error: t(lang, 'Il registro RDAP non ha restituito dati per questo indirizzo.') };
+    }
+    const cidr = Array.isArray(data.cidr0_cidrs) && data.cidr0_cidrs[0]
+      ? `${data.cidr0_cidrs[0].v4prefix || data.cidr0_cidrs[0].v6prefix}/${data.cidr0_cidrs[0].length}`
+      : data.startAddress && data.endAddress ? `${data.startAddress} – ${data.endAddress}` : null;
+    let org = null;
+    for (const ent of Array.isArray(data.entities) ? data.entities.slice(0, 10) : []) {
+      const fn = Array.isArray(ent?.vcardArray?.[1]) ? ent.vcardArray[1].find((f) => f[0] === 'fn') : null;
+      if (fn && fn[3]) {
+        org = String(fn[3]).slice(0, 120);
+        break;
+      }
+    }
     return {
-      source: 'ip-api',
-      ip: data.query,
-      country: data.country,
-      countryCode: data.countryCode,
-      isp: data.isp,
-      org: data.org,
-      asn: asnMatch ? asnMatch[1] : null,
-      asnLabel: data.as,
-      hosting: data.hosting,
-      reverse: data.reverse
+      source: 'rdap',
+      ip,
+      name: data.name ? String(data.name).slice(0, 80) : null,
+      handle: data.handle ? String(data.handle).slice(0, 80) : null,
+      org,
+      country: data.country ? String(data.country).slice(0, 8) : null,
+      cidr,
     };
-  } catch (err) {
-    return { source: 'ip-api', error: err.message };
+  } catch (_) {
+    return { source: 'rdap', error: t(lang, 'Il registro RDAP non ha risposto.') };
   }
 }
 
-function getTlsProfile(domain) {
+function getTlsProfile(domain, lang) {
   return new Promise((resolve) => {
     let socket;
     try {
       socket = connectTls(domain, 443, { rejectUnauthorized: false });
     } catch (err) {
-      resolve({ error: err.message, status: 'failed' });
+      resolve({ error: netError(lang, err), status: 'failed' });
       return;
     }
     socket.once('secureConnect', function () {
@@ -182,7 +187,7 @@ function getTlsProfile(domain) {
         protocol: socket.getProtocol(),
         cipher: socket.getCipher(),
         authorized: socket.authorized,
-        authorizationError: socket.authorizationError || null,
+        authorizationError: socket.authorizationError ? String(socket.authorizationError.code || socket.authorizationError) : null,
         subject: parseCertSubject(cert.subject),
         issuer: parseCertSubject(cert.issuer),
         validFrom: cert.valid_from,
@@ -199,15 +204,15 @@ function getTlsProfile(domain) {
       });
       socket.destroy();
     });
-    socket.on('error', (err) => resolve({ error: err.message, status: 'failed' }));
+    socket.on('error', (err) => resolve({ error: netError(lang, err), status: 'failed' }));
     setTimeout(() => {
       socket.destroy();
-      resolve({ error: 'TLS handshake timeout', status: 'failed' });
+      resolve({ error: t(lang, 'Il server non ha completato l’handshake TLS in tempo.'), status: 'failed' });
     }, 8000);
   });
 }
 
-async function traceRedirects(startUrl, max = 8) {
+async function traceRedirects(startUrl, lang, max = 8) {
   const chain = [];
   let current = startUrl;
   let hops = max;
@@ -233,7 +238,7 @@ async function traceRedirects(startUrl, max = 8) {
         break;
       }
     } catch (err) {
-      chain.push({ url: current, error: err.message, type: 'error' });
+      chain.push({ url: current, error: netError(lang, err), type: 'error' });
       break;
     }
   }
@@ -268,7 +273,7 @@ async function readStreamPrefix(stream, maxBytes = 16384) {
   });
 }
 
-async function probeHttp(url) {
+async function probeHttp(url, lang) {
   try {
     const response = await axios.get(url, {
       timeout: 10000,
@@ -300,12 +305,13 @@ async function probeHttp(url) {
         label: check.label,
         severity: check.severity,
         present,
+        severityLabel: severityLabel(lang, check.severity),
         value: present ? (String(value).length > 120 ? String(value).slice(0, 120) + '…' : value) : null,
-        recommendation: check.recommendation
+        recommendation: headerAdvice(lang, check.id)
       };
     });
 
-    const titleMatch = bodyPrefix.match(/<title[^>]*>([^<]{1,200})<\/title>/i);
+    const titleMatch = bodyPrefix.match(/<title[^>]{0,200}>([^<]{1,200})<\/title>/i);
 
     return {
       finalUrl: response.request?.res?.responseUrl || url,
@@ -321,7 +327,7 @@ async function probeHttp(url) {
       cookies: parseCookies(raw['set-cookie'])
     };
   } catch (err) {
-    return { error: err.message };
+    return { error: netError(lang, err) };
   }
 }
 
@@ -345,7 +351,7 @@ async function fetchDiscovery(domain) {
   const base = `https://${domain}`;
   const paths = [
     { id: 'security_txt', path: '/.well-known/security.txt', label: 'security.txt' },
-    { id: 'security_txt_root', path: '/security.txt', label: 'security.txt (root)' },
+    { id: 'security_txt_root', path: '/security.txt', label: '/security.txt' },
     { id: 'robots', path: '/robots.txt', label: 'robots.txt' }
   ];
   const results = [];
@@ -363,7 +369,7 @@ async function fetchDiscovery(domain) {
         label: item.label,
         url: base + item.path,
         found: true,
-        preview: String(res.data).split('\n').slice(0, 8).join('\n')
+        preview: String(res.data).slice(0, 2000).split('\n').slice(0, 8).join('\n')
       });
     } catch {
       results.push({ id: item.id, label: item.label, url: base + item.path, found: false });
@@ -380,125 +386,148 @@ function gradeFromScore(score) {
   return 'F';
 }
 
-function computeScore(ctx) {
+function computeScore(ctx, lang) {
   const breakdown = [];
   let score = 100;
   const add = (id, label, delta, severity) => {
     score += delta;
-    breakdown.push({ id, label, delta, severity });
+    breakdown.push({ id, label, delta, severity, severityLabel: severityLabel(lang, severity) });
   };
 
   if (!ctx.isHttps) {
-    add('transport_http', 'Connessione non HTTPS', -35, 'critical');
+    add('transport_http', t(lang, 'Connessione senza HTTPS'), -35, 'critical');
   }
 
   if (ctx.tls?.error) {
-    add('tls_fail', 'TLS non raggiungibile', -25, 'critical');
-  } else if (ctx.tls) {
-    if (ctx.tls.isExpired) add('tls_expired', 'Certificato scaduto', -30, 'critical');
+    add('tls_fail', t(lang, 'Connessione TLS non riuscita'), -25, 'critical');
+  } else if (ctx.tls && !ctx.tls.skipped) {
+    if (ctx.tls.isExpired) add('tls_expired', t(lang, 'Certificato scaduto'), -30, 'critical');
     else if (ctx.tls.daysUntilExpiry != null && ctx.tls.daysUntilExpiry < 7) {
-      add('tls_expiry_7', 'Certificato scade entro 7 giorni', -15, 'high');
+      add('tls_expiry_7', t(lang, 'Il certificato scade entro 7 giorni'), -15, 'high');
     } else if (ctx.tls.daysUntilExpiry != null && ctx.tls.daysUntilExpiry < 30) {
-      add('tls_expiry_30', 'Certificato scade entro 30 giorni', -8, 'medium');
+      add('tls_expiry_30', t(lang, 'Il certificato scade entro 30 giorni'), -8, 'medium');
     }
-    if (!ctx.tls.authorized) add('tls_trust', 'Catena certificato non trusted', -12, 'high');
+    if (!ctx.tls.authorized) add('tls_trust', t(lang, 'Catena di fiducia del certificato non valida'), -12, 'high');
     if (ctx.tls.protocol && ['SSLv2', 'SSLv3', 'TLSv1', 'TLSv1.1'].includes(ctx.tls.protocol)) {
-      add('tls_old', `Protocollo obsoleto (${ctx.tls.protocol})`, -20, 'critical');
+      add('tls_old', t(lang, 'Protocollo obsoleto ({protocol})', { protocol: ctx.tls.protocol }), -20, 'critical');
     }
   }
 
   if (ctx.isHttps && ctx.http?.headerAudit) {
     for (const h of ctx.http.headerAudit) {
       if (h.present) continue;
-      if (h.severity === 'high') add(`missing_${h.id}`, `${h.label} assente`, -12, 'high');
-      else if (h.severity === 'medium') add(`missing_${h.id}`, `${h.label} assente`, -6, 'medium');
-      else add(`missing_${h.id}`, `${h.label} assente`, -3, 'low');
+      const label = t(lang, 'Manca {header}', { header: h.label });
+      if (h.severity === 'high') add(`missing_${h.id}`, label, -12, 'high');
+      else if (h.severity === 'medium') add(`missing_${h.id}`, label, -6, 'medium');
+      else add(`missing_${h.id}`, label, -3, 'low');
     }
   }
 
   if (ctx.http?.cookies?.length) {
-    const bad = ctx.http.cookies.filter(c => !c.secure || !c.httpOnly);
-    if (bad.length) add('cookies_insecure', 'Cookie senza Secure/HttpOnly', -8, 'medium');
+    const bad = ctx.http.cookies.filter((c) => !c.secure || !c.httpOnly);
+    if (bad.length) add('cookies_insecure', t(lang, 'Cookie senza Secure o HttpOnly'), -8, 'medium');
   }
 
   if (ctx.redirects?.hopCount > 3) {
-    add('redirect_chain', 'Catena redirect eccessiva', -5, 'low');
+    add('redirect_chain', t(lang, 'Troppi reindirizzamenti'), -5, 'low');
   }
 
-  const secTxt = ctx.discovery?.find(d => d.found && d.id.includes('security'));
-  if (secTxt) add('security_txt_bonus', 'security.txt presente', +3, 'info');
+  const secTxt = ctx.discovery?.find((d) => d.found && d.id.includes('security'));
+  if (secTxt) add('security_txt_bonus', t(lang, 'security.txt presente'), +3, 'info');
 
   score = Math.max(0, Math.min(100, Math.round(score)));
   return { score, grade: gradeFromScore(score), breakdown };
 }
 
-function buildFindings(ctx) {
+function buildFindings(ctx, lang) {
   const findings = [];
-  const push = (severity, title, detail, module) => findings.push({ severity, title, detail, module });
+  const push = (severity, title, detail, module) => findings.push({ severity, severityLabel: severityLabel(lang, severity), title, detail, module });
 
   if (!ctx.isHttps) {
-    push('critical', 'Trasporto non cifrato', 'Il target usa HTTP — credenziali e sessioni esposte.', 'transport');
+    push('critical', t(lang, 'Traffico non cifrato'), t(lang, 'Il sito risponde in HTTP: password e sessioni viaggiano in chiaro e possono essere lette o modificate da chi controlla la rete.'), 'transport');
+  }
+  if (ctx.tls?.error) {
+    push('high', t(lang, 'Connessione TLS non riuscita'), ctx.tls.error, 'tls');
   }
   if (ctx.tls?.isExpired) {
-    push('critical', 'Certificato TLS scaduto', `Scadenza: ${ctx.tls.validTo}`, 'tls');
+    push('critical', t(lang, 'Certificato TLS scaduto'), t(lang, 'Scaduto il {date}.', { date: ctx.tls.validTo }), 'tls');
   }
-  if (ctx.tls && !ctx.tls.authorized && !ctx.tls.error) {
-    push('high', 'Certificato non trusted', ctx.tls.authorizationError || 'Chain validation failed', 'tls');
+  if (ctx.tls && !ctx.tls.skipped && !ctx.tls.authorized && !ctx.tls.error) {
+    push('high', t(lang, 'Certificato non riconosciuto come affidabile'), t(lang, 'La catena di certificati non porta a un’autorità riconosciuta (codice: {code}).', { code: ctx.tls.authorizationError || '—' }), 'tls');
   }
   if (ctx.http?.headerAudit) {
-    for (const h of ctx.http.headerAudit.filter(x => !x.present && (x.severity === 'high' || x.severity === 'medium'))) {
-      push(h.severity === 'high' ? 'high' : 'medium', `${h.label} mancante`, h.recommendation, 'headers');
+    for (const h of ctx.http.headerAudit.filter((x) => !x.present && (x.severity === 'high' || x.severity === 'medium'))) {
+      push(h.severity === 'high' ? 'high' : 'medium', t(lang, 'Manca {header}', { header: h.label }), h.recommendation, 'headers');
     }
   }
   if (!findings.length) {
-    push('info', 'Nessuna criticità immediata', 'Controlli passivi completati senza alert ad alta priorità.', 'summary');
+    push('info', t(lang, 'Nessun problema urgente'), t(lang, 'I controlli passivi non hanno trovato problemi ad alta priorità.'), 'summary');
   }
   return findings;
 }
 
+function moduleName(lang, id) {
+  switch (id) {
+    case 'dns': return t(lang, 'DNS e indirizzo IP');
+    case 'network': return t(lang, 'Rete di appartenenza (RDAP)');
+    case 'tls': return t(lang, 'Certificato TLS');
+    case 'headers': return t(lang, 'Header di sicurezza HTTP');
+    case 'redirects': return t(lang, 'Reindirizzamenti');
+    case 'discovery': return t(lang, 'File pubblici (security.txt, robots.txt)');
+    default: return id;
+  }
+}
+
 /**
- * Esegue scansione passiva completa
+ * Esegue la scansione passiva completa
  * @param {string} fullUrl
  * @param {string} domain
  * @param {boolean} isHttps
+ * @param {string} [lang]
  */
-async function runUrlScan(fullUrl, domain, isHttps) {
+async function runUrlScan(fullUrl, domain, isHttps, lang) {
   const started = Date.now();
   const modules = [];
 
   await assertPublicDestination(fullUrl);
 
   const ip = await withTimeout(resolveIp(domain), 8000, 'DNS');
-  const [dnsIntel, geo, redirectData] = await Promise.all([
+  const [dnsIntel, network, redirectData] = await Promise.all([
     withTimeout(gatherDns(domain), 10000, 'DNS records'),
-    lookupGeo(ip),
-    withTimeout(traceRedirects(fullUrl), 15000, 'Redirects')
+    lookupNetwork(ip, lang),
+    withTimeout(traceRedirects(fullUrl, lang), 15000, 'Redirects'),
   ]);
 
-  modules.push({ id: 'dns', name: 'DNS & IP', status: 'complete', durationMs: null });
-  modules.push({ id: 'geo', name: 'GeoIP / ASN', status: geo.error ? 'partial' : 'complete' });
+  modules.push({ id: 'dns', name: moduleName(lang, 'dns'), status: 'complete' });
+  modules.push({ id: 'network', name: moduleName(lang, 'network'), status: network.error ? 'partial' : 'complete' });
 
   const probeUrl = redirectData.finalUrl || fullUrl;
   const probeHost = new URL(probeUrl).hostname;
+  const httpsTarget = isHttps || probeUrl.startsWith('https');
 
   const [tls, http, discovery] = await Promise.all([
-    isHttps || probeUrl.startsWith('https')
-      ? withTimeout(getTlsProfile(probeHost), 10000, 'TLS')
-      : Promise.resolve({ skipped: true, reason: 'HTTP only target' }),
-    withTimeout(probeHttp(probeUrl), 12000, 'HTTP'),
-    withTimeout(fetchDiscovery(domain), 12000, 'Discovery')
+    httpsTarget
+      ? withTimeout(getTlsProfile(probeHost, lang), 10000, 'TLS').catch(() => ({ error: t(lang, 'Il server non ha completato l’handshake TLS in tempo.'), status: 'failed' }))
+      : Promise.resolve({ skipped: true, reason: t(lang, 'Il sito usa solo HTTP: nessun certificato da analizzare.') }),
+    withTimeout(probeHttp(probeUrl, lang), 12000, 'HTTP').catch((err) => ({ error: netError(lang, err) })),
+    withTimeout(fetchDiscovery(domain), 12000, 'Discovery').catch(() => []),
   ]);
 
   modules.push(
-    { id: 'tls', name: 'TLS / Certificate', status: tls.error ? 'failed' : 'complete' },
-    { id: 'headers', name: 'HTTP Security Headers', status: http.error ? 'failed' : 'complete' },
-    { id: 'redirects', name: 'Redirect Chain', status: 'complete', hops: redirectData.hopCount },
-    { id: 'discovery', name: 'Surface Discovery', status: 'complete' }
+    { id: 'tls', name: moduleName(lang, 'tls'), status: tls.skipped ? 'skipped' : tls.error ? 'failed' : 'complete' },
+    { id: 'headers', name: moduleName(lang, 'headers'), status: http.error ? 'failed' : 'complete' },
+    { id: 'redirects', name: moduleName(lang, 'redirects'), status: 'complete', hops: redirectData.hopCount },
+    { id: 'discovery', name: moduleName(lang, 'discovery'), status: 'complete' },
   );
 
-  const scoreCtx = { isHttps: isHttps || probeUrl.startsWith('https'), tls, http, redirects: redirectData, discovery };
-  const { score, grade, breakdown } = computeScore(scoreCtx);
-  const findings = buildFindings(scoreCtx);
+  // Indirizzi non pubblici nei record DNS: non mostrati (S-12)
+  for (const type of ['A', 'AAAA']) {
+    if (Array.isArray(dnsIntel.records[type])) dnsIntel.records[type] = dnsIntel.records[type].filter((a) => isPublicAddress(a));
+  }
+
+  const scoreCtx = { isHttps: httpsTarget, tls, http, redirects: redirectData, discovery };
+  const { score, grade, breakdown } = computeScore(scoreCtx, lang);
+  const findings = buildFindings(scoreCtx, lang);
 
   return {
     domain,
@@ -507,23 +536,24 @@ async function runUrlScan(fullUrl, domain, isHttps) {
     timestamp: new Date().toISOString(),
     scanDurationMs: Date.now() - started,
     security_score: score,
+    score,
     grade,
     scoreBreakdown: breakdown,
     findings,
     modules,
     analysis: {
       ip,
-      geo,
+      network,
       dns: dnsIntel,
       tls,
       http,
       redirects: redirectData.chain,
       redirectMeta: { finalUrl: redirectData.finalUrl, hopCount: redirectData.hopCount },
-      discovery
+      discovery,
     },
-    limitations: LIMITATIONS,
-    status: 'success'
+    limitations: scanLimitations(lang),
+    status: 'success',
   };
 }
 
-module.exports = { runUrlScan };
+module.exports = { runUrlScan, lookupNetwork };

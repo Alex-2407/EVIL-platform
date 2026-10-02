@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Studio Cifratura - EVIL</title>
-  <meta name="description" content="Studio scenico su hash, AES, RSA, TLS e PKI — impara la crittografia per la cybersecurity.">
+  <title>Studio cifratura - EVIL</title>
+  <meta name="description" content="Studio cifratura: hash, AES, RSA, curve ellittiche, TLS 1.3, PKI e crittografia post-quantistica, con un laboratorio di hash nel browser e schede tecniche per ogni algoritmo.">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/crypto-studio.css?v=20260702">
+  <link rel="stylesheet" href="/css/crypto-studio.css?v=20261001">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -39,9 +39,9 @@
 
       <div class="cs-hero-shell">
         <div class="cs-hero-brand-col">
-          <p class="cs-kicker">Studio Cifratura</p>
+          <p class="cs-kicker">Studio cifratura</p>
           <h1 id="crypto-hero-title" class="cs-hero-title">Hash, chiavi<br>e fiducia digitale</h1>
-          <span class="cs-hero-meta">Web Crypto API · browser locale</span>
+          <span class="cs-hero-meta">Web Crypto API · tutto nel tuo browser</span>
         </div>
 
         <div class="cs-hero-divide" aria-hidden="true"></div>
@@ -59,7 +59,7 @@
           <p class="cs-hero-lead" id="crypto-intro-text"></p>
 
           <div class="cs-hero-cta">
-            <a class="cs-cta cs-cta--primary" href="#cs-lab">Apri laboratorio</a>
+            <a class="cs-cta cs-cta--primary" href="#cs-lab">Apri il laboratorio</a>
             <a class="cs-cta cs-cta--ghost" href="#cs-catalog">Catalogo algoritmi</a>
           </div>
         </div>
@@ -68,7 +68,25 @@
       <div class="cs-scroll-hint" aria-hidden="true"><span>Scorri</span></div>
     </section>
 
-    <nav class="cs-jump cs-reveal" aria-label="Sezioni studio">
+    <section class="cs-brief" aria-label="Scheda del modulo">
+      <dl class="cs-brief-grid">
+        <div><dt>A chi serve</dt><dd>Sviluppatori, studenti e chi lavora nella sicurezza e deve scegliere o valutare algoritmi e configurazioni TLS.</dd></div>
+        <div><dt>Livello</dt><dd>Base → intermedio</dd></div>
+        <div><dt>Durata</dt><dd>40–60 minuti</dd></div>
+        <div><dt>Prerequisiti</dt><dd>Nozioni di base su bit, byte ed esadecimale; un'idea di cosa sia HTTPS.</dd></div>
+      </dl>
+      <div class="cs-brief-goals">
+        <p class="cs-brief-goals__title">Obiettivi di apprendimento</p>
+        <ul>
+          <li>Distinguere hash, MAC, cifratura simmetrica e asimmetrica, e sapere quale problema risolve ciascuno.</li>
+          <li>Leggere un handshake TLS 1.3 e riconoscere una configurazione moderna da una obsoleta.</li>
+          <li>Scegliere l'algoritmo giusto per password, dati, firme e scambio di chiavi, incluse le opzioni post-quantistiche.</li>
+        </ul>
+      </div>
+      <p class="cs-brief-note">Il laboratorio usa la Web Crypto API del browser: nulla di ciò che scrivi lascia il tuo computer. Per l'uso responsabile degli strumenti di analisi vedi <a href="/ethics.html">Etica e legge</a>.</p>
+    </section>
+
+    <nav class="cs-jump cs-reveal" aria-label="Sezioni dello studio">
       <a class="cs-jump-link" href="#cs-lab"><span class="cs-jump-num">1</span> Laboratorio</a>
       <a class="cs-jump-link" href="#cs-families"><span class="cs-jump-num">2</span> Famiglie</a>
       <a class="cs-jump-link" href="#cs-catalog"><span class="cs-jump-num">3</span> Catalogo</a>
@@ -79,7 +97,7 @@
       <header class="cs-section-head">
         <p class="cs-kicker">Laboratorio</p>
         <h2 id="lab-title">Forgia degli hash</h2>
-        <p>Digita un messaggio e osserva il digest — e la griglia cromatica che lo rappresenta byte per byte.</p>
+        <p>Scrivi un messaggio e osserva il digest e la griglia di colori che lo rappresenta byte per byte. Basta cambiare un carattere perché cambi circa metà del risultato.</p>
       </header>
 
       <div class="cs-lab-grid">
@@ -94,7 +112,7 @@
             <div class="cs-field">
               <label for="crypto-hash-input">Messaggio</label>
               <textarea id="crypto-hash-input" spellcheck="false" placeholder="EVIL{impara_la_cifratura}">EVIL platform</textarea>
-              <button type="button" class="cs-flip-btn" id="cs-flip-bit">Flip ultimo bit — valanga</button>
+              <button type="button" class="cs-flip-btn" id="cs-flip-bit">Cambia l'ultimo carattere</button>
             </div>
             <div class="cs-field">
               <label for="crypto-hash-algo">Algoritmo</label>
@@ -103,7 +121,7 @@
                 <option value="SHA-384">SHA-384</option>
                 <option value="SHA-512">SHA-512</option>
                 <option value="SHA-1">SHA-1 (legacy)</option>
-                <option value="demo">— Solo spiegazione valanga —</option>
+                <option value="demo">— Solo spiegazione dell'effetto valanga —</option>
               </select>
             </div>
             <div class="cs-hash-row">
@@ -111,7 +129,7 @@
               <div class="cs-hash-out" id="crypto-hash-output" aria-live="polite"></div>
             </div>
             <p class="cs-lab-note" id="cr-hash-diff" hidden></p>
-            <p class="cs-lab-note">Integrità sì, segretezza no. Per le password: bcrypt o Argon2 con salt.</p>
+            <p class="cs-lab-note">Un hash garantisce l'integrità, non la segretezza. Per le password servono funzioni lente con salt, come Argon2id o bcrypt.</p>
           </div>
         </article>
 
@@ -136,7 +154,7 @@
       <header class="cs-section-head">
         <p class="cs-kicker">Tre famiglie</p>
         <h2 id="families-title">Come si protegge l'informazione</h2>
-        <p>Ogni famiglia risolve un problema diverso — clicca per filtrare il catalogo.</p>
+        <p>Ogni famiglia risolve un problema diverso: fai clic su una famiglia per filtrare il catalogo.</p>
       </header>
 
       <div class="cs-family-grid">
@@ -149,7 +167,7 @@
           <div class="cs-family-body">
             <span class="cs-family-tag">Integrità</span>
             <h3>Hash &amp; MAC</h3>
-            <p>Digest unidirezionali, HMAC, password hashing. Un bit cambia → output irriconoscibile.</p>
+            <p>Digest unidirezionali, HMAC, hashing delle password. Cambia un bit e l'output diventa irriconoscibile.</p>
           </div>
         </button>
 
@@ -166,7 +184,7 @@
           <div class="cs-family-body">
             <span class="cs-family-tag">Riservatezza</span>
             <h3>Simmetrica</h3>
-            <p>AES-GCM, ChaCha20 — stessa chiave per cifrare e decifrare. Veloce per volumi di dati.</p>
+            <p>AES-GCM, ChaCha20-Poly1305: la stessa chiave cifra e decifra. Veloce anche su grandi volumi di dati.</p>
           </div>
         </button>
 
@@ -180,9 +198,9 @@
             </div>
           </div>
           <div class="cs-family-body">
-            <span class="cs-family-tag">Scambio &amp; firma</span>
-            <h3>Asimmetrica &amp; TLS</h3>
-            <p>RSA, curve ellittiche, certificati X.509 — la PKI dietro HTTPS e le firme digitali.</p>
+            <span class="cs-family-tag">Scambio e firma</span>
+            <h3>Asimmetrica e TLS</h3>
+            <p>RSA, curve ellittiche, certificati X.509 e algoritmi post-quantistici: la PKI dietro HTTPS e le firme digitali.</p>
           </div>
         </button>
       </div>
@@ -192,18 +210,18 @@
       <div class="cs-tls-card">
         <span class="cs-tls-shine" aria-hidden="true"></span>
         <div class="cs-tls-deco" aria-hidden="true">
-          <ol class="cs-handshake" id="cs-handshake">
-            <li class="is-active"><span>1</span> Client Hello</li>
-            <li><span>2</span> Server Hello + cert</li>
-            <li><span>3</span> Key exchange</li>
+          <ol class="cs-handshake" id="cs-handshake" translate="no">
+            <li class="is-active"><span>1</span> ClientHello + key_share</li>
+            <li><span>2</span> ServerHello + key_share</li>
+            <li><span>3</span> {Certificate, CertificateVerify}</li>
             <li><span>4</span> Finished</li>
           </ol>
         </div>
         <div class="cs-tls-body">
           <span class="cs-family-tag">Protocollo</span>
-          <h3>TLS 1.3 in quattro passi</h3>
-          <p>Il browser negozia cipher forti, verifica il certificato del server e stabilisce una sessione con forward secrecy.</p>
-          <a class="cs-cta cs-cta--ghost cs-cta--sm" href="/ssl-analyzer.html">Analizza con SSL Analyzer</a>
+          <h3>TLS 1.3 in un solo round-trip</h3>
+          <p>Il client invia già nel ClientHello la sua parte dello scambio chiavi (key_share); il server risponde con la propria, e da lì in poi tutto è cifrato: certificato, firma dell'handshake (CertificateVerify) e Finished. Bastano un round-trip e chiavi effimere, quindi c'è forward secrecy.</p>
+          <a class="cs-cta cs-cta--ghost cs-cta--sm" href="/ssl-analyzer.html">Analizza un server con Certificato TLS</a>
         </div>
       </div>
     </section>
@@ -212,7 +230,7 @@
       <header class="cs-section-head">
         <p class="cs-kicker">Catalogo</p>
         <h2 id="algo-title">Algoritmi e protocolli</h2>
-        <p class="cs-catalog-hint">Clicca una scheda per la scheda tecnica completa — storia, equazioni, pro/contro e rank sicurezza.</p>
+        <p class="cs-catalog-hint">Apri una scheda per leggere la descrizione tecnica completa: storia, formule, pro e contro e valutazione di sicurezza.</p>
       </header>
       <div class="cs-rail" id="crypto-rail" role="tablist" aria-label="Filtra gli algoritmi">
         <button type="button" class="cs-rail__btn is-active" data-filter="all" role="tab" aria-selected="true">Tutti</button>
@@ -228,30 +246,30 @@
       <header class="cs-section-head">
         <p class="cs-kicker">Sicurezza pratica</p>
         <h2 id="guide-title">Quale strumento per quale problema</h2>
-        <p>Matrice decisionale rapida — i dettagli storici e tecnici sono nelle schede del catalogo.</p>
+        <p>Una guida rapida alle scelte: i dettagli storici e tecnici sono nelle schede del catalogo.</p>
       </header>
       <div class="cs-guide-layout">
         <div class="cs-guide-col cs-guide-col--use">
           <h3 class="cs-guide-col__title">Usa</h3>
           <ul class="cs-guide-list">
-            <li><strong>Password utenti</strong> → Argon2id (fallback bcrypt)</li>
-            <li><strong>Integrità file / Git / blockchain</strong> → SHA-256 o SHA-3</li>
-            <li><strong>API token / cookie firmati</strong> → HMAC-SHA256 o Ed25519</li>
-            <li><strong>Dati in transito</strong> → TLS 1.3 + certificato valido + ECDHE</li>
-            <li><strong>Dati at rest</strong> → AES-GCM o ChaCha20-Poly1305</li>
-            <li><strong>Scambio chiavi</strong> → X25519 / ECDHE + HKDF</li>
-            <li><strong>Firme digitali</strong> → Ed25519 o RSA ≥3072 bit</li>
+            <li><strong>Password degli utenti</strong> → Argon2id (in alternativa bcrypt)</li>
+            <li><strong>Integrità di file e dati</strong> → SHA-256, SHA-512 o SHA-3</li>
+            <li><strong>Token API e cookie firmati</strong> → HMAC-SHA256 o Ed25519</li>
+            <li><strong>Dati in transito</strong> → TLS 1.3 (o 1.2 ben configurato) con certificato valido</li>
+            <li><strong>File e record cifrati</strong> → AES-GCM o ChaCha20-Poly1305 (dischi interi: AES-XTS)</li>
+            <li><strong>Scambio di chiavi</strong> → X25519 / ECDHE + HKDF; ibrido X25519MLKEM768 dove disponibile</li>
+            <li><strong>Firme digitali</strong> → Ed25519, ECDSA P-256 o RSA ≥ 3072 bit (PSS); pianificare il passaggio a ML-DSA</li>
           </ul>
         </div>
         <div class="cs-guide-col cs-guide-col--avoid">
           <h3 class="cs-guide-col__title">Evita</h3>
           <ul class="cs-guide-list">
             <li><strong>MD5 / SHA-1</strong> per password, firme o integrità critica</li>
-            <li><strong>SHA-256 da solo</strong> per hash password (troppo veloce)</li>
-            <li><strong>DES / 3DES / RC4</strong> — deprecati ovunque</li>
-            <li><strong>AES-CBC</strong> senza MAC autenticato (padding oracle)</li>
-            <li><strong>RSA key transport</strong> senza forward secrecy</li>
-            <li><strong>TLS &lt; 1.2</strong> e cipher suite obsolete</li>
+            <li><strong>SHA-256 da solo</strong> per le password (troppo veloce)</li>
+            <li><strong>DES, 3DES, RC4</strong>: ritirati ovunque</li>
+            <li><strong>AES-CBC</strong> senza MAC (padding oracle), AES in modalità ECB</li>
+            <li><strong>Trasporto di chiavi RSA</strong>: niente forward secrecy</li>
+            <li><strong>SSL, TLS 1.0 e 1.1</strong> e cipher suite obsolete</li>
             <li><strong>Nonce/IV riutilizzati</strong> in qualsiasi AEAD</li>
           </ul>
         </div>
@@ -268,7 +286,7 @@
           <h2 class="cs-modal__title" id="cs-modal-title"></h2>
         </div>
         <div class="cs-modal__rank-wrap">
-          <div class="cs-modal__rank" id="cs-modal-rank" aria-label="Rank sicurezza">
+          <div class="cs-modal__rank" id="cs-modal-rank" aria-label="Valutazione di sicurezza">
             <span class="cs-modal__rank-num" id="cs-modal-rank-num">—</span>
             <span class="cs-modal__rank-label">/ 10</span>
           </div>
@@ -283,7 +301,7 @@
 
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/progress-manager.js" defer></script>
-  <script src="/js/crypto-algorithms-data.js?v=20260623"></script>
-  <script src="/js/crypto-studio.js?v=20260623"></script>
+  <script src="/js/crypto-algorithms-data.js?v=20261001"></script>
+  <script src="/js/crypto-studio.js?v=20261001"></script>
 </body>
 </html>

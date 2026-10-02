@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Profilazione Social — EVIL Strumenti</title>
-  <meta name="description" content="Correlazione OSINT passiva su username: piattaforme pubbliche, metadati GitHub/Reddit e awareness impronta digitale. Solo formazione etica.">
+  <title>Profilazione social — EVIL</title>
+  <meta name="description" content="Controlla la tua impronta digitale: su quali piattaforme compare il tuo username, quali metadati pubblici espone e se l'email del tuo account è in data breach noti.">
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/security-check.css?v=20260713">
   <link rel="stylesheet" href="/css/http-header-audit.css?v=20260707">
-  <link rel="stylesheet" href="/css/social-profiling.css?v=20260714">
+  <link rel="stylesheet" href="/css/social-profiling.css?v=20261001">
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -30,36 +30,39 @@
   <main>
     <section class="sc-hero">
       <p class="sp-parent-link"><a href="/osint-hub.html">← OSINT</a></p>
-      <p class="sc-kicker">Strumenti · OSINT — Persone</p>
-      <h1>Profilazione da Social Network</h1>
+      <p class="sc-kicker">Strumenti · OSINT difensivo</p>
+      <h1>Profilazione social</h1>
       <p class="sc-hero__lead">
-        Correlazione passiva di username su piattaforme note: API pubbliche (GitHub, Reddit) e link verificabili.
-        Nessun dato inventato — solo ciò che le fonti restituiscono. Opzionale: email per controllo breach (HIBP).
+        Controlla la tua impronta digitale: su quali piattaforme note compare il tuo username e quali metadati pubblici espone (API pubbliche di GitHub e Reddit, link da verificare per le altre).
+        Mostriamo solo ciò che le fonti restituiscono, senza dati inventati.
       </p>
+      <p class="sc-hero__lead">A chi serve: chi vuole ridurre la propria esposizione, studenti di OSINT. Livello base, circa 10 minuti. Prima di usarlo leggi <a href="/ethics.html">Etica e legge</a>.</p>
     </section>
 
     <div class="sc-wrap">
       <div class="sc-panel">
         <div class="sc-form-row">
-          <input type="text" id="spUsername" class="sc-input" placeholder="Username (es. octocat)" autocomplete="off" spellcheck="false">
+          <label class="sp-label" for="spUsername">Username da controllare</label>
+          <input type="text" id="spUsername" class="sc-input" maxlength="32" placeholder="Es.: octocat" autocomplete="off" spellcheck="false">
         </div>
-        <div class="sc-form-row">
-          <input type="email" id="spEmail" class="sc-input" placeholder="Email opzionale (solo breach HIBP)" autocomplete="off">
-        </div>
+        <label class="sc-auth sp-option">
+          <input type="checkbox" id="spOwnEmail">
+          <span>Controlla anche se l'email del mio account EVIL compare in data breach noti (Have I Been Pwned). Il controllo è possibile solo sulla tua email.</span>
+        </label>
         <label class="sc-auth">
           <input type="checkbox" id="spAuth">
-          <span>Dichiaro di analizzare solo il mio account o target per cui ho autorizzazione esplicita.</span>
+          <span>Dichiaro di analizzare il mio account o un profilo per cui ho consenso scritto dell'interessato. La profilazione di terzi senza base giuridica viola il GDPR.</span>
         </label>
         <div class="sc-actions">
-          <button type="button" class="sc-btn sc-btn--primary" id="spScanBtn" disabled>Avvia profilazione</button>
-          <button type="button" class="sc-btn sc-btn--ghost" id="spResetBtn">Reset</button>
+          <button type="button" class="sc-btn sc-btn--primary" id="spScanBtn" disabled>Avvia il controllo</button>
+          <button type="button" class="sc-btn sc-btn--ghost" id="spResetBtn">Svuota</button>
         </div>
-        <p class="sc-meta">10 piattaforme · GitHub API · Reddit JSON · ~5–15 s · serve l'account (gratuito)</p>
+        <p class="sc-meta">10 piattaforme · API di GitHub e Reddit · di solito 5-15 secondi · serve un account EVIL (gratuito)</p>
       </div>
 
       <aside class="sc-callout" role="note">
-        <strong>Etica:</strong> non effettua login né scraping aggressivo. I check HTTP sui social sono indicativi:
-        conferma sempre manualmente prima di trarre conclusioni in un contesto reale.
+        <p><strong>Come funziona.</strong> EVIL non accede ai profili e non raccoglie contenuti riservati: interroga API pubbliche e controlla se una pagina risponde. Le risposte HTTP dei social sono solo indicative: conferma sempre aprendo il link.</p>
+        <p><strong>Regole.</strong> Usa lo strumento sui tuoi account o con il consenso scritto della persona interessata. Raccogliere e incrociare i profili di altre persone senza una base giuridica (art. 6 GDPR) e senza informarle (art. 14 GDPR) è vietato, come il doxxing. Vedi <a href="/site-policies.html">Privacy e regole</a>.</p>
       </aside>
 
       <div class="sc-log" id="spLog" aria-live="polite"></div>
@@ -72,6 +75,6 @@
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/js.js" defer></script>
 <script src="/js/tools-api.js" defer></script>
-  <script src="/js/social-profiling.js?v=20260714" defer></script>
+  <script src="/js/social-profiling.js?v=20261001" defer></script>
 </body>
 </html>

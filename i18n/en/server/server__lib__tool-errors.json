@@ -1,0 +1,9 @@
+{
+  "Dominio inesistente o non raggiungibile.": "The domain does not exist or cannot be reached.",
+  "Il server del sito ha rifiutato la connessione.": "The site's server refused the connection.",
+  "La connessione è stata interrotta dal sito.": "The site closed the connection.",
+  "Il sito non ha risposto in tempo. Riprova tra poco.": "The site did not respond in time. Please try again shortly.",
+  "Connessione sicura (TLS) non riuscita: certificato non valido o protocollo non supportato.": "Secure (TLS) connection failed: invalid certificate or unsupported protocol.",
+  "URL non valido: scrivilo per intero, per esempio https://esempio.it": "Invalid URL: enter it in full, for example https://example.com",
+  "Analisi non riuscita per un errore interno. Riprova tra poco.": "The analysis failed because of an internal error. Please try again shortly."
+}

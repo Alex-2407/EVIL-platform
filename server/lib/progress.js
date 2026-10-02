@@ -98,6 +98,7 @@ function mergeClientProgress(current, payload, catalogIds) {
   if (error) {
     const e = new Error(`Progressi non validi: ${error.message}`);
     e.status = 400;
+    e.detail = error.message; // la route lo traduce: "Progressi non validi: {detail}"
     throw e;
   }
   const server = normalizeProgress(current);

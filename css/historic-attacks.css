@@ -606,3 +606,106 @@
     transform: none;
   }
 }
+
+/* Scheda del modulo */
+.ha-module {
+  margin-bottom: 2rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-radius: 14px;
+  border: 1px solid var(--ha-border);
+  background: var(--ha-glass);
+  color: #cbd5e1;
+}
+
+.ha-module__title {
+  margin: 0 0 1rem;
+  font-family: var(--ha-serif);
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: #f8fafc;
+}
+
+.ha-module__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem 1.25rem;
+  margin: 0 0 1rem;
+}
+
+.ha-module__fact dt {
+  margin-bottom: 0.25rem;
+  font-family: var(--ha-mono);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ha-amber);
+}
+
+.ha-module__fact dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.ha-module__sub {
+  margin: 0 0 0.5rem;
+  font-size: 0.95rem;
+  color: #e2e8f0;
+}
+
+.ha-module__goals {
+  margin: 0 0 1rem;
+  padding-left: 1.2rem;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.ha-module__note {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.ha-module a {
+  color: var(--ha-rose);
+}
+
+/* Card: riassunto e fonti */
+.ha-card__summary {
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.ha-card__sources {
+  margin: 0.75rem 0 0;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #7c8aa0;
+}
+
+.ha-card__sources strong {
+  color: #94a3b8;
+}
+
+/* Ritardo dell'animazione delle card, impostato dal JS con --ha-card-i */
+.ha-card.ha-reveal {
+  animation-delay: calc(var(--ha-card-i, 0) * 0.06s);
+}
+
+.ha-compare tbody tr {
+  cursor: pointer;
+}
+
+.ha-compare-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 2.5rem;
+}
+
+.ha-compare-scroll .ha-compare {
+  margin-bottom: 0;
+  min-width: 640px;
+}

@@ -18,10 +18,16 @@ const registerLab = require('./routes/lab');
 const registerProgress = require('./routes/progress');
 const registerHelp = require('./routes/help');
 const registerAuth = require('./routes/auth');
-const { isDevelopment, trustProxy } = require('../utils/env');
+const { isDevelopment, isProduction, isTest } = require('../utils/env');
+const { parseTrustProxy, describeTrustProxy } = require('../utils/trust-proxy');
 const { isOriginAllowed, wildcardConfigured } = require('./lib/origins');
 
 const root = pages.root;
+
+// req.t esiste dopo i18nMiddleware; gli errori possono nascere prima (JSON malformato…)
+// t() segna il testo per `node scripts/i18n.js extract-server`
+const t = (text) => text;
+const tr = (req, text) => (typeof req.t === 'function' ? req.t(text) : text);
 
 function createApp(ctx) {
   const app = express();
@@ -29,9 +35,16 @@ function createApp(ctx) {
 
   registerHealth(app);
 
-  // Dietro nginx/Cloudflare in produzione: IP reale per rate limit e sessioni lab
-  if (trustProxy()) {
-    app.set('trust proxy', 1);
+  // IP reale del visitatore (rate limit, sessioni lab): ci si fida di X-Forwarded-For solo se
+  // TRUST_PROXY lo dichiara (numero di proxy o elenco IP/CIDR). Su Render: TRUST_PROXY=1 (S-02).
+  const trust = parseTrustProxy();
+  app.set('trust proxy', trust.value);
+  if (trust.error) logger.warn(`TRUST_PROXY non valido: ${trust.error}`);
+  if (!isTest()) {
+    logger.info(`Trust proxy: ${describeTrustProxy()}`);
+    if (isProduction() && trust.value === false) {
+      logger.warn('TRUST_PROXY non impostato: dietro un proxy (Render) tutti i visitatori avranno lo stesso IP e condivideranno i limiti di richieste. Su Render imposta TRUST_PROXY=1.');
+    }
   }
 
   // ==================== COMPRESSION MIDDLEWARE ====================
@@ -109,7 +122,7 @@ function createApp(ctx) {
     origin: true, // riflette l'origine, già verificata qui sotto
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-EVIL-Lang'],
   });
 
   app.use((req, res, next) => {
@@ -117,7 +130,7 @@ function createApp(ctx) {
     if (origin && !isCorsOriginAllowed(origin, req)) {
       // Richiesta da un altro sito: rifiutata prima di arrivare alle route
       logger.warn('CORS blocked', { origin, host: req.get('host'), path: req.path });
-      return res.status(403).json({ error: 'Origine non consentita.', code: 'CORS_FORBIDDEN' });
+      return res.status(403).json({ error: req.t('Origine non consentita.'), code: 'CORS_FORBIDDEN' });
     }
     return corsMiddleware(req, res, next);
   });
@@ -141,7 +154,7 @@ function createApp(ctx) {
       res.status(404);
       return res.sendFile(notFoundPage);
     }
-    return res.status(404).json({ error: 'Risorsa non trovata.', code: 'NOT_FOUND', status: 'error' });
+    return res.status(404).json({ error: tr(req, t('Risorsa non trovata.')), code: 'NOT_FOUND', status: 'error' });
   });
 
   // ==================== ERRORI ====================
@@ -152,10 +165,10 @@ function createApp(ctx) {
     if (statusCode < 500) {
       logger.warn('Richiesta non valida', { status: statusCode, type: error.type, url: req.originalUrl, method: req.method, ip: req.ip });
       const friendly =
-        error.type === 'entity.parse.failed' ? 'Il corpo della richiesta non è un JSON valido.'
-          : error.type === 'entity.too.large' ? 'Richiesta troppo grande.'
+        error.type === 'entity.parse.failed' ? tr(req, t('Il corpo della richiesta non è un JSON valido.'))
+          : error.type === 'entity.too.large' ? tr(req, t('Richiesta troppo grande.'))
             : error.expose && error.message ? error.message
-              : 'Richiesta non valida.';
+              : tr(req, t('Richiesta non valida.'));
       return res.status(statusCode).json({ error: friendly, status: 'error' });
     }
 
@@ -170,7 +183,7 @@ function createApp(ctx) {
     });
 
     if (res.headersSent) return next(error);
-    const body = { error: 'Errore interno del server. Riprova tra poco.', status: 'error' };
+    const body = { error: tr(req, t('Errore interno del server. Riprova tra poco.')), status: 'error' };
     if (isDev) {
       body.detail = error.message;
       body.stack = error.stack;

@@ -1,0 +1,4 @@
+{
+  "Il registro ha restituito una risposta WHOIS vuota o illeggibile.": "The registry returned an empty or unreadable WHOIS response.",
+  "Né RDAP né il servizio WHOIS del registro hanno restituito dati per questo dominio.": "Neither RDAP nor the registry’s WHOIS service returned data for this domain."
+}

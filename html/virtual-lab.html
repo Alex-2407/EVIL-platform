@@ -30,12 +30,13 @@
     <section class="vlab-hero" aria-labelledby="vlab-hero-title">
       <p class="vlab-section-kicker">Impara · Simula · Difendi</p>
       <h1 id="vlab-hero-title">Laboratorio Virtuale</h1>
+      <p class="vlab-hero-lead">Scenari in un terminale simulato, su una rete isolata: ogni comando restituisce un output didattico scritto a mano, nessuna connessione a sistemi reali. Tutte le tecniche vanno usate solo in test autorizzati — vedi <a href="/ethics.html">Etica e legge</a>.</p>
     </section>
 
     <section class="vlab-catalog" id="vlab-catalog" aria-labelledby="vlab-catalog-title">
       <header class="vlab-section-head">
         <p class="vlab-section-kicker">Ambienti isolati</p>
-        <h2 id="vlab-catalog-title">Macchine virtuali EVIL</h2>
+        <h2 id="vlab-catalog-title">Scenari in terminale simulato</h2>
       </header>
       <div class="vlab-grid" id="vlab-grid">
         <p class="vlab-loading">Caricamento…</p>
@@ -52,7 +53,7 @@
       </div>
 
       <div class="vlab-complete-banner" id="vlab-complete-banner" role="status">
-        Lab completato — flag consegnata correttamente.
+        Scenario completato — flag consegnata correttamente. Digita <code>fix</code> per la correzione.
       </div>
 
       <div class="vlab-layout">
@@ -61,7 +62,7 @@
             <span class="vlab-terminal__dot"></span>
             <span class="vlab-terminal__dot"></span>
             <span class="vlab-terminal__dot"></span>
-            <span class="vlab-terminal__title">jumpbox.evil.lab — VLAN isolata</span>
+            <span class="vlab-terminal__title">jumpbox.evil.lab — terminale simulato, rete isolata</span>
           </div>
           <div class="vlab-terminal__body" id="vlab-terminal-body" role="log" aria-live="polite"></div>
           <div class="vlab-terminal__input-row">
@@ -89,9 +90,9 @@
           </div>
           <div class="vlab-panel">
             <h3>Sessione</h3>
-            <p>Ambiente simulato: nessuna connessione a sistemi reali. Max 3 sessioni parallele per utente.</p>
-            <button type="button" class="vlab-study-btn" id="vlab-study-side-btn">Studia questo attacco</button>
-            <button type="button" class="vlab-stop-btn" id="vlab-stop-btn">Termina VM</button>
+            <p>Terminale simulato: output didattici, nessuna connessione a sistemi reali. Max 3 scenari aperti per utente.</p>
+            <button type="button" class="vlab-study-btn" id="vlab-study-side-btn">Studia questa tecnica</button>
+            <button type="button" class="vlab-stop-btn" id="vlab-stop-btn">Termina scenario</button>
           </div>
         </aside>
       </div>
@@ -115,7 +116,7 @@
       </div>
       <footer class="vlab-modal__foot">
         <p>Passa il mouse (o focus) sui termini evidenziati per la definizione.</p>
-        <button type="button" class="vlab-modal__launch" id="vlab-study-launch">Avvia VM e prova</button>
+        <button type="button" class="vlab-modal__launch" id="vlab-study-launch">Avvia lo scenario e prova</button>
       </footer>
     </div>
   </div>

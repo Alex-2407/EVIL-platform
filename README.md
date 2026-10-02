@@ -51,6 +51,9 @@ Tutte le variabili sono descritte in `.env.example`. Le più importanti:
 | `MAILTRAP_API_TOKEN`, `EMAIL_USE_MAILTRAP_API=1` | invio email via HTTPS: Render free blocca le porte SMTP |
 | `HELP_SUPPORT_EMAIL` | dove arrivano le richieste del modulo di supporto |
 | `REDIS_URL` | opzionale: contatori dei limiti condivisi tra più istanze |
+| `TRUST_PROXY` | numero di proxy davanti al server o elenco IP/CIDR fidati. Non impostata = `X-Forwarded-For` ignorato. Su Render: `1` |
+| `UNVERIFIED_ACCOUNT_TTL_DAYS` | giorni dopo cui un account mai verificato viene cancellato (default 7) |
+| `SCRYPT_N`, `SCRYPT_R`, `SCRYPT_P`, `PASSWORD_HASH_CONCURRENCY` | costo dell'hash delle password (default N=2^15, r=8, p=3) e calcoli contemporanei (default 2) |
 
 ## Struttura
 
@@ -75,10 +78,32 @@ scripts/           setup locale, controlli, migrazione a Postgres
   controllo sull'IP avviene all'apertura della connessione, quindi vale anche per i redirect
   e per il DNS rebinding. Reti private, loopback, metadata cloud e porte diverse da
   80/443/8080/8443 sono bloccate.
-- Sessioni: access token breve e refresh token salvato (come hash) sull'account; logout,
-  cambio e reset della password chiudono le sessioni.
-- Limiti di richieste per utente o IP su login, registrazione, reset, strumenti e laboratorio.
+- Password: hash scrypt (nativo di Node, nel threadpool: il server non si blocca durante i
+  login), al massimo 2 calcoli insieme e gli altri in coda; i vecchi hash bcrypt vengono
+  convertiti al primo accesso riuscito. Lunghezza da 12 a 200 caratteri.
+- Registrazione: risposta identica anche se l'email ha già un account (al proprietario arriva
+  un avviso), accettazione dei termini obbligatoria e salvata con la data. Il link di verifica
+  apre una pagina che chiede conferma (`POST /api/auth/verify`) e non fa accedere: si entra poi
+  con email e password. Registrarsi di nuovo su un'email non verificata sostituisce password e
+  link; gli account mai verificati sono cancellati dopo 7 giorni.
+- Sessioni: access token breve e refresh token salvato (come hash) sull'account, **ruotato a
+  ogni rinnovo** (il token precedente vale altri 30 secondi per le schede aperte; usato dopo,
+  chiude la sessione). Logout, reset della password e `POST /api/auth/sessions/revoke-all`
+  chiudono le sessioni.
+- Limiti di richieste per utente o IP su login, registrazione, reset, strumenti e laboratorio;
+  in più, per ogni account, 30 tentativi di accesso falliti all'ora (da qualunque IP) con un
+  ritardo che cresce dopo il terzo errore.
+- CORS con credenziali solo per le origini configurate; `localhost` solo in sviluppo.
 - CSP e header di sicurezza su tutte le risposte; errori senza dettagli interni in produzione.
+
+### Dati personali e log
+
+- Ogni utente può scaricare i propri dati (`GET /api/auth/account/export`, JSON) e cancellare
+  l'account (`DELETE /api/auth/account`, con la password): spariscono profilo, sessioni e progressi.
+- Nei log le email sono mascherate (`gi***@example.com`) e token e chiavi negli URL sostituiti da
+  `***`; restano IP e user agent per contrastare gli abusi. In produzione i log stanno solo nel
+  pannello del provider (Render) per il periodo del piano; in locale i file in `logs/` ruotano a
+  5 MB × 3 per tipo.
 
 Per segnalare una vulnerabilità scrivi a support@projectevil.it.
 

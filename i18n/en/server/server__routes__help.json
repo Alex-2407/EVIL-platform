@@ -1,0 +1,11 @@
+{
+  "Richiesta inviata. Ti risponderemo entro 2–5 giorni lavorativi.": "Request sent. We will reply within 2–5 working days.",
+  "Scrivi il tuo nome (da 2 a 100 caratteri).": "Enter your name (2 to 100 characters).",
+  "Controlla l'indirizzo email: serve per risponderti.": "Check your email address: we need it to reply to you.",
+  "L'oggetto deve avere da 3 a 120 caratteri.": "The subject must be between 3 and 120 characters.",
+  "Il messaggio deve avere da 10 a 4000 caratteri.": "The message must be between 10 and 4,000 characters.",
+  "Il modulo di supporto non è disponibile in questo momento. Riprova più tardi.": "The support form is not available right now. Please try again later.",
+  "Non siamo riusciti a inviare la richiesta. Riprova tra qualche minuto.": "We couldn't send your request. Please try again in a few minutes.",
+  "Richiesta inviata. Ti risponderemo a {email} entro 2–5 giorni lavorativi.": "Request sent. We will reply to {email} within 2–5 working days.",
+  "Errore interno durante l'invio della richiesta. Riprova.": "An internal error occurred while sending your request. Please try again."
+}

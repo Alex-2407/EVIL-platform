@@ -27,7 +27,7 @@ module.exports = function registerHelp(app, ctx) {
         logger.warn('Help form: campo trappola compilato', { event: 'HELP_HONEYPOT', ip: req.ip });
         return res.json({
           status: 'success',
-          message: 'Richiesta inviata. Ti risponderemo entro 2–5 giorni lavorativi.',
+          message: req.t('Richiesta inviata. Ti risponderemo entro 2–5 giorni lavorativi.'),
           confirmationSent: false,
         });
       }
@@ -39,22 +39,22 @@ module.exports = function registerHelp(app, ctx) {
       const page = clean(body.page || req.get('Referer') || '', 500);
 
       if (name.length < 2 || name.length > 100) {
-        return res.status(400).json({ error: 'Scrivi il tuo nome (da 2 a 100 caratteri).', field: 'name' });
+        return res.status(400).json({ error: req.t('Scrivi il tuo nome (da 2 a 100 caratteri).'), field: 'name' });
       }
       if (!email || email.length > 254 || !EMAIL_RE.test(email)) {
-        return res.status(400).json({ error: 'Controlla l\'indirizzo email: serve per risponderti.', field: 'email' });
+        return res.status(400).json({ error: req.t('Controlla l\'indirizzo email: serve per risponderti.'), field: 'email' });
       }
       if (subject.length < 3 || subject.length > 120) {
-        return res.status(400).json({ error: 'L\'oggetto deve avere da 3 a 120 caratteri.', field: 'subject' });
+        return res.status(400).json({ error: req.t('L\'oggetto deve avere da 3 a 120 caratteri.'), field: 'subject' });
       }
       if (message.length < 10 || message.length > 4000) {
-        return res.status(400).json({ error: 'Il messaggio deve avere da 10 a 4000 caratteri.', field: 'message' });
+        return res.status(400).json({ error: req.t('Il messaggio deve avere da 10 a 4000 caratteri.'), field: 'message' });
       }
 
       if (!emailService.isConfigured() && !emailService.outboxAllowed()) {
         logger.error('Help form: email non configurata sul server');
         return res.status(503).json({
-          error: 'Il modulo di supporto non è disponibile in questo momento. Riprova più tardi.',
+          error: req.t('Il modulo di supporto non è disponibile in questo momento. Riprova più tardi.'),
         });
       }
 
@@ -70,12 +70,14 @@ module.exports = function registerHelp(app, ctx) {
         account: user ? { id: user.id, verified: Boolean(user.emailVerified) } : null,
         confirmTo: ownsAddress ? user.email : null,
         confirmName: ownsAddress ? user.name : null,
+        // conferma nella lingua dell'account, altrimenti in quella della pagina
+        lang: (ownsAddress && user.lang) || req.lang,
       });
 
       if (!result.success) {
         logger.error('Help form: invio non riuscito', { error: result.error });
         return res.status(502).json({
-          error: 'Non siamo riusciti a inviare la richiesta. Riprova tra qualche minuto.',
+          error: req.t('Non siamo riusciti a inviare la richiesta. Riprova tra qualche minuto.'),
         });
       }
 
@@ -89,12 +91,12 @@ module.exports = function registerHelp(app, ctx) {
 
       return res.json({
         status: 'success',
-        message: `Richiesta inviata. Ti risponderemo a ${email} entro 2–5 giorni lavorativi.`,
+        message: req.t('Richiesta inviata. Ti risponderemo a {email} entro 2–5 giorni lavorativi.', { email }),
         confirmationSent: Boolean(result.confirmationSent),
       });
     } catch (err) {
       logger.error('Help form error', { error: err.message });
-      return res.status(500).json({ error: 'Errore interno durante l\'invio della richiesta. Riprova.' });
+      return res.status(500).json({ error: req.t('Errore interno durante l\'invio della richiesta. Riprova.') });
     }
   });
 };

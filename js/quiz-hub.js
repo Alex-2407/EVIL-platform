@@ -1,12 +1,17 @@
 (function () {
   'use strict';
 
+  const { t, url, fmtNumber } = window.EVIL_I18N;
+
   const STORAGE_KEY = 'evil_quiz_hub_v1';
+  const PASS_THRESHOLD = 80;
   const TRANSITIONS = ['tx-fade-up', 'tx-slide-left', 'tx-slide-right', 'tx-zoom', 'tx-cascade'];
 
   const hub = window.QUIZ_HUB;
   if (!hub?.CATEGORIES) return;
 
+  const LEVEL_ORDER = ['base', 'intermedio', 'avanzato'];
+  const LEVELS = hub.LEVELS || { base: 'Base', intermedio: 'Intermedio', avanzato: 'Avanzato' };
   const GLOSSARY = window.QUIZ_GLOSSARY || {};
   const GLOSSARY_TERMS = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -17,11 +22,14 @@
     arena: document.getElementById('quiz-hub-arena'),
     search: document.getElementById('quiz-hub-search'),
     filterBar: document.getElementById('quiz-hub-filter'),
+    levelBar: document.getElementById('quiz-hub-level-filter'),
+    empty: document.getElementById('quiz-hub-empty'),
     statCats: document.getElementById('qh-stat-cats'),
     statQs: document.getElementById('qh-stat-qs'),
     statDone: document.getElementById('qh-stat-done'),
     back: document.getElementById('quiz-hub-back'),
     progressFill: document.getElementById('quiz-hub-progress-fill'),
+    progressBar: document.getElementById('quiz-hub-progress'),
     progressLabel: document.getElementById('quiz-hub-progress-label'),
     stage: document.getElementById('quiz-hub-stage'),
     nextBtn: document.getElementById('quiz-hub-next'),
@@ -36,6 +44,7 @@
 
   let state = {
     filter: 'all',
+    level: 'all',
     query: '',
     categoryId: null,
     questionIndex: 0,
@@ -55,7 +64,11 @@
   }
 
   function saveProgress() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+    } catch {
+      /* archiviazione non disponibile: il punteggio vale solo per questa visita */
+    }
   }
 
   function allCategories() {
@@ -192,29 +205,45 @@
   }
 
   function updateStats() {
-    if (els.statCats) els.statCats.textContent = String(allCategories().length);
-    if (els.statQs) els.statQs.textContent = String(totalQuestions());
-    if (els.statDone) els.statDone.textContent = String(completedCount());
+    if (els.statCats) els.statCats.textContent = fmtNumber(allCategories().length);
+    if (els.statQs) els.statQs.textContent = fmtNumber(totalQuestions());
+    if (els.statDone) els.statDone.textContent = fmtNumber(completedCount());
+  }
+
+  function levelLabel(level) {
+    return LEVELS[level] || level || '';
+  }
+
+  function renderPillGroup(bar, pills, active, onPick) {
+    if (!bar) return;
+    bar.innerHTML = pills.map((p) =>
+      `<button type="button" data-filter="${escapeHtml(p.id)}" class="${active === p.id ? 'is-active' : ''}" aria-pressed="${active === p.id}">${escapeHtml(p.label)}</button>`
+    ).join('');
+    bar.querySelectorAll('button').forEach((btn) => {
+      btn.addEventListener('click', () => onPick(btn.dataset.filter));
+    });
   }
 
   function renderFilters() {
-    if (!els.filterBar) return;
-    const pills = [{ id: 'all', label: 'Tutti' }];
-    Object.entries(hub.PILLARS).forEach(([id, label]) => pills.push({ id, label }));
-    els.filterBar.innerHTML = pills.map((p) =>
-      `<button type="button" data-filter="${p.id}" class="${state.filter === p.id ? 'is-active' : ''}">${p.label}</button>`
-    ).join('');
-    els.filterBar.querySelectorAll('button').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        state.filter = btn.dataset.filter;
-        renderFilters();
-        renderGrid();
-      });
+    const pillars = [{ id: 'all', label: t('Tutte le aree') }];
+    Object.entries(hub.PILLARS).forEach(([id, label]) => pillars.push({ id, label }));
+    renderPillGroup(els.filterBar, pillars, state.filter, (id) => {
+      state.filter = id;
+      renderFilters();
+      renderGrid();
+    });
+    const levels = [{ id: 'all', label: t('Tutti i livelli') }];
+    LEVEL_ORDER.forEach((id) => levels.push({ id, label: levelLabel(id) }));
+    renderPillGroup(els.levelBar, levels, state.level, (id) => {
+      state.level = id;
+      renderFilters();
+      renderGrid();
     });
   }
 
   function matchesFilter(cat) {
     if (state.filter !== 'all' && cat.pillar !== state.filter) return false;
+    if (state.level !== 'all' && cat.level !== state.level) return false;
     if (!state.query) return true;
     const q = state.query.toLowerCase();
     return cat.name.toLowerCase().includes(q) ||
@@ -222,32 +251,65 @@
       (hub.PILLARS[cat.pillar] || '').toLowerCase().includes(q);
   }
 
+  function questionCountLabel(n) {
+    return n === 1 ? t('{n} domanda', { n: fmtNumber(n) }) : t('{n} domande', { n: fmtNumber(n) });
+  }
+
+  function cardStatus(prog, pct) {
+    if (prog.completed && pct >= PASS_THRESHOLD) return t('Superato · {pct}%', { pct });
+    if (prog.completed) return t('Miglior risultato: {pct}%', { pct });
+    return t('Da iniziare');
+  }
+
   function renderGrid() {
     if (!els.grid) return;
     const cats = allCategories().filter(matchesFilter);
-    els.grid.innerHTML = cats.map((cat, i) => {
+    els.grid.innerHTML = cats.map((cat) => {
       const prog = categoryProgress(cat.id);
       const pct = cat.questions.length
         ? Math.round((prog.bestScore / cat.questions.length) * 100)
         : 0;
       const pillarLabel = hub.PILLARS[cat.pillar] || cat.pillar;
       return `
-        <article class="quiz-hub-card${matchesFilter(cat) ? '' : ' is-hidden'}" data-id="${cat.id}" style="--card-accent:${cat.accent};--i:${i}">
-          <span class="quiz-hub-card__icon" aria-hidden="true">${cat.icon}</span>
-          <span class="quiz-hub-card__pillar">${pillarLabel}</span>
-          <h3>${cat.name}</h3>
-          <p>${cat.description}</p>
+        <article class="quiz-hub-card" data-id="${escapeHtml(cat.id)}" role="button" tabindex="0">
+          <span class="quiz-hub-card__icon" aria-hidden="true">${escapeHtml(cat.icon)}</span>
+          <span class="quiz-hub-card__pillar">${escapeHtml(pillarLabel)}</span>
+          <span class="quiz-hub-level quiz-hub-level--${escapeHtml(cat.level)}">${escapeHtml(levelLabel(cat.level))}</span>
+          <h3>${escapeHtml(cat.name)}</h3>
+          <p>${escapeHtml(cat.description)}</p>
           <div class="quiz-hub-card__meta">
-            <span>${cat.questions.length} domande</span>
-            <span>${prog.completed ? 'Completato' : pct ? `Miglior: ${pct}%` : 'Nuovo'}</span>
+            <span>${escapeHtml(questionCountLabel(cat.questions.length))}</span>
+            <span>${escapeHtml(cardStatus(prog, pct))}</span>
           </div>
-          <div class="quiz-hub-card__bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+          <div class="quiz-hub-card__bar" aria-hidden="true"><span></span></div>
         </article>`;
     }).join('');
 
-    els.grid.querySelectorAll('.quiz-hub-card').forEach((card) => {
+    els.grid.querySelectorAll('.quiz-hub-card').forEach((card, i) => {
+      const cat = hub.CATEGORIES[card.dataset.id];
+      const prog = categoryProgress(cat.id);
+      const pct = cat.questions.length ? Math.round((prog.bestScore / cat.questions.length) * 100) : 0;
+      card.style.setProperty('--qh-accent', cat.accent);
+      card.style.setProperty('--i', String(i));
+      const bar = card.querySelector('.quiz-hub-card__bar span');
+      if (bar) bar.style.width = `${pct}%`;
+      card.setAttribute('aria-label', t('Inizia il quiz: {name}', { name: cat.name }));
       card.addEventListener('click', () => startQuiz(card.dataset.id));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          startQuiz(card.dataset.id);
+        }
+      });
     });
+    if (els.empty) els.empty.hidden = cats.length > 0;
+  }
+
+  function learnLinksHtml(cat) {
+    const links = cat.learn || [];
+    if (!links.length) return '';
+    return `<p class="quiz-hub-learn"><span>${escapeHtml(t('Approfondisci:'))}</span> ${links.map((l) =>
+      `<a href="${escapeHtml(url(l.href))}">${escapeHtml(l.label)}</a>`).join(' · ')}</p>`;
   }
 
   function showCatalog() {
@@ -286,19 +348,23 @@
     const pct = Math.round(((state.questionIndex) / total) * 100);
     if (els.progressFill) els.progressFill.style.width = `${pct}%`;
     if (els.progressLabel) {
-      els.progressLabel.textContent = `Domanda ${state.questionIndex + 1} di ${total}`;
+      els.progressLabel.textContent = t('Domanda {n} di {total}', { n: state.questionIndex + 1, total });
     }
+    els.progressBar?.setAttribute('aria-valuenow', String(pct));
 
     const tx = reducedMotion ? 'tx-fade-up' : nextTransition();
     const options = shuffle(q.options.map((o, i) => ({ ...o, origIndex: i })));
 
     els.stage.innerHTML = `
       <div class="quiz-hub-question tx-enter ${tx}" role="group" aria-labelledby="qh-q-text">
-        <span class="quiz-hub-question__n">${String(state.questionIndex + 1).padStart(2, '0')}</span>
+        <div class="quiz-hub-question__head">
+          <span class="quiz-hub-question__n">${String(state.questionIndex + 1).padStart(2, '0')}</span>
+          <span class="quiz-hub-level quiz-hub-level--${escapeHtml(q.level || cat.level)}">${escapeHtml(t('Livello: {level}', { level: levelLabel(q.level || cat.level) }))}</span>
+        </div>
         <p class="quiz-hub-question__text" id="qh-q-text">${enrichTerms(q.question)}</p>
         <div class="quiz-hub-options" id="quiz-hub-options">
           ${options.map((opt, i) => `
-            <label class="quiz-hub-option" data-correct="${opt.correct}" style="--opt-i:${i}">
+            <label class="quiz-hub-option" data-correct="${opt.correct}" data-i="${i}">
               <input type="radio" name="qh-opt" value="${i}">
               <span class="quiz-hub-option__face">
                 <span class="quiz-hub-option__dot"></span>
@@ -308,13 +374,14 @@
         </div>
         <div class="quiz-hub-feedback" id="quiz-hub-feedback" aria-live="polite"></div>
         <div class="quiz-hub-actions">
-          <button type="button" class="quiz-hub-btn" id="quiz-hub-check" disabled>Verifica</button>
+          <button type="button" class="quiz-hub-btn" id="quiz-hub-check" disabled>${escapeHtml(t('Verifica'))}</button>
         </div>
       </div>`;
 
     const checkBtn = document.getElementById('quiz-hub-check');
     const feedback = document.getElementById('quiz-hub-feedback');
     const optionEls = els.stage.querySelectorAll('.quiz-hub-option');
+    optionEls.forEach((el) => el.style.setProperty('--opt-i', el.dataset.i));
 
     optionEls.forEach((label) => {
       label.querySelector('input').addEventListener('change', () => {
@@ -324,7 +391,15 @@
     });
 
     checkBtn.addEventListener('click', () => {
-      if (state.answered) return;
+      if (state.answered) {
+        if (state.questionIndex + 1 >= total) finishQuiz();
+        else {
+          state.questionIndex += 1;
+          state.answered = false;
+          renderQuestion();
+        }
+        return;
+      }
       const selected = els.stage.querySelector('input[name="qh-opt"]:checked');
       if (!selected) return;
       state.answered = true;
@@ -339,17 +414,9 @@
       });
 
       feedback.classList.add('is-visible', correct ? 'is-correct' : 'is-wrong');
-      feedback.innerHTML = `<strong>${correct ? 'Corretto!' : 'Non esatto.'}</strong> ${enrichTerms(q.explanation)}`;
-      checkBtn.textContent = state.questionIndex + 1 >= total ? 'Vedi risultati' : 'Prossima domanda';
-      checkBtn.disabled = false;
-      checkBtn.onclick = () => {
-        if (state.questionIndex + 1 >= total) finishQuiz();
-        else {
-          state.questionIndex += 1;
-          state.answered = false;
-          renderQuestion();
-        }
-      };
+      feedback.innerHTML = `<p><strong>${escapeHtml(correct ? t('Risposta corretta.') : t('Risposta non corretta.'))}</strong> ${enrichTerms(q.explanation)}</p>${learnLinksHtml(cat)}`;
+      checkBtn.textContent = state.questionIndex + 1 >= total ? t('Vedi i risultati') : t('Domanda successiva');
+      checkBtn.focus();
     });
   }
 
@@ -403,16 +470,25 @@
     logAchievements(cat.id, accuracy);
 
     if (els.progressFill) els.progressFill.style.width = '100%';
-    if (accuracy >= 80) fireConfetti();
+    if (accuracy >= PASS_THRESHOLD) fireConfetti();
+
+    const verdict = accuracy >= PASS_THRESHOLD
+      ? t('Ottimo lavoro: categoria superata.')
+      : accuracy >= 50
+        ? t('Buona base: rileggi le spiegazioni e riprova.')
+        : t('Conviene ripassare l’argomento prima di riprovare.');
 
     els.stage.innerHTML = `
       <div class="quiz-hub-results">
         <div class="quiz-hub-results__ring">${accuracy}%</div>
-        <h2>${accuracy >= 80 ? 'Ottimo lavoro!' : accuracy >= 50 ? 'Buon tentativo' : 'Continua a studiare'}</h2>
-        <p>Hai risposto correttamente a <strong>${state.score}</strong> su <strong>${total}</strong> domande in <em>${cat.name}</em>.</p>
-        <div class="quiz-hub-actions" style="justify-content:center;margin-top:1.25rem">
-          <button type="button" class="quiz-hub-btn" id="qh-retry">Riprova</button>
-          <button type="button" class="quiz-hub-btn quiz-hub-btn--ghost" id="qh-home">Torna al catalogo</button>
+        <h2>${escapeHtml(verdict)}</h2>
+        <p>${escapeHtml(t('Hai risposto correttamente a {score} domande su {total} in «{name}».', { score: state.score, total, name: cat.name }))}</p>
+        <p class="quiz-hub-results__best">${escapeHtml(t('Miglior risultato in questa categoria: {pct}%', { pct: Math.round((record.bestScore / total) * 100) }))}</p>
+        ${learnLinksHtml(cat)}
+        <p class="quiz-hub-results__paths"><a href="${escapeHtml(url('/learning-paths.html'))}">${escapeHtml(t('Scegli un percorso di apprendimento'))}</a></p>
+        <div class="quiz-hub-actions quiz-hub-actions--center">
+          <button type="button" class="quiz-hub-btn" id="qh-retry">${escapeHtml(t('Riprova'))}</button>
+          <button type="button" class="quiz-hub-btn quiz-hub-btn--ghost" id="qh-home">${escapeHtml(t('Torna al catalogo'))}</button>
         </div>
       </div>`;
 
@@ -501,7 +577,7 @@
     if (reducedMotion) return;
     [els.statCats, els.statQs, els.statDone].forEach((el, i) => {
       if (!el) return;
-      const target = parseInt(el.textContent, 10);
+      const target = parseInt(el.textContent.replace(/\D/g, ''), 10);
       if (Number.isNaN(target)) return;
       el.textContent = '0';
       const start = performance.now() + i * 120;
@@ -511,9 +587,9 @@
           requestAnimationFrame(tick);
           return;
         }
-        const t = Math.min(1, (now - start) / dur);
-        el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
-        if (t < 1) requestAnimationFrame(tick);
+        const p = Math.min(1, (now - start) / dur);
+        el.textContent = fmtNumber(Math.round(target * (1 - Math.pow(1 - p, 3))));
+        if (p < 1) requestAnimationFrame(tick);
       }
       requestAnimationFrame(tick);
     });

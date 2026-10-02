@@ -66,3 +66,38 @@
 .sp-platform-card--unknown {
   border-left-color: rgba(251, 191, 36, 0.5);
 }
+
+.sp-label {
+  display: block;
+  width: 100%;
+  margin: 0 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fda4af;
+}
+
+.sp-option {
+  margin-bottom: 0.5rem;
+}
+
+.sp-page .sc-callout p {
+  margin: 0 0 0.5rem;
+  line-height: 1.6;
+}
+
+.sp-page .sc-callout p:last-child {
+  margin-bottom: 0;
+}
+
+.sp-platform-card__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sp-platform-card__link {
+  margin: 0.35rem 0;
+  overflow-wrap: anywhere;
+}

@@ -1445,10 +1445,11 @@ function parseCommandLine(line) {
   return { cmd, args, raw: trimmed };
 }
 
-function nmapOutput(lab, args) {
+function nmapOutput(lab, args, lang) {
   const targetArg = args.find((a) => !a.startsWith('-'));
   if (!targetArg || !hostMatchesLab(targetArg, lab)) {
-    return `Note: Host ${targetArg || 'unknown'} seems down or unreachable on lab network 10.42.10.0/24.\n(Solo i target EVIL assegnati al lab sono raggiungibili.)`;
+    return `Note: Host ${targetArg || 'unknown'} seems down or unreachable on lab network 10.42.10.0/24.\n` +
+      t(lang, '(Nello scenario è raggiungibile solo il target assegnato.)');
   }
   const lines = [
     `Starting Nmap 7.94 ( https://nmap.org ) — EVIL lab scanner`,
@@ -1471,13 +1472,26 @@ function nmapOutput(lab, args) {
 // raw = riga di comando completa: serve ai lab JWT, upload e XXE (header -H, -F, corpo XML).
 // Prima non veniva passata e quei tre lab andavano in errore a ogni curl ("raw is not defined").
 function curlOutput(session, lab, args, raw = args.join(' ')) {
-  const url = args.find((a) => a.startsWith('http')) || args[0] || '';
+  const lang = session.lang;
+  const url = args.find((a) => a.startsWith('http') || a.startsWith('ftp')) || args[0] || '';
   if (!url.includes(lab.targetIp) && !url.includes(lab.hostname)) {
-    return `curl: (7) Failed to connect — host non autorizzato fuori VLAN lab.`;
+    return 'curl: (7) Failed to connect — ' + t(lang, 'host non autorizzato fuori dalla rete isolata dello scenario.');
   }
   const bodyIdx = args.indexOf('-d');
   const body = bodyIdx >= 0 ? args[bodyIdx + 1] : '';
   const webType = lab.web?.type;
+
+  if (lab.ftp && url.startsWith('ftp://')) {
+    if (url.includes('anonymous')) {
+      return [
+        '230 Anonymous login ok.',
+        '150 Opening BINARY mode data connection for flag.txt.',
+        lab.flag,
+        '226 Transfer complete.',
+      ].join('\n');
+    }
+    return '530 ' + t(lang, 'Login non riuscito: in questo scenario è abilitato il login anonimo.');
+  }
 
   if (webType === 'xss') {
     if (url.includes('search') && (url.includes('<script>') || url.includes('%3Cscript'))) {
@@ -1634,14 +1648,15 @@ function sshStart(session, lab, args) {
   const target = args[0] || '';
   const [user, hostPart] = target.includes('@') ? target.split('@') : ['', target];
   const host = normalizeHost(hostPart);
+  const lang = session.lang;
   if (!hostMatchesLab(host, lab)) {
-    return `ssh: connect to host ${host} port 22: Connection refused (non è un target del lab).`;
+    return `ssh: connect to host ${host} port 22: Connection refused ` + t(lang, '(non è il target dello scenario).');
   }
   if (!lab.ssh) {
-    return 'ssh: servizio non configurato su questo target.';
+    return 'ssh: ' + t(lang, 'servizio non configurato su questo target.');
   }
   if (user !== lab.ssh.user) {
-    return `Permission denied (publickey,password).\n(Hint: utente lab documentato negli obiettivi.)`;
+    return 'Permission denied (publickey,password).\n' + t(lang, '(Suggerimento: usa l\'utente documentato; chiedi un hint.)');
   }
   session.pendingAuth = { type: 'ssh', user, host: lab.targetIp };
   return `${user}@${lab.targetIp}'s password:`;
@@ -1658,11 +1673,12 @@ function sshPassword(session, lab, password) {
   session.sshUser = user;
   session.sshHost = lab.hostname;
   session.isRoot = false;
+  const lang = session.lang;
   return [
-    `Welcome to ${lab.hostname} (EVIL isolated VM)`,
+    `Welcome to ${lab.hostname} (EVIL isolated scenario)`,
     'Last login: Tue Jun  2 09:14:22 2026 from 10.42.0.2',
     '',
-    `Type "help" for lab commands. Prompt: ${currentPrompt(session)}`,
+    t(lang, 'Digita "help" per i comandi dello scenario.') + ` Prompt: ${currentPrompt(session)}`,
   ].join('\n');
 }
 
@@ -1678,9 +1694,26 @@ function readTargetFile(session, lab, filePath) {
   return `cat: ${filePath}: No such file or directory`;
 }
 
+function fixText(session, lab) {
+  const lang = session.lang;
+  const rem = lab.remediation;
+  if (!rem) {
+    return t(lang, 'Per questo scenario la correzione è descritta negli obiettivi e nella guida "Studia".');
+  }
+  session.objectivesDone.push('defend');
+  return [
+    t(lang, '== Come si corregge =='),
+    pick(lang, rem.fix),
+    '',
+    t(lang, '== Come si rileva =='),
+    pick(lang, rem.detect),
+  ].join('\n');
+}
+
 function handleFindPrivesc(session, lab, raw) {
+  const lang = session.lang;
   if (!raw.includes('-exec') || !raw.includes('/bin/sh')) {
-    return 'find: missing valid expression (hint: sudo find . -exec /bin/sh \\; -quit)';
+    return 'find: ' + t(lang, 'espressione non valida (suggerimento: consulta GTFOBins per il comando che apre una shell con -exec).');
   }
   session.isRoot = true;
   return [
@@ -1688,59 +1721,62 @@ function handleFindPrivesc(session, lab, raw) {
     'root@privesc:/# id',
     'uid=0(root) gid=0(root) groups=0(root)',
     '',
-    'Shell root ottenuta. Leggi /root/flag.txt',
+    t(lang, 'Shell con privilegi di root ottenuta. Leggi /root/flag.txt'),
   ].join('\n');
 }
 
 function submitFlag(session, lab, flagValue) {
+  const lang = session.lang;
   const val = (flagValue || '').trim();
   if (val === lab.flag) {
     session.completed = true;
     session.objectivesDone.push('flag');
     return [
-      '✓ Flag corretta!',
-      `Lab "${lab.title}" completato.`,
-      'Obiettivi didattici soddisfatti in ambiente isolato EVIL.',
+      t(lang, '✓ Flag corretta!'),
+      t(lang, 'Scenario "{title}" completato.', { title: pick(lang, lab.title) }),
+      t(lang, 'Ricorda il passo "Difendi": digita fix per vedere la correzione e come si rileva l\'attacco.'),
     ].join('\n');
   }
-  return 'Flag non valida. Continua l\'investigazione e riprova.';
+  return t(lang, 'Flag non valida. Continua l\'analisi e riprova.');
 }
 
 function helpText(session) {
+  const lang = session.lang;
   const base = [
-    'Comandi lab EVIL (rete isolata 10.42.x.x):',
-    '  help          — questo messaggio',
-    '  objectives    — obiettivi del lab',
-    '  hint          — suggerimento didattico',
-    '  nmap [opts] IP — scansione porte (solo target assegnato)',
-    '  ping IP       — verifica host lab',
-    '  curl URL      — HTTP verso web target',
-    '  dirb URL      — brute force directory (lab dir)',
-    '  hydra ... ssh — brute force SSH (lab hydra)',
-    '  smbclient ... — enum SMB (lab smb)',
-    '  ftp ...       — accesso FTP (lab ftp anonymous)',
-    '  ssh user@IP   — accesso SSH simulato (poi inserisci password)',
-    '  ls [path]     — elenco file (dopo SSH)',
-    '  cat FILE      — leggi file (dopo SSH)',
-    '  whoami / id   — utente corrente',
-    '  sudo -l       — permessi sudo (lab privesc)',
-    '  submit flag X — consegna flag CTF',
-    '  exit          — disconnetti da target SSH',
+    t(lang, 'Comandi dello scenario EVIL (rete isolata 10.42.x.x):'),
+    '  help          — ' + t(lang, 'questo messaggio'),
+    '  objectives    — ' + t(lang, 'obiettivi dello scenario'),
+    '  hint          — ' + t(lang, 'suggerimento didattico'),
+    '  fix           — ' + t(lang, 'come si corregge la vulnerabilità e come si rileva'),
+    '  nmap [opts] IP — ' + t(lang, 'scansione porte (solo target assegnato)'),
+    '  ping IP       — ' + t(lang, 'verifica host dello scenario'),
+    '  curl URL      — ' + t(lang, 'richiesta HTTP verso il target web'),
+    '  dirb URL      — ' + t(lang, 'enumerazione directory (scenario directory)'),
+    '  hydra ... ssh — ' + t(lang, 'attacco a dizionario SSH (scenario brute force)'),
+    '  smbclient ... — ' + t(lang, 'enumerazione SMB (scenario SMB)'),
+    '  ftp ...       — ' + t(lang, 'accesso FTP (scenario FTP anonimo)'),
+    '  ssh user@IP   — ' + t(lang, 'accesso SSH simulato (poi inserisci la password)'),
+    '  ls [path]     — ' + t(lang, 'elenco file (dopo SSH)'),
+    '  cat FILE      — ' + t(lang, 'leggi file (dopo SSH)'),
+    '  whoami / id   — ' + t(lang, 'utente corrente'),
+    '  sudo -l       — ' + t(lang, 'permessi sudo (scenario privesc)'),
+    '  submit flag X — ' + t(lang, 'consegna la flag'),
+    '  exit          — ' + t(lang, 'disconnetti dal target SSH'),
   ];
   if (session.shellContext === 'target') {
-    base.push('  sudo find ... — lab privilege escalation');
+    base.push('  sudo find ... — ' + t(lang, 'scenario privilege escalation'));
   }
   return base.join('\n');
 }
 
-function hydraOutput(lab, args) {
+function hydraOutput(lab, args, lang) {
   if (!lab.bruteforce) {
-    return 'hydra: lab non configurato per brute force.';
+    return 'hydra: ' + t(lang, 'scenario non configurato per il brute force.');
   }
   const target = args.find((a) => a.includes('ssh://') || a.match(/^\d+\.\d+/));
   const host = target?.replace('ssh://', '').split('/')[0] || '';
   if (!hostMatchesLab(host, lab)) {
-    return `hydra: target ${host || '?'} non appartiene a questo lab.`;
+    return `hydra: ` + t(lang, 'il target {host} non appartiene a questo scenario.', { host: host || '?' });
   }
   return [
     'Hydra v9.5 (c) 2023 — EVIL lab mode',
@@ -1748,17 +1784,17 @@ function hydraOutput(lab, args) {
     `[22][ssh] host: ${lab.targetIp}   login: ${lab.bruteforce.user}   password: ${lab.bruteforce.password}`,
     `[STATUS] 1 valid password found`,
     '',
-    `Report salvato — flag lab: ${lab.flag}`,
+    t(lang, 'Report salvato — flag dello scenario: {flag}', { flag: lab.flag }),
   ].join('\n');
 }
 
-function dirbOutput(lab, args) {
+function dirbOutput(lab, args, lang) {
   if (lab.web?.type !== 'dir') {
-    return 'dirb: disponibile solo nel lab directory discovery.';
+    return 'dirb: ' + t(lang, 'disponibile solo nello scenario di scoperta directory.');
   }
   const url = args.find((a) => a.startsWith('http')) || '';
   if (!url.includes(lab.targetIp) && !url.includes(lab.hostname)) {
-    return `dirb: target non valido per questo lab.`;
+    return 'dirb: ' + t(lang, 'target non valido per questo scenario.');
   }
   return [
     'DIRB v2.22 — EVIL lab',
@@ -1769,18 +1805,18 @@ function dirbOutput(lab, args) {
     '+ http://' + lab.targetIp + '/backup (CODE:403|SIZE:0)',
     '+ http://' + lab.targetIp + '/images (CODE:200|SIZE:1024)',
     '',
-    'END_TIME: scan completata — prova curl /admin/flag.txt',
+    'END_TIME: ' + t(lang, 'scansione completata — prova curl /admin/flag.txt'),
   ].join('\n');
 }
 
-function smbclientOutput(lab, args, raw) {
+function smbclientOutput(lab, args, raw, lang) {
   if (!lab.smb) {
-    return 'smbclient: non disponibile in questo lab.';
+    return 'smbclient: ' + t(lang, 'non disponibile in questo scenario.');
   }
   const targetArg = args.find((a) => a.startsWith('//')) || '';
   const host = targetArg.replace('//', '').split('/')[0];
   if (!hostMatchesLab(host, lab)) {
-    return `smbclient: impossibile connettersi a ${host || '?'}.`;
+    return `smbclient: ` + t(lang, 'impossibile connettersi a {host}.', { host: host || '?' });
   }
   if (raw.includes('-L') || raw.includes('--list')) {
     return [
@@ -1801,30 +1837,31 @@ function smbclientOutput(lab, args, raw) {
   if (targetArg.includes('/backup')) {
     return 'Try "smbclient //' + lab.targetIp + '/backup -N -c \\"get flag.txt\\""';
   }
-  return 'smb: connection established — usa -L per elencare le share.';
+  return 'smb: connection established — ' + t(lang, 'usa -L per elencare le share.');
 }
 
-function ftpOutput(lab, args, raw) {
+function ftpOutput(lab, args, raw, lang) {
   if (!lab.ftp) {
-    return 'ftp: non disponibile in questo lab.';
+    return 'ftp: ' + t(lang, 'non disponibile in questo scenario.');
   }
   const joined = raw.toLowerCase();
   if (!joined.includes(lab.targetIp) && !joined.includes('ftp-lab')) {
-    return `ftp: host non valido — target lab ${lab.targetIp}.`;
+    return `ftp: ` + t(lang, 'host non valido — il target dello scenario è {ip}.', { ip: lab.targetIp });
   }
   if (!joined.includes('anonymous') && !joined.includes('-a')) {
     return [
       `220 ${lab.hostname} FTP server ready.`,
       '530 Login incorrect.',
-      'Hint: login anonymous abilitato in questo lab.',
+      t(lang, 'Suggerimento: in questo scenario è abilitato il login anonimo.'),
     ].join('\n');
   }
-  if (joined.includes('get flag') || joined.includes('-c')) {
+  if (joined.includes('get flag') || joined.includes('-c') || joined.includes('ls') || joined.includes('dir')) {
     return [
       `230 Anonymous login ok.`,
       `227 Entering Passive Mode (${lab.targetIp}).`,
       '150 Opening BINARY mode for flag.txt.',
       lab.flag,
+      '226 Transfer complete.',
     ].join('\n');
   }
   return [
@@ -1832,13 +1869,15 @@ function ftpOutput(lab, args, raw) {
     '230 Anonymous login ok.',
     '227 Directory listing:',
     'flag.txt  backup/  readme.txt',
-    '214 Help: ftp anonymous@' + lab.targetIp + ' -c "get flag.txt"',
+    t(lang, 'Suggerimento: scarica il file in modo non interattivo con') +
+      ` curl "ftp://anonymous:anon@${lab.targetIp}/flag.txt"`,
   ].join('\n');
 }
 
 async function execCommand(sessionId, ownerKey, commandLine) {
   const session = await getSession(sessionId, ownerKey);
   const lab = getLab(session.labId);
+  const lang = session.lang;
   session.commandCount += 1;
 
   if (session.pendingAuth?.type === 'ssh') {
@@ -1859,19 +1898,26 @@ async function execCommand(sessionId, ownerKey, commandLine) {
     case 'help':
       output = helpText(session);
       break;
-    case 'objectives':
-      output = lab.objectives.map((o, i) => `${i + 1}. ${o}`).join('\n');
-      break;
-    case 'hint': {
-      const idx = parseInt(args[0], 10) || 1;
-      output = lab.hints[Math.min(idx, lab.hints.length) - 1] || lab.hints[0];
+    case 'objectives': {
+      const objectives = pick(lang, lab.objectives) || [];
+      output = objectives.map((o, i) => `${i + 1}. ${o}`).join('\n');
       break;
     }
+    case 'hint': {
+      const hints = pick(lang, lab.hints) || [];
+      const idx = parseInt(args[0], 10) || 1;
+      output = hints[Math.min(idx, hints.length) - 1] || hints[0] || '';
+      break;
+    }
+    case 'fix':
+    case 'patch':
+      output = fixText(session, lab);
+      break;
     case 'clear':
       output = '';
       break;
     case 'nmap':
-      output = nmapOutput(lab, args);
+      output = nmapOutput(lab, args, lang);
       break;
     case 'ping': {
       const host = normalizeHost(args[0]);
@@ -1892,16 +1938,16 @@ async function execCommand(sessionId, ownerKey, commandLine) {
       output = curlOutput(session, lab, args, raw);
       break;
     case 'hydra':
-      output = hydraOutput(lab, args);
+      output = hydraOutput(lab, args, lang);
       break;
     case 'dirb':
-      output = dirbOutput(lab, args);
+      output = dirbOutput(lab, args, lang);
       break;
     case 'smbclient':
-      output = smbclientOutput(lab, args, raw);
+      output = smbclientOutput(lab, args, raw, lang);
       break;
     case 'ftp':
-      output = ftpOutput(lab, args, raw);
+      output = ftpOutput(lab, args, raw, lang);
       break;
     case 'ssh':
       output = sshStart(session, lab, args);
@@ -1915,7 +1961,7 @@ async function execCommand(sessionId, ownerKey, commandLine) {
         session.isRoot = false;
         output = 'Connection to target closed.\n';
       } else {
-        output = 'Non sei connesso a un target SSH.';
+        output = t(lang, 'Non sei connesso a un target SSH.');
       }
       break;
     case 'whoami':
@@ -1937,7 +1983,7 @@ async function execCommand(sessionId, ownerKey, commandLine) {
       break;
     case 'ls': {
       if (session.shellContext !== 'target') {
-        output = 'Desktop  lab-tools  scans\n(Uso: connettiti al target via ssh prima.)';
+        output = 'Desktop  lab-tools  scans\n' + t(lang, '(Prima connettiti al target via ssh.)');
         break;
       }
       const path = args[0] || '/home/' + session.sshUser;
@@ -1956,7 +2002,7 @@ async function execCommand(sessionId, ownerKey, commandLine) {
     }
     case 'cat': {
       if (session.shellContext !== 'target') {
-        output = 'cat: impossibile — connettiti al target via ssh.';
+        output = t(lang, 'cat: non disponibile — prima connettiti al target via ssh.');
         break;
       }
       output = readTargetFile(session, lab, args[0] || '');
@@ -1986,11 +2032,11 @@ async function execCommand(sessionId, ownerKey, commandLine) {
       if ((args[0] || '').toLowerCase() === 'flag') {
         output = submitFlag(session, lab, args.slice(1).join(' '));
       } else {
-        output = 'Uso: submit flag EVIL{...}';
+        output = t(lang, 'Uso: submit flag <flag>');
       }
       break;
     default:
-      output = `${cmd}: comando non disponibile nel lab. Digita "help".`;
+      output = t(lang, '{cmd}: comando non disponibile nello scenario. Digita "help".', { cmd });
   }
 
   await persistSession(session);

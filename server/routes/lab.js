@@ -16,7 +16,7 @@ module.exports = function registerLab(app, ctx) {
     const status = err.status || 500;
     if (status >= 500 && status !== 503) {
       logger.error(`Virtual lab: ${what}`, { error: err.message });
-      return res.status(500).json({ error: 'Errore del laboratorio. Riprova tra qualche istante.' });
+      return res.status(500).json({ error: res.req.t('Errore dello scenario. Riprova tra qualche istante.') });
     }
     return res.status(status).json({ error: err.message });
   }
@@ -24,14 +24,14 @@ module.exports = function registerLab(app, ctx) {
   app.get('/api/virtual-lab/catalog', optionalAuthenticate, (req, res) => {
     try {
       res.json({
-        labs: virtualLabService.catalogForClient(),
+        labs: virtualLabService.catalogForClient(req.lang),
         attacker: virtualLabService.ATTACKER,
-        disclaimer: 'Ambienti simulati EVIL — rete 10.42.x.x isolata, solo scopo didattico.',
+        disclaimer: req.t('Scenari simulati EVIL — rete 10.42.x.x isolata, solo scopo didattico.'),
         storage: process.env.REDIS_URL ? 'redis' : 'memory',
       });
     } catch (err) {
       logger.error('Virtual lab catalog error', { error: err.message });
-      res.status(500).json({ error: 'Impossibile caricare il catalogo dei lab.' });
+      res.status(500).json({ error: req.t('Impossibile caricare il catalogo degli scenari.') });
     }
   });
 
@@ -39,10 +39,10 @@ module.exports = function registerLab(app, ctx) {
     try {
       const labId = virtualLabService.validateLabId(req.body?.labId || '');
       if (!labId) {
-        return res.status(400).json({ error: 'Lab non valido.' });
+        return res.status(400).json({ error: req.t('Scenario non valido.') });
       }
       const ownerKey = virtualLabService.ownerKeyFromRequest(req);
-      const session = await virtualLabService.createSession(labId, ownerKey, { ip: req.ip });
+      const session = await virtualLabService.createSession(labId, ownerKey, { ip: req.ip, lang: req.lang });
       res.status(201).json({ session });
     } catch (err) {
       fail(res, err, 'avvio sessione');
@@ -64,7 +64,7 @@ module.exports = function registerLab(app, ctx) {
     try {
       const command = sanitizeString(req.body?.command || '', { escapeHtml: false });
       if (!command) {
-        return res.status(400).json({ error: 'Scrivi un comando.' });
+        return res.status(400).json({ error: req.t('Scrivi un comando.') });
       }
       const ownerKey = virtualLabService.ownerKeyFromRequest(req);
       const result = await virtualLabService.execCommand(req.params.id, ownerKey, command);

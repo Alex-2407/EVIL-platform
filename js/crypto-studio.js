@@ -1,22 +1,25 @@
 /**
- * Studio Cifratura EVIL — laboratorio, catalogo, schede modal
+ * Studio cifratura EVIL — laboratorio degli hash, catalogo, schede tecniche.
  */
 (function () {
+  'use strict';
+
+  const { t } = window.EVIL_I18N;
   const ALGORITHMS = window.CRYPTO_ALGORITHMS || [];
 
   const GLOSSARY = {
-    hash: 'Funzione unidirezionale: da messaggio a digest fisso. Integrità, non segretezza.',
-    sha256: 'SHA-256 (256 bit): standard odierno per integrità file, blockchain, certificati.',
-    md5: 'MD5 (128 bit): obsoleto per sicurezza — collisioni note. Solo checksum legacy.',
-    bcrypt: 'Hash adattivo per password: lento volutamente, resiste al brute force.',
-    aes: 'Advanced Encryption Standard: cifratura simmetrica a blocchi (128/192/256 bit).',
-    rsa: 'Cifratura asimmetrica basata su fattorizzazione: chiave pubblica/privata.',
-    tls: 'Transport Layer Security: HTTPS — negozia cipher suite e autentica il server.',
-    pki: 'Public Key Infrastructure: CA, certificati X.509, catena di fiducia.',
-    hmac: 'Hash + chiave segreta: integrità con autenticazione (API, JWT firmati).',
-    salt: 'Valore random aggiunto prima dell\'hash password — impedisce rainbow table.',
-    nonce: 'Number used once: evita replay in protocolli crittografici.',
-    'end-to-end': 'Solo mittente e destinatario leggono il plaintext — nemmeno il server.',
+    hash: t('Funzione unidirezionale: da un messaggio qualsiasi a un digest di lunghezza fissa. Garantisce integrità, non segretezza.'),
+    sha256: t('SHA-256 (256 bit): lo standard odierno per l\'integrità di file, blockchain e certificati.'),
+    md5: t('MD5 (128 bit): obsoleto per la sicurezza, con collisioni note. Solo come checksum legacy.'),
+    bcrypt: t('Hash adattivo per password: volutamente lento, rende costosi gli attacchi a forza bruta.'),
+    aes: t('Advanced Encryption Standard: cifrario simmetrico a blocchi da 128 bit, con chiavi da 128, 192 o 256 bit.'),
+    rsa: t('Crittografia asimmetrica basata sulla fattorizzazione: chiave pubblica e chiave privata.'),
+    tls: t('Transport Layer Security: il protocollo dell\'HTTPS. Negozia la cipher suite e autentica il server.'),
+    pki: t('Public Key Infrastructure: CA, certificati X.509 e catena di fiducia.'),
+    hmac: t('Hash con chiave segreta: integrità e autenticità (API, JWT firmati).'),
+    salt: t('Valore casuale aggiunto alla password prima dell\'hash: rende inutili le tabelle precalcolate.'),
+    nonce: t('Number used once: valore da non riutilizzare mai, contro replay e riuso del keystream.'),
+    'end-to-end': t('Solo mittente e destinatario leggono il testo in chiaro, nemmeno il server.'),
   };
 
   const grid = document.getElementById('crypto-algo-grid');
@@ -52,8 +55,8 @@
 
   const algoMap = Object.fromEntries(ALGORITHMS.map((a) => [a.id, a]));
 
-  function escapeHtml(t) {
-    return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function escapeHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
   function term(key, label) {
@@ -63,10 +66,10 @@
   }
 
   function catLabel(cat) {
-    if (cat === 'hash') return 'Hash / KDF';
-    if (cat === 'sym') return 'Simmetrica';
-    if (cat === 'asym') return 'Asimmetrica';
-    return 'TLS / PKI';
+    if (cat === 'hash') return t('Hash / KDF');
+    if (cat === 'sym') return t('Simmetrica');
+    if (cat === 'asym') return t('Asimmetrica');
+    return t('TLS / PKI');
   }
 
   function rankClass(n) {
@@ -98,17 +101,18 @@
     const items = ALGORITHMS.filter((a) => matchFilter(a, filter));
     grid.innerHTML = items
       .map(
-        (a, i) => `
-      <button type="button" class="cs-card" data-cat="${a.cat}" data-algo-id="${a.id}" style="--i:${i}" aria-label="Apri scheda ${escapeHtml(a.name)}">
+        (a) => `
+      <button type="button" class="cs-card" data-cat="${a.cat}" data-algo-id="${a.id}" aria-label="${escapeHtml(t('Apri la scheda di {name}', { name: a.name }))}">
         <span class="cs-card__rank ${rankClass(a.securityRank)}" aria-hidden="true">${a.securityRank}</span>
-        <p class="cs-card__tag">${catLabel(a.cat)}</p>
+        <p class="cs-card__tag">${escapeHtml(catLabel(a.cat))}</p>
         <h3>${escapeHtml(a.name)}</h3>
         <p>${escapeHtml(a.desc)}</p>
         <div class="cs-card__meta">${a.pills.map((p) => `<span class="cs-card__pill">${escapeHtml(p)}</span>`).join('')}</div>
-        <span class="cs-card__open">Scheda completa →</span>
+        <span class="cs-card__open">${escapeHtml(t('Scheda completa →'))}</span>
       </button>`
       )
       .join('');
+    grid.querySelectorAll('.cs-card').forEach((card, i) => card.style.setProperty('--i', String(i)));
   }
 
   function buildModalHtml(a) {
@@ -116,34 +120,34 @@
     const cons = a.cons.map((c) => `<li>${escapeHtml(c)}</li>`).join('');
     return `
       <section class="cs-modal-section">
-        <h3>Cos'è</h3>
+        <h3>${escapeHtml(t('Cos\'è'))}</h3>
         <p>${escapeHtml(a.what)}</p>
       </section>
       <section class="cs-modal-section">
-        <h3>Come funziona</h3>
-        <pre class="cs-modal-eq" aria-label="Formulazione">${escapeHtml(a.equation)}</pre>
+        <h3>${escapeHtml(t('Come funziona'))}</h3>
+        <pre class="cs-modal-eq" aria-label="${escapeHtml(t('Formulazione'))}" translate="no">${escapeHtml(a.equation)}</pre>
       </section>
       <section class="cs-modal-section cs-modal-section--history">
-        <h3>Storia e origine</h3>
+        <h3>${escapeHtml(t('Storia e origine'))}</h3>
         <dl class="cs-modal-dl">
-          <div><dt>Origine</dt><dd>${escapeHtml(a.history.origin)}</dd></div>
-          <div><dt>Perché serviva</dt><dd>${escapeHtml(a.history.need)}</dd></div>
-          <div><dt>Cosa risolveva</dt><dd>${escapeHtml(a.history.satisfied)}</dd></div>
+          <div><dt>${escapeHtml(t('Origine'))}</dt><dd>${escapeHtml(a.history.origin)}</dd></div>
+          <div><dt>${escapeHtml(t('Perché serviva'))}</dt><dd>${escapeHtml(a.history.need)}</dd></div>
+          <div><dt>${escapeHtml(t('Cosa ha risolto'))}</dt><dd>${escapeHtml(a.history.satisfied)}</dd></div>
         </dl>
       </section>
       <div class="cs-modal-procon">
         <section class="cs-modal-section cs-modal-section--pro">
-          <h3>Pro</h3>
+          <h3>${escapeHtml(t('Pro'))}</h3>
           <ul>${pros}</ul>
         </section>
         <section class="cs-modal-section cs-modal-section--con">
-          <h3>Contro</h3>
+          <h3>${escapeHtml(t('Contro'))}</h3>
           <ul>${cons}</ul>
         </section>
       </div>
       <section class="cs-modal-section cs-modal-section--ranknote">
-        <h3>Rank sicurezza (2026)</h3>
-        <div class="cs-modal-rank-bar" role="img" aria-label="Livello ${a.securityRank} su 10">
+        <h3>${escapeHtml(t('Valutazione di sicurezza (2026)'))}</h3>
+        <div class="cs-modal-rank-bar" role="img" aria-label="${escapeHtml(t('Livello {n} su 10', { n: a.securityRank }))}">
           ${Array.from({ length: 10 }, (_, i) => `<span class="${i < a.securityRank ? 'is-on' : ''}"></span>`).join('')}
         </div>
         <p class="cs-modal-rank-note">${escapeHtml(a.securityNote)}</p>
@@ -276,14 +280,18 @@
       if (prev[i] !== next[i]) changed++;
     }
     hashDiff.hidden = false;
-    hashDiff.innerHTML = `Valanga: <strong>${changed}</strong> caratteri su ${next.length} diversi (${Math.round((changed / next.length) * 100)}%)`;
+    hashDiff.innerHTML = t('Effetto valanga: {changed} caratteri diversi su {total} ({pct}%)', {
+      changed: `<strong>${changed}</strong>`,
+      total: next.length,
+      pct: Math.round((changed / next.length) * 100),
+    });
   }
 
   async function computeHash() {
     if (!hashInput || !hashOut || !hashAlgo) return;
     const text = hashInput.value;
     hashOut.classList.add('is-computing');
-    hashOut.textContent = 'Calcolo…';
+    hashOut.textContent = t('Calcolo…');
 
     if (!forgeUsed && text.trim()) {
       forgeUsed = true;
@@ -292,17 +300,17 @@
 
     try {
       if (!text && hashAlgo.value !== 'demo') {
-        hashOut.textContent = 'Inserisci testo da hashare.';
+        hashOut.textContent = t('Scrivi un testo di cui calcolare l\'hash.');
         hashOut.classList.remove('is-computing');
         return;
       }
       if (hashAlgo.value === 'demo') {
-        hashOut.textContent = 'Cambia una lettera o usa «Flip bit» per vedere l\'effetto valanga.';
+        hashOut.textContent = t('Cambia una lettera o usa «Cambia l\'ultimo carattere» per vedere l\'effetto valanga.');
         hashOut.classList.remove('is-computing');
         return;
       }
 
-      if (digestAlgoLabel) digestAlgoLabel.textContent = hashAlgo.value.replace('SHA-', 'SHA-');
+      if (digestAlgoLabel) digestAlgoLabel.textContent = hashAlgo.value;
 
       const enc = new TextEncoder();
       const buf = await crypto.subtle.digest(hashAlgo.value, enc.encode(text));
@@ -314,16 +322,16 @@
       updateDigestGrid(hex);
       prevHash = hex;
     } catch (e) {
-      hashOut.textContent = 'Errore: ' + e.message;
+      hashOut.textContent = t('Errore: {msg}', { msg: e.message });
     }
     hashOut.classList.remove('is-computing');
   }
 
   function debounce(fn, ms) {
-    let t;
+    let timer;
     return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), ms);
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), ms);
     };
   }
 
@@ -406,34 +414,30 @@
 
   function initTerms() {
     document.body.addEventListener('mouseover', (e) => {
-      const t = e.target.closest('.crypto-term');
-      if (t) positionTooltip(t);
+      const el = e.target.closest('.crypto-term');
+      if (el) positionTooltip(el);
     });
     document.body.addEventListener('mouseout', (e) => {
-      const t = e.target.closest('.crypto-term');
-      if (t && !t.contains(e.relatedTarget)) hideTooltip();
+      const el = e.target.closest('.crypto-term');
+      if (el && !el.contains(e.relatedTarget)) hideTooltip();
     });
     document.body.addEventListener('focusin', (e) => {
-      const t = e.target.closest('.crypto-term');
-      if (t) positionTooltip(t);
+      const el = e.target.closest('.crypto-term');
+      if (el) positionTooltip(el);
     });
     document.body.addEventListener('focusout', (e) => {
-      const t = e.target.closest('.crypto-term');
-      if (t && !t.contains(e.relatedTarget)) hideTooltip();
+      const el = e.target.closest('.crypto-term');
+      if (el && !el.contains(e.relatedTarget)) hideTooltip();
     });
   }
 
   function enrichStaticTerms() {
     const intro = document.getElementById('crypto-intro-text');
     if (intro) {
-      intro.innerHTML = [
-        term('hash', 'Hash'),
-        ', simmetrica, asimmetrica e ',
-        term('tls', 'TLS'),
-        ': la ',
-        term('pki', 'PKI'),
-        ' regola la fiducia digitale. Calcola digest reali, apri le schede tecniche nel catalogo.',
-      ].join('');
+      intro.innerHTML = t(
+        '{hash}, cifratura simmetrica e asimmetrica, {tls} e {pki}: gli strumenti con cui si proteggono dati e identità. Calcola digest reali nel tuo browser e apri le schede tecniche del catalogo.',
+        { hash: term('hash', 'Hash'), tls: term('tls', 'TLS'), pki: term('pki', 'PKI') }
+      );
     }
   }
 

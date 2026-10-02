@@ -1,0 +1,18 @@
+{
+  "informativo": "informational",
+  "attenzione": "warning",
+  "allarme": "alert",
+  "critico": "critical",
+  "{h} h {m} min": "{h} h {m} min",
+  "Evento {n} di {total}": "Event {n} of {total}",
+  "INTEGRO": "INTACT",
+  "RIPRISTINATO": "RESTORED",
+  "COMPROMESSO": "COMPROMISED",
+  "A RISCHIO": "AT RISK",
+  "NORMALE": "NORMAL",
+  "CRITICA": "CRITICAL",
+  "ALTA": "HIGH",
+  "Nessuna perdita confermata": "No confirmed loss",
+  "Pausa": "Pause",
+  "Avvia": "Start"
+}

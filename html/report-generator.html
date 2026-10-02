@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Generazione Report - EVIL</title>
-  <meta name="description" content="Genera un report di incidente di sicurezza: severità, sistemi coinvolti, impatto e raccomandazioni, con anteprima ed esportazione in PDF o JSON.">
+  <title>Generatore di report — EVIL</title>
+  <meta name="description" content="Prepara un report di incidente di sicurezza con una struttura professionale: sintesi, perimetro e autorizzazione, timeline, evidenze e IoC, impatto e raccomandazioni. Anteprima, stampa ed esportazione in PDF o JSON.">
   
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
@@ -13,255 +13,7 @@
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/tools-hub.css?v=20260704">
-  <style>
-    .report-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-
-    .hero-section {
-      text-align: center;
-      margin-bottom: 60px;
-      border-bottom: 2px solid rgba(77, 171, 247, 0.3);
-      padding-bottom: 40px;
-    }
-
-    .hero-section h1 {
-      font-size: 2.5rem;
-      color: #4dabe7;
-      margin-bottom: 15px;
-      font-weight: 700;
-      letter-spacing: 1px;
-    }
-
-    .hero-section p {
-      font-size: 1rem;
-      color: #b0b0b0;
-      max-width: 900px;
-      margin: 10px auto;
-      line-height: 1.7;
-    }
-
-    .form-section {
-      background: rgba(77, 171, 247, 0.05);
-      border: 1px solid rgba(77, 171, 247, 0.2);
-      border-radius: 8px;
-      padding: 40px;
-      margin: 40px 0;
-    }
-
-    .form-group {
-      margin-bottom: 25px;
-    }
-
-    .form-group label {
-      display: block;
-      color: #4dabe7;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      background: rgba(20, 30, 50, 0.8);
-      border: 1px solid rgba(77, 171, 247, 0.3);
-      border-radius: 4px;
-      color: #fff;
-      font-family: 'Courier New', monospace;
-      font-size: 0.95rem;
-      box-sizing: border-box;
-    }
-
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: #606060;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #4dabe7;
-      box-shadow: 0 0 12px rgba(77, 171, 247, 0.2);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .form-row.full {
-      grid-template-columns: 1fr;
-    }
-
-    .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .checkbox-item input {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: #4dabe7;
-    }
-
-    .checkbox-item label {
-      margin: 0;
-      cursor: pointer;
-      font-weight: 400;
-    }
-
-    .button-group {
-      display: flex;
-      gap: 12px;
-      margin-top: 30px;
-    }
-
-    .btn {
-      padding: 12px 24px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      font-size: 1rem;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #4dabe7, #00d4ff);
-      color: #0a0e27;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(77, 171, 247, 0.3);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid #606060;
-      color: #b0b0b0;
-    }
-
-    .btn-secondary:hover {
-      border-color: #4dabe7;
-      color: #4dabe7;
-    }
-
-    .report-preview {
-      background: rgba(77, 171, 247, 0.03);
-      border: 1px solid rgba(77, 171, 247, 0.2);
-      border-radius: 8px;
-      padding: 40px;
-      margin: 40px 0;
-      display: none;
-    }
-
-    .report-preview.active {
-      display: block;
-    }
-
-    .report-header {
-      border-bottom: 2px solid rgba(77, 171, 247, 0.3);
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-
-    .report-title {
-      color: #4dabe7;
-      font-size: 2rem;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-
-    .report-meta {
-      color: #808080;
-      font-size: 0.9rem;
-    }
-
-    .report-section {
-      margin: 30px 0;
-      padding: 20px;
-      background: rgba(0, 0, 0, 0.2);
-      border-left: 3px solid #4dabe7;
-      border-radius: 4px;
-    }
-
-    .report-section h3 {
-      color: #4dabe7;
-      font-size: 1.3rem;
-      margin-bottom: 15px;
-    }
-
-    .report-content {
-      color: #d1d5db;
-      line-height: 1.8;
-    }
-
-    .report-list {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .report-list li {
-      padding: 8px 0;
-      padding-left: 20px;
-      position: relative;
-      color: #d1d5db;
-    }
-
-    .report-list li:before {
-      content: "·";
-      position: absolute;
-      left: 0;
-      color: #4dabe7;
-      font-weight: 700;
-    }
-
-    .export-buttons {
-      display: flex;
-      gap: 12px;
-      margin-top: 30px;
-      flex-wrap: wrap;
-    }
-
-    .btn-export {
-      padding: 10px 20px;
-      background: rgba(77, 171, 247, 0.1);
-      border: 1px solid rgba(77, 171, 247, 0.3);
-      color: #4dabe7;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .btn-export:hover {
-      background: rgba(77, 171, 247, 0.2);
-      box-shadow: 0 0 15px rgba(77, 171, 247, 0.15);
-    }
-
-    @media (max-width: 768px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/report-generator.css?v=20261001">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -275,47 +27,60 @@
   <main class="report-container">
     <section class="hero-section">
       <p class="st-tool-parent"><a href="/security-check.html">← Strumenti</a></p>
-      <h1>📋 Generazione report</h1>
-      <p>Crea rapporti completi e personalizzati su attacchi, vulnerabilità e incidenti di sicurezza. Esporta in PDF o JSON per la comunicazione con stakeholder.</p>
+      <h1>Generatore di report</h1>
+      <p>Prepara un report di incidente di sicurezza con la struttura usata nei team di incident response, poi stampalo o esportalo in PDF o JSON. È un esercizio di scrittura professionale: a chi serve (studenti, analisti SOC alle prime armi, chi prepara un esame), livello base, circa 20 minuti.</p>
+      <p>Il report segue questo modello:</p>
+      <ol class="report-structure">
+        <li><strong>Sintesi</strong>: cosa è successo, gravità e stato attuale, in poche righe per chi deve decidere.</li>
+        <li><strong>Perimetro e autorizzazione</strong>: sistemi analizzati, chi ha autorizzato l'attività e con quali limiti.</li>
+        <li><strong>Timeline</strong>: eventi in ordine cronologico, con data, ora e fuso orario.</li>
+        <li><strong>Evidenze e indicatori di compromissione (IoC)</strong>: log, hash, indirizzi, domini, con la fonte di ciascun dato.</li>
+        <li><strong>Impatto</strong>: effetti tecnici, sui dati e sull'attività.</li>
+        <li><strong>Raccomandazioni</strong>: azioni correttive e preventive, una per riga, con priorità.</li>
+      </ol>
     </section>
 
-    <section class="form-section">
-      <h2 style="color: #4dabe7; margin-bottom: 30px;">⚙️ Configurazione report</h2>
+    <section class="form-section" aria-labelledby="form-title">
+      <h2 id="form-title">Dati del report</h2>
+
+      <div class="report-notice" role="note">
+        <p><strong>Non inserire dati personali o informazioni riservate reali.</strong> Usa nomi, indirizzi e dati di fantasia oppure anonimizzati: il PDF viene generato sul server di EVIL e i testi viaggiano in rete. Per un incidente reale usa gli strumenti e i canali approvati dalla tua organizzazione. Vedi <a href="/site-policies.html">Privacy e regole</a> e <a href="/ethics.html">Etica e legge</a>.</p>
+      </div>
 
       <div class="form-group">
-        <label for="reportTitle">Titolo Report</label>
-        <input type="text" id="reportTitle" placeholder="Es: Incidente Sicurezza Marzo 2026">
+        <label for="reportTitle">Titolo del report</label>
+        <input type="text" id="reportTitle" maxlength="200" placeholder="Es.: Phishing con furto di credenziali, marzo 2026">
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="reportDate">Data Incidente</label>
+          <label for="reportDate">Data dell'incidente</label>
           <input type="date" id="reportDate">
         </div>
         <div class="form-group">
           <label for="reportSeverity">Severità</label>
           <select id="reportSeverity">
-            <option value="critical">🔴 Critica</option>
-            <option value="high">🟠 Alta</option>
-            <option value="medium" selected>🟡 Media</option>
-            <option value="low">🟢 Bassa</option>
+            <option value="critical">Critica</option>
+            <option value="high">Alta</option>
+            <option value="medium" selected>Media</option>
+            <option value="low">Bassa</option>
           </select>
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="reportOrg">Organizzazione Colpita</label>
-          <input type="text" id="reportOrg" placeholder="Es: Acme Corporation">
+          <label for="reportOrg">Organizzazione</label>
+          <input type="text" id="reportOrg" maxlength="200" placeholder="Es.: Azienda Esempio S.r.l. (nome di fantasia)">
         </div>
         <div class="form-group">
-          <label for="reportAuthor">Autore Report</label>
-          <input type="text" id="reportAuthor" placeholder="Es: Security Team EVIL">
+          <label for="reportAuthor">Autore del report</label>
+          <input type="text" id="reportAuthor" maxlength="200" placeholder="Es.: Team di sicurezza">
         </div>
       </div>
 
-      <div class="form-group form-row full">
-        <label>Tipo Incidente</label>
+      <fieldset class="form-group form-row full">
+        <legend>Tipo di incidente</legend>
         <div class="checkbox-group">
           <div class="checkbox-item">
             <input type="checkbox" id="malware" name="incident" value="malware" checked>
@@ -331,220 +96,131 @@
           </div>
           <div class="checkbox-item">
             <input type="checkbox" id="dataBreach" name="incident" value="dataBreach">
-            <label for="dataBreach">Data Breach</label>
+            <label for="dataBreach">Violazione di dati</label>
           </div>
           <div class="checkbox-item">
             <input type="checkbox" id="ddos" name="incident" value="ddos">
             <label for="ddos">DDoS</label>
           </div>
         </div>
+      </fieldset>
+
+      <h3>1. Sintesi</h3>
+      <div class="form-group form-row full">
+        <label for="summary">Sintesi dell'incidente</label>
+        <textarea id="summary" rows="5" maxlength="4000" placeholder="Cosa è successo, quando è stato rilevato, gravità e stato attuale (contenuto, in corso, risolto)."></textarea>
       </div>
 
+      <h3>2. Perimetro e autorizzazione</h3>
       <div class="form-group form-row full">
-        <label for="description">Descrizione Incidente</label>
-        <textarea id="description" rows="6" placeholder="Descrivi dettagliatamente l'incidente..."></textarea>
+        <label for="scope">Perimetro e autorizzazione</label>
+        <textarea id="scope" rows="4" maxlength="4000" placeholder="Sistemi e periodo analizzati, chi ha autorizzato l'analisi (ruolo, data del mandato), cosa era escluso."></textarea>
+        <p class="field-hint">Ogni attività di analisi deve avere un'autorizzazione scritta: indica qui chi l'ha data e con quali limiti.</p>
       </div>
 
+      <h3>3. Timeline</h3>
       <div class="form-group form-row full">
-        <label for="impact">Impatto e Conseguenze</label>
-        <textarea id="impact" rows="5" placeholder="Descrivi l'impatto tecnico e aziendale..."></textarea>
+        <label for="timeline">Timeline degli eventi</label>
+        <textarea id="timeline" rows="6" maxlength="4000" placeholder="Una riga per evento, es.: 2026-03-12 09:14 CET — email di phishing ricevuta da 3 utenti"></textarea>
+      </div>
+
+      <h3>4. Evidenze e IoC</h3>
+      <div class="form-group form-row full">
+        <label for="evidence">Evidenze e indicatori di compromissione (IoC)</label>
+        <textarea id="evidence" rows="6" maxlength="4000" placeholder="Log rilevanti, hash SHA-256, domini e indirizzi IP (di esempio), con la fonte di ciascun dato."></textarea>
+        <p class="field-hint">Per gli esempi usa i domini riservati alla documentazione (example.com) e gli indirizzi IP di documentazione (192.0.2.0/24, 198.51.100.0/24, 203.0.113.0/24).</p>
+      </div>
+
+      <h3>5. Impatto</h3>
+      <div class="form-group form-row full">
+        <label for="impact">Impatto</label>
+        <textarea id="impact" rows="5" maxlength="4000" placeholder="Effetti tecnici, sui dati (riservatezza, integrità, disponibilità) e sull'attività."></textarea>
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label for="systemsAffected">Sistemi Interessati</label>
-          <input type="text" id="systemsAffected" placeholder="Es: Email Server, Database, Web App">
+          <label for="systemsAffected">Sistemi coinvolti</label>
+          <input type="text" id="systemsAffected" maxlength="4000" placeholder="Es.: server di posta, database clienti, sito web">
         </div>
         <div class="form-group">
-          <label for="usersAffected">Utenti Interessati</label>
-          <input type="number" id="usersAffected" placeholder="Es: 1500" min="0">
+          <label for="usersAffected">Utenti coinvolti (stima)</label>
+          <input type="number" id="usersAffected" placeholder="Es.: 150" min="0">
         </div>
       </div>
 
+      <h3>6. Raccomandazioni</h3>
       <div class="form-group form-row full">
         <label for="recommendations">Raccomandazioni</label>
-        <textarea id="recommendations" rows="5" placeholder="Suggerisci azioni correttive..."></textarea>
+        <textarea id="recommendations" rows="5" maxlength="4000" placeholder="Una azione per riga, con priorità, es.: Alta — attivare l'autenticazione a più fattori per la posta"></textarea>
       </div>
 
       <div class="button-group">
-        <button class="btn btn-primary" onclick="generateReport()">📄 Genera report</button>
-        <button class="btn btn-secondary" onclick="resetForm()">🗑️ Svuota modulo</button>
+        <button type="button" class="btn btn-primary" id="generateReportBtn">Genera l'anteprima</button>
+        <button type="button" class="btn btn-secondary" id="resetReportBtn">Svuota il modulo</button>
       </div>
     </section>
 
-    <section id="reportPreview" class="report-preview">
+    <section id="reportPreview" class="report-preview" aria-labelledby="previewTitle">
       <div class="report-header">
-        <div class="report-title" id="previewTitle">EVIL Cybersecurity Report</div>
+        <h2 class="report-title" id="previewTitle">Report di sicurezza</h2>
         <div class="report-meta">
-          Generato il: <span id="previewDate"></span><br>
-          Autore: <span id="previewAuthor"></span>
+          Generato il <span id="previewDate"></span> · Autore: <span id="previewAuthor"></span>
         </div>
       </div>
 
       <div class="report-section">
-        <h3>📌 Riepilogo esecutivo</h3>
+        <h3>Dati dell'incidente</h3>
+        <dl class="report-meta-grid">
+          <dt>Organizzazione</dt><dd id="previewOrg"></dd>
+          <dt>Data dell'incidente</dt><dd id="previewIncidentDate"></dd>
+          <dt>Severità</dt><dd id="previewSeverityLabel"></dd>
+          <dt>Tipo di incidente</dt><dd id="previewTypes"></dd>
+          <dt>Sistemi coinvolti</dt><dd id="previewSystems"></dd>
+          <dt>Utenti coinvolti</dt><dd id="previewUsers"></dd>
+        </dl>
+      </div>
+
+      <div class="report-section">
+        <h3>1. Sintesi</h3>
         <div class="report-content" id="previewSummary"></div>
       </div>
 
       <div class="report-section">
-        <h3>🔎 Dettagli incidente</h3>
-        <div class="report-content">
-          <strong>Organizzazione:</strong> <span id="previewOrg"></span><br>
-          <strong>Data Incidente:</strong> <span id="previewIncidentDate"></span><br>
-          <strong>Severità:</strong> <span id="previewSeverityLabel"></span><br>
-          <strong>Sistemi Interessati:</strong> <span id="previewSystems"></span><br>
-          <strong>Utenti Interessati:</strong> <span id="previewUsers"></span>
-        </div>
+        <h3>2. Perimetro e autorizzazione</h3>
+        <div class="report-content" id="previewScope"></div>
       </div>
 
       <div class="report-section">
-        <h3>⚠️ Descrizione della minaccia</h3>
-        <div class="report-content" id="previewDescription"></div>
+        <h3>3. Timeline</h3>
+        <div class="report-content" id="previewTimeline"></div>
       </div>
 
       <div class="report-section">
-        <h3>💥 Impatto</h3>
+        <h3>4. Evidenze e indicatori di compromissione (IoC)</h3>
+        <div class="report-content" id="previewEvidence"></div>
+      </div>
+
+      <div class="report-section">
+        <h3>5. Impatto</h3>
         <div class="report-content" id="previewImpact"></div>
       </div>
 
       <div class="report-section">
-        <h3>✅ Raccomandazioni</h3>
+        <h3>6. Raccomandazioni</h3>
         <ul class="report-list" id="previewRecommendations"></ul>
       </div>
 
       <div class="export-buttons">
-        <button class="btn-export" onclick="exportPDF()">⬇️ Scarica PDF</button>
-        <button class="btn-export" onclick="exportJSON()">⬇️ Scarica JSON</button>
-        <button class="btn-export" onclick="printReport()">??? Stampa</button>
+        <button type="button" class="btn-export" id="exportPdfBtn">Scarica PDF</button>
+        <button type="button" class="btn-export" id="exportJsonBtn">Scarica JSON</button>
+        <button type="button" class="btn-export" id="printReportBtn">Stampa</button>
       </div>
+      <p id="reportError" class="report-error" role="alert" hidden></p>
     </section>
   </main>
   <!--evil:footer-->
-<script src="/js/tools-api.js" defer></script>
-  <script>
-    function generateReport() {
-      const title = document.getElementById('reportTitle').value || 'EVIL Cybersecurity Report';
-      const date = document.getElementById('reportDate').value;
-      const severity = document.getElementById('reportSeverity').value;
-      const org = document.getElementById('reportOrg').value || 'Organizzazione';
-      const author = document.getElementById('reportAuthor').value || 'Team di sicurezza';
-      const description = document.getElementById('description').value || 'Nessuna descrizione.';
-      const impact = document.getElementById('impact').value || 'Nessun dettaglio sull\'impatto.';
-      const systems = document.getElementById('systemsAffected').value || 'Non specificato';
-      const users = document.getElementById('usersAffected').value || '0';
-      const recommendations = document.getElementById('recommendations').value || 'In corso di analisi';
-
-      const severityLabels = {
-        critical: '🔴 CRITICA',
-        high: '🟠 ALTA',
-        medium: '🟡 MEDIA',
-        low: '🟢 BASSA'
-      };
-
-      const checkedIncidents = Array.from(document.querySelectorAll('input[name="incident"]:checked'))
-        .map(el => el.value)
-        .join(', ') || 'Non specificato';
-
-      document.getElementById('previewTitle').textContent = title;
-      document.getElementById('previewDate').textContent = new Date().toLocaleString('it-IT');
-      document.getElementById('previewAuthor').textContent = author;
-      document.getElementById('previewSummary').textContent = `Incidente di sicurezza classificato come ${severityLabels[severity]}. Tipo: ${checkedIncidents}. ${description.substring(0, 200)}...`;
-      document.getElementById('previewOrg').textContent = org;
-      document.getElementById('previewIncidentDate').textContent = date || 'N/A';
-      document.getElementById('previewSeverityLabel').textContent = severityLabels[severity];
-      document.getElementById('previewSystems').textContent = systems;
-      document.getElementById('previewUsers').textContent = users;
-      document.getElementById('previewDescription').textContent = description;
-      document.getElementById('previewImpact').textContent = impact;
-      
-      // textContent: il testo inserito non viene interpretato come HTML
-      const recList = recommendations.split('\n').filter(r => r.trim());
-      const recEl = document.getElementById('previewRecommendations');
-      recEl.replaceChildren(...recList.map((r) => {
-        const li = document.createElement('li');
-        li.textContent = r.trim();
-        return li;
-      }));
-
-      document.getElementById('reportPreview').classList.add('active');
-      document.getElementById('reportPreview').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    function resetForm() {
-      document.getElementById('reportTitle').value = '';
-      document.getElementById('reportDate').value = '';
-      document.getElementById('reportOrg').value = '';
-      document.getElementById('reportAuthor').value = '';
-      document.getElementById('description').value = '';
-      document.getElementById('impact').value = '';
-      document.getElementById('systemsAffected').value = '';
-      document.getElementById('usersAffected').value = '';
-      document.getElementById('recommendations').value = '';
-      document.getElementById('reportPreview').classList.remove('active');
-    }
-
-    function exportJSON() {
-      const data = {
-        title: document.getElementById('reportTitle').value,
-        date: new Date().toISOString(),
-        organization: document.getElementById('reportOrg').value,
-        author: document.getElementById('reportAuthor').value,
-        severity: document.getElementById('reportSeverity').value,
-        description: document.getElementById('description').value,
-        impact: document.getElementById('impact').value,
-        systems: document.getElementById('systemsAffected').value,
-        affectedUsers: document.getElementById('usersAffected').value,
-        recommendations: document.getElementById('recommendations').value
-      };
-      
-      const jsonString = JSON.stringify(data, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `report-${Date.now()}.json`;
-      link.click();
-    }
-
-    function exportPDF() {
-      const incident = {
-        title: document.getElementById('reportTitle').value,
-        target: document.getElementById('reportOrg').value,
-        severity: document.getElementById('reportSeverity').value,
-        summary: document.getElementById('description').value,
-        findings: document.getElementById('impact').value,
-        recommendations: document.getElementById('recommendations').value,
-        author: document.getElementById('reportAuthor').value,
-        systems: document.getElementById('systemsAffected').value,
-        usersAffected: document.getElementById('usersAffected').value
-      };
-      EvilTools.downloadToolPdf('/api/report-generator', { incident }, `evil-report-${Date.now()}.pdf`)
-        .then(() => window.progressManager?.logActivity?.('report_generated', { source: 'report-generator' }))
-        .catch(err => alert('Errore PDF: ' + err.message));
-    }
-
-    function printReport() {
-      window.print();
-    }
-
-    // Footer visibility on scroll
-    const footer = document.querySelector('footer');
-    const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.1
-    };
-
-    const footerObserver = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          footer.classList.add('visible');
-        }
-      });
-    }, observerOptions);
-
-    footerObserver.observe(footer);
-  </script>
+  <script src="/js/tools-api.js" defer></script>
+  <script src="/js/report-generator.js?v=20261001" defer></script>
 
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/js.js" defer></script>

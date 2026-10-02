@@ -88,6 +88,26 @@ else ok('email non configurata: in sviluppo i messaggi vanno in data/email-outbo
 
 if (!process.env.HELP_SUPPORT_EMAIL) warn('HELP_SUPPORT_EMAIL non impostata: le richieste di supporto vanno a SMTP_FROM_EMAIL');
 
+// ---------------------------------------------------------------- proxy (IP reale dei visitatori)
+{
+  const { parseTrustProxy, describeTrustProxy } = require('../utils/trust-proxy');
+  const tp = parseTrustProxy();
+  const onRender = Boolean(process.env.RENDER || process.env.RENDER_SERVICE_ID);
+  if (tp.error) fail(tp.error);
+  else if (tp.value === false && (production || onRender)) {
+    warn('TRUST_PROXY non impostato: dietro il proxy di Render tutti i visitatori avrebbero lo stesso IP (limiti di richieste condivisi). Su Render imposta TRUST_PROXY=1');
+  } else if (onRender && typeof tp.value === 'number' && tp.value > 1) {
+    warn(`TRUST_PROXY=${tp.value}: Render ha un solo proxy davanti al server; con più hop un visitatore può falsificare il proprio IP con X-Forwarded-For`);
+  } else ok(`TRUST_PROXY: ${describeTrustProxy()}`);
+}
+
+// ---------------------------------------------------------------- account
+{
+  const days = parseFloat(process.env.UNVERIFIED_ACCOUNT_TTL_DAYS || '7');
+  if (!Number.isFinite(days) || days <= 0) warn('UNVERIFIED_ACCOUNT_TTL_DAYS non valido: si usa 7 giorni');
+  else ok(`account non verificati cancellati dopo ${days} giorni`);
+}
+
 // ---------------------------------------------------------------- altro
 if (process.env.EVIL_TOOLS_PUBLIC === '1' || process.env.EVIL_TOOLS_PUBLIC === 'true') {
   (production ? fail : warn)('EVIL_TOOLS_PUBLIC attivo: scansioni e OSINT aperti a chiunque senza login');

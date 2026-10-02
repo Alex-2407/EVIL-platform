@@ -1,0 +1,22 @@
+{
+  "Dominio non valido: scrivi solo il nome, per esempio esempio.it": "Invalid domain: enter the name only, for example example.com",
+  "Questo nome non è consentito: gli strumenti analizzano solo domini pubblici, non reti interne (localhost, .internal, .corp, .lan…).": "This name is not allowed: the tools only analyse public domains, not internal networks (localhost, .internal, .corp, .lan…).",
+  "Dominio inesistente o non raggiungibile.": "The domain does not exist or cannot be reached.",
+  "Il server del sito ha rifiutato la connessione.": "The site’s server refused the connection.",
+  "La connessione è stata interrotta dal sito.": "The site closed the connection.",
+  "Il sito non ha risposto in tempo. Riprova tra poco.": "The site did not respond in time. Please try again shortly.",
+  "Connessione sicura (TLS) non riuscita: certificato non valido o protocollo non supportato.": "Secure (TLS) connection failed: invalid certificate or unsupported protocol.",
+  "URL non valido: scrivilo per intero, per esempio https://esempio.it": "Invalid URL: enter it in full, for example https://example.com",
+  "Analisi non riuscita per un errore interno. Riprova tra poco.": "The analysis failed because of an internal error. Please try again shortly.",
+  "Host mancante": "Missing host",
+  "Host non consentito": "Host not allowed",
+  "Host numerico non consentito": "Numeric host not allowed",
+  "Indirizzo di destinazione non consentito (rete privata o riservata)": "Destination address not allowed (private or reserved network)",
+  "URL non valido": "Invalid URL",
+  "Protocollo non consentito (solo http e https)": "Protocol not allowed (http and https only)",
+  "Credenziali nell'URL non consentite": "Credentials in the URL are not allowed",
+  "Destinazione non consentita": "Destination not allowed",
+  "File vuoto o non ricevuto": "The file is empty or was not received",
+  "Porta {port} non consentita (ammesse: 80, 443, 8080, 8443)": "Port {port} not allowed (permitted: 80, 443, 8080, 8443)",
+  "Il dominio {host} risolve a un indirizzo privato o riservato": "The domain {host} resolves to a private or reserved address"
+}

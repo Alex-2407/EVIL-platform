@@ -1,0 +1,19 @@
+{
+  "Accedi per continuare.": "Sign in to continue.",
+  "Sessione scaduta: accedi di nuovo.": "Your session has expired: please sign in again.",
+  "La password deve avere almeno 12 caratteri.": "The password must be at least 12 characters long.",
+  "La password è troppo lunga (massimo 200 caratteri).": "The password is too long (maximum 200 characters).",
+  "La password deve contenere almeno una lettera maiuscola.": "The password must contain at least one capital letter.",
+  "La password deve contenere almeno un numero.": "The password must contain at least one number.",
+  "La password deve contenere almeno un simbolo (per esempio ! ? @ # % . -).": "The password must contain at least one symbol (for example ! ? @ # % . -).",
+  "Dati non validi.": "Invalid data.",
+  "Inserisci il nome.": "Enter your name.",
+  "Il nome deve avere tra 2 e 100 caratteri.": "The name must be between 2 and 100 characters.",
+  "Il nome può contenere solo lettere (anche accentate), spazi, apostrofi, punti e trattini.": "The name may contain only letters (accented letters included), spaces, apostrophes, full stops and hyphens.",
+  "Inserisci un indirizzo email.": "Enter an email address.",
+  "Indirizzo email troppo lungo.": "The email address is too long.",
+  "Indirizzo email non valido.": "Invalid email address.",
+  "Le password non coincidono.": "The passwords do not match.",
+  "Per registrarti devi accettare i termini d'uso e l'informativa privacy.": "To sign up you must accept the terms of use and the privacy notice.",
+  "Inserisci la password.": "Enter your password."
+}

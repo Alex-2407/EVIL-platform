@@ -16,10 +16,31 @@
 | `CORS_ORIGINS` | `https://projectevil.it,https://www.projectevil.it` | |
 | `COOKIE_DOMAIN` | `.projectevil.it` | sessione valida con e senza www |
 | `FORCE_HTTPS` | `1` | |
+| `TRUST_PROXY` | `1` | Render ha **un** proxy davanti al server: serve per leggere l'IP reale dei visitatori (vedi sotto) |
 | `DIAGNOSTICS_TOKEN` | stringa casuale lunga (facoltativa) | abilita `/api/health/smtp?key=...` |
 
-`TRUST_PROXY` non serve più: in produzione il server si fida già del proxy di Render
-(per usare l'IP reale nei limiti di richieste). `EMAIL_DEV_OUTBOX` in produzione è ignorata.
+### `TRUST_PROXY`: l'IP reale dei visitatori
+
+Il server **non** si fida più di `X-Forwarded-For` per default, nemmeno in produzione: senza un
+proxy davanti chiunque potrebbe scrivere quell'header e cambiare IP a ogni richiesta, aggirando i
+limiti di richieste. La fiducia va dichiarata:
+
+| Valore | Significato |
+|--------|-------------|
+| non impostata, `0`, `false` | nessun proxy: conta l'IP della connessione |
+| `1` (o `2`, `3`…) | numero di proxy davanti al server. **Su Render: `1`** |
+| `10.0.0.0/8,192.168.1.10` | elenco di IP o reti CIDR dei proxy fidati (anche `loopback`, `linklocal`, `uniquelocal`) |
+| `true` | trattato come `1` (fidarsi di qualunque proxy non è ammesso) |
+
+Su Render, senza `TRUST_PROXY=1`, tutti i visitatori risultano con l'IP del proxy e condividono
+gli stessi limiti di richieste (dopo pochi login falliti di uno, tutti bloccati). Non mettere un
+numero più alto di quello reale: un visitatore potrebbe falsificare il proprio IP. Se metti
+Cloudflare (proxy) davanti a Render, i proxy diventano due: `TRUST_PROXY=2`.
+
+All'avvio il log riporta la scelta (`Trust proxy: 1 proxy fidato davanti al server`) e, in
+produzione senza `TRUST_PROXY`, un avviso. Lo segnala anche `npm run check:deploy`.
+
+`EMAIL_DEV_OUTBOX` in produzione è ignorata.
 
 Prima di ogni deploy: `npm run check:deploy` (con le stesse variabili) segnala cosa manca.
 
@@ -56,7 +77,10 @@ Con un piano Render a pagamento si può usare anche SMTP (`SMTP_HOST=live.smtp.m
 - Registra un account di prova: l'email di verifica deve arrivare entro un minuto.
 - Con `DIAGNOSTICS_TOKEN` impostato:
   `https://www.projectevil.it/api/health/smtp?key=<token>` mostra come vengono inviate le email.
-- I log (errori compresi) sono nel pannello **Logs** di Render.
+- I log (errori compresi) sono nel pannello **Logs** di Render. Le email vi compaiono
+  mascherate (`gi***@example.com`) e token e chiavi negli URL come `***`; restano IP e user agent,
+  necessari contro gli abusi. Render conserva i log per il periodo previsto dal piano
+  (pochi giorni sul piano gratuito): non servono altre azioni per la cancellazione.
 
 ## Sicurezza
 

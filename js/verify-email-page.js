@@ -1,11 +1,13 @@
 /**
  * EVIL — verifica dell'indirizzo email (verify-email.html)
- * Tre viste: in attesa (con reinvio e controllo automatico), verificata, errore.
+ * Quattro viste: in attesa (con reinvio e controllo automatico), conferma (link dell'email con
+ * #token=…, l'utente preme un pulsante e la pagina chiama POST /api/auth/verify), verificata, errore.
+ * La verifica attiva l'account ma non apre una sessione: si accede poi con email e password.
  */
 (function () {
   'use strict';
 
-  const { t, url } = window.EVIL_I18N;
+  const { t } = window.EVIL_I18N;
   const API_URL = '/api';
 
   function storageGet(key) {
@@ -36,6 +38,7 @@
     const viewPending = document.getElementById('viewPending');
     const viewSuccess = document.getElementById('viewSuccess');
     const viewError = document.getElementById('viewError');
+    const viewConfirm = document.getElementById('viewConfirm');
     const resendBtn = document.getElementById('resendBtn');
     const resendMessage = document.getElementById('resendMessage');
     const deliveryNotice = document.getElementById('deliveryNotice');
@@ -68,12 +71,12 @@
     const errorMessages = {
       missing: () => t('Il link di verifica è incompleto.'),
       invalid: () => t('Questo link non è valido o è già stato usato.'),
-      expired: () => t('Il link è scaduto. Accedi con email e password per ricevere un nuovo link, oppure registrati di nuovo.'),
+      expired: () => t('Il link è scaduto. Registrati di nuovo con lo stesso indirizzo per ricevere un link nuovo.'),
       server: () => t('Si è verificato un errore durante la verifica. Riprova tra poco.'),
     };
 
     function show(el) {
-      [viewPending, viewSuccess, viewError].forEach((node) => { node.hidden = true; });
+      [viewPending, viewSuccess, viewError, viewConfirm].forEach((node) => { if (node) node.hidden = true; });
       el.hidden = false;
     }
 
@@ -132,12 +135,71 @@
       });
     }
 
-    if (status === 'success') {
+    // Token nel frammento (#token=…): non arriva al server nei log né nel Referer.
+    // Lo si toglie subito dalla barra degli indirizzi e resta solo in memoria.
+    const hashToken = new URLSearchParams(window.location.hash.replace(/^#/, '')).get('token') || '';
+    if (hashToken) {
+      try {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (_) { /* history non disponibile */ }
+    }
+
+    function showVerifyError(text) {
+      document.getElementById('errorText').textContent = text;
+      show(viewError);
+    }
+
+    async function confirmToken() {
+      const btn = document.getElementById('confirmBtn');
+      const errorBox = document.getElementById('confirmError');
+      if (errorBox) errorBox.hidden = true;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = t('Conferma in corso…');
+      }
+      try {
+        const response = await fetch(`${API_URL}/auth/verify`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: hashToken }),
+        });
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (_) { /* risposta non JSON */ }
+
+        if (response.ok) {
+          applyVerifiedUi(false);
+          return;
+        }
+        if (data.code === 'TOKEN_EXPIRED') return showVerifyError(data.error || errorMessages.expired());
+        if (data.code === 'TOKEN_INVALID' || data.code === 'TOKEN_MISSING') return showVerifyError(data.error || errorMessages.invalid());
+        const message = response.status === 429
+          ? t('Troppi tentativi. Aspetta qualche minuto e riprova.')
+          : data.error || errorMessages.server();
+        if (errorBox) {
+          errorBox.textContent = message;
+          errorBox.hidden = false;
+        }
+      } catch (_) {
+        if (errorBox) {
+          errorBox.textContent = t('Connessione non riuscita. Controlla la rete e riprova.');
+          errorBox.hidden = false;
+        }
+      }
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = t('Conferma l\'indirizzo');
+      }
+    }
+
+    if (hashToken && viewConfirm) {
+      show(viewConfirm);
+      document.getElementById('confirmBtn')?.addEventListener('click', confirmToken);
+    } else if (status === 'success') {
       applyVerifiedUi(false);
-      (async () => {
-        await syncSessionAfterVerify();
-        window.setTimeout(() => { window.location.href = url('/home.html'); }, 2200);
-      })();
+      syncSessionAfterVerify();
     } else if (status === 'error') {
       document.getElementById('errorText').textContent = (errorMessages[reason] || errorMessages.invalid)();
       show(viewError);

@@ -1,0 +1,8 @@
+{
+  "Il nome del file è troppo lungo (massimo 240 caratteri).": "The file name is too long (maximum 240 characters).",
+  "Il nome del file contiene caratteri non consentiti.": "The file name contains characters that are not allowed.",
+  "Tipo di file non accettato. Estensioni consentite: {list}.": "File type not accepted. Allowed extensions: {list}.",
+  "File troppo grande: il massimo è {mb} MB.": "File too large: the maximum is {mb} MB.",
+  "Caricamento non valido: invia un solo file nel campo «file».": "Invalid upload: send a single file in the “file” field.",
+  "Caricamento del file non riuscito.": "The file upload failed."
+}

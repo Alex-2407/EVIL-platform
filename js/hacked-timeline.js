@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  const { t } = window.EVIL_I18N;
   const data = window.INCIDENT_TIMELINE;
   if (!data?.SCENARIOS) return;
 
@@ -26,6 +27,9 @@
     detailSeverity: document.getElementById('ir-detail-severity'),
     detailDesc: document.getElementById('ir-detail-desc'),
     detailSoc: document.getElementById('ir-detail-soc'),
+    detailDecision: document.getElementById('ir-detail-decision'),
+    detailDecisionLabel: document.getElementById('ir-detail-decision-label'),
+    scenarioContext: document.getElementById('ir-scenario-context'),
     detailMit: document.getElementById('ir-detail-mit'),
     detailMitre: document.getElementById('ir-detail-mitre'),
   };
@@ -54,8 +58,28 @@
     }
   }
 
+  const SEVERITY_LABEL = {
+    info: t('informativo'),
+    warning: t('attenzione'),
+    alert: t('allarme'),
+    critical: t('critico'),
+  };
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function severityClass(s) {
     return `ir-sev ir-sev--${s}`;
+  }
+
+  function severityLabel(s) {
+    return SEVERITY_LABEL[s] || s;
   }
 
   function formatDuration(start, end) {
@@ -65,16 +89,16 @@
     const diff = Math.max(0, b - a);
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
-    return `${h}h ${m}m`;
+    return t('{h} h {m} min', { h, m });
   }
 
   function renderPhases() {
     if (!els.phases) return;
     const current = events()[state.index]?.phase;
     els.phases.innerHTML = data.PHASES.map((p) =>
-      `<div class="ir-phase${p.id === current ? ' is-active' : ''}" data-phase="${p.id}">
+      `<div class="ir-phase${p.id === current ? ' is-active' : ''}" data-phase="${escapeHtml(p.id)}" role="listitem">
         <span class="ir-phase__dot"></span>
-        <span class="ir-phase__label">${p.label}</span>
+        <span class="ir-phase__label">${escapeHtml(p.label)}</span>
       </div>`
     ).join('');
   }
@@ -91,9 +115,9 @@
           <span class="ir-event__rail" aria-hidden="true"></span>
           <span class="ir-event__dot" aria-hidden="true"></span>
           <div class="ir-event__body">
-            <time class="ir-event__time">${ev.time}</time>
-            <h3 class="ir-event__title">${ev.title}</h3>
-            <span class="${severityClass(ev.severity)}">${ev.severity}</span>
+            <time class="ir-event__time">${escapeHtml(ev.time)}</time>
+            <h3 class="ir-event__title">${escapeHtml(ev.title)}</h3>
+            <span class="${severityClass(escapeHtml(ev.severity))}">${escapeHtml(severityLabel(ev.severity))}</span>
           </div>
         </article>`;
     }).join('');
@@ -120,11 +144,17 @@
     els.panel.hidden = false;
     els.detailTitle.textContent = ev.title;
     els.detailTime.textContent = ev.time;
-    els.detailSeverity.textContent = ev.severity;
+    els.detailSeverity.textContent = severityLabel(ev.severity);
     els.detailSeverity.className = severityClass(ev.severity);
     els.detailDesc.textContent = ev.description;
     els.detailSoc.textContent = ev.soc;
-    els.detailMit.innerHTML = ev.mitigations.map((m) => `<li>${m}</li>`).join('');
+    const hasDecision = Boolean(ev.decision);
+    if (els.detailDecision) {
+      els.detailDecision.textContent = ev.decision || '';
+      els.detailDecision.hidden = !hasDecision;
+    }
+    if (els.detailDecisionLabel) els.detailDecisionLabel.hidden = !hasDecision;
+    els.detailMit.innerHTML = (ev.mitigations || []).map((m) => `<li>${escapeHtml(m)}</li>`).join('');
     els.detailMitre.textContent = ev.mitre;
   }
 
@@ -143,7 +173,7 @@
     const total = events().length;
     if (els.seekLabel) {
       els.seekLabel.textContent = total
-        ? `Evento ${state.index + 1} / ${total}`
+        ? t('Evento {n} di {total}', { n: state.index + 1, total })
         : '—';
     }
     if (els.seek) {
@@ -159,26 +189,26 @@
     const breach = processed.some((e) => e.dataBreach);
     const sc = scenario();
 
-    let system = 'PULITO';
+    let system = t('INTEGRO');
     let systemClass = 'ir-stat--ok';
     if (state.index >= list.length - 1 && list.length) {
-      system = 'RIPRISTINATO';
+      system = t('RIPRISTINATO');
       systemClass = 'ir-stat--ok';
     } else if (crit > 0) {
-      system = 'COMPROMESSO';
+      system = t('COMPROMESSO');
       systemClass = 'ir-stat--bad';
     } else if (alert > 0) {
-      system = 'A RISCHIO';
+      system = t('A RISCHIO');
       systemClass = 'ir-stat--warn';
     }
 
-    let sev = 'NORMALE';
+    let sev = t('NORMALE');
     let sevClass = 'ir-stat--ok';
     if (crit > 0) {
-      sev = 'CRITICA';
+      sev = t('CRITICA');
       sevClass = 'ir-stat--bad';
     } else if (alert > 0) {
-      sev = 'ALTA';
+      sev = t('ALTA');
       sevClass = 'ir-stat--warn';
     }
 
@@ -194,7 +224,7 @@
       els.statusDuration.textContent = formatDuration(list[0].time, list[state.index].time);
     }
     if (els.statusData) {
-      els.statusData.textContent = breach ? sc.recordsAtRisk : 'Nessuna confermata';
+      els.statusData.textContent = breach ? sc.recordsAtRisk : t('Nessuna perdita confermata');
       els.statusData.className = `ir-stat__value ${breach ? 'ir-stat--bad' : 'ir-stat--ok'}`;
     }
   }
@@ -202,7 +232,7 @@
   function setPlaying(on) {
     state.playing = on;
     if (els.play) {
-      els.play.textContent = on ? 'Pausa' : 'Play';
+      els.play.textContent = on ? t('Pausa') : t('Avvia');
       els.play.setAttribute('aria-pressed', on ? 'true' : 'false');
     }
     if (!on) clearTimer();
@@ -245,6 +275,7 @@
     const sc = scenario();
     if (els.scenarioTitle) els.scenarioTitle.textContent = sc.name;
     if (els.scenarioLead) els.scenarioLead.textContent = sc.tagline;
+    if (els.scenarioContext) els.scenarioContext.textContent = sc.context || '';
     if (els.panel) els.panel.hidden = true;
     updateSeekLabel();
     renderPhases();
@@ -273,14 +304,14 @@
       renderEvents();
     });
     document.addEventListener('keydown', (e) => {
-      if (e.target.matches('input, select, textarea')) return;
+      if (e.target.closest?.('input, select, textarea')) return;
       if (e.key === 'ArrowRight' && state.index < events().length - 1) {
         selectEvent(state.index + 1, true);
       }
       if (e.key === 'ArrowLeft' && state.index > 0) {
         selectEvent(state.index - 1, true);
       }
-      if (e.key === ' ') {
+      if (e.key === ' ' && !e.target.closest?.('button, a, .ir-event')) {
         e.preventDefault();
         els.play?.click();
       }

@@ -2,6 +2,7 @@
  * Laboratorio Virtuale EVIL — frontend terminale + sessioni API + modal Studia
  */
 (function () {
+  const { t, url } = window.EVIL_I18N;
   const catalogEl = document.getElementById('vlab-catalog');
   const gridEl = document.getElementById('vlab-grid');
   const workspaceEl = document.getElementById('vlab-workspace');
@@ -102,14 +103,14 @@
     if (!guide || !studyModal) return;
     activeStudyLabId = labId;
 
-    studyModalTitle.textContent = guide.title || 'Guida didattica';
+    studyModalTitle.textContent = guide.title || t('Guida didattica');
     studyModalIntro.innerHTML = enrichTerms(guide.intro || '');
 
     studyModalSteps.innerHTML = (guide.steps || [])
       .map(
         (step, i) => `
         <li class="vlab-study-step">
-          <span class="vlab-study-step__n">Passo ${i + 1}</span>
+          <span class="vlab-study-step__n">${escapeHtml(t('Passo {n}', { n: i + 1 }))}</span>
           <h4>${escapeHtml(step.title || '')}</h4>
           <p>${enrichTerms(step.body || '')}</p>
           ${step.command ? `<code>${escapeHtml(step.command)}</code>` : ''}
@@ -162,9 +163,9 @@
   function updateNetwork(lab, attacker) {
     if (!networkEl || !lab) return;
     networkEl.innerHTML = [
-      `Jump box: <code>${attacker.ip}</code> (${attacker.hostname})`,
-      `Target: <code>${lab.targetIp}</code> (${lab.hostname})`,
-      'Rete isolata EVIL — nessun host esterno.',
+      `${escapeHtml(t('Jump box'))}: <code>${escapeHtml(attacker.ip)}</code> (${escapeHtml(attacker.hostname)})`,
+      `Target: <code>${escapeHtml(lab.targetIp)}</code> (${escapeHtml(lab.hostname)})`,
+      escapeHtml(t('Rete isolata EVIL — nessun host esterno.')),
     ].join('<br>');
   }
 
@@ -179,7 +180,7 @@
       sessionTimerEl.textContent = `${min}:${String(sec).padStart(2, '0')}`;
       if (left <= 0) {
         clearInterval(timerInterval);
-        appendLine('Sessione scaduta.', 'vlab-line--error');
+        appendLine(t('Sessione scaduta.'), 'vlab-line--error');
         sessionId = null;
       }
     }, 1000);
@@ -200,13 +201,9 @@
       });
     } catch (networkErr) {
       if (networkErr.name === 'AbortError') {
-        throw new Error(
-          'Timeout: il server lab non risponde. Avvia il sito con npm start (non solo file statici) e riprova.'
-        );
+        throw new Error(t('Tempo scaduto: il server non risponde. Riprova tra qualche istante.'));
       }
-      throw new Error(
-        'Impossibile contattare il server lab. Verifica la connessione e che il sito sia avviato con npm start.'
-      );
+      throw new Error(t('Impossibile contattare il server. Controlla la connessione e riprova.'));
     } finally {
       clearTimeout(timeoutId);
     }
@@ -235,13 +232,13 @@
 
   async function loadCatalog() {
     if (!gridEl) return;
-    gridEl.innerHTML = '<p class="vlab-loading">Caricamento ambienti lab…</p>';
+    gridEl.innerHTML = `<p class="vlab-loading">${escapeHtml(t('Caricamento scenari…'))}</p>`;
     try {
       const data = await api('/api/virtual-lab/catalog');
       const labs = data.labs || [];
       if (!labs.length) {
         gridEl.innerHTML =
-          '<p class="vlab-loading">Nessun ambiente lab disponibile sul server.</p>';
+          `<p class="vlab-loading">${escapeHtml(t('Nessuno scenario disponibile.'))}</p>`;
         return;
       }
       renderCatalog(labs);
@@ -250,8 +247,8 @@
       gridEl.innerHTML = `
         <div class="vlab-load-error">
           <p class="vlab-loading">${escapeHtml(err.message)}</p>
-          <p class="vlab-loading vlab-loading--hint">Serve il server Node (npm start). L’API è <code>/api/virtual-lab/catalog</code>.</p>
-          <button type="button" class="vlab-card__btn vlab-card__btn--start" id="vlab-retry-catalog">Riprova</button>
+          <p class="vlab-loading vlab-loading--hint">${escapeHtml(t('Non è stato possibile caricare gli scenari. Riprova.'))}</p>
+          <button type="button" class="vlab-card__btn vlab-card__btn--start" id="vlab-retry-catalog">${escapeHtml(t('Riprova'))}</button>
         </div>`;
       document.getElementById('vlab-retry-catalog')?.addEventListener('click', loadCatalog);
     }
@@ -260,25 +257,26 @@
   function renderCatalog(labs) {
     clearCardErrors();
     if (!labs.length) {
-      gridEl.innerHTML = '<p class="vlab-loading">Nessun lab disponibile.</p>';
+      gridEl.innerHTML = `<p class="vlab-loading">${escapeHtml(t('Nessuno scenario disponibile.'))}</p>`;
       return;
     }
     gridEl.innerHTML = labs
       .map(
         (lab) => `
-      <article class="vlab-card" data-lab-id="${lab.id}">
-        <span class="vlab-card__icon" aria-hidden="true">${lab.icon || '◈'}</span>
+      <article class="vlab-card" data-lab-id="${escapeHtml(lab.id)}">
+        <span class="vlab-card__icon" aria-hidden="true">${escapeHtml(lab.icon || '◈')}</span>
         <p class="vlab-card__name">${escapeHtml(lab.name)}</p>
         <h3>${escapeHtml(lab.title)}</h3>
         <div class="vlab-card__meta">
-          <span class="vlab-tag">${escapeHtml(lab.difficulty)}</span>
+          <span class="vlab-tag">${escapeHtml(lab.level)}</span>
           <span class="vlab-tag">${escapeHtml(lab.duration)}</span>
           <span class="vlab-tag vlab-tag--ip">${escapeHtml(lab.targetIp)}</span>
         </div>
         <p>${escapeHtml(lab.description)}</p>
+        ${lab.prerequisites ? `<p class="vlab-card__prereq">${escapeHtml(t('Prerequisiti'))}: ${escapeHtml(lab.prerequisites)}</p>` : ''}
         <div class="vlab-card__actions">
-          <button type="button" class="vlab-card__btn vlab-card__btn--study" data-study="${lab.id}">Studia</button>
-          <button type="button" class="vlab-card__btn vlab-card__btn--start" data-start="${lab.id}">Avvia VM</button>
+          <button type="button" class="vlab-card__btn vlab-card__btn--study" data-study="${escapeHtml(lab.id)}">${escapeHtml(t('Studia'))}</button>
+          <button type="button" class="vlab-card__btn vlab-card__btn--start" data-start="${escapeHtml(lab.id)}">${escapeHtml(t('Avvia scenario'))}</button>
         </div>
       </article>`
       )
@@ -302,7 +300,7 @@
         body: JSON.stringify({ labId }),
       });
       if (!data.session?.id) {
-        throw new Error('Risposta server non valida (sessione mancante).');
+        throw new Error(t('Risposta del server non valida (sessione mancante).'));
       }
       sessionId = data.session.id;
       activeSessionLabId = labId;
@@ -310,8 +308,8 @@
       terminalBody.innerHTML = '';
       showWorkspace(data.session);
 
-      appendLine('Connessione alla jump box EVIL (rete isolata 10.42.0.0/16).', 'vlab-line--system');
-      appendLine('Digita "help" per i comandi disponibili.', 'vlab-line--system');
+      appendLine(t('Connessione alla jump box EVIL (rete isolata 10.42.0.0/16).'), 'vlab-line--system');
+      appendLine(t('Digita "help" per i comandi disponibili.'), 'vlab-line--system');
       appendLine('');
       setPrompt(data.session.prompt);
 
@@ -331,7 +329,7 @@
   function showWorkspace(session) {
     catalogEl.classList.add('is-hidden');
     workspaceEl.classList.add('is-active');
-    sessionTitleEl.textContent = session.lab?.title || 'Lab';
+    sessionTitleEl.textContent = session.lab?.title || t('Scenario');
     activeSessionLabId = session.labId || session.lab?.id || activeSessionLabId;
     updateObjectives(session.lab?.objectives || [], session.completed);
     updateNetwork(session.lab, session.attacker || { ip: '10.42.0.2', hostname: 'jumpbox.evil.lab' });

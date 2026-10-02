@@ -1,0 +1,8 @@
+{
+  "Risorsa non trovata.": "Resource not found.",
+  "Il corpo della richiesta non è un JSON valido.": "The request body is not valid JSON.",
+  "Richiesta troppo grande.": "Request too large.",
+  "Richiesta non valida.": "Invalid request.",
+  "Errore interno del server. Riprova tra poco.": "Internal server error. Please try again shortly.",
+  "Origine non consentita.": "Origin not allowed."
+}

@@ -343,7 +343,7 @@ function sampleItems() {
   return [
     kev('CVE-2024-3400', 'Palo Alto Networks PAN-OS Command Injection Vulnerability', '2024-04-12', 10.0, false),
     kev('CVE-2023-34362', 'Progress MOVEit Transfer SQL Injection Vulnerability', '2023-06-02', 9.8, true),
-    kev('CVE-2021-44228', 'Apache Log4j2 Remote Code Execution Vulnerability', '2021-12-10', 10.0, false),
+    kev('CVE-2021-44228', 'Apache Log4j2 Remote Code Execution Vulnerability', '2021-12-10', 10.0, true),
     kev('CVE-2019-0708', 'Microsoft Remote Desktop Services Remote Code Execution Vulnerability', '2021-11-03', 9.8, false),
     kind('cert-agid', 'advisory'),
     kind('cert-eu', 'advisory'),

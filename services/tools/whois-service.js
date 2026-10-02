@@ -140,6 +140,12 @@ function tcpWhoisQuery(host, query, timeoutMs = 12000) {
     socket.setTimeout(timeoutMs);
     socket.on('data', (chunk) => {
       buf += chunk.toString('utf8');
+      // risposta limitata: un server WHOIS non ha motivo di inviare più di 256 KB
+      if (buf.length > 256 * 1024) {
+        buf = buf.slice(0, 256 * 1024);
+        socket.destroy();
+        resolve(buf);
+      }
     });
     socket.on('end', () => resolve(buf));
     socket.on('error', reject);

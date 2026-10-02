@@ -168,3 +168,152 @@
   margin: 0.2rem 0;
   font-size: 0.88rem;
 }
+
+/* ---------- La tua esposizione online (v3) ---------- */
+.pi-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pi-panel-title {
+  margin: 1.25rem 0 0.4rem;
+  font-size: 1.05rem;
+  color: #ccfbf1;
+}
+
+.pi-panel-title:first-child {
+  margin-top: 0.25rem;
+}
+
+.pi-label {
+  display: block;
+  margin: 0.75rem 0 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #99f6e4;
+}
+
+.pi-search-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.pi-search-links p {
+  flex-basis: 100%;
+  margin: 0.25rem 0 0;
+}
+
+.pi-checklist {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.pi-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid rgba(45, 212, 191, 0.18);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.025);
+  cursor: pointer;
+  line-height: 1.45;
+}
+
+.pi-check input {
+  flex: 0 0 auto;
+  margin-top: 0.2rem;
+  accent-color: #2dd4bf;
+}
+
+.pi-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 6px;
+  border-left: 4px solid #5eead4;
+  background: rgba(45, 212, 191, 0.08);
+}
+
+.pi-score strong {
+  font-size: 1.05rem;
+}
+
+.pi-score--medium {
+  border-left-color: #fcd34d;
+  background: rgba(252, 211, 77, 0.08);
+}
+
+.pi-score--high {
+  border-left-color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}
+
+.pi-advice h3 {
+  margin: 1rem 0 0.4rem;
+  font-size: 0.95rem;
+  color: #ccfbf1;
+}
+
+.pi-advice ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}
+
+.pi-legal h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.pi-legal p {
+  margin: 0 0 0.6rem;
+  line-height: 1.6;
+}
+
+.pi-legal p:last-child {
+  margin-bottom: 0;
+}
+
+.pi-table-wrap {
+  overflow-x: auto;
+}
+
+.pi-actions-cell {
+  white-space: nowrap;
+}
+
+.pi-actions-cell a {
+  margin-left: 0.5rem;
+}
+
+.pi-detail-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pi-page .sc-section__body h3 {
+  margin: 0.9rem 0 0.3rem;
+  font-size: 0.9rem;
+  color: #99f6e4;
+}
+
+.pi-page .sc-panel .sc-input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}

@@ -1452,3 +1452,62 @@ body.cs-modal-open {
     transform: none;
   }
 }
+
+/* Scheda didattica del modulo */
+.cs-brief {
+  margin: 0 0 2.5rem;
+  padding: clamp(1.1rem, 3vw, 1.5rem);
+  border: 1px solid var(--cs-border);
+  border-radius: 14px;
+  background: var(--cs-glass);
+}
+
+.cs-brief-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.9rem 1.5rem;
+  margin: 0 0 1.1rem;
+}
+
+.cs-brief-grid div {
+  margin: 0;
+}
+
+.cs-brief-grid dt,
+.cs-brief-goals__title {
+  margin: 0 0 0.3rem;
+  font-family: var(--cs-mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cs-emerald);
+}
+
+.cs-brief-grid dd {
+  margin: 0;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.cs-brief-goals ul {
+  margin: 0 0 1.1rem;
+  padding-left: 1.2rem;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.cs-brief-note {
+  margin: 0;
+  padding-top: 0.9rem;
+  border-top: 1px dashed rgba(255, 255, 255, 0.12);
+  color: #94a3b8;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.cs-brief-note a {
+  color: var(--cs-emerald);
+}

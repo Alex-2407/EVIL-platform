@@ -42,7 +42,7 @@
         <ul class="auth-verify__steps">
           <li>Apri la posta in arrivo (controlla anche lo spam)</li>
           <li>Nel messaggio di EVIL premi <strong>Verifica email</strong></li>
-          <li>Tornerai qui con l'account attivo</li>
+          <li>Nella pagina che si apre conferma l'indirizzo, poi accedi con email e password</li>
         </ul>
         <div id="deliveryNotice" class="auth-verify__notice" hidden></div>
         <p class="auth-verify__hint">Il link scade dopo 24 ore. Per sicurezza arriva <strong>solo via email</strong> e non viene mostrato su questa pagina.</p>
@@ -52,12 +52,21 @@
         <p class="auth-switch">Hai già verificato? <a href="/login.html">Accedi</a></p>
       </section>
 
+      <section id="viewConfirm" class="auth-panel auth-verify" hidden>
+        <p class="auth-panel__kicker">Ultimo passaggio</p>
+        <h1>Conferma il tuo indirizzo email</h1>
+        <p class="auth-verify__lead">Premi il pulsante per confermare che questo indirizzo è tuo e attivare l'account EVIL.</p>
+        <div id="confirmError" class="auth-message auth-message--error" role="alert" hidden></div>
+        <button type="button" id="confirmBtn" class="auth-submit">Conferma l'indirizzo</button>
+        <p class="auth-verify__hint">Non hai creato tu un account EVIL? Chiudi questa pagina: senza conferma l'account non viene attivato.</p>
+      </section>
+
       <section id="viewSuccess" class="auth-panel auth-verify" hidden>
         <p class="auth-panel__kicker">Account attivo</p>
         <h1>Email verificata</h1>
-        <p id="successLead" class="auth-verify__lead">Il tuo account EVIL è attivo. Tra un istante entri nella piattaforma…</p>
-        <a href="/home.html" class="auth-submit auth-submit--link">Vai alla home</a>
-        <p class="auth-switch"><a href="/login.html">Accedi da questo dispositivo</a></p>
+        <p id="successLead" class="auth-verify__lead">Il tuo account EVIL è attivo: ora puoi accedere con email e password.</p>
+        <a href="/login.html" class="auth-submit auth-submit--link">Accedi</a>
+        <p class="auth-switch"><a href="/home.html">Vai alla home</a></p>
       </section>
 
       <section id="viewError" class="auth-panel auth-verify" hidden>
