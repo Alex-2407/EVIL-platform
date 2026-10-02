@@ -1,0 +1,23 @@
+{
+  "La password deve avere almeno 12 caratteri.": "The password must be at least 12 characters long.",
+  "La password deve contenere almeno una lettera maiuscola (A-Z).": "The password must contain at least one uppercase letter (A-Z).",
+  "La password deve contenere almeno un numero (0-9).": "The password must contain at least one number (0-9).",
+  "La password deve contenere almeno un simbolo (per esempio ! ? @ # % . -).": "The password must contain at least one symbol (for example ! ? @ # % . -).",
+  "Scrivi nome e cognome (almeno 2 caratteri).": "Enter your first and last name (at least 2 characters).",
+  "Il nome può contenere lettere (anche accentate), spazi, apostrofo e trattino.": "The name may contain letters (including accented ones), spaces, apostrophes and hyphens.",
+  "Scrivi il tuo indirizzo email.": "Enter your email address.",
+  "Controlla l'indirizzo email.": "Check the email address.",
+  "Le due password non coincidono.": "The two passwords do not match.",
+  "Per registrarti devi accettare il codice di condotta e l'informativa privacy.": "To sign up you must accept the code of conduct and the privacy notice.",
+  "Per registrarti devi avere almeno 14 anni.": "You must be at least 14 years old to sign up.",
+  "Registrati": "Sign up",
+  "Registrazione in corso…": "Signing up…",
+  "Il server non ha risposto correttamente. Riprova tra qualche istante.": "The server did not respond correctly. Try again in a moment.",
+  "Questa email è già registrata. Prova ad accedere.": "This email is already registered. Try signing in.",
+  "Troppi tentativi di registrazione da questa rete. Riprova tra un'ora.": "Too many sign-up attempts from this network. Try again in an hour.",
+  "Registrazione non riuscita.": "Sign-up failed.",
+  "Se il problema continua, scrivici dalla pagina Aiuto.": "If the problem persists, contact us from the Help page.",
+  "Reindirizzamento…": "Redirecting…",
+  "Il server sta impiegando troppo a rispondere. Riprova tra qualche minuto.": "The server is taking too long to respond. Try again in a few minutes.",
+  "Connessione non riuscita. Controlla la rete e riprova.": "Connection failed. Check your network and try again."
+}

@@ -46,7 +46,7 @@
   }
 
   function goToLogin() {
-    window.location.replace('/login.html?redirect=profile.html');
+    window.location.replace((window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/login.html?redirect=profile.html'));
   }
 
   /**
@@ -278,7 +278,7 @@
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       if (typeof logout === 'function') logout();
-      else window.location.replace('/login.html');
+      else window.location.replace((window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/login.html'));
     });
   }
 

@@ -1,0 +1,13 @@
+{
+  "Advanced URL Scanner — EVIL Strumenti": "URL check — EVIL Tools",
+  "Scansione passiva professionale: DNS, TLS, header HTTP, redirect, discovery e scoring ponderato. Solo su target autorizzati.": "Professional passive scan: DNS, TLS, HTTP headers, redirects, discovery and weighted scoring. Authorised targets only.",
+  "Strumenti · URL Scanner": "Verify · URL check",
+  "Advanced URL Scanner": "URL check",
+  "Valutazione passiva multi-modulo per operatori SOC: risoluzione DNS, GeoIP/ASN, catena TLS, audit header HTTP, redirect, surface discovery e scoring trasparente. Nessun exploit, nessun brute-force.": "A passive multi-module assessment for SOC analysts: DNS resolution, GeoIP/ASN, TLS chain, HTTP header audit, redirects, surface discovery and transparent scoring. No exploits, no brute force.",
+  "https://example.com": "https://example.com",
+  "Dichiaro di avere autorizzazione esplicita a analizzare questo target (requisito legale e di piattaforma).": "I confirm I have explicit authorisation to analyse this target (a legal and platform requirement).",
+  "Avvia scansione": "Start scan",
+  "Reset": "Reset",
+  "5 moduli · ~15–40 s · analisi passiva · serve l'account (gratuito)": "5 modules · ~15–40 s · passive analysis · requires a (free) account",
+  "<strong>Metodologia:</strong> lookup DNS reali, TLS handshake, GET HTTP limitato (64 KB), GeoIP via ip-api.com, discovery su <code>/.well-known/security.txt</code> e <code>/robots.txt</code>. Threat intel locale solo su domini demo didattici.": "<strong>Method:</strong> real DNS lookups, TLS handshake, limited HTTP GET (64 KB), GeoIP via ip-api.com, discovery of <code>/.well-known/security.txt</code> and <code>/robots.txt</code>. The local threat-intelligence list covers only the teaching demo domains."
+}

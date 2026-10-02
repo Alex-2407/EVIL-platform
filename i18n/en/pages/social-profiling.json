@@ -1,0 +1,18 @@
+{
+  "Profilazione social — EVIL": "Social media profiling — EVIL",
+  "Controlla la tua impronta digitale: su quali piattaforme compare il tuo username, quali metadati pubblici espone e se l'email del tuo account è in data breach noti.": "Check your digital footprint: which platforms your username appears on, which public metadata it exposes and whether your account email appears in known data breaches.",
+  "<a href=\"/osint-hub.html\">← OSINT</a>": "<a href=\"/osint-hub.html\">← OSINT</a>",
+  "Strumenti · OSINT difensivo": "Verify · Defensive OSINT",
+  "Profilazione social": "Social media profiling",
+  "Controlla la tua impronta digitale: su quali piattaforme note compare il tuo username e quali metadati pubblici espone (API pubbliche di GitHub e Reddit, link da verificare per le altre). Mostriamo solo ciò che le fonti restituiscono, senza dati inventati.": "Check your digital footprint: which well-known platforms your username appears on and which public metadata it exposes (public GitHub and Reddit APIs, links to verify for the others). We show only what the sources return, with no invented data.",
+  "A chi serve: chi vuole ridurre la propria esposizione, studenti di OSINT. Livello base, circa 10 minuti. Prima di usarlo leggi <a href=\"/ethics.html\">Etica e legge</a>.": "Who it is for: anyone who wants to reduce their exposure, OSINT students. Beginner level, about 10 minutes. Read <a href=\"/ethics.html\">Ethics and law</a> before using it.",
+  "Username da controllare": "Username to check",
+  "Es.: octocat": "E.g. octocat",
+  "Controlla anche se l'email del mio account EVIL compare in data breach noti (Have I Been Pwned). Il controllo è possibile solo sulla tua email.": "Also check whether my EVIL account email appears in known data breaches (Have I Been Pwned). The check is only available for your own email.",
+  "Dichiaro di analizzare il mio account o un profilo per cui ho consenso scritto dell'interessato. La profilazione di terzi senza base giuridica viola il GDPR.": "I confirm I am analysing my own account or a profile whose owner has given written consent. Profiling third parties without a legal basis breaches the GDPR.",
+  "Avvia il controllo": "Start the check",
+  "Svuota": "Clear",
+  "10 piattaforme · API di GitHub e Reddit · di solito 5-15 secondi · serve un account EVIL (gratuito)": "10 platforms · GitHub and Reddit APIs · usually 5-15 seconds · requires a (free) EVIL account",
+  "<strong>Come funziona.</strong> EVIL non accede ai profili e non raccoglie contenuti riservati: interroga API pubbliche e controlla se una pagina risponde. Le risposte HTTP dei social sono solo indicative: conferma sempre aprendo il link.": "<strong>How it works.</strong> EVIL does not access profiles and does not collect private content: it queries public APIs and checks whether a page responds. Social networks' HTTP responses are only indicative: always confirm by opening the link.",
+  "<strong>Regole.</strong> Usa lo strumento sui tuoi account o con il consenso scritto della persona interessata. Raccogliere e incrociare i profili di altre persone senza una base giuridica (art. 6 GDPR) e senza informarle (art. 14 GDPR) è vietato, come il doxxing. Vedi <a href=\"/site-policies.html\">Privacy e regole</a>.": "<strong>Rules.</strong> Use the tool on your own accounts or with the written consent of the person concerned. Collecting and cross-referencing other people's profiles without a legal basis (Art. 6 GDPR) and without informing them (Art. 14 GDPR) is forbidden, as is doxxing. See <a href=\"/site-policies.html\">Privacy and terms</a>."
+}

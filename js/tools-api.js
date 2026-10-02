@@ -4,7 +4,7 @@
 (function () {
   const TOOLS_PUBLIC = false;
   const page = window.location.pathname.split('/').pop() || 'home.html';
-  const LOGIN_URL = '/login.html?redirect=' + encodeURIComponent(page);
+  const LOGIN_URL = (window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/login.html?redirect=' + encodeURIComponent(page));
 
   async function waitForChrome() {
     if (window.__evilAuthReady) {

@@ -1,0 +1,18 @@
+{
+  "Critica": "Critical",
+  "Alta": "High",
+  "Media": "Medium",
+  "Bassa": "Low",
+  "Malware": "Malware",
+  "Phishing": "Phishing",
+  "Ransomware": "Ransomware",
+  "Violazione di dati": "Data breach",
+  "DDoS": "DDoS",
+  "Non indicato": "Not specified",
+  "Report di sicurezza": "Security report",
+  "Team di sicurezza": "Security team",
+  "Sezione non compilata.": "Section not filled in.",
+  "Sezione non compilata: indica sempre chi ha autorizzato l'attività.": "Section not filled in: always state who authorised the activity.",
+  "Esportazione PDF non disponibile: ricarica la pagina e riprova.": "PDF export unavailable: reload the page and try again.",
+  "Generazione del PDF non riuscita: {error}": "PDF generation failed: {error}"
+}

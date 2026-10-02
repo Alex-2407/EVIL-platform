@@ -1,0 +1,19 @@
+{
+  "Check URL": "URL check",
+  "Audit header HTTP": "HTTP header audit",
+  "Ricognizione dominio": "Domain reconnaissance",
+  "Certificato TLS": "TLS certificate",
+  "Analisi file": "File analysis",
+  "Profilazione social": "Social media profiling",
+  "Esposizione online": "Online exposure",
+  "Accedi per vedere il tuo profilo, i progressi e i trofei.": "Sign in to see your profile, progress and trophies.",
+  "Per usare {tool} serve un account EVIL (è gratuito). Accedi oppure registrati: dopo l'accesso torni direttamente allo strumento.": "To use {tool} you need an EVIL account (it is free). Sign in or sign up: after signing in you go straight back to the tool.",
+  "Errore": "Error",
+  "Scrivi email e password.": "Enter your email and password.",
+  "Il server non ha risposto correttamente. Riprova tra qualche istante.": "The server did not respond correctly. Try again in a moment.",
+  "Troppi tentativi di accesso. Aspetta qualche minuto e riprova, oppure reimposta la password.": "Too many sign-in attempts. Wait a few minutes and try again, or reset your password.",
+  "Accesso non riuscito.": "Sign-in failed.",
+  "Se il problema continua, scrivici dalla pagina Aiuto.": "If the problem persists, contact us from the Help page.",
+  "Connessione non riuscita. Controlla la rete e riprova.": "Connection failed. Check your network and try again.",
+  "In locale il server deve essere avviato con npm start.": "Locally, the server must be started with npm start."
+}

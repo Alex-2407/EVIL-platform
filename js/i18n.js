@@ -51,7 +51,7 @@
   }
 
   const fmtNumber = (n, opts) => Number(n).toLocaleString(locale, opts);
-  const fmtDate = (d, opts) => new Date(d).toLocaleDateString(locale, opts || { dateStyle: 'medium' });
+  const fmtDate = (d, opts) => new Intl.DateTimeFormat(locale, opts || { dateStyle: 'medium' }).format(new Date(d));
 
   window.EVIL_I18N = Object.freeze({ lang, locale, langs: LANGS, t, url, switchUrl, format, fmtNumber, fmtDate });
 
@@ -114,6 +114,16 @@
     });
     bar.append(text, go, close);
     document.body.appendChild(bar);
+  }
+
+  // Link interni creati dal JavaScript senza url(): nella versione inglese restano in inglese
+  if (lang !== DEFAULT) {
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href]');
+      if (!a || a.hasAttribute('data-evil-lang')) return;
+      const href = a.getAttribute('href');
+      if (/^\/(?:[a-z0-9-]+\.html)?(?:[?#].*)?$/i.test(href)) a.setAttribute('href', url(href));
+    }, true);
   }
 
   const ready = () => {

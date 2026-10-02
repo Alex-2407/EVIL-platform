@@ -1,0 +1,19 @@
+{
+  "Accedi — EVIL Cybersecurity Platform": "Sign in — EVIL Cybersecurity Platform",
+  "Accedi al tuo account EVIL per usare gli strumenti di analisi e ritrovare progressi e trofei.": "Sign in to your EVIL account to use the analysis tools and pick up your progress and trophies.",
+  "Accesso": "Sign in",
+  "Accedi a EVIL": "Sign in to EVIL",
+  "Email": "Email",
+  "Inserisci la tua email": "Enter your email",
+  "Password": "Password",
+  "La tua password": "Your password",
+  "Accedi": "Sign in",
+  "<a href=\"/forgot-password.html\">Hai dimenticato la password?</a>": "<a href=\"/forgot-password.html\">Forgotten your password?</a>",
+  "Non hai un account? <a href=\"/account.html\">Registrati qui</a>": "No account yet? <a href=\"/account.html\">Sign up here</a>",
+  "Benvenuto in EVIL": "Welcome to EVIL",
+  "Con l'account usi gli strumenti di analisi e ritrovi progressi e trofei su ogni dispositivo. Gli strumenti vanno usati solo su sistemi tuoi o per cui hai un'autorizzazione scritta (<a href=\"/ethics.html\">Etica e legge</a>).": "With an account you can use the analysis tools and keep your progress and trophies on every device. Use the tools only on your own systems or on systems you have written authorisation to test (<a href=\"/ethics.html\">Ethics and law</a>).",
+  "Check URL e audit degli header HTTP": "URL check and HTTP header audit",
+  "Ricognizione dominio e certificato TLS": "Domain reconnaissance and TLS certificate",
+  "Analisi file e strumenti OSINT difensivi": "File analysis and defensive OSINT tools",
+  "Progressi, trofei e registro attività": "Progress, trophies and activity log"
+}

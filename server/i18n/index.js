@@ -179,7 +179,16 @@ function collectUnits(node, visit) {
   if (node.nodeType !== 1 && !node.childNodes) return;
   const el = node;
   const tag = tagOf(el);
-  if (tag && isSkipped(el)) return;
+  if (tag && isSkipped(el)) {
+    // il contenuto di una textarea non si traduce, il suo placeholder sì
+    if (tag === 'textarea' && el.getAttribute('translate') !== 'no') {
+      for (const name of ATTRS) {
+        const v = el.getAttribute(name);
+        if (v && hasWords(v)) visit({ kind: 'attr', el, name, key: normalize(v) });
+      }
+    }
+    return;
+  }
 
   if (tag && el.getAttribute) {
     for (const name of ATTRS) {

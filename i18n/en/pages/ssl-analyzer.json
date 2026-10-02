@@ -1,0 +1,14 @@
+{
+  "SSL Certificate Analyzer — EVIL Strumenti": "TLS certificate — EVIL Tools",
+  "Analisi certificato TLS: validità, SAN, trust chain, protocollo, cipher e scoring trasparente.": "TLS certificate analysis: validity, SAN, chain of trust, protocol, cipher and transparent scoring.",
+  "<a href=\"/domain-recon.html\">← Ricognizione dominio</a>": "<a href=\"/domain-recon.html\">← Domain reconnaissance</a>",
+  "Strumenti · TLS": "Verify · TLS",
+  "SSL Certificate Analyzer": "TLS certificate",
+  "Handshake TLS su porta 443 con estrazione certificato peer: validità, SAN, hostname match, catena di trust, protocollo/cipher negoziati e controlli crittografici con scoring trasparente.": "A TLS handshake on port 443 that extracts the peer certificate: validity, SAN, hostname match, chain of trust, negotiated protocol/cipher and cryptographic checks with transparent scoring.",
+  "github.com": "github.com",
+  "Dichiaro di avere autorizzazione esplicita ad analizzare questo dominio.": "I confirm I have explicit authorisation to analyse this domain.",
+  "Analizza certificato": "Analyse certificate",
+  "Reset": "Reset",
+  "TLS 1.2+ · SAN · catena di fiducia · cipher · ~3–12 s · serve l'account (gratuito)": "TLS 1.2+ · SAN · chain of trust · cipher · ~3–12 s · requires a (free) account",
+  "<strong>Metodologia:</strong> connessione con <code>rejectUnauthorized: false</code> per ispezionare certificati anche non trusted (solo didattica/OSINT autorizzato). Per scansione URL completa usa <a href=\"/security-check.html\">Advanced URL Scanner</a>.": "<strong>Method:</strong> the connection uses <code>rejectUnauthorized: false</code> so that untrusted certificates can be inspected too (teaching and authorised OSINT only). For a complete URL scan use the <a href=\"/security-check.html\">URL check</a>."
+}

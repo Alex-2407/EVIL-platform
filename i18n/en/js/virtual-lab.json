@@ -1,0 +1,20 @@
+{
+  "Guida didattica": "Learning guide",
+  "Passo {n}": "Step {n}",
+  "Jump box": "Jump box",
+  "Rete isolata EVIL — nessun host esterno.": "Isolated EVIL network — no external hosts.",
+  "Sessione scaduta.": "Session expired.",
+  "Tempo scaduto: il server non risponde. Riprova tra qualche istante.": "Timed out: the server is not responding. Try again in a moment.",
+  "Impossibile contattare il server. Controlla la connessione e riprova.": "Cannot reach the server. Check your connection and try again.",
+  "Caricamento scenari…": "Loading scenarios…",
+  "Nessuno scenario disponibile.": "No scenarios available.",
+  "Non è stato possibile caricare gli scenari. Riprova.": "The scenarios could not be loaded. Try again.",
+  "Riprova": "Try again",
+  "Prerequisiti": "Prerequisites",
+  "Studia": "Study",
+  "Avvia scenario": "Start scenario",
+  "Risposta del server non valida (sessione mancante).": "Invalid server response (missing session).",
+  "Connessione alla jump box EVIL (rete isolata 10.42.0.0/16).": "Connecting to the EVIL jump box (isolated network 10.42.0.0/16).",
+  "Digita \"help\" per i comandi disponibili.": "Type \"help\" to see the available commands.",
+  "Scenario": "Scenario"
+}

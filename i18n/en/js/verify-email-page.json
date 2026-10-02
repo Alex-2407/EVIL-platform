@@ -1,0 +1,20 @@
+{
+  "Questo server usa una casella di prova (Mailtrap Sandbox): l'email non arriva nella tua casella personale.": "This server uses a test mailbox (Mailtrap Sandbox): the email does not reach your personal inbox.",
+  "Invio email non configurato su questo server: il messaggio è stato salvato solo sul server.": "Email sending is not configured on this server: the message was only saved on the server.",
+  "Se non vedi nulla, controlla anche la cartella spam.": "If you see nothing, check your spam folder too.",
+  "Il link di verifica è incompleto.": "The verification link is incomplete.",
+  "Questo link non è valido o è già stato usato.": "This link is invalid or has already been used.",
+  "Il link è scaduto. Registrati di nuovo con lo stesso indirizzo per ricevere un link nuovo.": "This link has expired. Sign up again with the same address to receive a new one.",
+  "Si è verificato un errore durante la verifica. Riprova tra poco.": "An error occurred during verification. Try again shortly.",
+  "Email verificata da un altro dispositivo. L'account è attivo: accedi da qui con email e password.": "Email verified from another device. Your account is active: sign in here with your email and password.",
+  "Conferma in corso…": "Confirming…",
+  "Troppi tentativi. Aspetta qualche minuto e riprova.": "Too many attempts. Wait a few minutes and try again.",
+  "Connessione non riuscita. Controlla la rete e riprova.": "Connection failed. Check your network and try again.",
+  "Conferma l'indirizzo": "Confirm address",
+  "il tuo indirizzo email": "your email address",
+  "Reinvia tra {s} s": "Resend in {s} s",
+  "Invia di nuovo l'email": "Send the email again",
+  "Non troviamo la registrazione in corso. Accedi con email e password per ricevere un nuovo link.": "We cannot find your pending sign-up. Sign in with your email and password to receive a new link.",
+  "Invio dell'email non riuscito. Riprova tra qualche minuto.": "The email could not be sent. Try again in a few minutes.",
+  "Ti abbiamo inviato una nuova email.": "We have sent you a new email."
+}

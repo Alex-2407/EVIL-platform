@@ -1,0 +1,17 @@
+{
+  "OSINT difensivo — EVIL": "Defensive OSINT — EVIL",
+  "OSINT difensivo: controlla la tua impronta digitale sui social e valuta la tua esposizione online, nel rispetto del GDPR.": "Defensive OSINT: check your digital footprint on social media and assess your online exposure, in line with the GDPR.",
+  "Strumenti · OSINT difensivo": "Verify · Defensive OSINT",
+  "OSINT: intelligence da fonti aperte": "OSINT: open-source intelligence",
+  "L'OSINT (Open Source Intelligence) è la raccolta di informazioni da fonti pubbliche. Qui la usi in chiave difensiva: per capire cosa si trova in rete su di te e ridurre la tua esposizione. Per l'analisi tecnica di un dominio usa <a href=\"/domain-recon.html\">Ricognizione dominio</a> e <a href=\"/ssl-analyzer.html\">Certificato TLS</a>.": "OSINT (open-source intelligence) is the collection of information from public sources. Here you use it defensively: to understand what can be found online about you and to reduce your exposure. For the technical analysis of a domain use <a href=\"/domain-recon.html\">Domain reconnaissance</a> and <a href=\"/ssl-analyzer.html\">TLS certificate</a>.",
+  "Usa questi strumenti su di te, sui tuoi account o con il consenso scritto della persona interessata. Raccogliere e incrociare dati di privati cittadini senza una base giuridica viola il GDPR (art. 6 e 14), e il doxxing è vietato. Leggi <a href=\"/ethics.html\">Etica e legge</a> prima di iniziare.": "Use these tools on yourself, on your own accounts or with the written consent of the person concerned. Collecting and cross-referencing data about private individuals without a legal basis breaches the GDPR (Articles 6 and 14), and doxxing is forbidden. Read <a href=\"/ethics.html\">Ethics and law</a> before you start.",
+  "I tuoi account": "Your accounts",
+  "Profilazione social": "Social media profiling",
+  "Su quali piattaforme compare il tuo username, quali metadati pubblici espone e se l'email del tuo account è in data breach noti.": "Which platforms your username appears on, which public metadata it exposes and whether your account email appears in known data breaches.",
+  "Controlla il tuo username →": "Check your username →",
+  "Autovalutazione": "Self-assessment",
+  "La tua esposizione online": "Your online exposure",
+  "Checklist privata con punteggio e consigli, ricerche su te stesso e schede delle figure pubbliche da Wikidata.": "A private checklist with a score and advice, searches about yourself and public-figure profiles from Wikidata.",
+  "Valuta la tua esposizione →": "Assess your exposure →",
+  "Altri strumenti: <a href=\"/security-check.html\">Check URL</a> · <a href=\"/domain-recon.html\">Ricognizione dominio</a> · <a href=\"/report-generator.html\">Generatore di report</a>": "Other tools: <a href=\"/security-check.html\">URL check</a> · <a href=\"/domain-recon.html\">Domain reconnaissance</a> · <a href=\"/report-generator.html\">Report generator</a>"
+}

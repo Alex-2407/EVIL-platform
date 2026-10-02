@@ -1,0 +1,11 @@
+{
+  "Professione non valida: usa solo lettere, spazi, apostrofi e trattini (massimo 60 caratteri).": "Invalid occupation: use only letters, spaces, apostrophes and hyphens (60 characters at most).",
+  "La nazione è obbligatoria.": "The country is required.",
+  "Scrivi nome e cognome della figura pubblica (2-80 caratteri, solo lettere, spazi, apostrofi, punti e trattini).": "Enter the first and last name of the public figure (2-80 characters; letters, spaces, apostrophes, full stops and hyphens only).",
+  "Sono mostrate solo persone con una voce su Wikipedia (figure pubbliche). I privati cittadini sono esclusi.": "Only people with a Wikipedia article (public figures) are shown. Private individuals are excluded.",
+  "Omonimie possibili: controlla descrizione e voce di Wikipedia prima di trarre conclusioni.": "Different people may share a name: check the description and the Wikipedia article before drawing conclusions.",
+  "I dati vengono da Wikidata e possono essere incompleti o sbagliati: verifica sempre la fonte.": "The data comes from Wikidata and may be incomplete or wrong: always check the source.",
+  "ID Wikidata non valido (esempio: Q7186).": "Invalid Wikidata ID (example: Q7186).",
+  "Voce Wikidata non trovata.": "Wikidata item not found.",
+  "La scheda è disponibile solo per figure pubbliche con una voce su Wikipedia.": "The profile is available only for public figures with a Wikipedia article."
+}

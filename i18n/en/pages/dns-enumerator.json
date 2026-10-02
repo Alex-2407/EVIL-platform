@@ -1,0 +1,17 @@
+{
+  "DNS Records Enumerator — EVIL Strumenti": "DNS and WHOIS — EVIL Tools",
+  "Enumerazione record DNS con analisi SPF/DMARC, fingerprint infrastruttura e scoring trasparente. Solo su domini autorizzati.": "DNS record enumeration with SPF/DMARC analysis, infrastructure fingerprinting and transparent scoring. Only on domains you are authorised to analyse.",
+  "<a href=\"/domain-recon.html\">← Ricognizione dominio</a>": "<a href=\"/domain-recon.html\">← Domain reconnaissance</a>",
+  "Strumenti · DNS": "Verify · DNS",
+  "DNS Records Enumerator": "DNS and WHOIS",
+  "Risoluzione passiva di A, AAAA, MX, NS, TXT, CNAME e SOA con analisi SPF/DMARC, fingerprint provider/CDN e scoring ponderato. Tab <strong>WHOIS</strong> via RDAP (HTTPS) con fallback TCP — funziona anche su Windows senza CLI <code>whois</code>.": "Passive resolution of A, AAAA, MX, NS, TXT, CNAME and SOA records with SPF/DMARC analysis, provider/CDN fingerprinting and weighted scoring. The <strong>WHOIS</strong> tab uses RDAP (HTTPS) with a TCP fallback — it works on Windows too, without the <code>whois</code> command-line tool.",
+  "Tipo di ricerca": "Lookup type",
+  "Record DNS": "DNS records",
+  "WHOIS": "WHOIS",
+  "example.com": "example.com",
+  "Dichiaro di avere autorizzazione esplicita ad analizzare questo dominio.": "I confirm I have explicit authorisation to analyse this domain.",
+  "Enumera record DNS": "Enumerate DNS records",
+  "Reset": "Reset",
+  "7 tipi di record · DMARC · PTR · SPF · ~2–8 s · serve l'account (gratuito)": "7 record types · DMARC · PTR · SPF · ~2–8 s · requires a (free) account",
+  "<strong>Metodologia:</strong> resolver DNS di sistema, lookup <code>_dmarc</code>, classificazione TXT, reverse PTR sul primo A. Nessun zone transfer (AXFR) né wordlist subdomain.": "<strong>Method:</strong> system DNS resolver, <code>_dmarc</code> lookup, TXT classification, reverse PTR on the first A record. No zone transfer (AXFR) and no subdomain wordlist."
+}

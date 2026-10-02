@@ -1,0 +1,14 @@
+{
+  "Subdomain Finder — EVIL Strumenti": "Subdomains — EVIL Tools",
+  "Enumerazione sottodomini via wordlist e Certificate Transparency (crt.sh) con classificazione rischio e scoring.": "Subdomain enumeration via a wordlist and Certificate Transparency (crt.sh), with risk classification and scoring.",
+  "<a href=\"/domain-recon.html\">← Ricognizione dominio</a>": "<a href=\"/domain-recon.html\">← Domain reconnaissance</a>",
+  "Strumenti · Sottodomini": "Verify · Subdomains",
+  "Subdomain Finder": "Subdomains",
+  "Scoperta passiva di host attivi tramite <strong>wordlist</strong> (~50 prefix) e nomi da <strong>Certificate Transparency</strong> (crt.sh), con risoluzione A/AAAA/CNAME, classificazione per categoria e valutazione della superficie di attacco.": "Passive discovery of live hosts using a <strong>wordlist</strong> (~50 prefixes) and names from <strong>Certificate Transparency</strong> (crt.sh), with A/AAAA/CNAME resolution, classification by category and an assessment of the attack surface.",
+  "example.com": "example.com",
+  "Dichiaro di avere autorizzazione esplicita ad analizzare questo dominio.": "I confirm I have explicit authorisation to analyse this domain.",
+  "Avvia enumerazione": "Start enumeration",
+  "Reset": "Reset",
+  "wordlist + crt.sh · classificazione del rischio · ~10–45 s · serve l'account (gratuito)": "wordlist + crt.sh · risk classification · ~10–45 s · requires a (free) account",
+  "<strong>Metodologia:</strong> non è brute-force completo. I nomi CT possono essere storici; solo host che risolvono compaiono come attivi. Per record DNS apex usa <a href=\"/dns-enumerator.html\">DNS Enumerator</a>.": "<strong>Method:</strong> this is not a full brute force. CT names may be historical; only hosts that resolve are shown as live. For the apex domain's DNS records use <a href=\"/dns-enumerator.html\">DNS and WHOIS</a>."
+}
