@@ -9,9 +9,65 @@
   var I = window.EVIL_I18N || { t: function (s) { return s; }, locale: 'it-IT' };
   var collator = new Intl.Collator(I.locale, { sensitivity: 'base' });
 
+  // Traduzioni inglesi delle definizioni del lab virtuale (solo termini, non le
+  // guide passo-passo). Usate quando la pagina è servita in inglese, perché il
+  // file dati js/virtual-lab-guides.js resta in italiano.
+  var VLAB_EN = {
+    'jump box': 'Controlled starting machine from which you launch tests against the isolated scenarios, without touching external networks.',
+    'VLAN': 'Virtual LAN: an isolated logical network segment. In EVIL scenarios the targets live in a dedicated VLAN (10.42.x.x).',
+    'nmap': 'Network Mapper: a scanner to discover live hosts, open ports and the versions of listening services.',
+    'port scan': "Scanning a host's TCP/UDP ports to see which services it exposes (web, SSH, SMB, etc.).",
+    'ping': 'ICMP command to check whether a host responds on the network before scanning it in depth.',
+    'SSH': 'Secure Shell: an encrypted protocol (port 22) for remote shell access to Linux/Unix servers.',
+    'curl': 'A command-line client to send HTTP requests and inspect responses, headers and body.',
+    'HTTP': 'HyperText Transfer Protocol: the protocol browsers and APIs use to exchange pages and data (ports 80/443).',
+    'SQL injection': 'User input concatenated into the SQL query without filtering, allowing authentication bypass or data extraction.',
+    'payload': 'A string or command crafted to exploit a vulnerability (e.g. an always-true condition in a login).',
+    'XSS': "Cross-Site Scripting: a malicious script injected into a page and executed in the victim's browser.",
+    'CSRF': 'Cross-Site Request Forgery: tricking the browser into performing authenticated actions (changing an email, transfers) without consent.',
+    'LFI': 'Local File Inclusion: the server includes local files chosen by the attacker through an unvalidated parameter.',
+    'directory traversal': 'A technique that uses ../ to climb up directories and read files outside the web root.',
+    'dirb': 'A directory brute forcer: it tries thousands of common paths (/admin, /backup) on a web server.',
+    'hydra': 'An online dictionary-attack tool: it tries password lists against SSH, FTP, HTTP and other login services.',
+    'brute force': 'An attack that systematically tries many passwords or PINs until one works.',
+    'SMB': 'Server Message Block: a Windows/Linux protocol for file and printer shares (ports 445/139).',
+    'smbclient': 'A Samba client to list network shares and download files from SMB resources.',
+    'privilege escalation': 'Moving from a limited user to higher privileges (e.g. root).',
+    'sudo': 'A Linux command that runs programs with elevated privileges according to rules in /etc/sudoers.',
+    'flag': 'A secret string in CTF format that confirms completion of a learning objective in the scenario.',
+    'CTF': 'Capture The Flag: a security exercise in which you recover hidden flags by demonstrating a skill.',
+    'reconnaissance': 'The initial phase of an authorised test: gathering information about the network, services and attack surface.',
+    'banner': 'The opening message of a service (e.g. the OpenSSH version), useful to identify vulnerable software.',
+    'wordlist': 'A list of passwords or paths used by tools such as hydra or dirb for automated attacks.',
+    'token': "A secret value in a form proving the request comes from the user's legitimate session.",
+    'POST': 'The HTTP method that sends data in the body (e.g. a login form) rather than only in the URL.',
+    'share': 'A network folder exposed over SMB that authorised clients can access.',
+    'command injection': 'User input concatenated into system commands (ping, exec), allowing arbitrary commands to run.',
+    'SSRF': 'Server-Side Request Forgery: the server makes HTTP requests to URLs chosen by the attacker, even toward the internal network.',
+    'IDOR': "Insecure Direct Object Reference: changing an ID in the URL/API exposes other users' records without authorisation.",
+    'JWT': 'JSON Web Token: a signed token asserting identity/role; if poorly implemented it allows privilege escalation.',
+    'XXE': 'XML External Entity: an XML entity that forces the parser to read local files or make network requests.',
+    'entity': 'An XML <!ENTITY> declaration defining reusable content, which can be abused in XXE attacks.',
+    'web shell': 'A script (e.g. PHP) uploaded to the server that gives the attacker a remote shell.',
+    'FTP': 'File Transfer Protocol (port 21): file transfer; anonymous login often exposes data by mistake.',
+    'anonymous': 'FTP/SMB access without real credentials: useful to legitimate owners but dangerous if misconfigured.',
+    'API': 'Application Programming Interface: an endpoint read by programs (often JSON) to test for auth flaws and IDOR.',
+    'authorization': 'An HTTP header (e.g. a Bearer token) proving who you are: it must be validated server-side on every request.',
+    'internal network': 'A segment not exposed to the Internet (RFC1918) reachable only from internal servers: a classic SSRF target.',
+    'WAF': 'Web Application Firewall: a filter that inspects HTTP requests and blocks suspicious payloads.',
+    'prepared statement': "A parameterised query: the user's values are passed separately from the SQL text, never concatenated.",
+    'least privilege': 'The least-privilege principle: give each user or process only the permissions strictly needed.'
+  };
+
+  function vlabSource() {
+    return (I.locale && String(I.locale).toLowerCase().indexOf('en') === 0 && !window.VLAB_GLOSSARY_EN_SERVED)
+      ? VLAB_EN
+      : window.VLAB_GLOSSARY;
+  }
+
   function collect() {
     var map = Object.create(null);
-    [window.QUIZ_GLOSSARY, window.VLAB_GLOSSARY].forEach(function (src) {
+    [window.QUIZ_GLOSSARY, vlabSource()].forEach(function (src) {
       if (!src) return;
       Object.keys(src).forEach(function (k) {
         var term = String(k).trim();
