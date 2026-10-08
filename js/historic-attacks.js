@@ -135,8 +135,7 @@
     const mono = escapeHtml(orgMonogram(attack));
     const cls = wrapClass ? ` ${wrapClass}` : '';
     const img = attack.logo
-      ? `<img class="ha-logo" src="${escapeHtml(attack.logo)}" alt="${alt}" loading="lazy" width="56" height="46"
-        onerror="this.closest('.ha-logo-wrap').classList.add('is-fallback'); this.remove();">`
+      ? `<img class="ha-logo" src="${escapeHtml(attack.logo)}" alt="${alt}" loading="lazy" width="56" height="46">`
       : '';
     const fallback = attack.logo ? '' : ' is-fallback';
     return `<span class="ha-logo-wrap${cls}${fallback}">${img}<span class="ha-logo ha-logo--mono" aria-hidden="true">${mono}</span></span>`;
@@ -332,6 +331,21 @@
       setTimeout(() => scheduleMapResize(), 120);
     });
   }
+
+  // Fallback logo senza onerror inline (CSP senza 'unsafe-inline'): gli eventi
+  // error non fanno bubbling, quindi si ascolta in fase di cattura sul document.
+  document.addEventListener(
+    'error',
+    (e) => {
+      const img = e.target;
+      if (img && img.tagName === 'IMG' && img.classList && img.classList.contains('ha-logo')) {
+        const wrap = img.closest('.ha-logo-wrap');
+        if (wrap) wrap.classList.add('is-fallback');
+        img.remove();
+      }
+    },
+    true
+  );
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);

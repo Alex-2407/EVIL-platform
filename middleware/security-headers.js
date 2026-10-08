@@ -11,16 +11,21 @@ const CDN = 'https://cdnjs.cloudflare.com';
 
 /**
  * Content-Security-Policy.
- * 'unsafe-inline' resta per script e stili perché le pagine usano ancora
- * <script> inline e ~100 attributi onclick: rimuoverlo richiede prima di
- * spostarli in file .js (vedi README, sezione sicurezza).
+ * script-src NON usa 'unsafe-inline': le pagine di produzione non hanno più
+ * <script> inline né attributi onclick (spostati tutti in file .js). Fanno
+ * eccezione le pagine di anteprima locale (*-preview-local.html), strumenti di
+ * sviluppo non raggiungibili in produzione, che conservano uno <script> inline.
+ * style-src tiene ancora 'unsafe-inline' per gli attributi style dinamici.
  */
+const DEV_PREVIEW = /-preview-local\.html$/;
+
 function buildCsp(req) {
   const host = req.get('host') || '';
   const wsOrigin = host ? `${isSecureRequest(req) ? 'wss' : 'ws'}://${host}` : '';
+  const scriptInline = DEV_PREVIEW.test(req.path || '') ? " 'unsafe-inline'" : '';
   const directives = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline' ${CDN}`,
+    `script-src 'self'${scriptInline} ${CDN}`,
     `style-src 'self' 'unsafe-inline' ${CDN}`,
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",

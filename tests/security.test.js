@@ -29,6 +29,19 @@ test('header di sicurezza su pagine HTML, statici e API (EVL-03)', async () => {
   assert.match(csp, /frame-ancestors 'none'/);
 });
 
+test('CSP: script-src senza unsafe-inline sulle pagine di produzione (EVL-03b)', async () => {
+  for (const url of ['/', '/historic-attacks.html', '/web-simulator.html', '/quiz-hub.html']) {
+    const csp = (await request(app).get(url)).headers['content-security-policy'];
+    const scriptSrc = csp.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src'));
+    assert.ok(scriptSrc, `script-src presente su ${url}`);
+    assert.doesNotMatch(scriptSrc, /unsafe-inline/, `niente unsafe-inline in script-src su ${url}`);
+  }
+  // Le anteprime locali di sviluppo conservano lo <script> inline.
+  const devCsp = (await request(app).get('/trophy-preview-local.html')).headers['content-security-policy'];
+  const devScript = devCsp.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src'));
+  assert.match(devScript, /unsafe-inline/, 'le anteprime locali mantengono unsafe-inline');
+});
+
 test('CORS: richieste da un altro sito respinte con 403 (EVL-10)', async () => {
   const res = await request(app)
     .post('/api/auth/login')
