@@ -1,0 +1,57 @@
+====================================================================
+ EVIL - piattaforma didattica di cybersecurity
+ Come vederla in locale sul tuo computer
+====================================================================
+
+REQUISITO UNICO: Node.js 22 (LTS)
+  Scaricalo da https://nodejs.org (pulsante "LTS"), installalo con le
+  opzioni predefinite. Serve una sola volta.
+
+--------------------------------------------------------------------
+ WINDOWS
+--------------------------------------------------------------------
+  1. Estrai questa cartella ZIP dove preferisci (es. sul Desktop).
+  2. Doppio clic su  AVVIA-EVIL.bat
+  3. Si apre una finestra nera (il server) e, dopo qualche secondo,
+     il sito nel browser all'indirizzo  http://localhost:5000
+  4. Per chiudere: chiudi la finestra nera, oppure premi CTRL+C.
+
+  Nota Windows: al primo avvio SmartScreen puo' chiedere conferma per
+  il file .bat -> "Ulteriori informazioni" -> "Esegui comunque".
+
+--------------------------------------------------------------------
+ macOS / Linux
+--------------------------------------------------------------------
+  1. Estrai la cartella.
+  2. Doppio clic su  avvia-evil.command  (macOS).
+     Su Linux, da terminale:  ./avvia-evil.command
+  3. Vai su  http://localhost:5000
+
+--------------------------------------------------------------------
+ COSA FUNZIONA OFFLINE
+--------------------------------------------------------------------
+  Tutto il sito gira in locale senza internet: pagine, simulatori,
+  quiz, lab, database malware, glossario, versione inglese (/en/).
+  Richiedono internet solo: le mappe geografiche (libreria Leaflet da
+  CDN) e l'invio reale di email (non necessario per esplorare).
+
+  Account: la registrazione crea utenti in un file locale
+  (data/users.json). Nessun dato esce dal tuo computer.
+
+--------------------------------------------------------------------
+ LINGUE
+--------------------------------------------------------------------
+  Italiano:  http://localhost:5000/
+  English:   http://localhost:5000/en/
+  Il selettore della lingua e' anche nell'intestazione del sito.
+
+--------------------------------------------------------------------
+ SE QUALCOSA NON VA
+--------------------------------------------------------------------
+  - "Node.js non trovato": installa Node.js 22 e riprova.
+  - La porta 5000 e' occupata? Avvia da terminale con un'altra porta:
+        Windows:   set PORT=5050 && node js\server.js
+        macOS:     PORT=5050 node js/server.js
+    poi apri http://localhost:5050
+  - Pagina bianca al primo colpo: attendi 2-3 secondi e aggiorna.
+====================================================================
