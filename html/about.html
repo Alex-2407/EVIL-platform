@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Chi siamo - EVIL</title>
+  <meta name="description" content="Che cos'è EVIL, da dove vengono i dati della piattaforma e cosa è reale, simulato o didattico. La missione del progetto e come contribuire.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-policies.css">
+  <link rel="stylesheet" href="/css/content-pages.css">
+</head>
+<body class="evil-theme policy-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="policy-scene" aria-hidden="true">
+    <canvas id="policy-particles"></canvas>
+    <div class="policy-scene__grid"></div>
+    <div class="policy-scene__mesh"></div>
+  </div>
+
+  <!--evil:header-->
+
+  <main id="policy-main">
+    <section class="policy-hero" aria-labelledby="about-title">
+      <div class="policy-emblem" aria-hidden="true">
+        <div class="policy-emblem__ring"></div>
+        <div class="policy-emblem__ring"></div>
+        <div class="policy-emblem__core">◆</div>
+      </div>
+      <p class="policy-kicker">Progetto · Il sito</p>
+      <h1 id="about-title">Chi siamo</h1>
+      <p class="policy-hero__lead">
+        EVIL è una piattaforma didattica di cybersecurity in italiano e inglese. Nasce da un'idea semplice: si difende meglio
+        ciò che si capisce davvero. Per questo mostriamo come funzionano gli attacchi — in ambienti simulati e con fonti pubbliche —
+        sempre nell'ottica di chi protegge.
+      </p>
+    </section>
+
+    <div class="policy-layout">
+      <aside class="policy-toc" aria-label="Indice">
+        <p class="policy-toc__title">Indice</p>
+        <nav>
+          <a href="#about-missione" data-section="about-missione">1. Missione</a>
+          <a href="#about-nome" data-section="about-nome">2. Il nome</a>
+          <a href="#about-aree" data-section="about-aree">3. Come è fatto il sito</a>
+          <a href="#about-dati" data-section="about-dati">4. Da dove vengono i dati</a>
+          <a href="#about-contribuire" data-section="about-contribuire">5. Come contribuire</a>
+        </nav>
+      </aside>
+
+      <div class="policy-content">
+        <section class="policy-section policy-reveal" id="about-missione" aria-labelledby="ha-missione">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◎</span>
+            <h2 id="ha-missione">1. Missione</h2>
+          </div>
+          <p>
+            Formare persone capaci di unire competenza tecnica avanzata e forte senso di responsabilità: programmatori,
+            professionisti della sicurezza, ethical hacker, security researcher e software engineer. La conoscenza è uno
+            strumento neutro — come il fuoco può cucinare o distruggere — e noi insegniamo a usarla per proteggere.
+            Le regole che rendono tutto questo legale e corretto sono nella pagina <a href="/ethics.html">Etica e legge</a>.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="about-nome" aria-labelledby="ha-nome">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◈</span>
+            <h2 id="ha-nome">2. Il nome</h2>
+          </div>
+          <p>
+            EVIL sta per <strong>Educational Vulnerability &amp; Intelligence Lab</strong>: un laboratorio didattico su
+            vulnerabilità e intelligence. Il nome gioca con l'immaginario dell'hacking "cattivo" proprio per ribaltarlo:
+            qui le stesse tecniche si studiano per difendersi.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="about-aree" aria-labelledby="ha-aree">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">▦</span>
+            <h2 id="ha-aree">3. Come è fatto il sito</h2>
+          </div>
+          <p>Il sito è organizzato in tre aree, più le pagine di progetto:</p>
+          <ul>
+            <li><strong>Impara</strong> — <a href="/learning-paths.html">percorsi</a>, <a href="/web-simulator.html">simulatore attacchi web</a>, <a href="/virtual-lab.html">lab virtuale</a>, <a href="/crypto-studio.html">studio cifratura</a>, <a href="/hacked-timeline.html">timeline incident response</a>, <a href="/quiz-hub.html">centro quiz</a> e <a href="/glossary.html">glossario</a>.</li>
+            <li><strong>Analizza</strong> — <a href="/attacks-map.html">mappa di avvisi e vulnerabilità</a>, <a href="/historic-attacks.html">violazioni storiche</a>, <a href="/malware-db.html">catalogo malware</a>, <a href="/malware-classification.html">tassonomia</a> e <a href="/persistence-evasion.html">persistenza ed evasione</a>.</li>
+            <li><strong>Verifica</strong> — strumenti come <a href="/security-check.html">Check URL</a>, <a href="/domain-recon.html">ricognizione dominio</a>, analisi file e <a href="/osint-hub.html">OSINT difensivo</a>, da usare solo su sistemi autorizzati.</li>
+          </ul>
+          <p>Tutto gira nel browser o su un server didattico: i simulatori non inviano nulla verso sistemi reali.</p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="about-dati" aria-labelledby="ha-dati">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">⛁</span>
+            <h2 id="ha-dati">4. Da dove vengono i dati</h2>
+          </div>
+          <p>La trasparenza sui dati è parte del progetto. In breve:</p>
+          <div class="policy-table-wrap">
+            <table class="policy-table">
+              <thead><tr><th>Contenuto</th><th>Natura</th></tr></thead>
+              <tbody>
+                <tr><td>Mappa di avvisi e vulnerabilità</td><td><strong>Reale</strong>: avvisi dei CERT e vulnerabilità sfruttate da fonti pubbliche (CISA KEV, NIST NVD, CERT-AGID, CERT-EU). Quando una fonte non indica il paese, lo diciamo invece di inventarlo.</td></tr>
+                <tr><td>Violazioni storiche</td><td><strong>Reale, documentato</strong>: casi noti ricostruiti da fonti pubbliche. Dove una cifra non è certa, il testo resta generico.</td></tr>
+                <tr><td>Catalogo e tassonomia malware</td><td><strong>Didattico</strong>: schede di famiglie documentate, compilate da rapporti pubblici di vendor e CERT.</td></tr>
+                <tr><td>Lab virtuale, simulatore, timeline</td><td><strong>Simulato</strong>: scenari e output scritti a mano per esercitarsi, senza connessione a sistemi reali.</td></tr>
+                <tr><td>Quiz</td><td><strong>Didattico</strong>: domande e spiegazioni scritte per la piattaforma.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Gli strumenti di analisi (DNS, TLS, header, OSINT) interrogano in tempo reale fonti pubbliche sul target che indichi,
+            e lo fanno solo su domini per cui dichiari di avere l'autorizzazione.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="about-contribuire" aria-labelledby="ha-contrib">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">✎</span>
+            <h2 id="ha-contrib">5. Come contribuire</h2>
+          </div>
+          <p>
+            EVIL è un progetto in evoluzione. Hai trovato un errore in una scheda, una definizione imprecisa o un bug?
+            Scrivici dalla pagina <a href="/help.html">Aiuto</a>. Se scopri una vulnerabilità sulla piattaforma, seguici la
+            <a href="/ethics.html#ethics-disclosure">divulgazione responsabile</a>. Il codice del sito è pubblico su
+            <a href="https://github.com/Alex-2407/evil-platform" rel="noopener noreferrer">GitHub</a>.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <p class="content-note">
+      Leggi anche: <a href="/ethics.html">Etica e legge</a> · <a href="/site-policies.html">Privacy e regole</a>
+    </p>
+  </main>
+
+  <!--evil:footer-->
+</body>
+</html>

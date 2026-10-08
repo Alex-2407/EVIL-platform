@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Glossario - EVIL</title>
+  <meta name="description" content="Glossario della cybersecurity: i termini di EVIL spiegati in modo semplice, dalla A alla Z, con ricerca rapida.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-policies.css">
+  <link rel="stylesheet" href="/css/content-pages.css">
+</head>
+<body class="evil-theme policy-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="policy-scene" aria-hidden="true">
+    <canvas id="policy-particles"></canvas>
+    <div class="policy-scene__grid"></div>
+    <div class="policy-scene__mesh"></div>
+  </div>
+
+  <!--evil:header-->
+
+  <main id="glossary-main">
+    <section class="policy-hero" aria-labelledby="glossary-title">
+      <p class="policy-kicker">Impara · Riferimento</p>
+      <h1 id="glossary-title">Glossario</h1>
+      <p class="policy-hero__lead">
+        I termini della sicurezza informatica che incontri nei quiz, nei laboratori e negli strumenti di EVIL,
+        spiegati in modo semplice. Cerca una parola o scorri dalla A alla Z.
+      </p>
+    </section>
+
+    <div class="glossary-controls">
+      <label class="glossary-search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
+        <input type="search" id="glossary-q" autocomplete="off" spellcheck="false"
+               placeholder="Cerca un termine: phishing, TLS, SIEM…" aria-label="Cerca nel glossario">
+      </label>
+      <span class="glossary-count" id="glossary-count"></span>
+    </div>
+
+    <nav class="glossary-index" id="glossary-index" aria-label="Indice alfabetico"></nav>
+
+    <div class="glossary-list" id="glossary-list" aria-live="polite"></div>
+
+    <p class="content-note">
+      Manca un termine o una definizione è imprecisa? Segnalacelo dalla pagina <a href="/help.html">Aiuto</a>.
+      Per approfondire: <a href="/quiz-hub.html">Centro quiz</a> e <a href="/learning-paths.html">Percorsi di apprendimento</a>.
+    </p>
+  </main>
+
+  <!--evil:footer-->
+
+  <script src="/js/quiz-hub-glossary.js"></script>
+  <script src="/js/virtual-lab-guides.js"></script>
+  <script src="/js/glossary-page.js" defer></script>
+</body>
+</html>

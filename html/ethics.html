@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Etica e legge - EVIL</title>
+  <meta name="description" content="Il codice di condotta di EVIL, le leggi italiane ed europee che contano per chi studia cybersecurity, e come segnalare una vulnerabilità in modo responsabile.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-policies.css">
+  <link rel="stylesheet" href="/css/content-pages.css">
+</head>
+<body class="evil-theme policy-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="policy-scene" aria-hidden="true">
+    <canvas id="policy-particles"></canvas>
+    <div class="policy-scene__grid"></div>
+    <div class="policy-scene__mesh"></div>
+  </div>
+
+  <!--evil:header-->
+
+  <main id="policy-main">
+    <section class="policy-hero" aria-labelledby="ethics-title">
+      <div class="policy-emblem" aria-hidden="true">
+        <div class="policy-emblem__ring"></div>
+        <div class="policy-emblem__ring"></div>
+        <div class="policy-emblem__core">⚖</div>
+      </div>
+      <p class="policy-kicker">Progetto · Responsabilità</p>
+      <h1 id="ethics-title">Etica e legge</h1>
+      <p class="policy-hero__lead">
+        La conoscenza è neutra, come il fuoco: può cucinare o distruggere. EVIL insegna come funzionano gli attacchi
+        perché tu impari a prevenirli, non a commetterli. La stessa competenza diventa reato se usata senza permesso.
+        Questa pagina spiega le regole del gioco: cosa puoi fare, cosa dice la legge e come segnalare un problema in modo corretto.
+      </p>
+    </section>
+
+    <div class="policy-layout">
+      <aside class="policy-toc" aria-label="Indice">
+        <p class="policy-toc__title">Indice</p>
+        <nav>
+          <a href="#ethics-principio" data-section="ethics-principio">1. Il principio</a>
+          <a href="#ethics-condotta" data-section="ethics-condotta">2. Codice di condotta</a>
+          <a href="#ethics-autorizzazione" data-section="ethics-autorizzazione">3. Autorizzazione scritta</a>
+          <a href="#ethics-legge" data-section="ethics-legge">4. La legge italiana</a>
+          <a href="#ethics-gdpr" data-section="ethics-gdpr">5. Dati personali e GDPR</a>
+          <a href="#ethics-disclosure" data-section="ethics-disclosure">6. Divulgazione responsabile</a>
+          <a href="#ethics-grigi" data-section="ethics-grigi">7. Casi grigi</a>
+        </nav>
+      </aside>
+
+      <div class="policy-content">
+        <section class="policy-section policy-reveal" id="ethics-principio" aria-labelledby="he-principio">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◎</span>
+            <h2 id="he-principio">1. Il principio</h2>
+          </div>
+          <p>
+            Le tecniche che impari su EVIL — SQL injection, scansioni, OSINT, analisi di malware — sono le stesse che usano
+            sia chi attacca sia chi difende. Ciò che cambia non è la tecnica, ma lo <strong>scopo</strong> e il <strong>permesso</strong>.
+            Studiare come si entra in un sistema serve a chiuderne le porte: è il mestiere di chi fa sicurezza.
+          </p>
+          <p>
+            L'obiettivo di EVIL è formare persone capaci di raggiungere il massimo livello tecnico insieme al massimo senso di
+            responsabilità: programmatori, professionisti della sicurezza, ethical hacker, security researcher, software engineer.
+            Competenza e legalità vanno insieme, sempre.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="ethics-condotta" aria-labelledby="he-condotta">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">✓</span>
+            <h2 id="he-condotta">2. Codice di condotta</h2>
+          </div>
+          <p>Chi usa EVIL si impegna a:</p>
+          <ul>
+            <li>usare gli strumenti di analisi <strong>solo</strong> su sistemi propri o per cui ha un'autorizzazione scritta;</li>
+            <li>non danneggiare, interrompere o sovraccaricare sistemi e servizi di terzi;</li>
+            <li>non raccogliere né diffondere dati personali di altre persone senza una base giuridica (niente doxxing);</li>
+            <li>non usare quanto imparato per frode, estorsione, stalking, diffamazione o qualsiasi altro reato;</li>
+            <li>trattare i dati simulati o di esempio come tali, senza spacciarli per prove reali;</li>
+            <li>segnalare in modo responsabile le vulnerabilità che scopre, senza sfruttarle.</li>
+          </ul>
+          <p>
+            Alla registrazione accetti questo codice e l'<a href="/site-policies.html">informativa privacy</a>. Violarlo comporta
+            la sospensione dell'account e, a seconda dei casi, conseguenze legali di cui rispondi personalmente.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal policy-section--warn" id="ethics-autorizzazione" aria-labelledby="he-aut">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">✎</span>
+            <h2 id="he-aut">3. Autorizzazione scritta</h2>
+          </div>
+          <p>
+            Prima di analizzare un sistema che non è tuo serve un permesso scritto di chi ne ha titolo, con regole d'ingaggio chiare.
+            Un accordo a voce non basta. Il documento dovrebbe indicare almeno:
+          </p>
+          <ul>
+            <li><strong>perimetro</strong>: quali domini, indirizzi IP e applicazioni sono inclusi, e cosa è escluso;</li>
+            <li><strong>tempi</strong>: le finestre in cui puoi operare e i contatti di emergenza;</li>
+            <li><strong>tecniche</strong>: cosa è permesso e cosa no (per esempio denial of service o ingegneria sociale sui dipendenti);</li>
+            <li><strong>dati</strong>: come trattare eventuali dati sensibili trovati, per quanto conservarli e come distruggerli.</li>
+          </ul>
+          <p class="policy-callout policy-callout--critical">
+            Regola pratica: se non puoi mostrare un documento di autorizzazione, non eseguire il test. EVIL insegna il metodo;
+            la responsabilità dell'esecuzione su sistemi reali resta tua e del committente.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal policy-section--deny" id="ethics-legge" aria-labelledby="he-legge">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">§</span>
+            <h2 id="he-legge">4. La legge italiana</h2>
+          </div>
+          <p>
+            In Italia l'accesso e il danneggiamento di sistemi informatici senza autorizzazione sono reati. I principali articoli
+            del Codice penale in materia sono:
+          </p>
+          <div class="policy-table-wrap">
+            <table class="policy-table">
+              <thead><tr><th>Articolo</th><th>In breve</th></tr></thead>
+              <tbody>
+                <tr><td>615-ter c.p.</td><td>Accesso abusivo a un sistema informatico o telematico, o permanenza contro la volontà di chi ha il diritto di escludere.</td></tr>
+                <tr><td>615-quater c.p.</td><td>Detenzione, diffusione e installazione abusiva di codici di accesso (password, credenziali) a sistemi protetti.</td></tr>
+                <tr><td>617-quater c.p.</td><td>Intercettazione, impedimento o interruzione illecita di comunicazioni informatiche o telematiche.</td></tr>
+                <tr><td>635-bis e seguenti c.p.</td><td>Danneggiamento di informazioni, dati, programmi e di sistemi informatici, pubblici o privati.</td></tr>
+                <tr><td>640-ter c.p.</td><td>Frode informatica: alterare un sistema o dati per procurarsi un ingiusto profitto con danno altrui.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            A livello europeo e nazionale contano anche il GDPR (Regolamento UE 2016/679) per i dati personali e la direttiva
+            NIS2, recepita in Italia nel 2024, per la sicurezza delle reti e dei sistemi informativi di molte organizzazioni.
+          </p>
+          <p class="policy-hero__lead policy-note-small">
+            Questa pagina è una sintesi didattica e non è una consulenza legale. I riferimenti normativi possono cambiare: per
+            un caso concreto verifica il testo vigente e, se serve, consulta un professionista.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="ethics-gdpr" aria-labelledby="he-gdpr">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◈</span>
+            <h2 id="he-gdpr">5. Dati personali e GDPR</h2>
+          </div>
+          <p>
+            Anche le informazioni pubbliche su una persona sono dati personali. Raccoglierle e incrociarle (per esempio con l'OSINT)
+            richiede una base giuridica (art. 6 GDPR) e, se riusi quei dati fuori dallo studio personale, l'obbligo di informare
+            l'interessato (art. 14). Il <strong>doxxing</strong> — raccogliere e diffondere dati di qualcuno per esporlo, intimidirlo
+            o molestarlo — è vietato su EVIL e può costituire reato.
+          </p>
+          <p>
+            Per questo i moduli OSINT di EVIL sono orientati all'<a href="/osint-hub.html">autovalutazione della propria esposizione</a>
+            e alle figure pubbliche, non alla profilazione di privati cittadini.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="ethics-disclosure" aria-labelledby="he-disc">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">⚑</span>
+            <h2 id="he-disc">6. Divulgazione responsabile</h2>
+          </div>
+          <p>
+            Se durante uno studio autorizzato scopri una vulnerabilità, la cosa giusta è segnalarla a chi gestisce il sistema e
+            dargli il tempo di correggerla prima di renderla pubblica. In pratica:
+          </p>
+          <ul>
+            <li>cerca un canale ufficiale: un file <code>/.well-known/security.txt</code>, una pagina "security" o un programma di bug bounty;</li>
+            <li>descrivi il problema in modo chiaro e riproducibile, senza sfruttarlo oltre il necessario per dimostrarlo;</li>
+            <li>concorda tempi ragionevoli per la correzione e non divulgare i dettagli finché non è risolto;</li>
+            <li>non chiedere denaro in cambio del silenzio: sarebbe estorsione.</li>
+          </ul>
+          <p>
+            In Italia il punto di riferimento nazionale per gli incidenti è il CSIRT Italia (Agenzia per la Cybersicurezza Nazionale).
+            Hai trovato un problema su EVIL stesso? Scrivici dalla pagina <a href="/help.html">Aiuto</a>.
+          </p>
+        </section>
+
+        <section class="policy-section policy-reveal" id="ethics-grigi" aria-labelledby="he-grigi">
+          <div class="policy-section__head">
+            <span class="policy-section__icon" aria-hidden="true">◐</span>
+            <h2 id="he-grigi">7. Casi grigi</h2>
+          </div>
+          <p>Alcune situazioni sembrano innocue ma non lo sono:</p>
+          <ul>
+            <li>una scansione "solo passiva" di un sito altrui può comunque violarne i termini di servizio;</li>
+            <li>leggere dati pubblici su una persona è lecito, raccoglierli e profilarli in modo sistematico spesso no;</li>
+            <li>provare "giusto una volta" una credenziale trovata è già accesso abusivo;</li>
+            <li>un sistema "sembra abbandonato" non significa che sia senza proprietario.</li>
+          </ul>
+          <p class="policy-callout">
+            Nel dubbio, fermati e chiedi. Esercitati sui tuoi sistemi, sul <a href="/virtual-lab.html">Lab virtuale</a> di EVIL
+            o su ambienti pensati apposta per la pratica. L'incertezza non è un'autorizzazione.
+          </p>
+        </section>
+      </div>
+    </div>
+
+    <p class="content-note">
+      Leggi anche: <a href="/site-policies.html">Privacy e regole del sito</a> · <a href="/about.html">Chi siamo</a>
+    </p>
+  </main>
+
+  <!--evil:footer-->
+</body>
+</html>
