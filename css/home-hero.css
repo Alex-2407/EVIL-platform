@@ -19,7 +19,7 @@
 
 .home-page .home-hero.home-hero--editorial {
   position: relative;
-  min-height: min(88vh, 820px);
+  min-height: min(74vh, 640px);
   margin: 0 0 0;
   padding: 0;
   border: none;
@@ -84,9 +84,9 @@
   display: grid;
   grid-template-columns: minmax(220px, 1.05fr) 1px minmax(0, 1.35fr);
   gap: 0 clamp(1.75rem, 4vw, 3.25rem);
-  align-items: stretch;
+  align-items: center;
   min-height: inherit;
-  padding: clamp(2.5rem, 6vw, 4rem) clamp(1.5rem, 4vw, 3rem) clamp(4rem, 10vw, 6rem);
+  padding: clamp(1.5rem, 3.5vw, 2.5rem) clamp(1.5rem, 4vw, 3rem) clamp(2rem, 5vw, 3rem);
   max-width: 1120px;
   margin: 0 auto;
 }
@@ -192,8 +192,7 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  /* Spazio del logo rimosso — mantiene EVIL nella stessa posizione */
-  padding-top: calc(68px + 1.1rem);
+  padding-top: 0;
 }
 
 .home-hero--editorial .home-title {
@@ -206,6 +205,17 @@
   color: #fff;
   text-transform: uppercase;
   white-space: nowrap;
+  /* Trattamento wordmark: bianco con un velo verde EVIL in basso + bagliore */
+  background: linear-gradient(177deg, #ffffff 58%, #9effd0 85%, var(--home-accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 46px rgba(0, 255, 156, 0.18);
+  filter: drop-shadow(0 6px 22px rgba(0, 0, 0, 0.45));
+}
+
+@supports not ((-webkit-background-clip: text) or (background-clip: text)) {
+  .home-hero--editorial .home-title { color: #fff; }
 }
 
 .home-hero--editorial .home-brand-line {
