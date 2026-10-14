@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/virtual-lab.css?v=20260618">
+  <link rel="stylesheet" href="/css/virtual-lab.css?v=20261014">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -28,17 +28,36 @@
 
   <main>
     <section class="vlab-hero" aria-labelledby="vlab-hero-title">
-      <p class="vlab-section-kicker">Impara · Simula · Difendi</p>
-      <h1 id="vlab-hero-title">Laboratorio Virtuale</h1>
-      <p class="vlab-hero-lead">Scenari in un terminale simulato, su una rete isolata: ogni comando restituisce un output didattico scritto a mano, nessuna connessione a sistemi reali. Tutte le tecniche vanno usate solo in test autorizzati — vedi <a href="/ethics.html">Etica e legge</a>.</p>
+      <p class="vlab-section-kicker">Impara · Lab virtuale</p>
+      <h1 id="vlab-hero-title">Entra nel terminale, <em>trova la falla</em>, chiudila.</h1>
+      <p class="vlab-hero-lead"><b data-stat="labs">17</b> scenari, ognuno con un bersaglio volutamente vulnerabile in una rete isolata. Lanci i comandi come in un vero test, recuperi la flag e alla fine scopri come si corregge il problema.</p>
+
+      <ol class="vlab-how" aria-label="Come funziona">
+        <li>
+          <span class="vlab-how__n" aria-hidden="true">1</span>
+          <div><b>Studia</b><p>La guida spiega la tecnica passo passo, con i comandi da usare e la definizione di ogni termine.</p></div>
+        </li>
+        <li>
+          <span class="vlab-how__n" aria-hidden="true">2</span>
+          <div><b>Attacca</b><p>Si apre un terminale con il tuo bersaglio. <code>help</code> elenca i comandi disponibili.</p></div>
+        </li>
+        <li>
+          <span class="vlab-how__n" aria-hidden="true">3</span>
+          <div><b>Consegna e difendi</b><p><code>submit flag &lt;flag&gt;</code> chiude lo scenario, <code>fix</code> mostra la correzione e come si rileva l'attacco.</p></div>
+        </li>
+      </ol>
+
+      <p class="vlab-hero-note">Gli output sono scritti a mano a scopo didattico: nessun comando raggiunge sistemi reali. Puoi tenere aperti fino a 3 scenari, che si chiudono da soli dopo 2 ore. Fuori da qui, queste tecniche si usano solo con un'autorizzazione scritta: <a href="/ethics.html">Etica e legge</a>.</p>
     </section>
 
     <section class="vlab-catalog" id="vlab-catalog" aria-labelledby="vlab-catalog-title">
-      <header class="vlab-section-head">
-        <p class="vlab-section-kicker">Ambienti isolati</p>
-        <h2 id="vlab-catalog-title">Scenari in terminale simulato</h2>
-      </header>
-      <div class="vlab-grid" id="vlab-grid">
+      <div class="vlab-section-head">
+        <div>
+          <p class="vlab-section-kicker">Catalogo</p>
+          <h2 id="vlab-catalog-title">Scegli il tuo bersaglio</h2>
+        </div>
+      </div>
+      <div class="vlab-grid" id="vlab-grid" aria-live="polite">
         <p class="vlab-loading">Caricamento…</p>
       </div>
     </section>

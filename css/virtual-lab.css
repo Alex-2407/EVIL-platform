@@ -784,3 +784,36 @@
 .vlab-catalog.is-hidden {
   display: none;
 }
+
+/* ─── v2: introduzione più chiara (titolo, tre passi, nota) ─── */
+.vlab-hero { text-align: center; }
+.vlab-hero h1 { font-size: clamp(2rem, 5vw, 3.1rem); line-height: 1.1; max-width: 18em; margin: 0.3rem auto 0; text-wrap: balance; }
+.vlab-hero h1 em { color: var(--vlab-amber); font-style: italic; }
+.vlab-hero-lead { margin: 1rem auto 0; font-size: 1.02rem; }
+.vlab-hero-lead b { color: #fff; }
+
+.vlab-how {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  max-width: 980px; margin: 1.8rem auto 0; padding: 0; list-style: none; text-align: left; counter-reset: none;
+}
+.vlab-how li {
+  display: flex; gap: 0.85rem; align-items: flex-start; padding: 1rem 1.1rem; border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09); background: rgba(9, 14, 24, 0.6);
+}
+.vlab-how__n {
+  flex: none; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%;
+  font: 700 0.85rem var(--vlab-mono); color: #1a1208; background: var(--vlab-amber);
+}
+.vlab-how li:nth-child(2) .vlab-how__n { background: #7dd3fc; }
+.vlab-how li:nth-child(3) .vlab-how__n { background: #00ff9c; }
+.vlab-how b { display: block; margin-bottom: 0.25rem; color: #f8fafc; font: 400 1.05rem var(--vlab-serif); }
+.vlab-how p { margin: 0; color: rgba(203, 213, 225, 0.85); font-size: 0.86rem; line-height: 1.55; }
+.vlab-how code {
+  font: 0.8em var(--vlab-mono); padding: 0.08rem 0.35rem; border-radius: 5px; background: rgba(255, 255, 255, 0.07); color: #fcd34d;
+}
+.vlab-hero-note { max-width: 70ch; margin: 1.2rem auto 0; color: rgba(148, 163, 184, 0.9); font-size: 0.82rem; line-height: 1.55; }
+.vlab-hero-note a { color: #00ff9c; }
+
+@media (max-width: 820px) {
+  .vlab-how { grid-template-columns: 1fr; }
+}
