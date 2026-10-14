@@ -1,0 +1,171 @@
+/* Barra del percorso guidato — visibile su ogni pagina quando un corso è attivo.
+   Resta in basso, non copre il contenuto (il body riceve un padding quando c'è). */
+.evil-course-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1200;
+  display: none;
+  padding: 0 12px 12px;
+  pointer-events: none;
+  --cc: #7dd3fc;
+}
+.evil-course-bar.is-visible {
+  display: block;
+  animation: evilCourseUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.evil-course-bar--cyan { --cc: #7dd3fc; }
+.evil-course-bar--amber { --cc: #fbbf24; }
+.evil-course-bar--green { --cc: #00ff9c; }
+
+@keyframes evilCourseUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+
+.evil-course-bar__inner {
+  pointer-events: auto;
+  max-width: 1100px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 1px solid color-mix(in srgb, var(--cc) 40%, transparent);
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--cc) 12%, transparent), transparent 55%),
+    rgba(8, 12, 20, 0.97);
+  box-shadow: 0 22px 60px -18px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.evil-course-bar__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font: 600 0.68rem ui-monospace, "Cascadia Code", Consolas, monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.evil-course-bar__tag {
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #04120b;
+  background: var(--cc);
+  letter-spacing: 0.14em;
+}
+.evil-course-bar__name {
+  color: #f1f5f9;
+  text-transform: none;
+  letter-spacing: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+.evil-course-bar__count { color: #8b97a8; }
+.evil-course-bar__exit {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
+  color: #94a3b8;
+  font: inherit;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.evil-course-bar__exit:hover { color: #f8fafc; border-color: #f87171; }
+
+.evil-course-bar__body {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 14px;
+}
+
+.evil-course-dots { display: flex; gap: 6px; }
+.evil-course-dot {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  color: #8b97a8;
+  font: 700 0.72rem ui-monospace, Consolas, monospace;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.25s;
+}
+.evil-course-dot:hover { transform: translateY(-2px); border-color: var(--cc); }
+.evil-course-dot.is-done { color: #04120b; background: var(--cc); border-color: var(--cc); }
+.evil-course-dot.is-done span { font-size: 0; }
+.evil-course-dot.is-done::after { content: "\2713"; font-size: 0.8rem; }
+.evil-course-dot.is-current {
+  color: #f8fafc;
+  border-color: var(--cc);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cc) 18%, transparent);
+}
+.evil-course-dot.is-current.is-done { color: #04120b; }
+
+.evil-course-bar__step { min-width: 0; }
+.evil-course-bar__step strong {
+  display: block;
+  color: #f8fafc;
+  font: 600 0.92rem ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+.evil-course-bar__step span {
+  display: block;
+  margin-top: 2px;
+  color: #94a3b8;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.evil-course-bar__actions { display: flex; align-items: center; gap: 8px; }
+.evil-course-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font: 700 0.76rem ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s, color 0.2s;
+}
+.evil-course-btn--go {
+  color: #04120b;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--cc) 92%, white), var(--cc));
+  box-shadow: 0 10px 26px -10px color-mix(in srgb, var(--cc) 80%, transparent);
+}
+.evil-course-btn--go:hover { transform: translateY(-2px); color: #04120b; }
+.evil-course-btn--back {
+  color: #cbd5e1;
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.evil-course-btn--back:hover { color: #f8fafc; border-color: var(--cc); }
+
+/* lascia spazio in fondo alla pagina perché la barra non copra il footer */
+body.has-course-bar { padding-bottom: 168px; }
+
+@media (max-width: 760px) {
+  .evil-course-bar { padding: 0 8px 8px; }
+  .evil-course-bar__body { grid-template-columns: 1fr; gap: 10px; }
+  .evil-course-bar__actions { justify-content: flex-end; }
+  .evil-course-bar__actions .evil-course-btn--go { flex: 1; }
+  body.has-course-bar { padding-bottom: 230px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evil-course-bar.is-visible { animation: none; }
+  .evil-course-btn:hover, .evil-course-dot:hover { transform: none; }
+}

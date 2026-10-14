@@ -4,93 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Percorsi di apprendimento - EVIL</title>
-  <meta name="description" content="Tre percorsi ordinati per imparare la cybersecurity su EVIL: dai fondamenti alla sicurezza delle applicazioni web fino al lavoro di un SOC. Livello, durata e obiettivi di ogni tappa.">
+  <meta name="description" content="Tre corsi guidati per imparare la cybersecurity su EVIL: Fondamenti, Sicurezza web e Difesa e analisi. Scegli un percorso e una barra ti accompagna di pagina in pagina, tappa dopo tappa.">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/site-policies.css">
-  <link rel="stylesheet" href="/css/content-pages.css">
+  <link rel="stylesheet" href="/css/learning-paths.css?v=20261015">
 </head>
-<body class="evil-theme policy-page">
+<body class="evil-theme lp-page">
   <div id="fade-overlay"></div>
   <canvas id="matrix-canvas"></canvas>
 
-  <div class="policy-scene" aria-hidden="true">
-    <canvas id="policy-particles"></canvas>
-    <div class="policy-scene__grid"></div>
-    <div class="policy-scene__mesh"></div>
+  <div class="lp-scene" aria-hidden="true">
+    <div class="lp-scene__grid"></div>
+    <div class="lp-scene__mesh"></div>
   </div>
 
   <!--evil:header-->
 
   <main id="paths-main">
-    <section class="policy-hero" aria-labelledby="paths-title">
-      <p class="policy-kicker">Impara · Percorsi consigliati</p>
-      <h1 id="paths-title">Percorsi di apprendimento</h1>
-      <p class="policy-hero__lead">
-        Non sai da dove iniziare? Segui una traccia. Ogni percorso mette in ordine moduli, strumenti e quiz di EVIL
-        in una sequenza che ha senso, con livello, durata e obiettivi di ogni tappa. Le tecniche offensive mostrate
-        servono a capire come difendersi: usale solo su sistemi tuoi o con <a href="/ethics.html">autorizzazione scritta</a>.
+    <section class="lp-hero" aria-labelledby="paths-title">
+      <p class="lp-kicker">Impara · Corsi guidati</p>
+      <h1 id="paths-title">Non uno strumento alla volta, <em>un percorso</em>.</h1>
+      <p class="lp-hero__lead">
+        Ogni pagina di EVIL è densa: da sola è facile perdersi. Un corso mette moduli, laboratori e quiz
+        in ordine e ti accompagna di pagina in pagina. Scegli un percorso: compare in basso una barra che,
+        tappa dopo tappa, ti dice cosa fare e ti porta alla pagina successiva.
+      </p>
+      <p class="lp-hero__note">
+        Le tecniche offensive mostrate servono a capire come difendersi: usale solo su sistemi tuoi o con
+        <a href="/ethics.html">autorizzazione scritta</a>.
       </p>
     </section>
 
-    <div class="paths-grid">
-      <article class="path-card path-card--cyan">
-        <div class="path-card__top">
-          <span class="path-card__num">01</span>
-          <span class="path-card__time">~ 3 ore</span>
-        </div>
-        <p class="path-card__level">Livello base · nessun prerequisito</p>
-        <h2>Fondamenti</h2>
-        <p class="path-card__desc">Per chi parte da zero e vuole capire come funzionano attacchi e difese di base.</p>
-        <ol class="path-steps">
-          <li data-n="1"><a href="/quiz-hub.html">Centro quiz</a><small>Misura il tuo livello di partenza con qualche categoria</small></li>
-          <li data-n="2"><a href="/crypto-studio.html">Studio cifratura</a><small>Hash, password e HTTPS: le basi che userai ovunque</small></li>
-          <li data-n="3"><a href="/web-simulator.html">Simulatore attacchi web</a><small>La prima vulnerabilità: SQL injection in quattro fasi</small></li>
-          <li data-n="4"><a href="/glossary.html">Glossario</a><small>Tieni a portata di mano i termini che non conosci</small></li>
-        </ol>
-        <p class="path-card__goal"><strong>Alla fine:</strong> riconosci le vulnerabilità web più comuni e sai perché una password va protetta con un hash lento.</p>
-      </article>
+    <div class="lp-resume" id="lp-resume" hidden></div>
 
-      <article class="path-card path-card--amber">
-        <div class="path-card__top">
-          <span class="path-card__num">02</span>
-          <span class="path-card__time">~ 4 ore</span>
-        </div>
-        <p class="path-card__level">Livello intermedio · basi di web e reti</p>
-        <h2>Sicurezza web</h2>
-        <p class="path-card__desc">Per chi sviluppa applicazioni e vuole capire e chiudere i bug prima che lo facciano altri.</p>
-        <ol class="path-steps">
-          <li data-n="1"><a href="/web-simulator.html">Simulatore attacchi web</a><small>Le cinque vulnerabilità classiche, con la difesa per ciascuna</small></li>
-          <li data-n="2"><a href="/virtual-lab.html">Lab virtuale</a><small>Prova gli scenari guidati in un terminale simulato</small></li>
-          <li data-n="3"><a href="/vulnerability-scanner.html">Audit header HTTP</a><small>Controlla quali protezioni mancano a un sito tuo</small></li>
-          <li data-n="4"><a href="/quiz-hub.html">Centro quiz</a><small>Categoria "Sicurezza web (OWASP)" per fissare i concetti</small></li>
-        </ol>
-        <p class="path-card__goal"><strong>Alla fine:</strong> sai dove nasce ogni vulnerabilità nel codice e quale difesa verificabile applicare.</p>
-      </article>
-
-      <article class="path-card path-card--green">
-        <div class="path-card__top">
-          <span class="path-card__num">03</span>
-          <span class="path-card__time">~ 4 ore</span>
-        </div>
-        <p class="path-card__level">Livello intermedio · chi difende (blue team / SOC)</p>
-        <h2>Difesa e analisi</h2>
-        <p class="path-card__desc">Per chi vuole imparare a leggere gli attacchi come un analista di un centro operativo di sicurezza.</p>
-        <ol class="path-steps">
-          <li data-n="1"><a href="/attacks-map.html">Mappa di avvisi e vulnerabilità</a><small>Cosa succede adesso, da fonti pubbliche</small></li>
-          <li data-n="2"><a href="/historic-attacks.html">Violazioni storiche</a><small>I casi che hanno cambiato le regole, e la lezione che resta</small></li>
-          <li data-n="3"><a href="/hacked-timeline.html">Timeline incident response</a><small>Gestisci un incidente minuto per minuto</small></li>
-          <li data-n="4"><a href="/report-generator.html">Generatore di report</a><small>Metti in ordine i risultati in un report professionale</small></li>
-        </ol>
-        <p class="path-card__goal"><strong>Alla fine:</strong> sai ricostruire un incidente, riconoscere le cause ricorrenti e scrivere un report leggibile.</p>
-      </article>
+    <div class="lp-grid" id="lp-grid" aria-live="polite">
+      <p class="lp-loading">Caricamento percorsi…</p>
     </div>
 
-    <p class="content-note">
-      Pronto a partire? Il primo modulo di ogni percorso non richiede un account.
+    <p class="lp-foot-note">
+      Il primo modulo di ogni percorso non richiede un account.
       Crea un <a href="/account.html">account gratuito</a> per salvare progressi e trofei.
     </p>
   </main>
 
   <!--evil:footer-->
+
+  <script src="/js/learning-paths-page.js" defer></script>
 </body>
 </html>
