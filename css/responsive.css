@@ -441,7 +441,7 @@ html {
   .am-page .am-map-frame,
   .ha-page .ha-map-frame,
   .attacks-page .map-frame {
-    height: clamp(220px, 32vh, 260px);
+    height: clamp(300px, 46vh, 380px);
   }
 
   .am-ticker,

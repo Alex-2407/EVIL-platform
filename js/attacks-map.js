@@ -206,8 +206,9 @@
       map = L.map(el, {
         center: MAP_CENTER,
         zoom: MAP_ZOOM,
-        minZoom: MAP_ZOOM,
+        minZoom: 0,
         maxZoom: MAP_ZOOM,
+        zoomSnap: 0.25,
         worldCopyJump: false,
         zoomAnimation: false,
         fadeAnimation: false,
@@ -243,7 +244,7 @@
         if (window.EvilLeafletMap) {
           window.EvilLeafletMap.lockMapInteraction(map);
           if (!mapFrozen) {
-            window.EvilLeafletMap.freezeMapView(map, MAP_CENTER, MAP_ZOOM);
+            window.EvilLeafletMap.freezeMapView(map, MAP_CENTER, MAP_ZOOM, { bounds: [[-38, -125], [62, 150]], pad: 22 });
             mapFrozen = true;
           }
         }
@@ -668,7 +669,10 @@
       ws = new WebSocket(`${proto}//${location.host}/ws/incidents?lang=${encodeURIComponent(lang)}`);
       ws.onmessage = (ev) => {
         try {
-          applyPayload(JSON.parse(ev.data));
+          const data = JSON.parse(ev.data);
+          // un aggiornamento vuoto (server appena avviato, cache non pronta) non cancella i dati già mostrati
+          if (!(data && data.incidents && data.incidents.length) && lastPayload && lastPayload.incidents && lastPayload.incidents.length) return;
+          applyPayload(data);
         } catch {
           /* ignore */
         }

@@ -107,3 +107,20 @@
   background: transparent !important;
   border: none !important;
 }
+
+/* Ordine dei livelli: sopra i pane "appiattiti" (z-index: auto) i marker devono
+   stare sotto i popup, altrimenti coprono il testo del fumetto. */
+.am-map-frame .leaflet-shadow-pane,
+.ha-map-frame .leaflet-shadow-pane { z-index: 5; }
+.am-map-frame .leaflet-marker-pane,
+.ha-map-frame .leaflet-marker-pane { z-index: 6; }
+.am-map-frame .leaflet-tooltip-pane,
+.ha-map-frame .leaflet-tooltip-pane { z-index: 7; }
+.am-map-frame .leaflet-popup-pane,
+.ha-map-frame .leaflet-popup-pane { z-index: 8; }
+
+/* Mentre un fumetto è aperto il riquadro con i contatori si fa da parte */
+.am-map-frame .am-map-hud,
+.ha-map-frame .ha-map-hud { transition: opacity 0.2s ease; }
+.am-map-frame.is-popup-open .am-map-hud,
+.ha-map-frame.is-popup-open .ha-map-hud { opacity: 0; pointer-events: none; }

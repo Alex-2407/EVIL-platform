@@ -56,6 +56,18 @@
     });
   }
 
+  /** Area che contiene tutti i casi (con margine), per adattare la vista agli schermi stretti */
+  function historicBounds() {
+    const pts = ATTACKS.map((a) => [Number(a.lat), Number(a.lon)]).filter(([la, lo]) => Number.isFinite(la) && Number.isFinite(lo));
+    if (!pts.length) return [[-40, -130], [65, 150]];
+    const lats = pts.map((p) => p[0]);
+    const lons = pts.map((p) => p[1]);
+    return [
+      [Math.min(...lats) - 6, Math.min(...lons) - 10],
+      [Math.max(...lats) + 6, Math.max(...lons) + 10],
+    ];
+  }
+
   function initMap() {
     const el = $('historic-map');
     if (!el || typeof L === 'undefined' || map) return;
@@ -69,8 +81,9 @@
       map = L.map(el, {
         center: MAP_CENTER,
         zoom: MAP_ZOOM,
-        minZoom: MAP_ZOOM,
+        minZoom: 0,
         maxZoom: MAP_ZOOM,
+        zoomSnap: 0.25,
         worldCopyJump: false,
         zoomAnimation: false,
         fadeAnimation: false,
@@ -107,7 +120,7 @@
         if (window.EvilLeafletMap) {
           window.EvilLeafletMap.lockMapInteraction(map);
           if (!mapFrozen) {
-            window.EvilLeafletMap.freezeMapView(map, MAP_CENTER, MAP_ZOOM);
+            window.EvilLeafletMap.freezeMapView(map, MAP_CENTER, MAP_ZOOM, { bounds: historicBounds(), pad: 22 });
             mapFrozen = true;
           }
         }
