@@ -4,10 +4,9 @@
   "description": "EVIL — piattaforma didattica di cybersecurity: laboratori simulati, quiz, simulatori e strumenti di analisi difensiva",
   "main": "js/server.js",
   "scripts": {
-    "start": "node scripts/build-home-css.js && node js/server.js",
-    "dev": "node scripts/build-home-css.js && node --watch-path=server --watch-path=middleware --watch-path=services --watch-path=utils js/server.js",
-    "build": "node scripts/build-home-css.js && node scripts/i18n.js build",
-    "build:home-css": "node scripts/build-home-css.js",
+    "start": "node js/server.js",
+    "dev": "node --watch-path=server --watch-path=middleware --watch-path=services --watch-path=utils js/server.js",
+    "build": "node scripts/i18n.js build",
     "test": "node --test --test-concurrency=1 \"tests/*.test.js\"",
     "lint": "eslint .",
     "check:encoding": "node scripts/find-encoding-issues.js",

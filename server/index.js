@@ -1,8 +1,6 @@
 'use strict';
 // Avvio del server HTTP + WebSocket
 const http = require('http');
-const path = require('path');
-const fs = require('fs');
 const config = require('./config');
 const { buildContext } = require('./context');
 const { createApp } = require('./app');
@@ -49,10 +47,6 @@ async function main() {
 
   server.listen(config.PORT, '0.0.0.0', () => {
     console.log(`\n✅ EVIL avviato su http://0.0.0.0:${config.PORT} (${describeEnv()}, Node ${process.version})`);
-
-    if (!fs.existsSync(path.join(ctx.root, 'css', 'home.bundle.css'))) {
-      console.warn('⚠️ Manca css/home.bundle.css — esegui: npm run build:home-css');
-    }
     console.log(
       shouldEnforceHttps()
         ? `🔒 HTTPS: redirect attivo → ${getCanonicalOrigin() || '(host richiesta)'}`

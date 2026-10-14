@@ -25,13 +25,13 @@ supporto) vengono salvati come file HTML in `data/email-outbox/`: aprili per cli
 
 | Comando | Cosa fa |
 |---------|---------|
-| `npm start` | genera il CSS della home e avvia il server (usato da Render) |
+| `npm start` | avvia il server (usato da Render) |
 | `npm run dev` | come sopra, con riavvio automatico quando cambi il codice |
 | `npm test` | test automatici (circa 6 secondi, nessuna rete esterna) |
 | `npm run lint` | ESLint su server e script del browser |
 | `npm run check:encoding` | cerca caratteri corrotti (emoji perse, lettere accentate sbagliate, testo UTF-8 letto male) |
 | `npm run check:deploy` | controlla la configurazione prima di un deploy |
-| `npm run build` | rigenera `css/home.bundle.css` da `home-hero/unified/motion/footer.css` |
+| `npm run build` | rigenera i dizionari delle traduzioni per il browser (`js/i18n/*.js`) |
 | `npm run migrate:postgres` | copia gli utenti da `users.json` a Postgres (`DATABASE_URL`) |
 
 Con `TEST_DATABASE_URL=postgres://...` `npm test` prova anche l'archivio utenti su Postgres.

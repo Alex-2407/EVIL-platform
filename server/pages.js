@@ -53,9 +53,6 @@ function checkStaticExists(dir) {
 
 // Le versioni (?v=) non si scrivono più a mano: versionAssetUrls() aggiunge a ogni
 // file l'hash del suo contenuto quando la pagina viene servita.
-// home.bundle.css contiene già home-footer.css: non va caricato una seconda volta.
-const HOME_STYLESHEETS = ['/css/home.css', '/css/home.bundle.css'];
-
 const SITE_FOOTER_CSS = '/css/site-footer.css';
 const SITE_HEADER_CSS = '/css/site-header.css';
 const SYSTEM_THEME_CSS = '/css/system-theme.css';
@@ -368,7 +365,7 @@ function injectSiteHeaderCss(html) {
   return injectSiteChromeCss(out, SITE_HEADER_CSS, 'evil-site-header-injected');
 }
 
-/** site-header.css deve caricare per ultimo (dopo home.bundle) per vincere la cascata */
+/** site-header.css deve caricare per ultimo per vincere la cascata */
 function ensureSiteHeaderCssLast(html) {
   const re = /<link rel="stylesheet" href="([^"]*site-header\.css[^"]*)">\s*/gi;
   const matches = [...html.matchAll(re)];
@@ -377,18 +374,6 @@ function ensureSiteHeaderCssLast(html) {
   const cleaned = html.replace(re, '');
   const linkTag = `<link rel="stylesheet" href="${href}">`;
   return cleaned.replace('</head>', `  ${linkTag}\n</head>`);
-}
-
-function injectHomeStyles(html) {
-  if (!html.includes('home-page') && !html.includes('home-hero--editorial')) {
-    return html;
-  }
-  let out = html;
-  const missing = HOME_STYLESHEETS.filter((href) => !out.includes(href.split('?')[0]));
-  if (missing.length === 0) return out;
-  const block = missing.map((href) => `  <link rel="stylesheet" href="${href}">`).join('\n');
-  out = out.replace('</head>', `${block}\n</head>`);
-  return out;
 }
 
 function injectEvilMotion(html) {
@@ -504,7 +489,6 @@ function injectPageAssets(htmlContent, pageName, lang = DEFAULT_LANG) {
 
   html = injectSiteFooterCss(html);
   html = injectEvilMotion(html);
-  html = injectHomeStyles(html);
   html = injectSiteHeaderCss(html);
   html = ensureSiteHeaderCssLast(html);
 
@@ -588,11 +572,6 @@ function mountStatic(app) {
   }
 
   app.use('/css', express.static(path.join(root, 'css'), staticOptions()));
-
-  // Alias typo comune (browser/cache): home-chrome.css → bundle reale
-  app.get('/css/home-chrome.css', (req, res) => {
-    res.redirect(302, '/css/home.bundle.css');
-  });
 
   app.use('/js', express.static(path.join(root, 'js'), staticOptions()));
   app.use('/assets', express.static(path.join(root, 'assets'), staticOptions()));

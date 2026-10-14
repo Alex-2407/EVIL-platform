@@ -32,9 +32,6 @@ if not exist ".env" (
   echo.
 )
 
-echo [*] Preparo la home...
-node scripts\build-home-css.js
-
 echo [*] Avvio il server. Il sito si aprira' da solo nel browser.
 echo     Per fermarlo: chiudi questa finestra oppure premi CTRL+C.
 echo.

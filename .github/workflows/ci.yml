@@ -50,10 +50,8 @@ jobs:
       - name: Caratteri corrotti nei file del sito
         run: npm run check:encoding
 
-      - name: CSS della home generato
-        run: |
-          npm run build
-          git diff --exit-code css/home.bundle.css || (echo "css/home.bundle.css non è aggiornato: esegui npm run build e fai commit" && exit 1)
+      - name: Traduzioni complete
+        run: node scripts/i18n.js check --strict
 
       - name: Test
         run: npm test

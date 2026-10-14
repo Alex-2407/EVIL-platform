@@ -60,11 +60,6 @@
     return window.matchMedia('(max-width: 992px)').matches;
   }
 
-  function hasEmbeddedHeader() {
-    const header = document.querySelector('header');
-    return !!(header && header.querySelector('.hamburger-btn') && header.querySelector('nav ul'));
-  }
-
   function setDropdownState(li, open) {
     li.classList.toggle('dropdown-open', open);
     const d = li.querySelector('.dropdown');
@@ -502,17 +497,8 @@
     await scheduleInitAuthHeader();
   }
 
+  // L'header è sempre generato dal server (<!--evil:header-->): qui si collegano solo gli eventi.
   async function loadHeaderComponent() {
-    if (!hasEmbeddedHeader()) {
-      const r = await fetch('/html/components/header.html');
-      if (!r.ok) throw new Error(String(r.status));
-      const html = await r.text();
-      const headerElement = document.querySelector('header');
-      const mainElement = document.querySelector('main');
-      if (headerElement) headerElement.outerHTML = html;
-      else if (mainElement) mainElement.insertAdjacentHTML('beforebegin', html);
-      else document.body.insertAdjacentHTML('afterbegin', html);
-    }
     await initEvilNavigation();
   }
 

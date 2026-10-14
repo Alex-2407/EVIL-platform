@@ -37,16 +37,6 @@ else warn('package.json: engines.node non indica Node 22 (Render sceglie la vers
 if (fs.existsSync(path.join(root, 'node_modules'))) ok('dipendenze installate');
 else fail('node_modules mancante: esegui npm install');
 
-try {
-  const parts = ['home-hero.css', 'home-unified.css', 'home-motion.css', 'home-footer.css'];
-  const bundle = fs.readFileSync(path.join(root, 'css', 'home.bundle.css'), 'utf8');
-  const stale = parts.some((p) => !bundle.includes(fs.readFileSync(path.join(root, 'css', p), 'utf8')));
-  if (stale) warn('css/home.bundle.css non corrisponde ai sorgenti: esegui npm run build (npm start lo fa comunque)');
-  else ok('css/home.bundle.css aggiornato');
-} catch (err) {
-  fail(`CSS della home: ${err.message}`);
-}
-
 // ---------------------------------------------------------------- ambiente
 if (!env.nodeEnv()) warn('NODE_ENV non impostato: il server applica le regole di produzione (impostalo esplicitamente)');
 else ok(`NODE_ENV = ${env.nodeEnv()}`);
