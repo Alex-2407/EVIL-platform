@@ -351,36 +351,69 @@ body.home-v7 main#hv-main {
 .hv-atlas__panel.is-swap { animation: hvSwap 0.35s ease; }
 @keyframes hvSwap { from { opacity: 0.2; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-/* ------------------------------------------------------------ catalogo */
-.hv-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
-.hv-tabs button {
-  font: 600 12px var(--hv-mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--hv-muted);
-  background: rgba(255, 255, 255, 0.02); border: 1px solid var(--hv-line2); padding: 11px 18px; min-height: 44px;
-  border-radius: 999px; cursor: pointer; transition: color 0.2s, background 0.2s, border-color 0.2s, box-shadow 0.2s;
+/* ------------------------------------------------------------ catalogo: tre colonne in stile console */
+.hv-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+.hv-col {
+  min-width: 0; position: relative; border-radius: 18px; border: 1px solid var(--hv-line);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, rgba(10, 14, 22, 0.86)), rgba(8, 11, 18, 0.86) 40%);
+  padding: 8px; overflow: hidden;
 }
-.hv-tabs button:hover { color: var(--hv-text); border-color: var(--tc); }
-.hv-tabs button[aria-selected="true"] { color: #000; background: var(--tc); border-color: var(--tc); box-shadow: 0 0 30px -8px var(--tc); }
-.hv-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
-.hv-tile {
-  position: relative; display: flex; flex-direction: column; gap: 10px; padding: 22px; min-width: 0;
-  border-radius: var(--hv-r); border: 1px solid var(--hv-line); background: var(--hv-panel);
-  text-decoration: none; color: inherit; overflow: hidden;
-  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s, box-shadow 0.3s;
+.hv-col::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--c), transparent); opacity: 0.8;
 }
-.hv-tile:hover { color: inherit; border-color: var(--c); box-shadow: 0 20px 50px -24px var(--c); }
-.hv-tile[hidden] { display: none; }
-.hv-tile__ico {
-  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; color: var(--c);
-  background: color-mix(in srgb, var(--c) 14%, transparent); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+.hv-col__head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2px 12px; padding: 18px 16px 16px; border-bottom: 1px dashed var(--hv-line); margin-bottom: 6px; }
+.hv-col__k { grid-column: 1; font: 600 10.5px var(--hv-mono); letter-spacing: 0.26em; text-transform: uppercase; color: var(--c); }
+.hv-col__t { grid-column: 1; font: 400 30px/1.05 var(--hv-serif); color: var(--hv-text); }
+.hv-col__n {
+  grid-column: 2; grid-row: 1 / span 2; align-self: center; font: 700 44px/1 var(--hv-mono); color: transparent;
+  -webkit-text-stroke: 1px var(--c); opacity: 0.75; font-variant-numeric: tabular-nums;
 }
-.hv-tile__ico svg { width: 22px; height: 22px; }
-.hv-tile h3 { margin: 4px 0 0; font: 400 22px/1.2 var(--hv-serif); color: var(--hv-text); }
-.hv-tile p { margin: 0; color: var(--hv-muted); font-size: 14.5px; line-height: 1.55; }
-.hv-tile__foot { margin-top: auto; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding-top: 10px; font: 11px var(--hv-mono); color: var(--hv-dim); letter-spacing: 0.06em; text-transform: uppercase; }
-.hv-tile__arrow { color: var(--c); display: inline-block; transition: transform 0.3s; }
-.hv-tile:hover .hv-tile__arrow { transform: translateX(5px); }
-.hv-tile__shine { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%); transform: translateX(-100%); transition: transform 0.8s; }
-.hv-tile:hover .hv-tile__shine { transform: translateX(100%); }
+.hv-col__list { display: grid; gap: 2px; }
+
+.hv-mod {
+  position: relative; display: block; border-radius: 12px; text-decoration: none; color: var(--hv-text);
+  transition: opacity 0.25s ease, background 0.25s ease;
+}
+.hv-mod::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 2px; border-radius: 2px;
+  background: var(--c); box-shadow: 0 0 12px var(--c); transform: scaleY(0); transition: transform 0.25s ease;
+}
+.hv-mod__row { display: flex; align-items: center; gap: 12px; padding: 11px 12px 11px 14px; min-height: 48px; }
+.hv-mod__n { font: 11px var(--hv-mono); color: var(--hv-dim); width: 2ch; flex: none; transition: color 0.25s; }
+.hv-mod__ico {
+  width: 30px; height: 30px; flex: none; border-radius: 9px; display: grid; place-items: center; color: var(--c);
+  background: color-mix(in srgb, var(--c) 10%, transparent); border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
+  transition: box-shadow 0.25s, background 0.25s;
+}
+.hv-mod__ico svg { width: 16px; height: 16px; }
+.hv-mod__name { flex: 1; min-width: 0; font: 600 15px var(--hv-sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hv-mod__lock { flex: none; width: 15px; height: 15px; color: var(--hv-amber2); opacity: 0.8; }
+.hv-mod__lock svg { width: 100%; height: 100%; display: block; }
+.hv-mod__go { flex: none; color: var(--c); font-family: var(--hv-mono); opacity: 0; transform: translateX(-6px); transition: opacity 0.25s, transform 0.25s; }
+.hv-mod__more { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hv-mod__more > span {
+  overflow: hidden; min-height: 0; padding: 0 14px 0 58px; color: var(--hv-muted); font-size: 13.5px; line-height: 1.5;
+}
+
+/* stato "acceso": hover, focus da tastiera */
+.hv-mod:hover, .hv-mod:focus-visible {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 14%, transparent), transparent 85%);
+}
+.hv-mod:hover::before, .hv-mod:focus-visible::before { transform: scaleY(1); }
+.hv-mod:hover .hv-mod__n, .hv-mod:focus-visible .hv-mod__n { color: var(--c); }
+.hv-mod:hover .hv-mod__ico, .hv-mod:focus-visible .hv-mod__ico { background: color-mix(in srgb, var(--c) 22%, transparent); box-shadow: 0 0 18px -4px var(--c); }
+.hv-mod:hover .hv-mod__go, .hv-mod:focus-visible .hv-mod__go { opacity: 1; transform: none; }
+.hv-mod:hover .hv-mod__more, .hv-mod:focus-visible .hv-mod__more { grid-template-rows: 1fr; }
+.hv-mod:hover .hv-mod__more > span, .hv-mod:focus-visible .hv-mod__more > span { padding-bottom: 12px; }
+.hv-mod:focus-visible { outline: 2px solid var(--c); outline-offset: -2px; }
+/* le altre righe della colonna si fanno da parte */
+@media (hover: hover) {
+  .hv-col__list:hover .hv-mod:not(:hover) { opacity: 0.42; }
+}
+/* entrata a cascata quando la colonna appare */
+.hv-col.is-pending .hv-mod { opacity: 0; transform: translateX(-10px); }
+.hv-col .hv-mod { transition: opacity 0.25s ease, background 0.25s ease, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); transition-delay: 0s, 0s, calc(var(--i) * 40ms); }
 .hv-noscript { text-align: center; color: var(--hv-muted); }
 
 /* ------------------------------------------------------------ prova subito */
@@ -571,6 +604,7 @@ body.home-v7.hv-flip main#hv-main { animation: hvFlip 1.2s cubic-bezier(0.6, 0, 
 
 /* ------------------------------------------------------------ responsive */
 @media (max-width: 1020px) {
+  .hv-cols { grid-template-columns: 1fr; max-width: 640px; margin-inline: auto; }
   .hv-intro__grid, .hv-atlas, .hv-trophy { grid-template-columns: 1fr; }
   .hv-areas, .hv-paths { grid-template-columns: 1fr; }
   .hv-stats { grid-template-columns: repeat(3, 1fr); }

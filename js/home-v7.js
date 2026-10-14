@@ -327,8 +327,9 @@
   }
 
   const revealables = $$('.hv-reveal');
+  // aggiunge un elemento (anche creato dopo, come le colonne del catalogo) alle apparizioni
+  let watchReveal = () => {};
   if ('IntersectionObserver' in window && !reduce) {
-    const vh = window.innerHeight;
     const io = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -338,11 +339,12 @@
         }),
       { threshold: 0.15 }
     );
-    revealables.forEach((el) => {
+    watchReveal = (el) => {
       // nasconde solo ciò che al caricamento è sotto lo schermo: niente sfarfallio
-      if (el.getBoundingClientRect().top > vh * 0.92) el.classList.add('is-pending');
+      if (el.getBoundingClientRect().top > window.innerHeight * 0.92) el.classList.add('is-pending');
       io.observe(el);
-    });
+    };
+    revealables.forEach(watchReveal);
     // anche i titoli nell'hero si "decifrano" subito
     $$('.hv-intro [data-scramble]').forEach((el) => setTimeout(() => scramble(el), 900));
   }
@@ -437,57 +439,72 @@
       });
   })();
 
-  /* ------------------------------------------------------------ catalogo */
+  /* ------------------------------------------------------------ nomi brevi (catalogo e mappa) */
+  const SHORT = {
+    'learning-paths.html': t('Percorsi'),
+    'web-simulator.html': t('Simulatore web'),
+    'virtual-lab.html': t('Lab virtuale'),
+    'crypto-studio.html': t('Cifratura'),
+    'quiz-hub.html': t('Centro quiz'),
+    'hacked-timeline.html': t('Timeline IR'),
+    'glossary.html': t('Glossario'),
+    'attacks-map.html': t('Mappa avvisi'),
+    'historic-attacks.html': t('Violazioni storiche'),
+    'malware-db.html': t('Catalogo malware'),
+    'malware-classification.html': t('Tassonomia'),
+    'persistence-evasion.html': t('Persistenza'),
+    'security-check.html': t('Check URL'),
+    'vulnerability-scanner.html': t('Header HTTP'),
+    'domain-recon.html': t('Ricognizione'),
+    'file-analysis.html': t('Analisi file'),
+    'osint-hub.html': t('OSINT'),
+    'report-generator.html': t('Report'),
+    'dns-enumerator.html': t('DNS e WHOIS'),
+    'subdomain-finder.html': t('Sottodomini'),
+    'ssl-analyzer.html': t('Certificato TLS'),
+    'social-profiling.html': t('Esposizione social'),
+    'public-info.html': t('La tua esposizione'),
+    'about.html': t('Chi siamo'),
+    'ethics.html': t('Etica e legge'),
+    'help.html': t('Aiuto'),
+    'site-policies.html': t('Privacy'),
+  };
+
+  /* ------------------------------------------------------------ catalogo: tre colonne in stile console */
   const CATALOG_AREAS = ['impara', 'analizza', 'verifica'];
   (function catalog() {
-    const box = $('#hv-tiles');
+    const box = $('#hv-cols');
     if (!box || !(SITE.pages || []).length) return;
-    const pages = SITE.pages.filter((p) => CATALOG_AREAS.includes(p.area));
-    box.innerHTML = pages
-      .map(
-        (p) => `<a class="hv-tile hv-tilt" data-a="${esc(p.area)}" href="${esc(pageUrl(p.file))}" style="--c:${AREA_VAR[p.area]}">
-          <span class="hv-tile__shine" aria-hidden="true"></span>
-          <span class="hv-tile__ico">${svgIcon(p.icon)}</span>
-          <h3>${esc(loc(p.title))}</h3>
-          <p>${esc(loc(p.desc))}</p>
-          <span class="hv-tile__foot"><span class="hv-badge ${p.auth ? 'hv-badge--acc' : 'hv-badge--free'}">${esc(
-            p.auth ? t('Con account') : t('Libero')
-          )}</span><span>${esc(areaLabel(p.area))} <span class="hv-tile__arrow" aria-hidden="true">→</span></span></span>
-        </a>`
-      )
-      .join('');
-    const tabs = $$('.hv-tabs [role="tab"]');
-    const select = (b) => {
-      tabs.forEach((x) => {
-        x.setAttribute('aria-selected', String(x === b));
-        x.tabIndex = x === b ? 0 : -1;
-      });
-      const f = b.dataset.f;
-      $$('.hv-tile', box).forEach((tile, i) => {
-        const show = f === 'all' || tile.dataset.a === f;
-        tile.hidden = !show;
-        if (show && !reduce && tile.animate) {
-          tile.animate([{ opacity: 0, transform: 'translateY(16px) scale(.98)' }, { opacity: 1, transform: 'none' }], {
-            duration: 420,
-            delay: i * 25,
-            easing: 'cubic-bezier(.2,.8,.2,1)',
-            fill: 'backwards',
-          });
-        }
-      });
-    };
-    tabs.forEach((b, i) => {
-      b.tabIndex = b.getAttribute('aria-selected') === 'true' ? 0 : -1;
-      b.addEventListener('click', () => select(b));
-      b.addEventListener('keydown', (e) => {
-        const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
-        if (!d) return;
-        e.preventDefault();
-        const n = tabs[(i + d + tabs.length) % tabs.length];
-        select(n);
-        n.focus();
-      });
-    });
+    const lock = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+    box.innerHTML = CATALOG_AREAS.map((a, ci) => {
+      const list = SITE.pages.filter((p) => p.area === a);
+      const rows = list
+        .map((p, i) => {
+          const name = SHORT[p.file] || loc(p.title);
+          const label = `${loc(p.title)}. ${loc(p.desc)}${p.auth ? ' ' + t('Serve un account.') : ''}`;
+          return `<a class="hv-mod" href="${esc(pageUrl(p.file))}" aria-label="${esc(label)}" style="--i:${i}">
+            <span class="hv-mod__row">
+              <span class="hv-mod__n" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+              <span class="hv-mod__ico" aria-hidden="true">${svgIcon(p.icon)}</span>
+              <span class="hv-mod__name">${esc(name)}</span>
+              ${p.auth ? `<span class="hv-mod__lock" title="${esc(t('Serve un account'))}">${lock}</span>` : ''}
+              <span class="hv-mod__go" aria-hidden="true">→</span>
+            </span>
+            <span class="hv-mod__more" aria-hidden="true"><span>${esc(loc(p.desc))}</span></span>
+          </a>`;
+        })
+        .join('');
+      return `<div class="hv-col hv-col--${a} hv-reveal${ci ? ' hv-d' + ci : ''}" style="--c:${AREA_VAR[a]}">
+          <div class="hv-col__head">
+            <span class="hv-col__k">${esc(areaSub(a))}</span>
+            <span class="hv-col__t">${esc(areaLabel(a))}</span>
+            <span class="hv-col__n">${list.length}</span>
+          </div>
+          <div class="hv-col__list">${rows}</div>
+        </div>`;
+    }).join('');
+    // i nuovi blocchi entrano nell'osservatore delle apparizioni
+    $$('.hv-col', box).forEach(watchReveal);
   })();
 
   /* ------------------------------------------------------------ mappa del sito (costellazione) */
@@ -540,30 +557,6 @@
       'ethics.html': [72, 490, 's'],
       'help.html': [190, 560, 's'],
       'site-policies.html': [318, 505, 's'],
-    };
-    const SHORT = {
-      'learning-paths.html': t('Percorsi'),
-      'web-simulator.html': t('Simulatore web'),
-      'virtual-lab.html': t('Lab virtuale'),
-      'crypto-studio.html': t('Cifratura'),
-      'quiz-hub.html': t('Centro quiz'),
-      'hacked-timeline.html': t('Timeline IR'),
-      'glossary.html': t('Glossario'),
-      'attacks-map.html': t('Mappa avvisi'),
-      'historic-attacks.html': t('Violazioni storiche'),
-      'malware-db.html': t('Catalogo malware'),
-      'malware-classification.html': t('Tassonomia'),
-      'persistence-evasion.html': t('Persistenza'),
-      'security-check.html': t('Check URL'),
-      'vulnerability-scanner.html': t('Header HTTP'),
-      'domain-recon.html': t('Ricognizione'),
-      'file-analysis.html': t('Analisi file'),
-      'osint-hub.html': t('OSINT'),
-      'report-generator.html': t('Report'),
-      'about.html': t('Chi siamo'),
-      'ethics.html': t('Etica e legge'),
-      'help.html': t('Aiuto'),
-      'site-policies.html': t('Privacy'),
     };
 
     const pages = SITE.pages.filter((p) => p.nav && HUB[p.area]);
