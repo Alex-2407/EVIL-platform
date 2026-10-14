@@ -3,6 +3,10 @@
 // Le pagine in html/ contengono solo i segnaposto <!--evil:header--> e <!--evil:footer-->.
 
 const { AREAS, PAGES, LANGS, DEFAULT_LANG, pagesOf } = require('./site-map');
+const { svgIcon } = require('./icons');
+
+// Icona grande dell'anteprima nel menu, una per area
+const AREA_ICON = { impara: 'book', analizza: 'globe', verifica: 'shield', progetto: 'star' };
 
 const STR = {
   it: {
@@ -20,6 +24,10 @@ const STR = {
     loginAria: 'Accedi a EVIL',
     registerAria: 'Crea un account EVIL',
     allArea: 'Tutta l’area',
+    modules: (n) => (n === 1 ? 'pagina' : 'pagine'),
+    needAccount: 'Serve un account',
+    free: 'Libero',
+    open: 'Apri',
     footMission:
       'Formazione pratica in cybersecurity. Spieghiamo come funzionano gli attacchi perché chi studia impari a prevenirli, nel rispetto della legge.',
     footFire:
@@ -43,6 +51,10 @@ const STR = {
     loginAria: 'Sign in to EVIL',
     registerAria: 'Create an EVIL account',
     allArea: 'Whole section',
+    modules: (n) => (n === 1 ? 'page' : 'pages'),
+    needAccount: 'Account needed',
+    free: 'Free',
+    open: 'Open',
     footMission:
       'Hands-on cybersecurity training. We explain how attacks work so that learners can prevent them, within the law.',
     footFire:
@@ -76,22 +88,39 @@ function langSwitch(file, lang, extraClass = '') {
 
 function renderHeader(lang, file) {
   const s = STR[lang] || STR.it;
+  const lock = svgIcon('lock');
   const menus = AREAS.map((area) => {
-    const items = pagesOf(area.id)
-      .filter((p) => p.nav)
-      .map((p) => {
+    const pages = pagesOf(area.id).filter((p) => p.nav);
+    const items = pages
+      .map((p, i) => {
         const current = p.file === file;
-        return `<a href="${pageUrl(p.file, lang)}"${current ? ' aria-current="page"' : ''}>` +
-          `<span class="evil-nav__t">${esc(p.title[lang])}</span>` +
-          `<span class="evil-nav__d">${esc(p.desc[lang])}</span></a>`;
+        const n = String(i + 1).padStart(2, '0');
+        return `<a class="evil-dd__item" href="${pageUrl(p.file, lang)}"${current ? ' aria-current="page"' : ''} style="--i:${i}"` +
+          ` data-n="${n}" data-badge="${esc(p.auth ? s.needAccount : s.free)}"${p.auth ? ' data-auth="1"' : ''}>` +
+          `<span class="evil-dd__ico">${svgIcon(p.icon)}</span>` +
+          `<span class="evil-dd__txt"><span class="evil-nav__t">${esc(p.title[lang])}</span>` +
+          `<span class="evil-nav__d">${esc(p.desc[lang])}</span></span>` +
+          (p.auth ? `<span class="evil-dd__lock" title="${esc(s.needAccount)}">${lock}</span>` : '') +
+          '</a>';
       })
       .join('\n              ');
     const active = pagesOf(area.id).some((p) => p.file === file);
     return `          <li class="evil-nav__area evil-nav__area--${area.color}${active ? ' is-active' : ''}">
             <a href="#">${esc(area.label[lang])} ▾</a>
-            <div class="dropdown">
-              <p class="evil-nav__intro">${esc(area.desc[lang])}</p>
+            <div class="dropdown evil-dd evil-dd--${area.id}">
+              <div class="evil-dd__list">
+                <p class="evil-dd__k"><span>${esc(area.sub[lang])}</span><b>${pages.length}</b> ${esc(s.modules(pages.length))}</p>
               ${items}
+                <span class="evil-dd__glide" aria-hidden="true"></span>
+              </div>
+              <div class="evil-dd__peek" aria-hidden="true">
+                <span class="evil-dd__fx"></span>
+                <span class="evil-dd__big" data-area-icon="${AREA_ICON[area.id] || 'info'}">${svgIcon(AREA_ICON[area.id] || 'info')}</span>
+                <p class="evil-dd__pk"><span class="evil-dd__pn">${esc(area.label[lang])}</span></p>
+                <p class="evil-dd__pt">${esc(area.sub[lang])}</p>
+                <p class="evil-dd__pd evil-nav__intro">${esc(area.desc[lang])}</p>
+                <p class="evil-dd__pm"><span class="evil-dd__badge">${pages.length} ${esc(s.modules(pages.length))}</span><span class="evil-dd__go">${esc(s.open)} →</span></p>
+              </div>
             </div>
           </li>`;
   }).join('\n');

@@ -71,6 +71,95 @@
     if (d) d.style.display = open ? 'block' : 'none';
     const trigger = li.querySelector(':scope > a[aria-haspopup]');
     if (trigger) trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (d && d.classList.contains('evil-dd')) {
+      if (open) placeDropdown(d);
+      resetPeek(d);
+    }
+  }
+
+  /* ---- menu v4: anteprima della voce sotto il puntatore + evidenziatore che scivola ---- */
+  // Tiene il menu dentro lo schermo (l'ultima area è vicina al bordo destro sui desktop stretti)
+  function placeDropdown(d) {
+    d.style.removeProperty('--dd-shift');
+    if (isMobileNav()) return;
+    const r = d.getBoundingClientRect();
+    const over = r.right - (document.documentElement.clientWidth - 12);
+    if (over > 0) d.style.setProperty('--dd-shift', `${-Math.ceil(over)}px`);
+  }
+
+  function peekParts(d) {
+    const peek = d.querySelector('.evil-dd__peek');
+    if (!peek) return null;
+    if (!peek.__evilDefault) {
+      peek.__evilDefault = {
+        big: peek.querySelector('.evil-dd__big').innerHTML,
+        pk: peek.querySelector('.evil-dd__pk').innerHTML,
+        pt: peek.querySelector('.evil-dd__pt').textContent,
+        pd: peek.querySelector('.evil-dd__pd').textContent,
+        badge: peek.querySelector('.evil-dd__badge').textContent,
+      };
+    }
+    return peek;
+  }
+
+  function swapPeek(peek) {
+    peek.classList.remove('is-swap');
+    void peek.offsetWidth; // riavvia l'animazione di entrata
+    peek.classList.add('is-swap');
+  }
+
+  function showPeek(d, item) {
+    const peek = peekParts(d);
+    if (!peek || peek.__evilItem === item) return;
+    peek.__evilItem = item;
+    const items = d.querySelectorAll('.evil-dd__item');
+    const ico = item.querySelector('.evil-dd__ico svg');
+    peek.querySelector('.evil-dd__big').innerHTML = ico ? ico.outerHTML : '';
+    peek.querySelector('.evil-dd__pk').textContent = `${item.dataset.n || ''} / ${String(items.length).padStart(2, '0')}`;
+    peek.querySelector('.evil-dd__pt').textContent = item.querySelector('.evil-nav__t').textContent;
+    peek.querySelector('.evil-dd__pd').textContent = item.querySelector('.evil-nav__d').textContent;
+    const badge = peek.querySelector('.evil-dd__badge');
+    badge.textContent = item.dataset.badge || '';
+    badge.classList.toggle('is-auth', item.dataset.auth === '1');
+    swapPeek(peek);
+
+    const glide = d.querySelector('.evil-dd__glide');
+    if (glide) {
+      glide.style.setProperty('--gy', `${item.offsetTop}px`);
+      glide.style.setProperty('--gh', `${item.offsetHeight}px`);
+    }
+    d.classList.add('has-glide');
+  }
+
+  function resetPeek(d) {
+    const peek = peekParts(d);
+    d.classList.remove('has-glide');
+    if (!peek || !peek.__evilItem) return;
+    peek.__evilItem = null;
+    const def = peek.__evilDefault;
+    peek.querySelector('.evil-dd__big').innerHTML = def.big;
+    peek.querySelector('.evil-dd__pk').innerHTML = def.pk;
+    peek.querySelector('.evil-dd__pt').textContent = def.pt;
+    peek.querySelector('.evil-dd__pd').textContent = def.pd;
+    const badge = peek.querySelector('.evil-dd__badge');
+    badge.textContent = def.badge;
+    badge.classList.remove('is-auth');
+    swapPeek(peek);
+  }
+
+  function initDropdownPeek(nav) {
+    nav.querySelectorAll('.evil-dd').forEach((d) => {
+      d.querySelectorAll('.evil-dd__item').forEach((item) => {
+        item.addEventListener('mouseenter', () => showPeek(d, item));
+        item.addEventListener('focus', () => showPeek(d, item));
+      });
+      const list = d.querySelector('.evil-dd__list');
+      if (list) {
+        list.addEventListener('mouseleave', () => {
+          if (!d.contains(document.activeElement)) resetPeek(d);
+        });
+      }
+    });
   }
 
   function closeAllDropdowns(nav, exceptLi) {
@@ -85,6 +174,7 @@
     const nav = document.querySelector('header nav');
     if (!nav || nav.dataset.evilNavBound === '1') return;
     nav.dataset.evilNavBound = '1';
+    initDropdownPeek(nav);
 
     nav.querySelectorAll(':scope > ul > li > a[href="#"], :scope > ul > li > a[href=""]').forEach((trigger, index) => {
       const li = trigger.closest('li');
