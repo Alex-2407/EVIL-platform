@@ -56,5 +56,7 @@
   "[EFFETTO] Un'operazione sensibile parte senza che la vittima l'abbia confermata": "[IMPACT] A sensitive operation goes through without the victim confirming it",
   "[DIFESA] Token anti-CSRF univoco per sessione e per form": "[DEFENCE] A unique anti-CSRF token per session and per form",
   "[DIFESA] Cookie SameSite=Lax o Strict, verifica dell'header Origin": "[DEFENCE] SameSite=Lax or Strict cookies, checking the Origin header",
-  "[DIFESA] Conferma esplicita (password o 2FA) per le operazioni irreversibili": "[DEFENCE] Explicit confirmation (password or 2FA) for irreversible operations"
+  "[DIFESA] Conferma esplicita (password o 2FA) per le operazioni irreversibili": "[DEFENCE] Explicit confirmation (password or 2FA) for irreversible operations",
+  "Simulazione in corso…": "Simulation running…",
+  "Ripeti la simulazione": "Run it again"
 }

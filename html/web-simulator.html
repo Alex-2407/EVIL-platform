@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/web-simulator.css?v=20261001">
+  <link rel="stylesheet" href="/css/web-simulator.css?v=20261014">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -28,62 +28,96 @@
   <!--evil:header-->
 
   <main>
-    <section class="sim-hero sim-hero--editorial" aria-labelledby="sim-hero-title">
-      <p class="sim-section-kicker">Impara · Simulatore web</p>
-      <h1 id="sim-hero-title">Simulatore attacchi web</h1>
-      <p class="hero-lead">Cinque vulnerabilità web classiche (rif. OWASP) spiegate in quattro fasi — <strong>contesto, bug, effetto, difesa</strong> — con un log che racconta cosa farebbe un server vulnerabile. Tutto è una simulazione didattica eseguita nel tuo browser: nessuna richiesta di rete, nessun database reale, nessun comando eseguito.</p>
+    <section class="sim-hero" aria-labelledby="sim-hero-title">
+      <p class="sim-kicker">Impara · Simulatore web</p>
+      <h1 id="sim-hero-title">Simulatore <em>attacchi web</em></h1>
+      <p class="sim-lead">Cinque vulnerabilità web classiche spiegate in quattro fasi: <strong>contesto, bug, effetto, difesa</strong>. Scegli un attacco, cambia l'input e guarda nel log cosa farebbe un server vulnerabile.</p>
+      <ul class="sim-facts" aria-label="Scheda del modulo">
+        <li><b>5</b> attacchi OWASP</li>
+        <li><b>4</b> fasi ciascuno</li>
+        <li>Livello <b>intermedio</b></li>
+        <li><b>25–35</b> minuti</li>
+        <li class="sim-facts__safe">Tutto nel tuo browser</li>
+      </ul>
+      <details class="sim-about">
+        <summary>A chi serve, prerequisiti e obiettivi</summary>
+        <div class="sim-about__body">
+          <dl class="sim-about__grid">
+            <div><dt>A chi serve</dt><dd>Chi sviluppa applicazioni web e chi inizia con la sicurezza offensiva in ottica difensiva.</dd></div>
+            <div><dt>Prerequisiti</dt><dd>Basi di HTTP, HTML e SQL; nozione di cosa sia un cookie di sessione.</dd></div>
+          </dl>
+          <p class="sim-about__title">Obiettivi di apprendimento</p>
+          <ul>
+            <li>Riconoscere dove nasce ciascuna vulnerabilità nel codice e nel flusso di una richiesta.</li>
+            <li>Valutare l'impatto reale di ogni attacco, senza sopravvalutarlo né sottovalutarlo.</li>
+            <li>Associare a ogni classe la difesa corretta e verificabile.</li>
+          </ul>
+          <p class="sim-about__ethics">Nessuna richiesta di rete, nessun database reale, nessun comando eseguito. Tecniche mostrate solo a fini di studio e di difesa: usale esclusivamente su sistemi tuoi o con <a href="/ethics.html">autorizzazione scritta</a>. Per scenari guidati in un terminale apri il <a href="/virtual-lab.html">Lab virtuale</a>.</p>
+        </div>
+      </details>
     </section>
 
-    <section class="sim-brief" aria-label="Scheda del modulo">
-      <dl class="sim-brief-grid">
-        <div><dt>A chi serve</dt><dd>Chi sviluppa applicazioni web e chi inizia con la sicurezza offensiva in ottica difensiva.</dd></div>
-        <div><dt>Livello</dt><dd>Intermedio</dd></div>
-        <div><dt>Durata</dt><dd>25–35 minuti</dd></div>
-        <div><dt>Prerequisiti</dt><dd>Basi di HTTP, HTML e SQL; nozione di cosa sia un cookie di sessione.</dd></div>
-      </dl>
-      <div class="sim-brief-goals">
-        <p class="sim-brief-goals__title">Obiettivi di apprendimento</p>
-        <ul>
-          <li>Riconoscere dove nasce ciascuna vulnerabilità nel codice e nel flusso di una richiesta.</li>
-          <li>Valutare l'impatto reale di ogni attacco, senza sopravvalutarlo né sottovalutarlo.</li>
-          <li>Associare a ogni classe la difesa corretta e verificabile.</li>
-        </ul>
+    <section class="sim-block sim-picker" aria-labelledby="sim-pick-title">
+      <div class="sim-head">
+        <span class="sim-head__n" aria-hidden="true">01</span>
+        <div><p class="sim-kicker">Catalogo</p><h2 id="sim-pick-title">Scegli l'attacco</h2></div>
       </div>
-      <p class="sim-brief-ethics">Tecniche mostrate solo a fini di studio e di difesa. Usale esclusivamente su sistemi tuoi o con <a href="/ethics.html">autorizzazione scritta</a>. Per mettere le mani in pratica su scenari guidati, apri il <a href="/virtual-lab.html">Lab virtuale</a>.</p>
-    </section>
-
-    <div class="sim-phase-rail" id="phase-rail" aria-live="polite"></div>
-
-    <section class="sim-picker">
-      <header class="sim-section-head">
-        <p class="sim-section-kicker">Catalogo</p>
-        <h2>Scegli cosa studiare oggi</h2>
-      </header>
-      <div class="attack-selector" role="tablist">
-        <button type="button" class="attack-btn active" role="tab" aria-selected="true" data-attack="sql-injection">
-          SQL Injection
+      <div class="attack-selector" role="tablist" aria-labelledby="sim-pick-title">
+        <button type="button" class="attack-btn active" role="tab" aria-selected="true" aria-controls="panel-sql-injection" data-attack="sql-injection" data-risk="critical">
+          <span class="attack-btn__tag" aria-hidden="true">SQL</span>
+          <span class="attack-btn__name">SQL Injection</span>
           <span class="btn-sub">Manipolare query al database</span>
+          <span class="attack-btn__risk">Critico</span>
         </button>
-        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="xss">
-          XSS
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" aria-controls="panel-xss" data-attack="xss" data-risk="high">
+          <span class="attack-btn__tag" aria-hidden="true">&lt;/&gt;</span>
+          <span class="attack-btn__name">XSS</span>
           <span class="btn-sub">Codice nel browser della vittima</span>
+          <span class="attack-btn__risk">Alto</span>
         </button>
-        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="brute-force">
-          Brute Force
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" aria-controls="panel-brute-force" data-attack="brute-force" data-risk="high">
+          <span class="attack-btn__tag" aria-hidden="true">***</span>
+          <span class="attack-btn__name">Brute Force</span>
           <span class="btn-sub">Tentativi massivi di login</span>
+          <span class="attack-btn__risk">Alto</span>
         </button>
-        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="file-upload">
-          File Upload
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" aria-controls="panel-file-upload" data-attack="file-upload" data-risk="critical">
+          <span class="attack-btn__tag" aria-hidden="true">.php</span>
+          <span class="attack-btn__name">File Upload</span>
           <span class="btn-sub">File pericolosi sul server</span>
+          <span class="attack-btn__risk">Critico</span>
         </button>
-        <button type="button" class="attack-btn" role="tab" aria-selected="false" data-attack="csrf">
-          CSRF
+        <button type="button" class="attack-btn" role="tab" aria-selected="false" aria-controls="panel-csrf" data-attack="csrf" data-risk="high">
+          <span class="attack-btn__tag" aria-hidden="true">⇄</span>
+          <span class="attack-btn__name">CSRF</span>
           <span class="btn-sub">Azioni al posto tuo</span>
+          <span class="attack-btn__risk">Alto</span>
         </button>
       </div>
     </section>
 
-    <div class="attack-context" id="attack-context" aria-live="polite"></div>
+    <section class="sim-block sim-understand" aria-labelledby="sim-und-title">
+      <div class="sim-head">
+        <span class="sim-head__n" aria-hidden="true">02</span>
+        <div><p class="sim-kicker">Il meccanismo</p><h2 id="sim-und-title">Capisci cosa succede</h2></div>
+      </div>
+      <div class="attack-context" id="attack-context" aria-live="polite"></div>
+      <ol class="sim-phase-rail" id="phase-rail" aria-label="Le quattro fasi"></ol>
+    </section>
+
+    <section class="sim-block sim-lab" aria-labelledby="sim-lab-title">
+      <div class="sim-head">
+        <span class="sim-head__n" aria-hidden="true">03</span>
+        <div><p class="sim-kicker">Laboratorio</p><h2 id="sim-lab-title">Prova e leggi il log</h2></div>
+        <p class="status-bar" aria-label="Stato laboratorio">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>Offline</span>
+          <span class="status-bar__sep" aria-hidden="true">·</span>
+          <span id="lab-status-topic">SQL Injection</span>
+          <span class="status-bar__sep" aria-hidden="true">·</span>
+          <span>Ultima simulazione: <span id="lab-last-run">—</span></span>
+        </p>
+      </div>
 
     <!-- CONTENITORI TAB SIMULAZIONE -->
     <div id="panel-sql-injection" class="tab-content active" role="tabpanel" data-attack="sql-injection">
@@ -373,16 +407,7 @@ Studente2026!</textarea>
       </div>
     </div>
 
-    <div class="status-bar" aria-label="Stato laboratorio">
-      <div class="status-bar__inner">
-        <span class="status-dot" aria-hidden="true"></span>
-        <span class="status-bar__segment"><strong>Stato:</strong> Laboratorio attivo (offline)</span>
-        <span class="status-bar__sep" aria-hidden="true">·</span>
-        <span class="status-bar__segment"><strong>Tema:</strong> <span id="lab-status-topic">SQL Injection</span></span>
-        <span class="status-bar__sep" aria-hidden="true">·</span>
-        <span class="status-bar__segment"><strong>Ultima simulazione:</strong> <span id="lab-last-run">—</span></span>
-      </div>
-    </div>
+    </section>
 
   </main>
 

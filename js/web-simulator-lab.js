@@ -91,13 +91,40 @@
     rail.innerHTML = meta.phases
       .map(
         (p, i) => `
-      <article class="phase-card" data-phase="${i}">
-        <div class="phase-num">${escapeHtml(t('Fase {n}', { n: i + 1 }))}</div>
-        <h3>${escapeHtml(p.title)}</h3>
-        <p>${escapeHtml(p.text)}</p>
-      </article>`
+      <li class="phase-card" data-phase="${i}">
+        <button type="button" class="phase-card__btn" aria-label="${escapeHtml(t('Fase {n}', { n: i + 1 }))}: ${escapeHtml(p.title)}">
+          <span class="phase-num" aria-hidden="true">${i + 1}</span>
+          <span class="phase-card__body">
+            <span class="phase-card__k">${escapeHtml(t('Fase {n}', { n: i + 1 }))}</span>
+            <span class="phase-card__t">${escapeHtml(p.title)}</span>
+            <span class="phase-card__p">${escapeHtml(p.text)}</span>
+          </span>
+        </button>
+      </li>`
       )
       .join('');
+    rail.style.setProperty('--progress', '0');
+  }
+
+  /** Porta in vista e accende il blocco del percorso didattico della fase scelta */
+  function focusLearnBlock(index) {
+    const panel = document.querySelector('.tab-content.active');
+    const block = panel && panel.querySelectorAll('.learn-block')[index];
+    if (!block) return;
+    block.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function bindPhaseRail() {
+    const rail = document.getElementById('phase-rail');
+    if (!rail || rail.dataset.bound === '1') return;
+    rail.dataset.bound = '1';
+    rail.addEventListener('click', (e) => {
+      const card = e.target.closest('.phase-card');
+      if (!card) return;
+      const index = Number(card.dataset.phase);
+      highlightSimPhase(index);
+      focusLearnBlock(index);
+    });
   }
 
   function renderAttackContext(attackId) {
@@ -115,11 +142,32 @@
       </div>`;
   }
 
+  // index: fase accesa (0-3); -1 nessuna; 4 simulazione completata (tutte fatte)
   function highlightSimPhase(index) {
-    document.querySelectorAll('.phase-card').forEach((card, i) => {
+    const cards = document.querySelectorAll('.phase-card');
+    cards.forEach((card, i) => {
       card.classList.toggle('active-phase', i === index);
+      card.classList.toggle('is-done', i < index);
+      const btn = card.querySelector('button');
+      if (btn) btn.setAttribute('aria-current', i === index ? 'step' : 'false');
     });
+    const rail = document.getElementById('phase-rail');
+    if (rail && cards.length) {
+      const progress = Math.max(0, Math.min(index, cards.length - 1)) / (cards.length - 1);
+      rail.style.setProperty('--progress', String(progress));
+    }
+    const panel = document.querySelector('.tab-content.active');
+    if (panel) {
+      panel.querySelectorAll('.learn-block').forEach((block, i) => {
+        block.classList.toggle('is-active', i === index);
+        block.classList.toggle('is-done', i < index);
+      });
+    }
   }
+
+  window.completeLabRun = function completeLabRun() {
+    highlightSimPhase(4);
+  };
 
   window.switchAttack = function switchAttack(attackType, button) {
     if (!ATTACK_LAB[attackType]) return;
@@ -138,11 +186,12 @@
       const isActive = btn === button || btn.dataset.attack === attackType;
       btn.classList.toggle('active', isActive);
       btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      btn.tabIndex = isActive ? 0 : -1;
     });
 
     renderPhaseRail(attackType);
     renderAttackContext(attackType);
-    highlightSimPhase(0);
+    highlightSimPhase(-1);
 
     const statusEl = document.getElementById('lab-status-topic');
     if (statusEl) {
@@ -162,6 +211,18 @@
       if (!btn) return;
       e.preventDefault();
       window.switchAttack(btn.dataset.attack, btn);
+    });
+
+    // frecce sinistra/destra tra le schede, come in ogni tablist
+    selector.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const tabs = Array.from(selector.querySelectorAll('.attack-btn[data-attack]'));
+      const i = tabs.indexOf(document.activeElement);
+      if (i < 0) return;
+      e.preventDefault();
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      next.focus();
+      window.switchAttack(next.dataset.attack, next);
     });
   }
 
@@ -188,6 +249,7 @@
 
   function bootLabUi() {
     bindAttackButtons();
+    bindPhaseRail();
     window.switchAttack('sql-injection', document.querySelector('.attack-btn[data-attack="sql-injection"]'));
     updateLabClock();
   }
