@@ -718,3 +718,33 @@ html.evil-search-open {
     display: none;
   }
 }
+
+/* Menù principale su una riga da desktop: prima le quattro aree non ci stavano
+   per pochi pixel, "Progetto" andava a capo e l'header diventava alto il doppio. */
+@media (min-width: 993px) {
+  header nav > ul {
+    flex-wrap: nowrap;
+    gap: clamp(10px, 1.4vw, 26px);
+  }
+
+  header nav > ul > li > a {
+    white-space: nowrap;
+  }
+}
+
+/* Desktop stretti: la ricerca resta un pulsante con icona (il nome accessibile
+   è nell'aria-label), meno margini attorno al logo. */
+@media (min-width: 993px) and (max-width: 1279px) {
+  .evil-search-btn__label,
+  .evil-search-btn kbd {
+    display: none;
+  }
+
+  .logo-section {
+    margin-left: 0;
+  }
+
+  header nav a {
+    letter-spacing: 0.06em;
+  }
+}

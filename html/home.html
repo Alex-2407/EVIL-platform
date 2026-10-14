@@ -3,399 +3,416 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>EVIL - Cybersecurity Learning Platform | URL Scanner & Security Tools</title>
-
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Piattaforma educativa per cybersecurity con scanner URL, analisi vulnerabilità, simulatore attacchi web e database malware. Impara sicurezza informatica eticamente.">
-  <meta name="keywords" content="cybersecurity, URL scanner, vulnerability analysis, ethical hacking, security tools, malware database, penetration testing">
-  <meta name="author" content="EVIL Platform">
+  <title>EVIL — Piattaforma didattica di cybersecurity</title>
+  <meta name="description" content="Impara la cybersecurity dal lato di chi difende: laboratori nel browser, incidenti reali da fonti pubbliche e strumenti di analisi per i siti che hai il permesso di controllare. Gratis, in italiano e in inglese.">
   <meta name="robots" content="index, follow">
 
-  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="EVIL - Cybersecurity Learning Platform">
-  <meta property="og:description" content="Impara cybersecurity con strumenti avanzati per analisi di sicurezza URL e simulazione attacchi etici.">
+  <meta property="og:title" content="EVIL — Piattaforma didattica di cybersecurity">
+  <meta property="og:description" content="Laboratori nel browser, intelligence da fonti pubbliche e strumenti per lo studio autorizzato. Capire l'attacco è il primo atto della difesa.">
   <meta property="og:url" content="https://www.projectevil.it/">
   <meta property="og:image" content="https://www.projectevil.it/assets/og-image.jpg">
-
-  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="EVIL - Cybersecurity Learning Platform">
-  <meta name="twitter:description" content="Piattaforma educativa per imparare cybersecurity con scanner URL e strumenti di sicurezza.">
+  <meta name="twitter:title" content="EVIL — Piattaforma didattica di cybersecurity">
+  <meta name="twitter:description" content="Laboratori nel browser, intelligence da fonti pubbliche e strumenti per lo studio autorizzato.">
   <meta name="twitter:image" content="https://www.projectevil.it/assets/og-image.jpg">
 
-  <!-- Mobile & PWA -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-
-  <!-- Canonical URL -->
   <link rel="canonical" href="https://www.projectevil.it/">
-
-  <!-- Favicon -->
   <link rel="icon" href="/assets/favicon.ico" sizes="32x32">
   <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 
-  <!-- Link al foglio di stile esterno (home.bundle = hero + unified + motion + footer) -->
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
   <link rel="stylesheet" href="/css/style.css">
-  <link rel="stylesheet" href="/css/system-theme.css?v=20260717">
-  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
-  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
-  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
-  <link rel="stylesheet" href="/css/responsive.css?v=20260717">
-  <link rel="stylesheet" href="/css/home.css?v=20260717">
-  <link rel="stylesheet" href="/css/home.bundle.css?v=20260718">
-  <link rel="stylesheet" href="/css/site-header.css?v=20260619">
-  <style id="home-critical">
-    footer.evil-site-foot { opacity: 1 !important; animation: none !important; }
-    .home-hero--editorial .home-hero-punch { font-family: Georgia, serif; }
-    .home-hero--editorial .home-hero-punch em { color: #00ff9c; font-style: normal; }
-  </style>
-  <script src="/js/evil-motion.js?v=20260626" defer></script>
-      <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>
-  <script src="/js/evil-site-chrome.js?v=20260610" defer></script>
+  <link rel="stylesheet" href="/css/home-v7.css">
 </head>
 
-<body class="evil-theme home-page home-v6 splash-type-1">
-  <!-- Splash Screen - Animazione di apertura (tipo 1 o tipo 2) -->
-  <div id="splash-screen">
-    <!-- Contenuto dinamico - inserito via JavaScript -->
-  </div>
-
+<body class="evil-theme home-v7">
   <div id="fade-overlay"></div>
   <canvas id="matrix-canvas"></canvas>
-  <div class="home-backdrop" aria-hidden="true">
-    <div class="home-backdrop-mesh-wrap" id="home-backdrop-mesh-wrap">
-      <div class="home-backdrop-mesh" id="home-backdrop-mesh"></div>
-    </div>
-    <div class="home-backdrop-beams"></div>
-  </div>
-  <canvas id="home-bg-canvas" class="home-bg-canvas" aria-hidden="true"></canvas>
-  <div class="home-ambient" aria-hidden="true">
-    <span class="home-orb home-orb--violet"></span>
-    <span class="home-orb home-orb--cyan"></span>
-    <span class="home-orb home-orb--emerald"></span>
-    <span class="home-orb home-orb--amber"></span>
-  </div>
+
+  <canvas id="hv-net" class="hv-bg-net" aria-hidden="true"></canvas>
+  <div class="hv-aurora" aria-hidden="true"></div>
+  <div class="hv-grain" aria-hidden="true"></div>
+  <div class="hv-scan" aria-hidden="true"></div>
+  <div class="hv-glow" aria-hidden="true"></div>
+  <div class="hv-rail" aria-hidden="true"></div>
+  <canvas id="hv-rain" aria-hidden="true"></canvas>
 
   <!--evil:header-->
 
-  <main>
-    <section class="home-hero home-hero--editorial" id="home-hero" aria-labelledby="home-title">
-      <div class="home-hero-stripe" aria-hidden="true"></div>
-      <div class="home-hero-fade" aria-hidden="true"></div>
-      <span class="home-hero-issue" aria-hidden="true">EVIL · 2026</span>
+  <main id="hv-main" class="hv">
 
-      <div class="home-hero-shell">
-        <div class="home-hero-brand-col">
-          <div class="home-title-stack">
-            <h1 class="home-title" id="home-title">EVIL</h1>
+    <!-- ============================================================ HERO -->
+    <section class="hv-intro" aria-labelledby="hv-title">
+      <div class="hv-wrap hv-intro__grid">
+        <div>
+          <p class="hv-kicker hv-rise">Piattaforma didattica di cybersecurity<span class="hv-blink" aria-hidden="true"></span></p>
+          <h1 class="hv-glitch hv-rise hv-rise--1" id="hv-title" data-text="EVIL">EVIL</h1>
+          <p class="hv-trio hv-rise hv-rise--2"><span class="hv-trio__a">Impara</span> · <span class="hv-trio__b">Analizza</span> · <span class="hv-trio__c">Verifica</span></p>
+          <p class="hv-lead hv-rise hv-rise--2">Capire l'attacco è il primo atto della <em data-scramble>difesa</em>.</p>
+          <p class="hv-sub hv-rise hv-rise--3">EVIL è un laboratorio gratuito, in italiano e in inglese, che gira nel browser. <strong>Simuli attacchi in sandbox</strong>, <strong>studi incidenti reali</strong> da fonti pubbliche e <strong>analizzi i siti</strong> che hai il permesso di controllare.</p>
+          <div class="hv-cta hv-rise hv-rise--4">
+            <a class="hv-btn hv-btn--amber hv-magnet" href="/web-simulator.html">Inizia dal laboratorio →</a>
+            <a class="hv-btn hv-btn--ghost hv-magnet" href="#hv-mappa">Guarda cosa c'è dentro</a>
           </div>
-          <span class="home-brand-line">Impara · Simula · Difendi</span>
-          <span class="home-hero-meta">Piattaforma didattica</span>
+          <p class="hv-cta-note hv-rise hv-rise--4"><b aria-hidden="true">●</b> gratis · niente da installare · per gli strumenti di analisi serve un account</p>
         </div>
 
-        <div class="home-hero-divide" aria-hidden="true"></div>
-
-        <div class="home-hero-main-col">
-          <blockquote class="home-hero-punch" cite="">
-            <span class="home-punch-mark" aria-hidden="true">«</span>
-            <span class="home-punch-body">
-              <span class="home-punch-lead">Capire l'attacco</span>
-              <span class="home-punch-accent"><em>è il primo atto della difesa.</em></span>
-            </span>
-            <span class="home-punch-mark home-punch-mark--end" aria-hidden="true">»</span>
-          </blockquote>
-
-          <p class="home-tagline">
-            Piattaforma per chi vuole capire la sicurezza informatica sul serio —
-            <strong>laboratori nel browser</strong>, intelligence da fonti pubbliche, strumenti per studio autorizzato.
-          </p>
-
-          <div class="home-cta-row">
-            <a class="home-cta home-cta--primary" href="/web-simulator.html">Laboratorio web</a>
-            <a class="home-cta home-cta--secondary" href="/attacks-map.html">Mappa incidenti</a>
+        <div class="hv-rise hv-rise--2">
+          <div class="hv-term hv-tilt" role="region" aria-label="Terminale dimostrativo: cosa puoi fare su EVIL">
+            <div class="hv-term__bar"><i></i><i></i><i></i><span>ospite@evil:~</span></div>
+            <div class="hv-term__body" id="hv-term">
+              <div data-type><span class="p">ospite@evil:~$ </span>evil --cosa-posso-fare</div>
+              <div><span class="d"># carico i moduli… ok</span></div>
+              <div><span class="k t">impara</span> → <a href="/web-simulator.html">simulare una SQL injection</a> in sandbox</div>
+              <div><span class="k t">impara</span> → <a href="/virtual-lab.html"><span data-stat="labs">17</span> scenari</a> nel terminale del lab</div>
+              <div><span class="c t">analizza</span> → <a href="/attacks-map.html">la mappa degli avvisi</a> di oggi</div>
+              <div><span class="c t">analizza</span> → <a href="/malware-db.html"><span data-stat="malwareFamilies">146</span> schede malware</a> documentate</div>
+              <div><span class="p t">verifica</span> → <a href="/security-check.html">controllare un sito</a> (con permesso)</div>
+              <div><span class="p t">verifica</span> → <a href="/report-generator.html">scrivere un report</a> da consegnare</div>
+              <div class="hv-term__gap" aria-hidden="true"></div>
+              <div data-type><span class="p">ospite@evil:~$ </span>evil --start</div>
+              <div><span class="d"># suggerimento: prova ↑ ↑ ↓ ↓ ← → ← → B A</span></div>
+            </div>
+            <div class="hv-term__tags">
+              <span class="hv-chip hv-chip--c"><span data-stat="labs">17</span> scenari di lab</span>
+              <span class="hv-chip hv-chip--a"><span data-stat="quizQuestions">208</span> domande</span>
+              <span class="hv-chip hv-chip--g"><span data-stat="area:verifica:all">11</span> strumenti</span>
+              <span class="hv-chip">IT · EN</span>
+            </div>
           </div>
-          <p class="home-hero-start">
-            Non sai da dove cominciare? <a href="/learning-paths.html">Segui un percorso guidato →</a>
-          </p>
         </div>
       </div>
-
-      <div class="home-scroll-hint" aria-hidden="true"><span>Scorri</span></div>
+      <div class="hv-scroll" aria-hidden="true">Scorri</div>
     </section>
 
-    <nav class="home-jump home-reveal" aria-label="Vai alle sezioni">
-      <a class="home-jump-link" href="#showcase-title"><span class="home-jump-num">1</span> In evidenza</a>
-      <a class="home-jump-link" href="#portals-title"><span class="home-jump-num">2</span> Catalogo</a>
-      <a class="home-jump-link" href="#starters-title"><span class="home-jump-num">3</span> Percorsi</a>
-    </nav>
+    <!-- feed reale della mappa avvisi: compare solo se il server risponde -->
+    <div class="hv-ticker" id="hv-ticker" hidden>
+      <a class="hv-ticker__label" id="hv-ticker-label" href="/attacks-map.html">Live</a>
+      <div class="hv-ticker__track" id="hv-ticker-track"></div>
+    </div>
 
-    <section class="home-showcase home-reveal" id="home-showcase" aria-labelledby="showcase-title">
-      <header class="home-section-head">
-        <p class="home-section-kicker">In evidenza</p>
-        <h2 class="home-section-title" id="showcase-title">Da dove vuoi partire?</h2>
-        <p class="home-section-sub">I due moduli più usati — poi il catalogo completo</p>
-      </header>
-
-      <div class="spotlight-grid">
-        <a class="spotlight-card spotlight-card--lab" href="/web-simulator.html">
-          <span class="spotlight-shine" aria-hidden="true"></span>
-          <div class="spotlight-deco spotlight-deco--code" aria-hidden="true">
-            <span class="code-deco__grid" aria-hidden="true"></span>
-            <span class="code-deco__scan" aria-hidden="true"></span>
-            <span class="code-deco__glow" aria-hidden="true"></span>
-            <div class="code-deco__terminal">
-              <div class="code-deco__bar" aria-hidden="true"><span></span><span></span><span></span></div>
-              <div class="code-deco__body">
-                <p class="code-deco__line code-deco__line--1"><span class="code-deco__prompt">sql&gt;</span> SELECT * FROM users</p>
-                <p class="code-deco__line code-deco__line--2"><span class="code-deco__prompt">inj&gt;</span> <span class="dim">' OR 1=1--</span></p>
-                <p class="code-deco__line code-deco__line--3 ok"><span class="code-deco__tick" aria-hidden="true">✓</span> demo locale</p>
-              </div>
-            </div>
-            <span class="code-deco__cursor" aria-hidden="true"></span>
-          </div>
-          <div class="spotlight-body">
-            <span class="spotlight-tag">Impara</span>
-            <h3>Laboratorio web</h3>
-            <p>SQLi, XSS, CSRF in quattro fasi guidate: contesto, meccanismo, simulazione, difesa.</p>
-            <ul class="spotlight-points">
-              <li>5 vulnerabilità OWASP</li>
-              <li>Zero payload verso internet</li>
-            </ul>
-            <span class="spotlight-btn">Apri laboratorio</span>
-          </div>
-        </a>
-
-        <a class="spotlight-card spotlight-card--map" href="/attacks-map.html">
-          <span class="spotlight-shine" aria-hidden="true"></span>
-          <div class="spotlight-deco spotlight-deco--map" aria-hidden="true">
-            <span class="map-deco__grid" aria-hidden="true"></span>
-            <span class="map-deco__radar" aria-hidden="true"></span>
-            <svg class="map-lines" viewBox="0 0 120 80" preserveAspectRatio="none" aria-hidden="true">
-              <line x1="26" y1="22" x2="66" y2="36" />
-              <line x1="66" y1="36" x2="86" y2="30" />
-              <line x1="26" y1="22" x2="42" y2="50" />
-              <line x1="42" y1="50" x2="66" y2="36" />
-            </svg>
-            <span class="map-dot map-dot--1" style="--mx:22%;--my:28%"></span>
-            <span class="map-dot map-dot--2" style="--mx:55%;--my:45%"></span>
-            <span class="map-dot map-dot--3" style="--mx:35%;--my:62%"></span>
-            <span class="map-dot map-dot--4" style="--mx:72%;--my:38%"></span>
-            <span class="map-deco__blip map-deco__blip--1" aria-hidden="true"></span>
-            <span class="map-deco__blip map-deco__blip--2" aria-hidden="true"></span>
-          </div>
-          <div class="spotlight-body">
-            <span class="spotlight-tag">Simula</span>
-            <h3>Mappa incidenti</h3>
-            <p>Feed pubblici geolocalizzati per collegare teoria e breach documentati.</p>
-            <ul class="spotlight-points">
-              <li>Dati da fonti aperte</li>
-              <li>Contesto per intelligence</li>
-            </ul>
-            <span class="spotlight-btn spotlight-btn--ghost">Apri mappa</span>
-          </div>
-        </a>
-      </div>
-
-      <p class="home-trust-strip">
-        <span class="trust-icon" aria-hidden="true">◆</span>
-        Simulatori nel browser · OSINT pubblico · analisi solo con permesso scritto
-      </p>
-
-    </section>
-
-    <section class="home-portals home-reveal" id="home-portals" aria-labelledby="portals-title">
-      <header class="home-section-head">
-        <p class="home-section-kicker">Impara · Simula · Difendi</p>
-        <h2 class="home-section-title" id="portals-title">Esplora il catalogo</h2>
-        <p class="home-section-sub">Didattica, intelligence e strumenti in un unico percorso</p>
-      </header>
-
-      <div class="home-portal-grid" id="home-portal-grid">
-        <article class="portal-card portal-card--didattica">
-          <span class="portal-glow" aria-hidden="true"></span>
-          <span class="portal-shine" aria-hidden="true"></span>
-          <span class="portal-watermark" aria-hidden="true">Impara</span>
-          <div class="portal-card-inner">
-            <div class="portal-head">
-              <span class="portal-badge"><span class="portal-badge-num">01</span></span>
-              <div>
-                <h3>Didattica</h3>
-                <p class="portal-tagline">Impara</p>
-              </div>
-            </div>
-            <p class="portal-desc">Simulatori, lab, quiz e timeline per capire i bug prima di difenderli.</p>
-            <ul class="portal-chips" aria-label="Focus didattica">
-              <li>Hash · TLS</li>
-              <li>Lab browser</li>
-              <li>Centro Quiz</li>
-            </ul>
-            <div class="portal-preview portal-preview--code" aria-hidden="true">
-              <span class="pv-line"><span class="pv-prompt">lab ›</span> sql-injection · fase 2/4</span>
-              <span class="pv-line dim">POST /login · payload in sandbox</span>
-              <span class="pv-progress" role="presentation"><span style="width: 50%"></span></span>
-            </div>
-            <ul class="portal-links">
+    <!-- ============================================================ 3 AREE -->
+    <section class="hv-sec" id="hv-aree" aria-labelledby="hv-aree-title">
+      <div class="hv-wrap">
+        <div class="hv-head hv-reveal">
+          <p class="hv-kicker">In dieci secondi</p>
+          <h2 id="hv-aree-title" data-scramble>Tre cose che puoi fare <em>qui</em></h2>
+          <p>Ogni pagina di EVIL appartiene a una di queste tre aree. Scegli da dove partire.</p>
+        </div>
+        <div class="hv-areas">
+          <article class="hv-area hv-area--impara hv-tilt hv-reveal">
+            <div class="hv-area__num" aria-hidden="true">01</div>
+            <span class="hv-area__verb">Impara</span>
+            <h3>Didattica</h3>
+            <p>Capisci come nasce una vulnerabilità e come si chiude, con esercizi guidati che non toccano nessun sistema reale.</p>
+            <ul>
               <li><a href="/learning-paths.html">Percorsi di apprendimento</a></li>
-              <li><a href="/web-simulator.html">Simulatore Attacchi Web</a></li>
-              <li><a href="/virtual-lab.html">Lab Virtuale</a></li>
-              <li><a href="/quiz-hub.html">Centro Quiz</a></li>
+              <li><a href="/web-simulator.html">Simulatore attacchi web</a> <small><span data-stat="webVulns">5</span> vulnerabilità</small></li>
+              <li><a href="/virtual-lab.html">Lab virtuale</a> <small><span data-stat="labs">17</span> scenari</small></li>
+              <li><a href="/crypto-studio.html">Studio cifratura</a> <small><span data-stat="cryptoAlgorithms">22</span> algoritmi</small></li>
+              <li><a href="/quiz-hub.html">Centro quiz</a> <small><span data-stat="quizQuestions">208</span> domande</small></li>
+              <li><a href="/hacked-timeline.html">Timeline incident response</a> <small><span data-stat="irScenarios">5</span> incidenti</small></li>
               <li><a href="/glossary.html">Glossario</a></li>
             </ul>
-            <a class="portal-enter" href="/learning-paths.html">Vai a didattica</a>
-          </div>
-        </article>
-
-        <article class="portal-card portal-card--intel">
-          <span class="portal-glow" aria-hidden="true"></span>
-          <span class="portal-shine" aria-hidden="true"></span>
-          <span class="portal-watermark" aria-hidden="true">Simula</span>
-          <div class="portal-card-inner">
-            <div class="portal-head">
-              <span class="portal-badge"><span class="portal-badge-num">02</span></span>
-              <div>
-                <h3>Intelligence</h3>
-                <p class="portal-tagline">Contesto reale</p>
-              </div>
-            </div>
-            <p class="portal-desc">Studia incidenti documentati, famiglie malware e tecniche di inganno: capire come avvengono gli attacchi viene prima di difendersi.</p>
-            <ul class="portal-chips" aria-label="Focus intelligence">
-              <li>Incidenti</li>
-              <li>Malware</li>
-              <li>Breach</li>
-              <li>Ing. sociale</li>
-            </ul>
-            <div class="portal-preview portal-preview--cases" aria-hidden="true">
-              <div class="pv-case">
-                <span class="pv-case-label">Mappa incidenti</span>
-                <span class="pv-case-detail">Campagne note da fonti OSINT aperte</span>
-              </div>
-              <div class="pv-case pv-case--focus">
-                <span class="pv-case-label">Database malware</span>
-                <span class="pv-case-detail">Famiglie, comportamento e indicatori</span>
-              </div>
-              <div class="pv-case">
-                <span class="pv-case-label">Violazioni storiche</span>
-                <span class="pv-case-detail">Breach, leak e intrusioni hacker</span>
-              </div>
-            </div>
-            <ul class="portal-links">
-              <li><a href="/attacks-map.html">Mappa Incidenti</a></li>
-              <li><a href="/malware-db.html">Database Malware</a></li>
-              <li><a href="/historic-attacks.html">Violazioni Storiche</a></li>
+            <a class="hv-area__go" href="/learning-paths.html">Inizia da un percorso →</a>
+            <span class="hv-area__big" aria-hidden="true">01</span>
+          </article>
+          <article class="hv-area hv-area--analizza hv-tilt hv-reveal hv-d1">
+            <div class="hv-area__num" aria-hidden="true">02</div>
+            <span class="hv-area__verb">Analizza</span>
+            <h3>Intelligence</h3>
+            <p>Studia minacce e incidenti reali da fonti pubbliche: cosa è successo, come, e cosa ha insegnato a chi difende.</p>
+            <ul>
+              <li><a href="/attacks-map.html">Mappa di avvisi e vulnerabilità</a></li>
+              <li><a href="/historic-attacks.html">Violazioni storiche</a> <small><span data-stat="breaches">12</span> casi</small></li>
+              <li><a href="/malware-db.html">Catalogo malware</a> <small><span data-stat="malwareFamilies">146</span> schede</small></li>
+              <li><a href="/malware-classification.html">Tassonomia malware</a> <small><span data-stat="malwareCategories">16</span> categorie</small></li>
               <li><a href="/persistence-evasion.html">Persistenza ed evasione</a></li>
             </ul>
-            <a class="portal-enter" href="/attacks-map.html">Apri il catalogo intelligence</a>
-          </div>
-        </article>
+            <a class="hv-area__go" href="/attacks-map.html">Apri la mappa degli avvisi →</a>
+            <span class="hv-area__big" aria-hidden="true">02</span>
+          </article>
+          <article class="hv-area hv-area--verifica hv-tilt hv-reveal hv-d2">
+            <div class="hv-area__num" aria-hidden="true">03</div>
+            <span class="hv-area__verb">Verifica</span>
+            <h3>Strumenti</h3>
+            <p>Controlla siti e file che hai il diritto di analizzare e ottieni un risultato spiegato, anche per chi non è tecnico.</p>
+            <ul>
+              <li><a href="/security-check.html">Check URL</a></li>
+              <li><a href="/vulnerability-scanner.html">Audit header HTTP</a></li>
+              <li><a href="/domain-recon.html">Ricognizione dominio</a> <small>DNS, WHOIS, sottodomini, TLS</small></li>
+              <li><a href="/file-analysis.html">Analisi file</a></li>
+              <li><a href="/osint-hub.html">OSINT difensivo</a></li>
+              <li><a href="/report-generator.html">Generatore di report</a></li>
+            </ul>
+            <a class="hv-area__go" href="/security-check.html">Controlla un sito →</a>
+            <span class="hv-area__big" aria-hidden="true">03</span>
+          </article>
+        </div>
+      </div>
+    </section>
 
-        <article class="portal-card portal-card--tools">
-          <span class="portal-glow" aria-hidden="true"></span>
-          <span class="portal-shine" aria-hidden="true"></span>
-          <span class="portal-watermark" aria-hidden="true">Difendi</span>
-          <div class="portal-card-inner">
-            <div class="portal-head">
-              <span class="portal-badge"><span class="portal-badge-num">03</span></span>
-              <div>
-                <h3>Strumenti</h3>
-                <p class="portal-tagline">Difendi</p>
+    <!-- ============================================================ MAPPA DEL SITO -->
+    <section class="hv-sec" id="hv-mappa" aria-labelledby="hv-mappa-title">
+      <div class="hv-wrap">
+        <div class="hv-head hv-reveal">
+          <p class="hv-kicker">Tutto il sito in un colpo d'occhio</p>
+          <h2 id="hv-mappa-title" data-scramble>La mappa di <em>EVIL</em></h2>
+          <p>Passa sopra un nodo (o toccalo, o usa Tab) per sapere cosa fa la pagina. Clic, o secondo tocco, per aprirla.</p>
+        </div>
+        <div class="hv-atlas hv-reveal">
+          <div class="hv-atlas__map">
+            <svg id="hv-atlas" viewBox="0 0 800 600" role="group" aria-label="Mappa interattiva delle pagine di EVIL"></svg>
+            <div class="hv-atlas__legend" aria-hidden="true">
+              <span><i style="background:var(--hv-cyan)"></i>Impara</span>
+              <span><i style="background:var(--hv-amber2)"></i>Analizza</span>
+              <span><i style="background:var(--hv-green)"></i>Verifica</span>
+              <span><i style="background:var(--hv-violet)"></i>Progetto</span>
+            </div>
+          </div>
+          <aside class="hv-atlas__panel" id="hv-panel" aria-live="polite">
+            <span class="hv-chip hv-chip--g">Benvenuto</span>
+            <h3>Tutto EVIL in una mappa</h3>
+            <p>Ogni nodo è una pagina del menù: i quattro grandi sono le aree, quelli piccoli le pagine. Capire gli attacchi abbastanza bene da saperli prevenire: è l'unico obiettivo.</p>
+            <div class="hv-atlas__meta">
+              <span class="hv-chip hv-chip--c">Impara · <span data-stat="area:impara">7</span></span>
+              <span class="hv-chip hv-chip--a">Analizza · <span data-stat="area:analizza">5</span></span>
+              <span class="hv-chip hv-chip--g">Verifica · <span data-stat="area:verifica">6</span></span>
+              <span class="hv-chip hv-chip--v">Progetto · <span data-stat="area:progetto">4</span></span>
+            </div>
+            <p class="hv-atlas__hint">Suggerimento: il nodo centrale nasconde qualcosa.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ CATALOGO -->
+    <section class="hv-sec" id="hv-catalogo" aria-labelledby="hv-cat-title">
+      <div class="hv-wrap">
+        <div class="hv-head hv-reveal">
+          <p class="hv-kicker">Catalogo completo</p>
+          <h2 id="hv-cat-title" data-scramble>Ogni modulo, <em>spiegato in una riga</em></h2>
+          <p>Il badge dice se serve un account: la parte didattica e l'intelligence sono libere.</p>
+        </div>
+        <div class="hv-tabs hv-reveal" role="tablist" aria-label="Filtra per area">
+          <button type="button" role="tab" aria-selected="true" data-f="all" style="--tc:#fff">Tutto</button>
+          <button type="button" role="tab" aria-selected="false" data-f="impara" style="--tc:var(--hv-cyan)">Impara</button>
+          <button type="button" role="tab" aria-selected="false" data-f="analizza" style="--tc:var(--hv-amber2)">Analizza</button>
+          <button type="button" role="tab" aria-selected="false" data-f="verifica" style="--tc:var(--hv-green)">Verifica</button>
+        </div>
+        <div class="hv-tiles" id="hv-tiles">
+          <p class="hv-noscript">L'elenco completo delle pagine è anche nel menù in alto e in fondo alla pagina.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ PROVA SUBITO -->
+    <section class="hv-sec" id="hv-prova" aria-labelledby="hv-prova-title">
+      <div class="hv-wrap">
+        <div class="hv-head hv-reveal">
+          <p class="hv-kicker">Prova senza registrarti</p>
+          <h2 id="hv-prova-title" data-scramble>Tre assaggi, <em>trenta secondi</em> l'uno</h2>
+          <p>Mini esercizi presi dai moduli veri. Niente lascia il tuo browser.</p>
+        </div>
+        <div class="hv-play hv-reveal">
+          <div class="hv-play__tabs" role="tablist" aria-label="Esercizi rapidi">
+            <button type="button" role="tab" id="hv-t-caesar" aria-controls="hv-p-caesar" aria-selected="true"><b>Cifrario di Cesare</b><span>dallo Studio cifratura</span></button>
+            <button type="button" role="tab" id="hv-t-phish" aria-controls="hv-p-phish" aria-selected="false" tabindex="-1"><b>Phishing o no?</b><span>dal Centro quiz</span></button>
+            <button type="button" role="tab" id="hv-t-pass" aria-controls="hv-p-pass" aria-selected="false" tabindex="-1"><b>Quanto regge la password?</b><span>dallo Studio cifratura</span></button>
+          </div>
+
+          <div class="hv-play__box" id="hv-p-caesar" role="tabpanel" aria-labelledby="hv-t-caesar">
+            <h3>Sposta l'alfabeto</h3>
+            <p class="hv-play__lead">Il cifrario più antico: ogni lettera scala di N posizioni. Giulio Cesare usava 3.</p>
+            <label class="hv-lbl" for="hv-c-in">Testo in chiaro</label>
+            <input class="hv-input" type="text" id="hv-c-in" maxlength="60" autocomplete="off" spellcheck="false">
+            <label class="hv-lbl" for="hv-c-k">Chiave: <span id="hv-c-kv">7</span></label>
+            <input type="range" id="hv-c-k" min="0" max="25" value="7">
+            <p class="hv-lbl">Testo cifrato</p>
+            <div class="hv-out" id="hv-c-out" aria-live="polite"></div>
+            <div class="hv-wheel" id="hv-c-wheel" aria-hidden="true"></div>
+            <p class="hv-challenge">Sfida: questo messaggio è stato cifrato con una chiave sconosciuta. Trova la chiave con lo slider.<br><code>HYLO</code> → <span id="hv-c-res">?</span></p>
+          </div>
+
+          <div class="hv-play__box" id="hv-p-phish" role="tabpanel" aria-labelledby="hv-t-phish" hidden>
+            <h3>Questa email è legittima?</h3>
+            <p class="hv-play__lead">Passa sopra il pulsante per vedere dove porta davvero, poi decidi. Banca e domini sono inventati.</p>
+            <div class="hv-mail">
+              <div class="hv-mail__head">
+                <span><b>Banca Fittizia</b> &lt;sicurezza@bancafittizia-verifica.co&gt;</span>
+                <small>Oggetto: ⚠ Accesso bloccato — azione richiesta entro 24 ore</small>
+              </div>
+              <div class="hv-mail__body">
+                <p>Gentile cliente, abbiamo rilevato un accesso sospetto. Il tuo conto verrà <b>sospeso</b> se non confermi i dati entro oggi.</p>
+                <span class="hv-fakebtn" tabindex="0">Conferma i tuoi dati<span class="hv-fakebtn__tip">→ http://bancaf1ttizia-login.top/conferma</span></span>
               </div>
             </div>
-            <p class="portal-desc">Check URL, CVE, ricognizione dominio, analisi file e OSINT — solo su target autorizzati.</p>
-            <ul class="portal-chips" aria-label="Focus strumenti">
-              <li>Check URL</li>
-              <li>DNS / SSL</li>
-              <li>OSINT</li>
-            </ul>
-            <div class="portal-preview portal-preview--scan" aria-hidden="true">
-              <span class="pv-check pv-check--ok">SSL · certificato valido</span>
-              <span class="pv-check pv-check--ok">Headers · HSTS presente</span>
-              <span class="pv-check pv-check--wait">DNS · enumerazione…</span>
+            <div class="hv-verdict">
+              <button type="button" class="hv-btn hv-btn--ghost" data-v="ok">✓ Legittima</button>
+              <button type="button" class="hv-btn hv-btn--amber" data-v="ph">⚠ Phishing</button>
             </div>
-            <ul class="portal-links">
-              <li><a href="/security-check.html">Check URL</a></li>
-              <li><a href="/domain-recon.html">Ricognizione dominio</a></li>
-              <li><a href="/vulnerability-scanner.html">Header HTTP</a></li>
-              <li><a href="/osint-hub.html">OSINT</a></li>
-            </ul>
-            <a class="portal-enter" href="/security-check.html">Vai agli strumenti</a>
+            <div class="hv-explain" id="hv-ph-exp" aria-live="polite" hidden>
+              <p><b id="hv-ph-verdict">È phishing.</b></p>
+              <ul>
+                <li>Il mittente scrive da un dominio diverso da quello della banca (<code>-verifica.co</code>).</li>
+                <li>Il link porta a <code>bancaf1ttizia-login.top</code>: un "1" al posto della "i".</li>
+                <li>Urgenza e minacce ("entro 24 ore", "sospeso") servono a farti agire senza pensare.</li>
+              </ul>
+              <p>Altre domande così nel <a href="/quiz-hub.html">Centro quiz</a>.</p>
+            </div>
           </div>
-        </article>
+
+          <div class="hv-play__box" id="hv-p-pass" role="tabpanel" aria-labelledby="hv-t-pass" hidden>
+            <h3>Forza bruta, a occhio</h3>
+            <p class="hv-play__lead">Stima quanto ci metterebbe un attaccante offline a indovinarla. Il calcolo avviene qui: la password non va da nessuna parte.</p>
+            <label class="hv-lbl" for="hv-pw">Prova una password (non una vera!)</label>
+            <input class="hv-input" type="password" id="hv-pw" autocomplete="off">
+            <div class="hv-meter" aria-hidden="true"><i id="hv-pw-bar"></i></div>
+            <div class="hv-pwfacts">
+              <div><small>Entropia</small><b id="hv-pw-ent">–</b></div>
+              <div><small>Combinazioni</small><b id="hv-pw-comb">–</b></div>
+              <div><small>Tempo stimato</small><b id="hv-pw-time">–</b></div>
+            </div>
+            <ul class="hv-pwtips" id="hv-pw-tips"></ul>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section class="home-starters home-reveal" id="home-starters" aria-labelledby="starters-title">
-      <header class="home-section-head">
-        <p class="home-section-kicker">Percorsi</p>
-        <h2 class="home-section-title" id="starters-title">Da dove iniziare</h2>
-        <p class="home-section-sub">Quattro modi concreti per usare EVIL — scegli in base a cosa vuoi fare oggi</p>
-      </header>
-
-      <div class="home-starter-grid">
-        <a class="home-starter-card home-starter-card--learn" href="/web-simulator.html">
-          <span class="home-starter-num" aria-hidden="true">01</span>
-          <div class="home-starter-body">
-            <p class="home-starter-pillar">Impara</p>
-            <h3 class="home-starter-title">Prima vulnerabilità web</h3>
-            <p class="home-starter-desc">SQL injection, XSS e CSRF spiegati a fasi nel browser. Payload in sandbox, nessun sito reale.</p>
-            <span class="home-starter-cta">Simulatore attacchi web →</span>
-          </div>
-        </a>
-
-        <a class="home-starter-card home-starter-card--sim" href="/attacks-map.html">
-          <span class="home-starter-num" aria-hidden="true">02</span>
-          <div class="home-starter-body">
-            <p class="home-starter-pillar">Simula</p>
-            <h3 class="home-starter-title">Leggi un incidente reale</h3>
-            <p class="home-starter-desc">Mappa campagne documentate da fonti OSINT aperte: dove, quando e che tipo di attacco.</p>
-            <span class="home-starter-cta">Mappa incidenti →</span>
-          </div>
-        </a>
-
-        <a class="home-starter-card home-starter-card--def" href="/security-check.html">
-          <span class="home-starter-num" aria-hidden="true">03</span>
-          <div class="home-starter-body">
-            <p class="home-starter-pillar">Difendi</p>
-            <h3 class="home-starter-title">Verifica un sito</h3>
-            <p class="home-starter-desc">SSL, header HTTP e segnali di rischio su URL che hai il permesso di analizzare.</p>
-            <span class="home-starter-cta">Check URL →</span>
-          </div>
-        </a>
-
-        <a class="home-starter-card home-starter-card--intel" href="/quiz-hub.html">
-          <span class="home-starter-num" aria-hidden="true">04</span>
-          <div class="home-starter-body">
-            <p class="home-starter-pillar">Metti alla prova</p>
-            <h3 class="home-starter-title">Centro Quiz</h3>
-            <p class="home-starter-desc">Phishing, web, malware, DNS, SSL, OSINT, API e log — oltre 200 domande con animazioni sceniche.</p>
-            <span class="home-starter-cta">Apri il centro quiz →</span>
-          </div>
-        </a>
+    <!-- ============================================================ PERCORSI -->
+    <section class="hv-sec" id="hv-percorsi" aria-labelledby="hv-perc-title">
+      <div class="hv-wrap">
+        <div class="hv-head hv-reveal">
+          <p class="hv-kicker">Percorsi consigliati</p>
+          <h2 id="hv-perc-title" data-scramble>Non sai da dove iniziare? <em>Segui una traccia</em></h2>
+          <p>Tre sequenze già pronte, in base a chi sei e a quanto tempo hai.</p>
+        </div>
+        <div class="hv-paths">
+          <article class="hv-path hv-path--1 hv-reveal">
+            <div class="hv-path__top"><h3>Fondamenti</h3><span class="hv-path__time">~ 3 ore</span></div>
+            <p class="hv-path__level">Livello base · nessun prerequisito</p>
+            <p>Per chi parte da zero e vuole capire come funzionano attacchi e difese di base.</p>
+            <ol>
+              <li data-n="1"><a href="/quiz-hub.html">Centro quiz</a><small>Misura il tuo livello di partenza con qualche categoria</small></li>
+              <li data-n="2"><a href="/crypto-studio.html">Studio cifratura</a><small>Hash, password e HTTPS: le basi che userai ovunque</small></li>
+              <li data-n="3"><a href="/web-simulator.html">Simulatore attacchi web</a><small>La prima vulnerabilità: SQL injection in quattro fasi</small></li>
+              <li data-n="4"><a href="/glossary.html">Glossario</a><small>Tieni a portata di mano i termini che non conosci</small></li>
+            </ol>
+          </article>
+          <article class="hv-path hv-path--2 hv-reveal hv-d1">
+            <div class="hv-path__top"><h3>Sicurezza web</h3><span class="hv-path__time">~ 4 ore</span></div>
+            <p class="hv-path__level">Livello intermedio · basi di web e reti</p>
+            <p>Per chi sviluppa applicazioni e vuole capire e chiudere i bug prima che lo facciano altri.</p>
+            <ol>
+              <li data-n="1"><a href="/web-simulator.html">Simulatore attacchi web</a><small>Le cinque vulnerabilità classiche, con la difesa per ciascuna</small></li>
+              <li data-n="2"><a href="/virtual-lab.html">Lab virtuale</a><small>Prova gli scenari guidati in un terminale simulato</small></li>
+              <li data-n="3"><a href="/vulnerability-scanner.html">Audit header HTTP</a><small>Controlla quali protezioni mancano a un sito tuo</small></li>
+              <li data-n="4"><a href="/quiz-hub.html">Centro quiz</a><small>Categoria "Sicurezza web (OWASP)" per fissare i concetti</small></li>
+            </ol>
+          </article>
+          <article class="hv-path hv-path--3 hv-reveal hv-d2">
+            <div class="hv-path__top"><h3>Difesa e analisi</h3><span class="hv-path__time">~ 4 ore</span></div>
+            <p class="hv-path__level">Livello intermedio · chi difende (blue team / SOC)</p>
+            <p>Per chi vuole imparare a leggere gli attacchi come un analista di un centro operativo di sicurezza.</p>
+            <ol>
+              <li data-n="1"><a href="/attacks-map.html">Mappa di avvisi e vulnerabilità</a><small>Cosa succede adesso, da fonti pubbliche</small></li>
+              <li data-n="2"><a href="/historic-attacks.html">Violazioni storiche</a><small>I casi che hanno cambiato le regole, e la lezione che resta</small></li>
+              <li data-n="3"><a href="/hacked-timeline.html">Timeline incident response</a><small>Gestisci un incidente minuto per minuto</small></li>
+              <li data-n="4"><a href="/report-generator.html">Generatore di report</a><small>Metti in ordine i risultati in un report professionale</small></li>
+            </ol>
+          </article>
+        </div>
+        <p class="hv-paths__more hv-reveal"><a class="hv-btn hv-btn--ghost" href="/learning-paths.html">Tutti i dettagli dei percorsi →</a></p>
       </div>
-
-      <p class="home-starter-note">
-        Preferisci una traccia ordinata dai fondamenti in su?
-        <a href="/learning-paths.html">Vedi i tre percorsi di apprendimento →</a>
-      </p>
     </section>
 
-    <aside class="home-ethics home-reveal" id="home-ethics">
-      <p>
-        EVIL è per <strong>studio e difesa</strong>, non per abusi. Test su sistemi reali solo con autorizzazione scritta.
-        <a href="/ethics.html">Etica e legge →</a>
-      </p>
-    </aside>
+    <!-- ============================================================ NUMERI -->
+    <section class="hv-sec hv-sec--tight" id="hv-numeri" aria-labelledby="hv-num-title">
+      <div class="hv-wrap">
+        <h2 class="hv-sr" id="hv-num-title">EVIL in numeri</h2>
+        <div class="hv-stats">
+          <div class="hv-stat hv-reveal" style="--c:var(--hv-cyan)"><b data-count data-stat="labs">17</b><span>scenari di lab</span></div>
+          <div class="hv-stat hv-reveal hv-d1" style="--c:var(--hv-amber2)"><b data-count data-stat="quizQuestions">208</b><span>domande di quiz</span></div>
+          <div class="hv-stat hv-reveal hv-d2" style="--c:var(--hv-amber2)"><b data-count data-stat="quizCategories">22</b><span>categorie di quiz</span></div>
+          <div class="hv-stat hv-reveal hv-d3" style="--c:var(--hv-green)"><b data-count data-stat="malwareFamilies">146</b><span>schede malware</span></div>
+          <div class="hv-stat hv-reveal hv-d4" style="--c:var(--hv-cyan)"><b data-count data-stat="breaches">12</b><span>violazioni storiche</span></div>
+          <div class="hv-stat hv-reveal hv-d4" style="--c:var(--hv-green)"><b>0<sup>€</sup></b><span>costo</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ TROFEI E SEGRETI -->
+    <section class="hv-sec" id="hv-trofei" aria-labelledby="hv-tro-title">
+      <div class="hv-wrap hv-trophy">
+        <div class="hv-ring hv-reveal">
+          <svg viewBox="0 0 200 200" aria-hidden="true">
+            <defs><linearGradient id="hv-rg" x1="0" x2="1"><stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#00ff9c"/></linearGradient></defs>
+            <circle cx="100" cy="100" r="86" fill="none" stroke="rgba(148,163,184,.12)" stroke-width="12"/>
+            <circle class="hv-ring__bar" id="hv-ring" cx="100" cy="100" r="86" fill="none" stroke="url(#hv-rg)" stroke-width="12" stroke-linecap="round" stroke-dasharray="540.35" stroke-dashoffset="540.35"/>
+          </svg>
+          <div class="hv-ring__lbl"><b id="hv-ring-n">0/6</b><span>segreti trovati</span></div>
+        </div>
+        <div class="hv-reveal hv-d1">
+          <p class="hv-kicker">Con un account</p>
+          <h2 id="hv-tro-title">Progressi, trofei e <em>qualche segreto</em></h2>
+          <p>Ogni lab completato, quiz superato e incidente chiuso finisce nel tuo profilo: sedici trofei, dal bronzo al leggendario. E questa pagina nasconde sei segreti: il cerchio si riempie man mano che li trovi.</p>
+          <div class="hv-medals">
+            <div class="hv-medal hv-medal--bronze"><div><div class="hv-medal__ico" data-icon="globe"></div><small>Radar Globale</small></div></div>
+            <div class="hv-medal hv-medal--silver"><div><div class="hv-medal__ico" data-icon="quiz"></div><small>Mente Affilata</small></div></div>
+            <div class="hv-medal hv-medal--gold"><div><div class="hv-medal__ico" data-icon="flask"></div><small>Architetto del Lab</small></div></div>
+            <div class="hv-medal hv-medal--legendary is-locked" id="hv-secret-medal"><div><div class="hv-medal__ico" data-icon="lock"></div><small id="hv-secret-name">Segreto</small></div></div>
+          </div>
+          <button type="button" class="hv-btn hv-btn--ghost hv-hint" id="hv-hint">Dammi un indizio</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================ REGOLE -->
+    <section class="hv-sec hv-sec--tight" id="hv-regole" aria-labelledby="hv-eth-title">
+      <div class="hv-wrap">
+        <h2 class="hv-sr" id="hv-eth-title">Le regole del gioco</h2>
+        <div class="hv-ethic hv-reveal">
+          <div><span class="hv-ethic__i">01 · SANDBOX</span><b>Niente esce dal browser</b><p>I simulatori girano in locale: nessun payload parte verso siti reali.</p></div>
+          <div><span class="hv-ethic__i">02 · PERMESSO</span><b>Solo target autorizzati</b><p>Gli strumenti si usano su siti tuoi o con un permesso scritto.</p></div>
+          <div><span class="hv-ethic__i">03 · FONTI</span><b>Dati pubblici e citati</b><p>Avvisi, incidenti e malware arrivano da feed e archivi aperti.</p></div>
+          <div><span class="hv-ethic__i">04 · PRIVACY</span><b>Il minimo indispensabile</b><p>Email per l'account, progressi nel profilo, nient'altro.</p></div>
+        </div>
+        <p class="hv-ethic__more hv-reveal">La conoscenza è neutra, come il fuoco: può cucinare o distruggere. <a href="/ethics.html">Etica e legge →</a></p>
+      </div>
+    </section>
+
+    <!-- ============================================================ CHIUSURA -->
+    <section class="hv-sec hv-final" aria-labelledby="hv-fin-title">
+      <div class="hv-wrap">
+        <h2 id="hv-fin-title" class="hv-reveal">Pronto a vedere un attacco <em>da dentro?</em></h2>
+        <p class="hv-reveal">Il primo laboratorio dura dieci minuti e non richiede registrazione.<button type="button" class="hv-pixel" id="hv-pixel" aria-label="Cursore"></button></p>
+        <div class="hv-cta hv-reveal">
+          <a class="hv-btn hv-btn--amber hv-magnet" href="/web-simulator.html">Apri il laboratorio →</a>
+          <a class="hv-btn hv-btn--ghost hv-magnet" href="/account.html">Crea un account</a>
+        </div>
+      </div>
+    </section>
   </main>
 
   <!--evil:footer-->
 
-  <script src="/js/home-experience.js?v=20260717"></script>
-  <script src="/js/matrixrain.js" defer></script>
-<script src="/js/progress-manager.js" defer></script>
+  <div class="hv-eggs" id="hv-eggs" aria-live="polite">EASTER EGG <b id="hv-eggs-n">0</b>/6</div>
+  <div class="hv-toast" id="hv-toast" role="status"><b id="hv-toast-t"></b><span id="hv-toast-m"></span></div>
+  <div class="hv-shell" id="hv-shell" role="dialog" aria-modal="true" aria-label="Terminale segreto">
+    <div class="hv-shell__win">
+      <div class="hv-term__bar"><i></i><i></i><i></i><span>root@evil:~ (finto, tranquillo)</span></div>
+      <div class="hv-shell__out" id="hv-shell-out"></div>
+      <label class="hv-shell__in"><span>root@evil:~#</span><input id="hv-shell-in" autocomplete="off" spellcheck="false" aria-label="Comando"></label>
+    </div>
+  </div>
+
+  <script src="/js/site-pages.js"></script>
+  <script src="/js/home-v7.js"></script>
+  <script src="/js/matrixrain.js"></script>
+  <script src="/js/progress-manager.js"></script>
 </body>
 </html>

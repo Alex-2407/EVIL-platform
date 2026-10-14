@@ -36,10 +36,38 @@ test('cache: un anno con la versione giusta, rivalidazione senza', async () => {
   assert.equal(page.headers['cache-control'], 'no-cache');
 });
 
-test('home: niente doppio home-footer.css', async () => {
+test('home: un solo foglio di stile della home, niente CSS della vecchia home', async () => {
   const page = await request(app).get('/').expect(200);
+  assert.equal((page.text.match(/home-v7\.css/g) || []).length, 1);
   assert.equal((page.text.match(/home-footer\.css/g) || []).length, 0);
-  assert.equal((page.text.match(/home\.bundle\.css/g) || []).length, 1);
+  assert.equal((page.text.match(/home\.bundle\.css/g) || []).length, 0);
+  assert.doesNotMatch(page.text, /Gli attacchi non si temono/);
+});
+
+test('ogni pagina carica responsive.css (menù mobile), anche se non lo dichiara', async () => {
+  const fs = require('fs');
+  const path = require('path');
+  const files = fs
+    .readdirSync(path.join(__dirname, '..', 'html'))
+    .filter((f) => f.endsWith('.html') && !/preview-local/.test(f));
+  for (const f of files) {
+    const res = await request(app).get(`/${f}`);
+    if (res.status !== 200) continue;
+    assert.match(res.text, /\/css\/responsive\.css/, `${f} senza responsive.css`);
+  }
+});
+
+test('home: i numeri in pagina sono quelli calcolati dai dati', async () => {
+  const { computeStats } = require('../server/stats');
+  const stats = computeStats();
+  for (const lang of ['', '/en']) {
+    const page = await request(app).get(`${lang}/`).expect(200);
+    for (const key of ['labs', 'quizQuestions', 'malwareFamilies', 'breaches']) {
+      assert.ok(Number.isFinite(stats[key]), `${key} calcolato`);
+      assert.match(page.text, new RegExp(`data-stat="${key}">${stats[key]}<`), `${lang || 'it'}: ${key}`);
+    }
+    assert.match(page.text, /data-stat="area:impara">\d+</, `${lang || 'it'}: pagine per area`);
+  }
 });
 
 test('robots.txt, sitemap.xml e favicon nella radice (UX-07)', async () => {

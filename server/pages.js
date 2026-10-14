@@ -271,6 +271,35 @@ function fillChrome(html, lang, file) {
     .replace(/<!--evil:footer-->/, () => renderFooter(lang, file));
 }
 
+// ------------------------------------------------------------------ numeri nelle pagine
+// <span data-stat="labs">17</span> → il numero vero calcolato dai file di dati (server/stats.js).
+// "area:<id>" conta le pagine del menù di un'area, "area:<id>:all" tutte le pagine dell'area.
+let statsCache = null;
+function siteStats() {
+  if (statsCache) return statsCache;
+  const out = {};
+  try {
+    Object.assign(out, computeStats());
+  } catch (_) {
+    /* senza numeri le pagine mostrano i valori scritti nell'HTML */
+  }
+  for (const p of PAGES) {
+    out[`area:${p.area}:all`] = (out[`area:${p.area}:all`] || 0) + 1;
+    if (p.nav) out[`area:${p.area}`] = (out[`area:${p.area}`] || 0) + 1;
+  }
+  statsCache = out;
+  return out;
+}
+
+function fillStats(html) {
+  if (!html.includes('data-stat=')) return html;
+  const stats = siteStats();
+  return html.replace(/(<([a-z0-9]+)\b[^>]*\sdata-stat="([\w:]+)"[^>]*>)([^<]*)(<\/\2>)/gi, (m, open, tag, key, text, close) => {
+    const v = stats[key];
+    return Number.isFinite(v) ? `${open}${v}${close}` : m;
+  });
+}
+
 function renderPage(relativeName, canonicalPath, lang = DEFAULT_LANG) {
   if (isProduction() && DEV_ONLY_PAGE.test(relativeName)) return null;
   const filePath = path.join(root, 'html', relativeName);
@@ -285,6 +314,7 @@ function renderPage(relativeName, canonicalPath, lang = DEFAULT_LANG) {
       console.warn(`⚠️ i18n ${lang}/${relativeName}: ${out.missing.length} testi senza traduzione (npm run i18n:check)`);
     }
   }
+  html = fillStats(html);
   html = injectPageAssets(html, canonicalPath ?? relativeName, lang);
   if (isProduction()) renderedPages.set(key, html);
   return html;
@@ -437,7 +467,8 @@ function injectPageAssets(htmlContent, pageName, lang = DEFAULT_LANG) {
   if (!hasResponsiveCss(html)) {
     if (html.includes('/css/style.css')) {
       html = html.replace(
-        /<link rel="stylesheet" href="(\/?\.\.\/)?css\/style\.css[^"]*">/,
+        // accetta /css/, css/ e ../css/ (i ../css/ sono già diventati /css/ qui sopra)
+        /<link rel="stylesheet" href="(?:\/|\.\.\/|\/\.\.\/)?css\/style\.css[^"]*">/,
         (m) => `${m}\n  <link rel="stylesheet" href="${RESPONSIVE_CSS}">`
       );
     } else {
@@ -499,7 +530,8 @@ function writeGeneratedClientFiles() {
     console.warn('⚠️ i18n: dizionari per il browser non generati:', err.message);
   }
   try {
-    const manifest = clientManifest(computeStats());
+    statsCache = null; // ricalcolato a ogni avvio del server
+    const manifest = clientManifest(siteStats());
     const body = `/* Generato da server/pages.js: non modificare a mano (server/site-map.js) */\nwindow.EVIL_SITE = ${JSON.stringify(manifest)};\n`;
     const file = path.join(root, 'js', 'site-pages.js');
     let prev = null;

@@ -62,6 +62,16 @@ function computeStats() {
     }),
     cryptoAlgorithms: count(() => w.CRYPTO_ALGORITHMS.length),
     webVulns: 5,
+    // termini distinti tra glossario del Centro quiz e del Lab virtuale (come la pagina Glossario)
+    glossaryTerms: count(
+      () =>
+        new Set(
+          [...Object.keys(w.QUIZ_GLOSSARY || {}), ...Object.keys(w.VLAB_GLOSSARY || {})].map((k) =>
+            String(k).trim().toLowerCase()
+          )
+        ).size
+    ),
+    malwareCategories: count(() => w.MALWARE_TAXONOMY.categories.length),
   };
 }
 

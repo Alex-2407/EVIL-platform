@@ -6,7 +6,7 @@
   'use strict';
 
   const SKIP_PAGE =
-    /\b(home-page|quiz-hub-page|crypto-page|am-page|ha-page|policy-page)\b/;
+    /\b(home-page|home-v7|quiz-hub-page|crypto-page|am-page|ha-page|policy-page)\b/;
 
   const REVEAL_SELECTORS = [
     '.st-hub-hero',
@@ -62,7 +62,7 @@
 
     BLOCK_SELECTORS.forEach((sel) => {
       document.querySelectorAll(sel).forEach((el) => {
-        if (el.closest('.home-page, .quiz-hub-page, .crypto-page')) return;
+        if (el.closest('.home-page, .home-v7, .quiz-hub-page, .crypto-page')) return;
         markReveal(el);
       });
     });
