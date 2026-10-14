@@ -602,27 +602,87 @@ body.home-v7.hv-flip main#hv-main { animation: hvFlip 1.2s cubic-bezier(0.6, 0, 
 .hv-boom { position: fixed; pointer-events: none; z-index: 1300; font: 700 14px var(--hv-mono); color: var(--hv-green); animation: hvBoom 1s ease-out forwards; }
 @keyframes hvBoom { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
 
+
+/* ------------------------------------------------------------ continuità tra le sezioni
+   Le sezioni non devono sembrare blocchi impilati: un filo di luce scende
+   dalla sezione precedente fino al titolo successivo, ogni sezione ha un
+   alone di colore che sfuma ai bordi (nessuno stacco netto) e le parti
+   "di servizio" (numeri, regole) perdono la cornice e scorrono nel testo. */
+body.home-v7 { --hv-panel: rgba(14, 19, 30, 0.55); }
+.hv-sec { padding-block: 84px; isolation: isolate; }
+.hv-sec--tight { padding-top: 8px; }
+.hv-head { margin-bottom: 42px; }
+
+.hv-sec::after {
+  content: ""; position: absolute; inset: -60px 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, color-mix(in srgb, var(--tint, transparent) 9%, transparent), transparent 100%);
+}
+#hv-aree { --tint: var(--hv-cyan); }
+#hv-mappa { --tint: var(--hv-green); }
+#hv-catalogo { --tint: var(--hv-amber); }
+#hv-prova { --tint: var(--hv-violet); }
+#hv-percorsi { --tint: var(--hv-cyan); }
+#hv-trofei { --tint: var(--hv-amber); }
+.hv-final { --tint: var(--hv-green); }
+
+.hv-sec:not(.hv-sec--tight)::before {
+  content: ""; position: absolute; left: 50%; top: 0; width: 1px; height: 62px; transform: translateX(-50%);
+  background: linear-gradient(transparent, color-mix(in srgb, var(--tint, var(--hv-green)) 70%, transparent));
+}
+.hv-head .hv-kicker { position: relative; }
+.hv-head .hv-kicker::before {
+  content: ""; position: absolute; left: 50%; top: -16px; width: 5px; height: 5px; border-radius: 50%; transform: translateX(-50%);
+  background: var(--tint, var(--hv-green)); box-shadow: 0 0 12px var(--tint, var(--hv-green));
+}
+#hv-trofei::before { display: none; }
+
+/* schede che sfumano verso il basso invece di chiudersi in una cornice */
+.hv-area, .hv-path, .hv-col {
+  background: linear-gradient(180deg, var(--hv-panel) 0%, rgba(14, 19, 30, 0.38) 60%, rgba(14, 19, 30, 0.08) 100%);
+  border-bottom-color: transparent;
+}
+.hv-col { background: linear-gradient(180deg, color-mix(in srgb, var(--c) 7%, rgba(10, 14, 22, 0.86)), rgba(8, 11, 18, 0.6) 45%, rgba(8, 11, 18, 0.08)); }
+
+/* numeri: una riga continua sotto i percorsi, senza schede */
+.hv-stats { gap: 0; border-block: 1px solid var(--hv-line); }
+.hv-stat { border: 0; border-radius: 0; background: none; padding: 26px 12px; }
+.hv-stat + .hv-stat { border-left: 1px solid var(--hv-line); }
+.hv-stat::after { left: 20%; right: 20%; bottom: -1px; }
+
+/* regole: quattro colonne aperte, legate da un filo sopra */
+.hv-ethic { border: 0; border-radius: 0; background: none; overflow: visible; }
+.hv-ethic > div { position: relative; border-right: 0; padding: 26px 22px 6px; }
+.hv-ethic > div::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px;
+  background: linear-gradient(90deg, var(--hv-green), transparent 85%); opacity: 0.55;
+}
+#hv-regole { padding-bottom: 0; }
+.hv-final { padding-top: 96px; }
+
 /* ------------------------------------------------------------ responsive */
 @media (max-width: 1020px) {
   .hv-cols { grid-template-columns: 1fr; max-width: 640px; margin-inline: auto; }
   .hv-intro__grid, .hv-atlas, .hv-trophy { grid-template-columns: 1fr; }
   .hv-areas, .hv-paths { grid-template-columns: 1fr; }
   .hv-stats { grid-template-columns: repeat(3, 1fr); }
-  .hv-ethic { grid-template-columns: 1fr 1fr; }
-  .hv-ethic > div:nth-child(2) { border-right: 0; }
-  .hv-ethic > div:nth-child(-n + 2) { border-bottom: 1px solid var(--hv-line); }
+  .hv-stat:nth-child(4) { border-left: 0; }
+  .hv-stat:nth-child(-n + 3) { border-bottom: 1px solid var(--hv-line); }
+  .hv-ethic { grid-template-columns: 1fr 1fr; row-gap: 14px; }
   .hv-play { grid-template-columns: 1fr; }
   .hv-play__tabs { flex-direction: row; overflow-x: auto; }
   .hv-play__tabs button { flex: 1 0 auto; }
   .hv-intro { padding-bottom: 90px; }
 }
 @media (max-width: 640px) {
-  .hv-sec { padding-block: 76px; }
-  .hv-sec--tight { padding-top: 20px; }
+  .hv-sec { padding-block: 64px; }
+  .hv-sec--tight { padding-top: 4px; }
+  .hv-sec:not(.hv-sec--tight)::before { height: 44px; }
   .hv-stats { grid-template-columns: 1fr 1fr; }
-  .hv-ethic { grid-template-columns: 1fr; }
-  .hv-ethic > div { border-right: 0; border-bottom: 1px solid var(--hv-line); }
-  .hv-ethic > div:last-child { border-bottom: 0; }
+  .hv-stat:nth-child(odd) { border-left: 0; }
+  .hv-stat:nth-child(4) { border-left: 1px solid var(--hv-line); }
+  .hv-stat:nth-child(-n + 4) { border-bottom: 1px solid var(--hv-line); }
+  .hv-ethic { grid-template-columns: 1fr; row-gap: 8px; }
+  .hv-final { padding-top: 72px; }
   .hv-pwfacts { grid-template-columns: 1fr; }
   .hv-medals { gap: 8px; }
   .hv-rail { display: none; }
