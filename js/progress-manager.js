@@ -364,7 +364,7 @@ const ACTIVITY_LABELS = {
   osint_collection: 'Raccolta OSINT completata',
   crypto_study_completed: 'Studio Cifratura completato',
   lab_completed: 'Laboratorio virtuale completato',
-  attacks_map_viewed: 'Mappa incidenti consultata',
+  attacks_map_viewed: 'News di sicurezza consultate',
   report_generated: 'Report di sicurezza generato',
   incident_timeline_completed: 'Timeline Incident Response completata',
   quiz_hub_milestone: 'Traguardo Centro Quiz raggiunto'

@@ -151,7 +151,7 @@ const SITEMAP_PAGES = [
   ['home.html', 1.0, 'weekly'],
   ...[...PAGES, ...ACCOUNT_PAGES]
     .filter((p) => p.sitemap != null)
-    .map((p) => [p.file, p.sitemap, p.file === 'attacks-map.html' ? 'daily' : 'monthly']),
+    .map((p) => [p.file, p.sitemap, p.file === 'news.html' ? 'daily' : 'monthly']),
 ];
 
 function localizedPath(file, lang) {
@@ -628,6 +628,10 @@ function mountPageRoutes(app) {
     res.redirect(301, '/persistence-evasion.html');
   });
   app.get('/en/manipulation-techniques.html', (req, res) => res.redirect(301, '/en/persistence-evasion.html'));
+
+  // La mappa degli avvisi è stata sostituita dalla pagina News
+  app.get(['/attacks-map.html', '/html/attacks-map.html'], (req, res) => res.redirect(301, '/news.html'));
+  app.get('/en/attacks-map.html', (req, res) => res.redirect(301, '/en/news.html'));
 
   // Redirect legacy ethical hacking → studio cifratura
   app.get(['/ethical-hacking.html', '/html/ethical-hacking.html'], (req, res) => {

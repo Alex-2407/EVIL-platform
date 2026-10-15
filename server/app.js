@@ -142,6 +142,7 @@ function createApp(ctx) {
 
   registerTools(app, ctx);
   ctx.incidents.register(app);
+  ctx.news.register(app);
   registerLab(app, ctx);
   registerProgress(app, ctx);
   registerHelp(app, ctx);

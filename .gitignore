@@ -73,3 +73,4 @@ test.txt
 # Generati all'avvio (server/pages.js)
 js/i18n/*.js
 js/site-pages.js
+.news-cache.json

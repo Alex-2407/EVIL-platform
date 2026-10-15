@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>News di cybersicurezza — EVIL</title>
+  <meta name="description" content="Le ultime notizie di sicurezza informatica da testate e CERT pubblici, aggiornate ogni ora: attacchi, violazioni, vulnerabilità e ransomware, con estratto e link all'articolo originale.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css?v=20260612">
+  <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
+  <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/news.css?v=20261015">
+  <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
+  <script src="/js/evil-motion.js?v=20260626" defer></script>
+  <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
+  <style id="evil-auth-pending-style">html.evil-auth-pending .auth-buttons{visibility:hidden;pointer-events:none;min-height:2.25rem}</style>
+  <script src="/js/evil-site-chrome.js?v=20260610" defer></script>
+</head>
+<body class="evil-theme news-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="nw-scene" aria-hidden="true">
+    <div class="nw-scene__mesh"></div>
+    <div class="nw-scene__scan"></div>
+  </div>
+
+  <!--evil:header-->
+
+  <main>
+    <section class="nw-hero" aria-labelledby="nw-title">
+      <p class="nw-kicker"><span class="nw-live-dot" aria-hidden="true"></span><span id="nw-live-label">Aggiornamento in corso…</span></p>
+      <h1 id="nw-title">News di cybersicurezza</h1>
+      <p class="nw-lead">Attacchi, violazioni, vulnerabilità e ransomware dalle testate di settore e dai CERT, riletti ogni ora. Ogni notizia ha un estratto e rimanda all'articolo originale.</p>
+      <div class="nw-stats" id="nw-stats" aria-live="polite">
+        <div class="nw-stat"><strong id="nw-stat-total">—</strong><span>notizie</span></div>
+        <div class="nw-stat"><strong id="nw-stat-today">—</strong><span>nelle ultime 24 ore</span></div>
+        <div class="nw-stat"><strong id="nw-stat-sources">—</strong><span>fonti attive</span></div>
+        <div class="nw-stat"><strong id="nw-stat-next">—</strong><span>prossimo aggiornamento</span></div>
+      </div>
+    </section>
+
+    <div class="nw-wrap">
+      <div class="nw-toolbar">
+        <input type="search" id="nw-search" class="nw-search" placeholder="Cerca per parola, CVE o fonte…" autocomplete="off" aria-label="Cerca nelle notizie">
+        <div class="nw-chips" id="nw-tags" role="group" aria-label="Filtra per argomento"></div>
+        <div class="nw-chips nw-chips--small" id="nw-opts" role="group" aria-label="Opzioni">
+          <button type="button" class="nw-chip" data-opt="lang" aria-pressed="false">Solo italiano</button>
+          <button type="button" class="nw-chip" data-opt="official" aria-pressed="false">Solo fonti ufficiali</button>
+        </div>
+      </div>
+
+      <div class="nw-layout">
+        <section class="nw-feed" aria-label="Notizie">
+          <div id="nw-featured"></div>
+          <div class="nw-grid" id="nw-grid" aria-live="polite"></div>
+          <p class="nw-empty" id="nw-empty" hidden>Nessuna notizia corrisponde ai filtri.</p>
+          <div class="nw-more"><button type="button" class="nw-btn" id="nw-more" hidden>Mostra altre notizie</button></div>
+        </section>
+
+        <aside class="nw-side" aria-label="Riepilogo">
+          <section class="nw-card">
+            <h2>Di cosa si parla</h2>
+            <p class="nw-note">Argomenti più frequenti nelle ultime notizie. Le etichette sono assegnate in automatico dalle parole del titolo.</p>
+            <div id="nw-trend" class="nw-trend"></div>
+          </section>
+          <section class="nw-card">
+            <h2>Vulnerabilità sfruttate</h2>
+            <p class="nw-note">Ultime voci del catalogo CISA KEV: vulnerabilità di cui è confermato lo sfruttamento reale.</p>
+            <ul id="nw-kev" class="nw-kev"><li class="nw-skel nw-skel--line"></li><li class="nw-skel nw-skel--line"></li><li class="nw-skel nw-skel--line"></li></ul>
+          </section>
+          <section class="nw-card">
+            <h2>Fonti</h2>
+            <ul id="nw-sources" class="nw-sources"></ul>
+          </section>
+          <section class="nw-card nw-card--links">
+            <h2>Approfondisci</h2>
+            <a href="/glossary.html">Glossario dei termini</a>
+            <a href="/hacked-timeline.html">Cosa fare se vieni colpito</a>
+            <a href="/historic-attacks.html">Violazioni storiche</a>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <div class="nw-reader" id="nw-reader" hidden>
+    <div class="nw-reader__backdrop" data-close></div>
+    <article class="nw-reader__panel" role="dialog" aria-modal="true" aria-labelledby="nw-reader-title">
+      <button type="button" class="nw-reader__close" data-close aria-label="Chiudi">×</button>
+      <div class="nw-reader__meta" id="nw-reader-meta"></div>
+      <h2 id="nw-reader-title"></h2>
+      <p class="nw-reader__summary" id="nw-reader-summary"></p>
+      <div class="nw-reader__chips" id="nw-reader-chips"></div>
+      <div class="nw-reader__learn" id="nw-reader-learn"></div>
+      <a class="nw-btn nw-btn--primary" id="nw-reader-link" target="_blank" rel="noopener noreferrer">Leggi l'articolo completo</a>
+      <p class="nw-note">Estratto del feed pubblico della testata. L'articolo completo è sul sito originale.</p>
+    </article>
+  </div>
+
+  <!--evil:footer-->
+
+  <script src="/js/matrixrain.js" defer></script>
+  <script src="/js/news-page.js?v=20261015" defer></script>
+</body>
+</html>

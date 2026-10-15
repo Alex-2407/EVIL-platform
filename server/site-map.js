@@ -106,11 +106,11 @@ const PAGES = [
   },
   // ------------------------------------------------------------------ Analizza
   {
-    file: 'attacks-map.html', area: 'analizza', icon: 'globe', nav: true, sitemap: 0.8,
-    title: { it: 'Mappa di avvisi e vulnerabilità', en: 'Advisories and vulnerabilities map' },
+    file: 'news.html', area: 'analizza', icon: 'globe', nav: true, sitemap: 0.9,
+    title: { it: 'News di cybersicurezza', en: 'Cybersecurity news' },
     desc: {
-      it: 'Avvisi dei CERT e vulnerabilità sfruttate da fonti pubbliche, aggregati per area e aggiornati di continuo.',
-      en: 'CERT advisories and exploited vulnerabilities from public sources, grouped by region and constantly updated.',
+      it: 'Attacchi, violazioni e vulnerabilità dalle testate di settore e dai CERT, aggiornate ogni ora.',
+      en: 'Attacks, breaches and vulnerabilities from trade press and CERTs, refreshed every hour.',
     },
   },
   {

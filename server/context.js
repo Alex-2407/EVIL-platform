@@ -95,6 +95,7 @@ async function buildContext(overrides = {}) {
   };
 
   ctx.incidents = overrides.incidents || require('./routes/incidents')(ctx);
+  ctx.news = overrides.news || require('./routes/news')(ctx);
   return ctx;
 }
 

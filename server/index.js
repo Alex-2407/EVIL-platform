@@ -44,6 +44,7 @@ async function main() {
   process.on('SIGINT', () => shutdown(0, 'SIGINT'));
 
   incidents.start();
+  ctx.news.start();
 
   server.listen(config.PORT, '0.0.0.0', () => {
     console.log(`\n✅ EVIL avviato su http://0.0.0.0:${config.PORT} (${describeEnv()}, Node ${process.version})`);

@@ -14,7 +14,7 @@ const tests = [
   { name: 'Site chrome', path: '/js/evil-site-chrome.js', host: 'localhost' },
   { name: 'CSS Resources', path: '/css/style.css', host: 'localhost' },
   { name: 'Security Check', path: '/security-check.html', host: 'localhost' },
-  { name: 'Attacks Map', path: '/attacks-map.html', host: 'localhost' },
+  { name: 'Attacks Map', path: '/news.html', host: 'localhost' },
 ];
 
 async function testEndpoint(name, path, host) {

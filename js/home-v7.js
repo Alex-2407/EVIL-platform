@@ -380,7 +380,7 @@
         const mode = data && data.data_mode;
         if (!list.length || !['live', 'cache', 'sample'].includes(mode)) return;
         const sev = { critical: 's-h', high: 's-h', medium: 's-m', low: 's-l' };
-        const href = pageUrl('attacks-map.html');
+        const href = pageUrl('news.html');
         const items = list.slice(0, 12).map((it) => {
           const what = [it.vendor, it.product].filter(Boolean).join(' ') || String(it.description || '').split(' — ')[0];
           const text = what.length > 90 ? what.slice(0, 88) + '…' : what;
@@ -397,7 +397,7 @@
         const html = items.join('');
         track.innerHTML = html + html;
         $('#hv-ticker-label').textContent = mode === 'live' ? t('Live') : mode === 'cache' ? t('Feed') : t('Esempio');
-        $('#hv-ticker-label').setAttribute('aria-label', t('Apri la mappa degli avvisi'));
+        $('#hv-ticker-label').setAttribute('aria-label', t('Apri le news'));
         box.hidden = false;
       })
       .catch(() => {
@@ -415,7 +415,7 @@
     'quiz-hub.html': t('Centro quiz'),
     'hacked-timeline.html': t('Timeline IR'),
     'glossary.html': t('Glossario'),
-    'attacks-map.html': t('Mappa avvisi'),
+    'news.html': t('News'),
     'historic-attacks.html': t('Violazioni storiche'),
     'malware-db.html': t('Catalogo malware'),
     'malware-classification.html': t('Tassonomia'),
@@ -509,7 +509,7 @@
       'quiz-hub.html': [62, 190, 's'],
       'hacked-timeline.html': [140, 270, 's'],
       'glossary.html': [272, 268, 's'],
-      'attacks-map.html': [478, 70, 'n'],
+      'news.html': [478, 70, 'n'],
       'historic-attacks.html': [605, 42, 'n'],
       'malware-db.html': [732, 75, 'n'],
       'malware-classification.html': [742, 200, 's'],
