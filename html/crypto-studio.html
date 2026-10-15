@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/crypto-studio.css?v=20261001">
+  <link rel="stylesheet" href="/css/crypto-studio.css?v=20261015">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -88,9 +88,10 @@
 
     <nav class="cs-jump cs-reveal" aria-label="Sezioni dello studio">
       <a class="cs-jump-link" href="#cs-lab"><span class="cs-jump-num">1</span> Laboratorio</a>
-      <a class="cs-jump-link" href="#cs-families"><span class="cs-jump-num">2</span> Famiglie</a>
-      <a class="cs-jump-link" href="#cs-catalog"><span class="cs-jump-num">3</span> Catalogo</a>
-      <a class="cs-jump-link" href="#cs-guide"><span class="cs-jump-num">4</span> Guida pratica</a>
+      <a class="cs-jump-link" href="#cs-bench"><span class="cs-jump-num">2</span> Esperimenti</a>
+      <a class="cs-jump-link" href="#cs-families"><span class="cs-jump-num">3</span> Famiglie</a>
+      <a class="cs-jump-link" href="#cs-catalog"><span class="cs-jump-num">4</span> Catalogo</a>
+      <a class="cs-jump-link" href="#cs-guide"><span class="cs-jump-num">5</span> Guida pratica</a>
     </nav>
 
     <section class="cs-showcase cs-reveal" id="cs-lab" aria-labelledby="lab-title">
@@ -148,6 +149,16 @@
           </div>
         </aside>
       </div>
+    </section>
+
+    <section class="cs-bench cs-reveal" id="cs-bench" aria-labelledby="bench-title">
+      <header class="cs-section-head">
+        <p class="cs-kicker">Esperimenti</p>
+        <h2 id="bench-title">Dal digest alla cifratura: provalo con le tue mani</h2>
+        <p>Quattro esperimenti reali, nell'ordine in cui si impara: firmare, cifrare, capire perché le password servono lente e vedere dal vivo perché i cifrari antichi non reggono.</p>
+      </header>
+      <div id="cs-bench-root"></div>
+      <noscript><p>Gli esperimenti richiedono JavaScript e un browser con Web Crypto API.</p></noscript>
     </section>
 
     <section class="cs-families cs-reveal" id="cs-families" aria-labelledby="families-title">
@@ -303,5 +314,6 @@
   <script src="/js/progress-manager.js" defer></script>
   <script src="/js/crypto-algorithms-data.js?v=20261001"></script>
   <script src="/js/crypto-studio.js?v=20261001"></script>
+  <script src="/js/crypto-bench.js?v=20261015"></script>
 </body>
 </html>

@@ -248,41 +248,116 @@
     }
   }
 
+  const META = window.VLAB_META || { pick: (o) => o, FAMILIES: {}, LABS: {}, TRACKS: [] };
+  const filters = { family: 'all', level: 0, track: '' };
+  let allLabs = [];
+
+  function dots(level) {
+    return '<span class="vlab-dots" aria-hidden="true">' + [1, 2, 3].map((n) => `<i${n <= level ? ' class="on"' : ''}></i>`).join('') + '</span>';
+  }
+
+  function cardHtml(lab, step) {
+    const m = META.LABS[lab.id] || {};
+    const fam = META.FAMILIES[m.f] || {};
+    return `
+      <article class="vlab-card" data-lab-id="${escapeHtml(lab.id)}" style="--fam:${fam.color || '#f59e0b'}">
+        <div class="vlab-card__top">
+          <span class="vlab-card__icon" aria-hidden="true">${escapeHtml(m.g || lab.icon || '◈')}</span>
+          <span class="vlab-card__fam">${escapeHtml(META.pick(fam.name))}</span>
+          ${step ? `<span class="vlab-card__step" aria-label="${escapeHtml(t('Passo {n}', { n: step }))}">${step}</span>` : ''}
+        </div>
+        <h3>${escapeHtml(lab.title)}</h3>
+        <div class="vlab-card__meta">
+          <span class="vlab-tag vlab-tag--lv">${dots(m.lv || 1)} ${escapeHtml(lab.level)}</span>
+          <span class="vlab-tag">${escapeHtml(lab.duration)}</span>
+          <span class="vlab-tag">${escapeHtml(t('{n} obiettivi', { n: lab.objectiveCount }))}</span>
+        </div>
+        <p class="vlab-card__skill"><b>${escapeHtml(t('Imparerai a'))}</b> ${escapeHtml(META.pick(m.skill) || lab.description)}</p>
+        ${m.risk ? `<dl class="vlab-card__duo"><div><dt>${escapeHtml(t('Rischio'))}</dt><dd>${escapeHtml(META.pick(m.risk))}</dd></div><div><dt>${escapeHtml(t('Difesa'))}</dt><dd>${escapeHtml(META.pick(m.fix))}</dd></div></dl>` : ''}
+        ${lab.prerequisites ? `<details class="vlab-card__prereq"><summary>${escapeHtml(t('Prima di iniziare'))}</summary>${escapeHtml(lab.prerequisites)}</details>` : ''}
+        <div class="vlab-card__actions">
+          <button type="button" class="vlab-card__btn vlab-card__btn--study" data-study="${escapeHtml(lab.id)}">${escapeHtml(t('Studia'))}</button>
+          <button type="button" class="vlab-card__btn vlab-card__btn--start" data-start="${escapeHtml(lab.id)}">${escapeHtml(t('Avvia scenario'))}</button>
+        </div>
+      </article>`;
+  }
+
+  function visibleLabs() {
+    const track = META.TRACKS.find((x) => x.id === filters.track);
+    let list = allLabs.slice();
+    if (track) list = track.ids.map((id) => allLabs.find((l) => l.id === id)).filter(Boolean);
+    else list.sort((a, b) => ((META.LABS[a.id] || {}).lv || 9) - ((META.LABS[b.id] || {}).lv || 9));
+    return list.filter((lab) => {
+      const m = META.LABS[lab.id] || {};
+      return (filters.family === 'all' || m.f === filters.family) && (!filters.level || m.lv === filters.level);
+    });
+  }
+
+  function paintGrid() {
+    const track = META.TRACKS.find((x) => x.id === filters.track);
+    const list = visibleLabs();
+    const count = document.getElementById('vlab-count');
+    if (count) count.textContent = t('{n} scenari', { n: list.length });
+    if (!list.length) {
+      gridEl.innerHTML = `<p class="vlab-loading">${escapeHtml(t('Nessuno scenario con questi filtri.'))}</p>`;
+      return;
+    }
+    gridEl.innerHTML = list.map((lab, i) => cardHtml(lab, track ? i + 1 : 0)).join('');
+  }
+
+  function paintControls() {
+    const bar = document.getElementById('vlab-filters');
+    if (!bar) return;
+    const fams = Object.keys(META.FAMILIES);
+    const chip = (attr, value, label, on, color) =>
+      `<button type="button" class="vlab-chip${on ? ' is-on' : ''}" ${attr}="${value}" aria-pressed="${on}"${color ? ` style="--fam:${color}"` : ''}>${escapeHtml(label)}</button>`;
+    bar.innerHTML =
+      `<div class="vlab-filter" role="group" aria-label="${escapeHtml(t('Famiglia'))}">` +
+      chip('data-fam', 'all', t('Tutti'), filters.family === 'all') +
+      fams.map((f) => chip('data-fam', f, META.pick(META.FAMILIES[f].name), filters.family === f, META.FAMILIES[f].color)).join('') +
+      '</div>' +
+      `<div class="vlab-filter" role="group" aria-label="${escapeHtml(t('Livello'))}">` +
+      chip('data-lv', '0', t('Ogni livello'), !filters.level) +
+      [[1, t('Base')], [2, t('Intermedio')], [3, t('Avanzato')]].map(([n, label]) => chip('data-lv', n, label, filters.level === n)).join('') +
+      '</div>';
+
+    const tracks = document.getElementById('vlab-tracks');
+    if (tracks) {
+      tracks.innerHTML = META.TRACKS.map((tr) => `
+        <button type="button" class="vlab-track${filters.track === tr.id ? ' is-on' : ''}" data-track="${tr.id}" aria-pressed="${filters.track === tr.id}">
+          <b>${escapeHtml(META.pick(tr.name))}</b>
+          <span>${escapeHtml(META.pick(tr.blurb))}</span>
+          <em>${escapeHtml(t('{n} scenari', { n: tr.ids.length }))}</em>
+        </button>`).join('');
+    }
+  }
+
   function renderCatalog(labs) {
     clearCardErrors();
     if (!labs.length) {
       gridEl.innerHTML = `<p class="vlab-loading">${escapeHtml(t('Nessuno scenario disponibile.'))}</p>`;
       return;
     }
-    gridEl.innerHTML = labs
-      .map(
-        (lab) => `
-      <article class="vlab-card" data-lab-id="${escapeHtml(lab.id)}">
-        <span class="vlab-card__icon" aria-hidden="true">${escapeHtml(lab.icon || '◈')}</span>
-        <p class="vlab-card__name">${escapeHtml(lab.name)}</p>
-        <h3>${escapeHtml(lab.title)}</h3>
-        <div class="vlab-card__meta">
-          <span class="vlab-tag">${escapeHtml(lab.level)}</span>
-          <span class="vlab-tag">${escapeHtml(lab.duration)}</span>
-          <span class="vlab-tag vlab-tag--ip">${escapeHtml(lab.targetIp)}</span>
-        </div>
-        <p>${escapeHtml(lab.description)}</p>
-        ${lab.prerequisites ? `<p class="vlab-card__prereq">${escapeHtml(t('Prerequisiti'))}: ${escapeHtml(lab.prerequisites)}</p>` : ''}
-        <div class="vlab-card__actions">
-          <button type="button" class="vlab-card__btn vlab-card__btn--study" data-study="${escapeHtml(lab.id)}">${escapeHtml(t('Studia'))}</button>
-          <button type="button" class="vlab-card__btn vlab-card__btn--start" data-start="${escapeHtml(lab.id)}">${escapeHtml(t('Avvia scenario'))}</button>
-        </div>
-      </article>`
-      )
-      .join('');
-
-    gridEl.querySelectorAll('[data-start]').forEach((btn) => {
-      btn.addEventListener('click', () => startLab(btn.dataset.start, btn));
-    });
-    gridEl.querySelectorAll('[data-study]').forEach((btn) => {
-      btn.addEventListener('click', () => openStudy(btn.dataset.study));
-    });
+    allLabs = labs;
+    paintControls();
+    paintGrid();
   }
+
+  catalogEl?.addEventListener('click', (event) => {
+    const start = event.target.closest('[data-start]');
+    if (start) { startLab(start.dataset.start, start); return; }
+    const study = event.target.closest('[data-study]');
+    if (study) { openStudy(study.dataset.study); return; }
+    const fam = event.target.closest('[data-fam]');
+    const lv = event.target.closest('[data-lv]');
+    const tr = event.target.closest('[data-track]');
+    if (fam) { filters.family = fam.dataset.fam; filters.track = ''; }
+    else if (lv) { filters.level = Number(lv.dataset.lv); filters.track = ''; }
+    else if (tr) { filters.track = filters.track === tr.dataset.track ? '' : tr.dataset.track; filters.family = 'all'; filters.level = 0; }
+    else return;
+    paintControls();
+    paintGrid();
+  });
 
   async function startLab(labId, btn) {
     if (btn) btn.disabled = true;

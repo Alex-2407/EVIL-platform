@@ -4,6 +4,7 @@
   "allarme": "alert",
   "critico": "critical",
   "{h} h {m} min": "{h} h {m} min",
+  "Vai alla prima tappa di questa fase": "Go to the first step of this phase",
   "Evento {n} di {total}": "Event {n} of {total}",
   "INTEGRO": "INTACT",
   "RIPRISTINATO": "RESTORED",

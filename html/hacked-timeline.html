@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/hacked-timeline.css?v=20261001">
+  <link rel="stylesheet" href="/css/hacked-timeline.css?v=20261015">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -87,8 +87,13 @@
         indirizzi IP e domini sono quelli riservati alla documentazione (RFC 5737 e dominio <code translate="no">.example</code>).
       </p>
 
+      <section class="ir-pick-wrap" aria-labelledby="ir-pick-title">
+        <h2 id="ir-pick-title" class="ir-sub">Scegli l'incidente da ricostruire</h2>
+        <div class="ir-picks" id="ir-picker"></div>
+      </section>
+
       <div class="ir-controls">
-        <div class="ir-field">
+        <div class="ir-field" hidden>
           <label for="ir-scenario">Scenario</label>
           <select id="ir-scenario">
             <option value="web-attack">Web server — RCE e ransomware</option>
@@ -171,6 +176,29 @@
           <span class="ir-stat__value ir-stat--ok" id="ir-status-data">—</span>
         </div>
       </div>
+
+      <section class="ir-learn" id="ir-learn" aria-labelledby="ir-learn-title">
+        <h2 id="ir-learn-title" class="ir-sub">Dopo la cronologia: impara, allenati, documenta</h2>
+        <div class="ir-tabs" role="tablist" aria-label="Strumenti per lo scenario">
+          <button type="button" class="ir-tab is-on" role="tab" aria-selected="true" aria-controls="ir-tab-insights" data-tab="insights">Tempi e controlli</button>
+          <button type="button" class="ir-tab" role="tab" aria-selected="false" aria-controls="ir-tab-triage" data-tab="triage">Allenati al triage</button>
+          <button type="button" class="ir-tab" role="tab" aria-selected="false" aria-controls="ir-tab-report" data-tab="report">Report dell'incidente</button>
+        </div>
+        <div class="ir-tabpanel" id="ir-tab-insights" role="tabpanel"><div id="ir-insights"></div></div>
+        <div class="ir-tabpanel" id="ir-tab-triage" role="tabpanel" hidden>
+          <p class="ir-note">Per ogni evento dello scenario scegli la gravità che assegneresti con quello che vede il SOC, poi confrontala con la decisione corretta.</p>
+          <div id="ir-triage"></div>
+        </div>
+        <div class="ir-tabpanel" id="ir-tab-report" role="tabpanel" hidden>
+          <p class="ir-note">Un report pronto da completare, generato dalla cronologia che hai appena studiato: cronologia, decisioni, azioni correttive, riferimenti MITRE e obblighi di notifica. Si copia o si scarica in Markdown.</p>
+          <label class="ir-sr" for="ir-report-text">Testo del report</label>
+          <textarea id="ir-report-text" class="ir-report" rows="16" spellcheck="false" readonly></textarea>
+          <div class="ir-btns">
+            <button type="button" class="ir-btn" id="ir-report-copy">Copia il report</button>
+            <button type="button" class="ir-btn ir-btn--ghost" id="ir-report-dl">Scarica .md</button>
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 
@@ -179,6 +207,7 @@
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/progress-manager.js" defer></script>
   <script src="/js/hacked-timeline-data.js?v=20261001"></script>
-  <script src="/js/hacked-timeline.js?v=20261001"></script>
+  <script src="/js/hacked-timeline.js?v=20261015"></script>
+  <script src="/js/hacked-timeline-learn.js?v=20261015"></script>
 </body>
 </html>

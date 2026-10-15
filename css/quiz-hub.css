@@ -973,3 +973,22 @@
     flex-wrap: wrap;
   }
 }
+
+/* ── Sfide, percorsi e nomi dei quiz ── */
+.qh-challenges { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 0.7rem; margin: 0 0 1.6rem; }
+.qh-chal { text-align: left; display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 1rem; border-radius: 12px; border: 1px dashed rgba(167, 139, 250, 0.5); background: rgba(167, 139, 250, 0.07); color: #cbd5e1; cursor: pointer; font: inherit; transition: transform 0.2s, border-color 0.2s, background 0.2s; }
+.qh-chal:hover:not(:disabled) { transform: translateY(-2px); border-style: solid; border-color: #a78bfa; background: rgba(167, 139, 250, 0.14); }
+.qh-chal:disabled { opacity: 0.45; cursor: not-allowed; }
+.qh-chal b { font: 400 1.05rem Georgia, serif; color: #f8fafc; }
+.qh-chal span { font-size: 0.8rem; line-height: 1.45; color: #94a3b8; flex: 1; }
+.qh-chal em { font: normal 600 0.62rem ui-monospace, Consolas, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #c4b5fd; }
+.quiz-hub-grid.is-tracks { display: block; }
+.qh-track { margin: 0 0 2.4rem; }
+.qh-track__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.5rem 1rem; margin-bottom: 1rem; padding-bottom: 0.7rem; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+.qh-track__head h2 { margin: 0; font: 400 1.4rem Georgia, serif; color: #f8fafc; }
+.qh-track__head p { margin: 0.2rem 0 0; font-size: 0.86rem; color: #94a3b8; }
+.qh-track__count { font: 600 0.66rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #f59e0b; }
+.qh-track__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.quiz-hub-card h3 { font-family: Georgia, serif; }
+.quiz-hub-card .quiz-hub-card__sub { margin: -0.2rem 0 0.1rem; font: 600 0.62rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--qh-accent, #a78bfa); flex: 0 0 auto; }
+.quiz-hub-card.is-passed { box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.45); }

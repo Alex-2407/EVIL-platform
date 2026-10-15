@@ -7,7 +7,7 @@
   <meta name="description" content="Glossario della cybersecurity: i termini di EVIL spiegati in modo semplice, dalla A alla Z, con ricerca rapida.">
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-policies.css">
-  <link rel="stylesheet" href="/css/content-pages.css">
+  <link rel="stylesheet" href="/css/content-pages.css?v=20261015">
 </head>
 <body class="evil-theme policy-page">
   <div id="fade-overlay"></div>
@@ -31,14 +31,18 @@
       </p>
     </section>
 
+    <aside class="gl-daily" id="glossary-daily" aria-label="Termine del giorno"></aside>
+
     <div class="glossary-controls">
       <label class="glossary-search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg>
         <input type="search" id="glossary-q" autocomplete="off" spellcheck="false"
-               placeholder="Cerca un termine: phishing, TLS, SIEM…" aria-label="Cerca nel glossario">
+               placeholder="Cerca un termine: phishing, TLS, SIEM…  (premi / per cercare)" aria-label="Cerca nel glossario">
       </label>
       <span class="glossary-count" id="glossary-count"></span>
     </div>
+
+    <div class="gl-topics" id="glossary-topics" role="group" aria-label="Filtra per argomento"></div>
 
     <nav class="glossary-index" id="glossary-index" aria-label="Indice alfabetico"></nav>
 
@@ -53,7 +57,9 @@
   <!--evil:footer-->
 
   <script src="/js/quiz-hub-glossary.js"></script>
+  <script src="/js/quiz-hub-meta.js?v=20261015"></script>
+  <script src="/js/glossary-meta.js?v=20261015"></script>
   <script src="/js/virtual-lab-guides.js"></script>
-  <script src="/js/glossary-page.js" defer></script>
+  <script src="/js/glossary-page.js?v=20261015" defer></script>
 </body>
 </html>

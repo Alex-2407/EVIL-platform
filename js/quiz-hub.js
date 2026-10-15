@@ -79,8 +79,34 @@
     return allCategories().reduce((n, c) => n + c.questions.length, 0);
   }
 
+  const QM = window.QUIZ_META || { pick: (o) => o, QUIZ_META: {}, TRACKS: [] };
+  const WRONG_KEY = 'evil_quiz_hub_wrong_v1';
+  function loadWrong() {
+    try { return new Set(JSON.parse(localStorage.getItem(WRONG_KEY) || '[]')); } catch { return new Set(); }
+  }
+  function saveWrong(set) {
+    try { localStorage.setItem(WRONG_KEY, JSON.stringify([...set])); } catch { /* solo per questa visita */ }
+  }
+  let wrongSet = loadWrong();
+
   function completedCount() {
-    return Object.values(state.progress).filter((p) => p.completed).length;
+    return Object.entries(state.progress).filter(([id, p]) => p.completed && !id.startsWith('mix-')).length;
+  }
+
+  /** Quiz misto: 10 domande pescate a caso (o dagli errori), con un id sintetico. */
+  function buildMix(id) {
+    const cats = allCategories();
+    const pool = [];
+    cats.forEach((cat) => cat.questions.forEach((qq, i) => pool.push({ ...qq, _cat: cat, _key: `${cat.id}:${i}` })));
+    let list; let name;
+    if (id === 'mix-lampo') { list = shuffle(pool).slice(0, 10); name = t('Sfida lampo'); }
+    else if (id === 'mix-errori') { list = shuffle(pool.filter((x) => wrongSet.has(x._key))).slice(0, 10); name = t('Ripasso errori'); }
+    else {
+      const lv = id.replace('mix-', '');
+      list = shuffle(pool.filter((x) => (x.level || x._cat.level) === lv)).slice(0, 10);
+      name = t('Sfida {level}', { level: levelLabel(lv) });
+    }
+    return { id, name, level: 'intermedio', pillar: '', accent: '#a78bfa', description: '', learn: [], questions: list, virtual: true };
   }
 
   function categoryProgress(id) {
@@ -240,7 +266,9 @@
     if (state.level !== 'all' && cat.level !== state.level) return false;
     if (!state.query) return true;
     const q = state.query.toLowerCase();
-    return cat.name.toLowerCase().includes(q) ||
+    const qm = QM.QUIZ_META[cat.id];
+    return (qm && (QM.pick(qm.code) + ' ' + QM.pick(qm.pitch)).toLowerCase().includes(q)) ||
+      cat.name.toLowerCase().includes(q) ||
       cat.description.toLowerCase().includes(q) ||
       (hub.PILLARS[cat.pillar] || '').toLowerCase().includes(q);
   }
@@ -255,38 +283,52 @@
     return t('Da iniziare');
   }
 
+  function cardHtml(cat) {
+    const prog = categoryProgress(cat.id);
+    const pct = cat.questions.length ? Math.round((prog.bestScore / cat.questions.length) * 100) : 0;
+    const m = QM.QUIZ_META[cat.id];
+    const code = m ? QM.pick(m.code) : cat.name;
+    const pitch = m ? QM.pick(m.pitch) : cat.description;
+    const passed = prog.completed && pct >= PASS_THRESHOLD;
+    return `
+      <article class="quiz-hub-card${passed ? ' is-passed' : ''}" data-id="${escapeHtml(cat.id)}" role="button" tabindex="0">
+        <span class="quiz-hub-card__icon" aria-hidden="true">${escapeHtml(cat.icon)}</span>
+        <span class="quiz-hub-card__pillar">${escapeHtml(hub.PILLARS[cat.pillar] || cat.pillar)}</span>
+        <span class="quiz-hub-level quiz-hub-level--${escapeHtml(cat.level)}">${escapeHtml(levelLabel(cat.level))}</span>
+        <h3>${escapeHtml(code)}</h3>
+        <p class="quiz-hub-card__sub">${escapeHtml(cat.name)}</p>
+        <p>${escapeHtml(pitch)}</p>
+        <div class="quiz-hub-card__meta">
+          <span>${escapeHtml(questionCountLabel(cat.questions.length))}</span>
+          <span>${escapeHtml(cardStatus(prog, pct))}</span>
+        </div>
+        <div class="quiz-hub-card__bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+      </article>`;
+  }
+
   function renderGrid() {
     if (!els.grid) return;
+    const filtering = state.filter !== 'all' || state.level !== 'all' || state.query;
     const cats = allCategories().filter(matchesFilter);
-    els.grid.innerHTML = cats.map((cat) => {
-      const prog = categoryProgress(cat.id);
-      const pct = cat.questions.length
-        ? Math.round((prog.bestScore / cat.questions.length) * 100)
-        : 0;
-      const pillarLabel = hub.PILLARS[cat.pillar] || cat.pillar;
-      return `
-        <article class="quiz-hub-card" data-id="${escapeHtml(cat.id)}" role="button" tabindex="0">
-          <span class="quiz-hub-card__icon" aria-hidden="true">${escapeHtml(cat.icon)}</span>
-          <span class="quiz-hub-card__pillar">${escapeHtml(pillarLabel)}</span>
-          <span class="quiz-hub-level quiz-hub-level--${escapeHtml(cat.level)}">${escapeHtml(levelLabel(cat.level))}</span>
-          <h3>${escapeHtml(cat.name)}</h3>
-          <p>${escapeHtml(cat.description)}</p>
-          <div class="quiz-hub-card__meta">
-            <span>${escapeHtml(questionCountLabel(cat.questions.length))}</span>
-            <span>${escapeHtml(cardStatus(prog, pct))}</span>
-          </div>
-          <div class="quiz-hub-card__bar" aria-hidden="true"><span></span></div>
-        </article>`;
-    }).join('');
+    if (!filtering) {
+      els.grid.classList.add('is-tracks');
+      els.grid.innerHTML = QM.TRACKS.map((tr) => {
+        const list = tr.ids.map((id) => hub.CATEGORIES[id]).filter(Boolean);
+        const done = list.filter((c) => { const p = categoryProgress(c.id); return p.completed && p.bestScore / c.questions.length * 100 >= PASS_THRESHOLD; }).length;
+        return `<section class="qh-track" aria-labelledby="qh-tr-${tr.id}">
+          <header class="qh-track__head"><div><h2 id="qh-tr-${tr.id}">${escapeHtml(QM.pick(tr.name))}</h2><p>${escapeHtml(QM.pick(tr.blurb))}</p></div>
+          <span class="qh-track__count">${escapeHtml(t('{done} di {total} superati', { done, total: list.length }))}</span></header>
+          <div class="qh-track__grid">${list.map(cardHtml).join('')}</div></section>`;
+      }).join('');
+    } else {
+      els.grid.classList.remove('is-tracks');
+      els.grid.innerHTML = cats.map(cardHtml).join('');
+    }
 
     els.grid.querySelectorAll('.quiz-hub-card').forEach((card, i) => {
       const cat = hub.CATEGORIES[card.dataset.id];
-      const prog = categoryProgress(cat.id);
-      const pct = cat.questions.length ? Math.round((prog.bestScore / cat.questions.length) * 100) : 0;
       card.style.setProperty('--qh-accent', cat.accent);
       card.style.setProperty('--i', String(i));
-      const bar = card.querySelector('.quiz-hub-card__bar span');
-      if (bar) bar.style.width = `${pct}%`;
       card.setAttribute('aria-label', t('Inizia il quiz: {name}', { name: cat.name }));
       card.addEventListener('click', () => startQuiz(card.dataset.id));
       card.addEventListener('keydown', (e) => {
@@ -296,7 +338,22 @@
         }
       });
     });
-    if (els.empty) els.empty.hidden = cats.length > 0;
+    if (els.empty) els.empty.hidden = !filtering || cats.length > 0;
+  }
+
+  function renderChallenges() {
+    const box = document.getElementById('qh-challenges');
+    if (!box) return;
+    const nWrong = allCategories().reduce((n, c) => n + c.questions.filter((_, i) => wrongSet.has(`${c.id}:${i}`)).length, 0);
+    const best = (id) => { const p = state.progress[id]; return p && p.bestScore != null ? t('Migliore: {n}/10', { n: p.bestScore }) : t('Mai tentata'); };
+    const items = [
+      { id: 'mix-lampo', title: t('Sfida lampo'), text: t('10 domande a caso da tutti i quiz.'), meta: best('mix-lampo') },
+      { id: 'mix-base', title: t('Sfida Base'), text: t('10 domande di livello base.'), meta: best('mix-base') },
+      { id: 'mix-avanzato', title: t('Sfida Avanzata'), text: t('10 domande di livello avanzato.'), meta: best('mix-avanzato') },
+      { id: 'mix-errori', title: t('Ripasso errori'), text: t('Solo le domande che hai sbagliato.'), meta: t('{n} da ripassare', { n: nWrong }), disabled: nWrong === 0 },
+    ];
+    box.innerHTML = items.map((it) => `<button type="button" class="qh-chal" data-mix="${it.id}"${it.disabled ? ' disabled' : ''}><b>${escapeHtml(it.title)}</b><span>${escapeHtml(it.text)}</span><em>${escapeHtml(it.meta)}</em></button>`).join('');
+    box.querySelectorAll('[data-mix]').forEach((b) => b.addEventListener('click', () => startQuiz(b.dataset.mix)));
   }
 
   function learnLinksHtml(cat) {
@@ -311,13 +368,16 @@
     els.catalog?.classList.remove('is-hidden');
     els.arena?.classList.remove('is-active');
     state.categoryId = null;
+    state.virtual = null;
     renderGrid();
+    renderChallenges();
     updateStats();
   }
 
   function startQuiz(categoryId) {
-    const cat = hub.CATEGORIES[categoryId];
-    if (!cat) return;
+    const cat = categoryId.startsWith('mix-') ? buildMix(categoryId) : hub.CATEGORIES[categoryId];
+    if (!cat || !cat.questions.length) return;
+    state.virtual = cat.virtual ? cat : null;
     state.categoryId = categoryId;
     state.questionIndex = 0;
     state.score = 0;
@@ -330,7 +390,7 @@
   }
 
   function currentCategory() {
-    return hub.CATEGORIES[state.categoryId];
+    return state.virtual || hub.CATEGORIES[state.categoryId];
   }
 
   function renderQuestion() {
@@ -400,6 +460,9 @@
       const label = selected.closest('.quiz-hub-option');
       const correct = label.dataset.correct === 'true';
       if (correct) state.score += 1;
+      const key = q._key || `${cat.id}:${state.questionIndex}`;
+      if (correct) wrongSet.delete(key); else wrongSet.add(key);
+      saveWrong(wrongSet);
 
       optionEls.forEach((el) => {
         el.querySelector('input').disabled = true;
@@ -408,7 +471,7 @@
       });
 
       feedback.classList.add('is-visible', correct ? 'is-correct' : 'is-wrong');
-      feedback.innerHTML = `<p><strong>${escapeHtml(correct ? t('Risposta corretta.') : t('Risposta non corretta.'))}</strong> ${enrichTerms(q.explanation)}</p>${learnLinksHtml(cat)}`;
+      feedback.innerHTML = `<p><strong>${escapeHtml(correct ? t('Risposta corretta.') : t('Risposta non corretta.'))}</strong> ${enrichTerms(q.explanation)}</p>${learnLinksHtml(q._cat || cat)}`;
       checkBtn.textContent = state.questionIndex + 1 >= total ? t('Vedi i risultati') : t('Domanda successiva');
       checkBtn.focus();
     });
@@ -478,7 +541,7 @@
         <h2>${escapeHtml(verdict)}</h2>
         <p>${escapeHtml(t('Hai risposto correttamente a {score} domande su {total} in «{name}».', { score: state.score, total, name: cat.name }))}</p>
         <p class="quiz-hub-results__best">${escapeHtml(t('Miglior risultato in questa categoria: {pct}%', { pct: Math.round((record.bestScore / total) * 100) }))}</p>
-        ${learnLinksHtml(cat)}
+        ${cat.virtual ? '' : learnLinksHtml(cat)}
         <p class="quiz-hub-results__paths"><a href="${escapeHtml(url('/learning-paths.html'))}">${escapeHtml(t('Scegli un percorso di apprendimento'))}</a></p>
         <div class="quiz-hub-actions quiz-hub-actions--center">
           <button type="button" class="quiz-hub-btn" id="qh-retry">${escapeHtml(t('Riprova'))}</button>
@@ -568,6 +631,7 @@
   function boot() {
     renderFilters();
     renderGrid();
+    renderChallenges();
     updateStats();
     bindEvents();
     bindTermEvents();

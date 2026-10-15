@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/virtual-lab.css?v=20261014">
+  <link rel="stylesheet" href="/css/virtual-lab.css?v=20261015">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -30,7 +30,13 @@
     <section class="vlab-hero" aria-labelledby="vlab-hero-title">
       <p class="vlab-section-kicker">Impara · Lab virtuale</p>
       <h1 id="vlab-hero-title">Entra nel terminale, <em>trova la falla</em>, chiudila.</h1>
-      <p class="vlab-hero-lead"><b data-stat="labs">17</b> scenari, ognuno con un bersaglio volutamente vulnerabile in una rete isolata. Lanci i comandi come in un vero test, recuperi la flag e alla fine scopri come si corregge il problema.</p>
+      <p class="vlab-hero-lead">Non è un video e non è un elenco di comandi da copiare. Ognuno dei <b data-stat="labs">17</b> scenari è un bersaglio volutamente vulnerabile in una rete isolata: capisci la tecnica, la provi in un terminale simulato, recuperi la flag e scopri la correzione che un difensore applicherebbe.</p>
+      <ul class="vlab-stats" aria-label="In breve">
+        <li><b>17</b><span>scenari</span></li>
+        <li><b>4</b><span>famiglie di tecniche</span></li>
+        <li><b>3</b><span>livelli di difficoltà</span></li>
+        <li><b>10–25</b><span>minuti ciascuno</span></li>
+      </ul>
 
       <ol class="vlab-how" aria-label="Come funziona">
         <li>
@@ -50,13 +56,23 @@
       <p class="vlab-hero-note">Gli output sono scritti a mano a scopo didattico: nessun comando raggiunge sistemi reali. Puoi tenere aperti fino a 3 scenari, che si chiudono da soli dopo 2 ore. Fuori da qui, queste tecniche si usano solo con un'autorizzazione scritta: <a href="/ethics.html">Etica e legge</a>.</p>
     </section>
 
-    <section class="vlab-catalog" id="vlab-catalog" aria-labelledby="vlab-catalog-title">
+    <section class="vlab-tracks-wrap" aria-labelledby="vlab-tracks-title">
       <div class="vlab-section-head">
+        <p class="vlab-section-kicker">Da dove parto?</p>
+        <h2 id="vlab-tracks-title">Scegli un percorso, oppure esplora liberamente</h2>
+      </div>
+      <div class="vlab-tracks" id="vlab-tracks"></div>
+    </section>
+
+    <section class="vlab-catalog" id="vlab-catalog" aria-labelledby="vlab-catalog-title">
+      <div class="vlab-section-head vlab-section-head--row">
         <div>
           <p class="vlab-section-kicker">Catalogo</p>
           <h2 id="vlab-catalog-title">Scegli il tuo bersaglio</h2>
         </div>
+        <p class="vlab-count" id="vlab-count" aria-live="polite"></p>
       </div>
+      <div class="vlab-filters" id="vlab-filters"></div>
       <div class="vlab-grid" id="vlab-grid" aria-live="polite">
         <p class="vlab-loading">Caricamento…</p>
       </div>
@@ -145,6 +161,7 @@
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/progress-manager.js" defer></script>
   <script src="/js/virtual-lab-guides.js?v=20260620"></script>
-  <script src="/js/virtual-lab.js?v=20260620"></script>
+  <script src="/js/virtual-lab-meta.js?v=20261015"></script>
+  <script src="/js/virtual-lab.js?v=20261015"></script>
 </body>
 </html>

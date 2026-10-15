@@ -89,10 +89,10 @@
     if (!els.phases) return;
     const current = events()[state.index]?.phase;
     els.phases.innerHTML = data.PHASES.map((p) =>
-      `<div class="ir-phase${p.id === current ? ' is-active' : ''}" data-phase="${escapeHtml(p.id)}" role="listitem">
+      `<button type="button" class="ir-phase${p.id === current ? ' is-active' : ''}" data-phase="${escapeHtml(p.id)}" role="listitem"${events().some((e) => e.phase === p.id) ? '' : ' disabled'} title="${escapeHtml(t('Vai alla prima tappa di questa fase'))}">
         <span class="ir-phase__dot"></span>
         <span class="ir-phase__label">${escapeHtml(p.label)}</span>
-      </div>`
+      </button>`
     ).join('');
   }
 
@@ -115,6 +115,12 @@
         </article>`;
     }).join('');
 
+    els.phases?.querySelectorAll('.ir-phase').forEach((node) => {
+      node.onclick = () => {
+        const i = events().findIndex((e) => e.phase === node.dataset.phase);
+        if (i >= 0) selectEvent(i, true);
+      };
+    });
     els.events.querySelectorAll('.ir-event').forEach((node) => {
       const idx = Number(node.dataset.index);
       node.addEventListener('click', () => selectEvent(idx, true));
@@ -179,7 +185,7 @@
     const processed = list.slice(0, state.index + 1);
     const crit = processed.filter((e) => e.severity === 'critical').length;
     const alert = processed.filter((e) => e.severity === 'alert').length;
-    const breach = processed.some((e) => e.dataBreach);
+    const breach = processed.some((e) => e.dataBreach || e.phase === 'exfiltration');
     const sc = scenario();
 
     let system = t('INTEGRO');
@@ -276,7 +282,16 @@
     updateStatus();
     if (els.panel) els.panel.hidden = true;
     state.selected = null;
+    if (els.scenario) els.scenario.value = key;
+    document.dispatchEvent(new CustomEvent('ir:scenario', { detail: { key } }));
   }
+
+  window.IR_TIMELINE = {
+    key: () => state.key,
+    scenario: () => scenario(),
+    load: (key) => loadScenario(key),
+    jump: (i) => { selectEvent(i, true); },
+  };
 
   function bind() {
     els.scenario?.addEventListener('change', (e) => loadScenario(e.target.value));

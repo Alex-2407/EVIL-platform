@@ -159,3 +159,36 @@
   opacity: 0.8;
   margin-top: 1rem;
 }
+
+/* ---------------------------------------------------------------- Glossario: argomenti, collegamenti */
+.gl-daily { position: relative; z-index: 1; max-width: 880px; margin: 0 auto 1.4rem; display: flex; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-radius: 14px; border: 1px solid rgba(0, 255, 156, 0.25); background: linear-gradient(135deg, rgba(0, 255, 156, 0.08), transparent 70%); }
+.gl-daily__body { flex: 1; }
+.gl-daily__tag { display: block; font: 600 0.6rem ui-monospace, Consolas, monospace; letter-spacing: 0.14em; text-transform: uppercase; color: #f59e0b; margin-bottom: 0.2rem; }
+.gl-daily b { font: 400 1.35rem Georgia, serif; color: #f8fafc; }
+.gl-daily p { margin: 0.3rem 0 0; font-size: 0.9rem; line-height: 1.55; color: #b6c2d2; }
+.gl-daily__more { flex: none; padding: 0.5rem 0.9rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.2); background: transparent; color: #cbd5e1; font: 600 0.72rem ui-monospace, Consolas, monospace; cursor: pointer; }
+.gl-daily__more:hover { border-color: #00ff9c; color: #00ff9c; }
+.gl-topics { position: relative; z-index: 1; max-width: 880px; margin: 0 auto 1.1rem; display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.gl-chip { --gl: #00ff9c; padding: 0.4rem 0.8rem; border-radius: 999px; border: 1px solid rgba(255, 255, 255, 0.14); background: transparent; color: #94a3b8; font: 600 0.72rem ui-monospace, Consolas, monospace; cursor: pointer; transition: all 0.15s; }
+.gl-chip small { opacity: 0.7; font-size: 0.66rem; margin-left: 0.2rem; }
+.gl-chip:hover { color: #f1f5f9; border-color: var(--gl); }
+.gl-chip.is-on { background: var(--gl); border-color: var(--gl); color: #06080e; }
+.glossary-entry { --gl: #64748b; border-left: 3px solid transparent; padding-left: 0.8rem; margin-left: -0.8rem; scroll-margin-top: 6rem; transition: background 0.3s, border-color 0.3s; }
+.glossary-entry:hover { border-left-color: var(--gl); }
+.glossary-entry.is-flash { animation: glFlash 2s ease-out; border-left-color: var(--gl); }
+@keyframes glFlash { 0%, 40% { background: color-mix(in srgb, var(--gl) 18%, transparent); } 100% { background: transparent; } }
+.glossary-term { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.gl-topic { font: 600 0.58rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.15rem 0.5rem; border-radius: 999px; color: var(--gl); border: 1px solid color-mix(in srgb, var(--gl) 45%, transparent); }
+.gl-anchor { margin-left: auto; color: #475569; text-decoration: none; font-size: 0.9rem; opacity: 0; transition: opacity 0.15s; }
+.glossary-entry:hover .gl-anchor, .gl-anchor:focus-visible, .gl-anchor.is-copied { opacity: 1; }
+.gl-anchor:hover { color: #00ff9c; }
+.gl-anchor.is-copied { color: #34d399; }
+.gl-xref { color: #7dd3fc; text-decoration: underline dotted; text-underline-offset: 3px; }
+.gl-xref:hover { color: #00ff9c; }
+.gl-related, .gl-links { margin: 0.55rem 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.gl-related > span { font: 600 0.6rem ui-monospace, Consolas, monospace; letter-spacing: 0.1em; text-transform: uppercase; color: #64748b; margin-right: 0.2rem; }
+.gl-xref--chip { padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid rgba(125, 211, 252, 0.35); font: 0.72rem ui-monospace, Consolas, monospace; text-decoration: none; }
+.gl-link { padding: 0.25rem 0.65rem; border-radius: 8px; font: 600 0.7rem ui-monospace, Consolas, monospace; text-decoration: none; color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.14); background: rgba(255, 255, 255, 0.03); }
+.gl-link:hover { border-color: #00ff9c; color: #00ff9c; }
+.gl-link--quiz { color: #c4b5fd; border-color: rgba(167, 139, 250, 0.4); }
+@media (max-width: 600px) { .gl-daily { flex-direction: column; align-items: stretch; } }

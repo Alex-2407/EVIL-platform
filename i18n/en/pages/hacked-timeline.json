@@ -23,6 +23,7 @@
   "<strong>Punto di vista:</strong> sei nel SOC. Per ogni evento la scheda mostra cosa è successo, cosa vedi nei tuoi strumenti, la decisione chiave e le mitigazioni. Le tecniche offensive sono descritte solo quanto serve a riconoscerle: leggi <a href=\"/ethics.html\">Etica e legge</a> prima di provare qualsiasi tecnica, e solo su sistemi per cui hai un'autorizzazione scritta.": "<strong>Point of view:</strong> you are in the SOC. For each event the panel shows what happened, what you see in your tools, the key decision and the mitigations. Offensive techniques are described only as far as you need to recognise them: read <a href=\"/ethics.html\">Ethics and law</a> before trying any technique, and only on systems for which you hold written authorisation.",
   "Simulazione didattica.": "Teaching simulation.",
   "Nessun log reale e nessun sistema reale compromesso. Orari ed eventi sono ispirati a casi tipici; indirizzi IP e domini sono quelli riservati alla documentazione (RFC 5737 e dominio": "No real logs and no real systems compromised. Times and events are modelled on typical cases; IP addresses and domains are those reserved for documentation (RFC 5737 and the reserved domain",
+  "Scegli l'incidente da ricostruire": "Pick the incident to reconstruct",
   "Scenario": "Scenario",
   "Web server — RCE e ransomware": "Web server — RCE and ransomware",
   "Database — SQL injection": "Database — SQL injection",
@@ -49,5 +50,15 @@
   "<span class=\"ir-stat__label\">Stato dei sistemi</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-system\">INTEGRO</span>": "<span class=\"ir-stat__label\">System status</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-system\">INTACT</span>",
   "<span class=\"ir-stat__label\">Gravità</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-severity\">NORMALE</span>": "<span class=\"ir-stat__label\">Severity</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-severity\">NORMAL</span>",
   "<span class=\"ir-stat__label\">Tempo trascorso (simulato)</span> <span class=\"ir-stat__value\" id=\"ir-status-duration\">—</span>": "<span class=\"ir-stat__label\">Elapsed time (simulated)</span> <span class=\"ir-stat__value\" id=\"ir-status-duration\">—</span>",
-  "<span class=\"ir-stat__label\">Dati a rischio</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-data\">—</span>": "<span class=\"ir-stat__label\">Data at risk</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-data\">—</span>"
+  "<span class=\"ir-stat__label\">Dati a rischio</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-data\">—</span>": "<span class=\"ir-stat__label\">Data at risk</span> <span class=\"ir-stat__value ir-stat--ok\" id=\"ir-status-data\">—</span>",
+  "Dopo la cronologia: impara, allenati, documenta": "After the timeline: learn, practise, document",
+  "Strumenti per lo scenario": "Tools for this scenario",
+  "Tempi e controlli": "Timings and controls",
+  "Allenati al triage": "Practise triage",
+  "Report dell'incidente": "Incident report",
+  "Per ogni evento dello scenario scegli la gravità che assegneresti con quello che vede il SOC, poi confrontala con la decisione corretta.": "For each event in the scenario, choose the severity you would assign based on what the SOC sees, then compare it with the correct decision.",
+  "Un report pronto da completare, generato dalla cronologia che hai appena studiato: cronologia, decisioni, azioni correttive, riferimenti MITRE e obblighi di notifica. Si copia o si scarica in Markdown.": "A ready-to-complete report generated from the timeline you just studied: chronology, decisions, corrective actions, MITRE references and notification duties. Copy it or download it as Markdown.",
+  "Testo del report": "Report text",
+  "Copia il report": "Copy the report",
+  "Scarica .md": "Download .md"
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260626">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
-  <link rel="stylesheet" href="/css/quiz-hub.css?v=20260625">
+  <link rel="stylesheet" href="/css/quiz-hub.css?v=20261015">
   <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
 <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -42,7 +42,7 @@
     <section class="quiz-hub-hero" id="quiz-hub-hero" aria-labelledby="quiz-hub-title">
       <p class="quiz-hub-kicker"><span class="quiz-hub-kicker__dot"></span>Impara · Sfida · Difendi</p>
       <h1 id="quiz-hub-title">Centro Quiz</h1>
-      <p>Hub unificato: oltre 200 domande su phishing, web, malware, DNS, SSL, OSINT, API, log/SIEM e altro — allineato a lab e strumenti EVIL.</p>
+      <p>22 quiz con un nome e una missione ciascuno, oltre 200 domande su phishing, web, malware, DNS, TLS, OSINT, API e log. Segui un percorso, lancia una sfida mista o ripassa solo gli errori.</p>
       <div class="quiz-hub-stats">
         <div class="quiz-hub-stat"><strong id="qh-stat-cats">—</strong> <span>Categorie</span></div>
         <div class="quiz-hub-stat"><strong id="qh-stat-qs">—</strong> <span>Domande</span></div>
@@ -52,11 +52,14 @@
 
     <div class="quiz-hub-wrap">
       <section class="quiz-hub-catalog qh-reveal" id="quiz-hub-catalog" aria-label="Catalogo quiz">
+        <div class="qh-challenges" id="qh-challenges" aria-label="Sfide"></div>
         <div class="quiz-hub-toolbar">
           <input type="search" class="quiz-hub-search" id="quiz-hub-search" placeholder="Cerca argomento…" autocomplete="off" aria-label="Cerca quiz">
           <div class="quiz-hub-filter" id="quiz-hub-filter" role="group" aria-label="Filtra per pilastro"></div>
+          <div class="quiz-hub-filter" id="quiz-hub-level-filter" role="group" aria-label="Filtra per livello"></div>
         </div>
         <div class="quiz-hub-grid" id="quiz-hub-grid"></div>
+        <p class="quiz-hub-empty" id="quiz-hub-empty" hidden>Nessun quiz corrisponde alla ricerca.</p>
       </section>
 
       <section class="quiz-hub-arena" id="quiz-hub-arena" aria-label="Area quiz">
@@ -83,6 +86,7 @@
   <script src="/js/quiz-hub-data-extra.js?v=20260622"></script>
   <script src="/js/quiz-hub-glossary.js?v=20260624"></script>
   <script src="/js/evil-particles.js"></script>
-  <script src="/js/quiz-hub.js?v=20260625"></script>
+  <script src="/js/quiz-hub-meta.js?v=20261015"></script>
+  <script src="/js/quiz-hub.js?v=20261015"></script>
 </body>
 </html>
