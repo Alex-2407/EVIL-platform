@@ -1,247 +1,172 @@
 /**
- * EVIL Static File Scanner — UI
+ * EVIL Analisi file — interfaccia (analisi statica: il file non viene mai eseguito né salvato)
  */
 (function () {
+  'use strict';
+  const { t } = window.EVIL_I18N;
+  const R = window.EvilToolReport;
+  const esc = R.esc;
   const $ = (id) => document.getElementById(id);
-  let lastReport = null;
   let pendingFile = null;
 
-  const esc = window.EVIL_UTILS.escapeHtml;
+  const kb = (n) => `${(n / 1024).toFixed(1)} KB`;
+  const kv = (rows) => `<dl class="tr-kv">${rows.filter((r) => r[1] != null && r[1] !== '').map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
 
-  function log(msg, type) {
-    const box = $('faLog');
-    box.classList.add('is-active');
-    const line = document.createElement('div');
-    line.className = 'sc-log__line sc-log__line--' + (type || 'run');
-    line.textContent = `[${new Date().toLocaleTimeString('it-IT')}] ${msg}`;
-    box.appendChild(line);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  function gradeClass(g) {
-    return 'sc-score-ring--' + String(g || 'f').toLowerCase();
-  }
-
-  function sevBadge(sev) {
-    const map = { critical: 'fail', high: 'fail', medium: 'warn', low: 'info', info: 'info' };
-    return map[sev] || 'info';
-  }
-
-  function verdictClass(code) {
-    if (code === 'clean_static') return 'clean';
-    if (code === 'investigate') return 'investigate';
-    return 'suspicious';
+  function showError(msg) {
+    const el = $('faError');
+    el.textContent = msg || '';
+    el.hidden = !msg;
   }
 
   async function sha256Local(file) {
-    const buf = await file.arrayBuffer();
-    const hash = await crypto.subtle.digest('SHA-256', buf);
+    const hash = await crypto.subtle.digest('SHA-256', await file.arrayBuffer());
     return [...new Uint8Array(hash)].map((b) => b.toString(16).padStart(2, '0')).join('');
   }
 
-  function bindSections() {
-    document.querySelectorAll('.sc-section__head').forEach((head) => {
-      head.addEventListener('click', () => {
-        const body = head.nextElementSibling;
-        body.hidden = !body.hidden;
-      });
-    });
+  const safeVt = (u) => (/^https:\/\/www\.virustotal\.com\//.test(u || '') ? u : 'https://www.virustotal.com');
+
+  function tabOverview(d) {
+    const v = d.verdict || {};
+    const vt = safeVt(d.virusTotalUrl);
+    const hero = `<div class="tr-hero">
+      ${R.ring(d.score, d.grade)}
+      <div>
+        <h2>${esc(v.label || R.verdict(d.grade).title)}</h2>
+        <p>${esc(v.note || '')}</p>
+        <dl class="tr-facts">
+          <div><dt>${esc(t('File'))}</dt><dd>${esc(d.originalName)}</dd></div>
+          <div><dt>${esc(t('Dimensione'))}</dt><dd>${esc(kb(d.size))}</dd></div>
+          <div><dt>${esc(t('Tipo rilevato'))}</dt><dd>${esc((d.fileType && d.fileType.detected) || '—')}</dd></div>
+        </dl>
+        <div class="tr-actions">
+          <button type="button" class="sc-btn sc-btn--primary" data-act="copy">${esc(t('Copia riepilogo'))}</button>
+          <button type="button" class="sc-btn sc-btn--ghost" data-act="print">${esc(t('Stampa / salva PDF'))}</button>
+          <a class="sc-btn sc-btn--ghost evil-external-link" href="${esc(vt)}" target="_blank" rel="noopener noreferrer">VirusTotal →</a>
+        </div>
+      </div>
+    </div>`;
+    const list = (d.findings || []).length
+      ? `<h3>${esc(t('Cosa abbiamo trovato'))}</h3>${R.findings(d.findings)}`
+      : `<p class="tr-muted">${esc(t('Nessun elemento sospetto rilevato dall’analisi statica.'))}</p>`;
+    return `${hero}${list}<h3>${esc(t('Perché questo voto'))}</h3>${R.breakdown(d.scoreBreakdown)}`;
   }
 
-  function renderReport(data) {
-    lastReport = data;
-    const v = data.verdict || {};
-
-    const findingRows = (data.findings || [])
-      .map(
-        (f) =>
-          `<div class="sc-finding sc-finding--${esc(f.severity)}"><strong>${esc(f.title)}</strong><span>${esc(f.detail)}</span></div>`
-      )
-      .join('');
-
-    const breakdownRows = (data.scoreBreakdown || [])
-      .filter((b) => b.delta !== 0)
-      .map(
-        (b) =>
-          `<tr><td>${esc(b.label)}</td><td>${b.delta > 0 ? '+' : ''}${b.delta}</td><td><span class="sc-badge sc-badge--${sevBadge(b.severity)}">${esc(b.severity)}</span></td></tr>`
-      )
-      .join('');
-
-    const patternRows = (data.patternHits || []).length
-      ? data.patternHits
-          .map(
-            (p) =>
-              `<tr><td>${esc(p.name)}</td><td>${esc(p.category)}</td><td><span class="sc-badge sc-badge--${sevBadge(p.severity)}">${esc(p.severity)}</span></td></tr>`
-          )
-          .join('')
-      : '<tr><td colspan="3">Nessun pattern noto</td></tr>';
-
-    const stringSample = (data.strings?.sample || [])
-      .map((s) => `<li><code>${esc(s)}</code></li>`)
-      .join('');
-
-    const limitList = (data.limitations || []).map((l) => `<li>${esc(l)}</li>`).join('');
-
-    $('faResults').innerHTML = `
-      <div class="sc-summary">
-        <div class="sc-score-ring ${gradeClass(data.grade)}">
-          <span class="sc-score-ring__num">${Math.round(data.score)}</span>
-          <span class="sc-score-ring__grade">Grade ${esc(data.grade)}</span>
-        </div>
-        <div>
-          <div class="sc-summary-grid">
-            <div><div class="sc-kv__label">File</div><div class="sc-kv__val">${esc(data.originalName)}</div></div>
-            <div><div class="sc-kv__label">Dimensione</div><div class="sc-kv__val">${(data.size / 1024).toFixed(1)} KB</div></div>
-            <div><div class="sc-kv__label">Tipo rilevato</div><div class="sc-kv__val">${esc(data.fileType?.detected)}</div></div>
-            <div><div class="sc-kv__label">Entropia</div><div class="sc-kv__val">${esc(data.entropy?.shannon)} (${esc(data.entropy?.label)})</div></div>
-            <div><div class="sc-kv__label">Verdetto</div><div class="sc-kv__val"><span class="fa-verdict fa-verdict--${verdictClass(v.code)}">${esc(v.label)}</span></div></div>
-            <div><div class="sc-kv__label">Durata</div><div class="sc-kv__val">${esc(data.scanDurationMs || '—')} ms</div></div>
-          </div>
-          <div class="sc-export-row">
-            <button type="button" class="sc-btn sc-btn--ghost" id="faExportJson">Esporta JSON</button>
-            <a class="sc-btn sc-btn--ghost evil-external-link" href="${esc(data.virusTotalUrl)}" target="_blank" rel="noopener noreferrer">VirusTotal →</a>
-          </div>
-        </div>
-      </div>
-
-      <p class="sc-callout"><strong>Nota:</strong> ${esc(v.note)}</p>
-      ${limitList ? `<div class="sc-callout sc-callout--muted"><strong>Sicurezza &amp; limiti</strong><ul class="sc-limit-list">${limitList}</ul></div>` : ''}
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Findings</h2><span class="sc-badge sc-badge--info">${(data.findings || []).length}</span></div>
-        <div class="sc-section__body">${findingRows}</div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Hash crittografici</h2></div>
-        <div class="sc-section__body">
-          <p class="sc-muted"><strong>MD5:</strong> <code>${esc(data.hashes?.md5)}</code></p>
-          <p class="sc-muted"><strong>SHA-1:</strong> <code>${esc(data.hashes?.sha1)}</code></p>
-          <p class="sc-muted"><strong>SHA-256:</strong> <code>${esc(data.hashes?.sha256)}</code></p>
-          <p class="sc-muted"><strong>SHA-512:</strong> <code>${esc(data.hashes?.sha512?.slice(0, 64))}…</code></p>
-        </div>
-      </div>
-
-      ${
-        data.pe
-          ? `<div class="sc-section"><div class="sc-section__head"><h2>PE header</h2></div><div class="sc-section__body"><div class="sc-summary-grid">
-          <div><div class="sc-kv__label">Architettura</div><div class="sc-kv__val">${esc(data.pe.machine)}</div></div>
-          <div><div class="sc-kv__label">Sezioni</div><div class="sc-kv__val">${esc(data.pe.sections)}</div></div>
-          <div><div class="sc-kv__label">Subsystem</div><div class="sc-kv__val">${esc(data.pe.subsystem)}</div></div>
-          <div><div class="sc-kv__label">DLL</div><div class="sc-kv__val">${data.pe.isDll ? 'Sì' : 'No'}</div></div>
-        </div></div></div>`
-          : ''
-      }
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Pattern statici</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Indicatore</th><th>Categoria</th><th>Severità</th></tr></thead><tbody>${patternRows}</tbody></table></div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Stringhe (campione)</h2><span class="sc-badge sc-badge--info">${data.strings?.count || 0}</span></div>
-        <div class="sc-section__body"><ul class="sc-limit-list">${stringSample || '<li class="sc-muted">Nessuna stringa ASCII significativa</li>'}</ul></div>
-      </div>
-
-      ${
-        (data.network?.urls?.length || data.network?.ips?.length)
-          ? `<div class="sc-section"><div class="sc-section__head"><h2>Indicatori di rete</h2></div><div class="sc-section__body">
-          ${data.network.urls?.length ? `<p class="sc-muted"><strong>URL:</strong> ${data.network.urls.map((u) => `<code>${esc(u)}</code>`).join(' ')}</p>` : ''}
-          ${data.network.ips?.length ? `<p class="sc-muted"><strong>IP:</strong> ${data.network.ips.map((i) => `<code>${esc(i)}</code>`).join(' ')}</p>` : ''}
-        </div></div>`
-          : ''
-      }
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Score breakdown</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Controllo</th><th>Punti</th><th>Severità</th></tr></thead><tbody>${breakdownRows || '<tr><td colspan="3">Nessuna detrazione</td></tr>'}</tbody></table></div>
-      </div>
-    `;
-
-    $('faResults').classList.add('is-active');
-    bindSections();
-    document.getElementById('faExportJson')?.addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `evil-file-scan-${Date.now()}.json`;
-      link.click();
-    });
+  function tabDetails(d) {
+    let html = `<h3>${esc(t('Impronte digitali (hash)'))}</h3><p class="tr-muted">${esc(t('Servono a riconoscere lo stesso file ovunque: incolla lo SHA-256 su VirusTotal per vedere cosa ne dicono gli antivirus.'))}</p>`;
+    html += kv([['MD5', d.hashes && d.hashes.md5], ['SHA-1', d.hashes && d.hashes.sha1], ['SHA-256', d.hashes && d.hashes.sha256]]);
+    html += `<h3>${esc(t('Struttura del file'))}</h3>`;
+    html += kv([
+      [t('Entropia'), d.entropy ? `${d.entropy.shannon} (${d.entropy.label})` : null],
+      [t('Architettura'), d.pe && d.pe.machine],
+      [t('Sezioni'), d.pe && d.pe.sections],
+      [t('Libreria (DLL)'), d.pe ? (d.pe.isDll ? t('Sì') : t('No')) : null],
+    ]);
+    html += `<p class="tr-muted">${esc(t('Entropia alta (vicino a 8) significa dati compressi o cifrati: normale negli archivi, sospetto negli eseguibili.'))}</p>`;
+    return html;
   }
 
-  function renderLocalHashOnly(file, sha256) {
-    $('faResults').innerHTML = `
-      <div class="sc-callout">
-        <strong>Hash locale (file non inviato al server)</strong>
-        <p style="margin-top:0.5rem">SHA-256: <code>${esc(sha256)}</code></p>
-        <p class="sc-muted" style="margin-top:0.5rem">Per analisi statica completa (entropia, PE, pattern) attiva «Scansione completa» e ricarica.</p>
-        <a class="sc-btn sc-btn--ghost evil-external-link" style="margin-top:0.75rem;display:inline-block" href="https://www.virustotal.com/gui/file/${esc(sha256)}" target="_blank" rel="noopener noreferrer">VirusTotal →</a>
-      </div>
-    `;
-    $('faResults').classList.add('is-active');
+  function tabIndicators(d) {
+    const pats = d.patternHits || [];
+    const net = d.network || {};
+    let html = `<h3>${esc(t('Schemi noti'))}</h3>`;
+    html += pats.length
+      ? `<div class="tr-checks">${pats.map((p) => `<div class="tr-check tr-check--${p.severity === 'high' || p.severity === 'critical' ? 'bad' : 'warn'}"><div class="tr-check__body" style="padding:0.7rem 1rem"><strong>${esc(p.name)}</strong> <span class="tr-chip">${esc(p.category)}</span></div></div>`).join('')}</div>`
+      : `<p class="tr-muted">${esc(t('Nessuno schema noto.'))}</p>`;
+    html += `<h3>${esc(t('Indirizzi dentro il file'))}</h3>`;
+    html += (net.urls || []).length || (net.ips || []).length
+      ? kv([['URL', (net.urls || []).join(' · ')], ['IP', (net.ips || []).join(' · ')]])
+      : `<p class="tr-muted">${esc(t('Nessun URL o IP trovato.'))}</p>`;
+    const sample = (d.strings && d.strings.sample) || [];
+    html += `<h3>${esc(t('Testo leggibile (campione)'))}</h3>`;
+    html += sample.length ? `<div class="tr-check__body" style="padding:0">${sample.slice(0, 30).map((s) => `<code>${esc(s)}</code>`).join('')}</div>` : `<p class="tr-muted">${esc(t('Nessun testo leggibile significativo.'))}</p>`;
+    return html;
+  }
+
+  function render(d) {
+    const host = $('faResults');
+    host.hidden = false;
+    host.innerHTML = '<div id="faTabs"></div>';
+    R.tabs($('faTabs'), [
+      { id: 'overview', label: t('Panoramica'), html: tabOverview(d), badge: (d.findings || []).length || null },
+      { id: 'details', label: t('Dettagli tecnici'), html: tabDetails(d) },
+      { id: 'ind', label: t('Indizi'), html: tabIndicators(d) },
+    ]);
+    if ((d.limitations || []).length) {
+      host.insertAdjacentHTML('beforeend', `<details class="tr-more"><summary>${esc(t('Sicurezza e limiti'))}</summary><div><ul>${d.limitations.map((l) => `<li>${esc(l)}</li>`).join('')}</ul></div></details>`);
+    }
+    R.animateRings(host);
+    R.bindActions(host, () => R.summaryText(
+      t('Analisi file — {name}', { name: d.originalName }),
+      [[t('Voto'), `${d.grade} (${Math.round(d.score)}/100)`], [t('Verdetto'), (d.verdict && d.verdict.label) || ''], ['SHA-256', (d.hashes && d.hashes.sha256) || '']],
+      d.findings
+    ));
+    host.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderHashOnly(sha256) {
+    const host = $('faResults');
+    host.hidden = false;
+    host.innerHTML = `<div class="tr-hero"><div><h2>${esc(t('Hash calcolato sul tuo dispositivo'))}</h2><p>${esc(t('Il file non è stato inviato a nessun server.'))}</p>
+      ${kv([['SHA-256', sha256]])}
+      <div class="tr-actions"><a class="sc-btn sc-btn--primary evil-external-link" href="https://www.virustotal.com/gui/file/${esc(sha256)}" target="_blank" rel="noopener noreferrer">${esc(t('Cerca su VirusTotal'))} →</a></div></div></div>`;
   }
 
   async function runScan() {
-    const file = pendingFile || $('faFile').files?.[0];
-    if (!file || !$('faAuth').checked) {
-      alert('Seleziona un file e conferma autorizzazione.');
+    showError('');
+    const file = pendingFile || ($('faFile').files && $('faFile').files[0]);
+    if (!file) { showError(t('Scegli prima un file.')); return; }
+    if (!$('faAuth').checked) { showError(t('Conferma di essere autorizzato ad analizzare il file.')); return; }
+    const mode = (document.querySelector('input[name="faMode"]:checked') || {}).value || 'full';
+    const btn = $('faScanBtn');
+    btn.disabled = true;
+    $('faResults').hidden = true;
+    $('faResults').innerHTML = '';
+
+    if (mode === 'hash') {
+      try {
+        renderHashOnly(await sha256Local(file));
+      } catch (_) {
+        showError(t('Impossibile calcolare l’hash di questo file.'));
+      }
+      btn.disabled = false;
       return;
     }
 
-    const mode = document.querySelector('input[name="faMode"]:checked')?.value || 'full';
-    const btn = $('faScanBtn');
-    btn.disabled = true;
-    $('faLog').innerHTML = '';
-    $('faResults').classList.remove('is-active');
-    $('faResults').innerHTML = '';
-
+    const steps = R.stepper($('faSteps'), [t('Lettura del file'), t('Hash e tipo di file'), t('Entropia e struttura'), t('Schemi e testo'), t('Calcolo del voto')]);
+    steps.start();
     try {
-      log(`File: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`, 'info');
-
-      if (mode === 'hash') {
-        log('Calcolo SHA-256 in locale (Web Crypto)…', 'run');
-        const sha256 = await sha256Local(file);
-        log('Hash calcolato — file non trasmesso', 'ok');
-        renderLocalHashOnly(file, sha256);
-        return;
-      }
-
-      ['Lettura buffer', 'Hash MD5/SHA', 'Magic bytes & entropia', 'Pattern & stringhe', 'Scoring'].forEach((p) =>
-        log(p + '…', 'run')
-      );
-
       const data = await EvilTools.uploadToolFile('/api/file-scan', file);
       const r = data.result;
       r.scanDurationMs = data.scanDurationMs;
-      log(`Completato — Grade ${r.grade} · ${r.verdict?.label}`, 'ok');
-      renderReport(r);
+      steps.finish(true);
+      setTimeout(() => steps.hide(), 600);
+      render(r);
     } catch (err) {
-      log(err.message, 'err');
-      $('faResults').innerHTML = `<div class="sc-callout"><strong>Scansione fallita</strong><br>${esc(err.message)}</div>`;
-      $('faResults').classList.add('is-active');
+      steps.finish(false);
+      showError(err.message || t('Analisi non riuscita.'));
     } finally {
-      btn.disabled = !file || !$('faAuth').checked;
-      btn.textContent = 'Avvia scansione statica';
+      btn.disabled = !$('faAuth').checked;
     }
   }
 
-  function resetScan() {
+  function reset() {
     pendingFile = null;
     $('faFile').value = '';
     $('faAuth').checked = false;
     $('faScanBtn').disabled = true;
-    $('faLog').innerHTML = '';
-    $('faLog').classList.remove('is-active');
-    $('faResults').classList.remove('is-active');
+    showError('');
+    $('faSteps').hidden = true;
+    $('faSteps').innerHTML = '';
+    $('faResults').hidden = true;
     $('faResults').innerHTML = '';
-    $('faFileName').textContent = 'Trascina un file o clicca per selezionare';
-    lastReport = null;
+    $('faFileName').textContent = t('Trascina un file o clicca per selezionare');
   }
 
   function setFile(file) {
     if (!file) return;
     pendingFile = file;
-    $('faFileName').textContent = `${file.name} · ${(file.size / 1024).toFixed(1)} KB`;
+    showError('');
+    $('faFileName').textContent = `${file.name} · ${kb(file.size)}`;
     $('faScanBtn').disabled = !$('faAuth').checked;
   }
 
@@ -249,36 +174,19 @@
     const drop = $('faDrop');
     const input = $('faFile');
     const auth = $('faAuth');
-
-    auth.addEventListener('change', () => {
-      $('faScanBtn').disabled = !auth.checked || !(pendingFile || input.files?.[0]);
-    });
-
-    input.addEventListener('change', () => setFile(input.files?.[0]));
-
+    auth.addEventListener('change', () => { $('faScanBtn').disabled = !auth.checked || !(pendingFile || (input.files && input.files[0])); });
+    input.addEventListener('change', () => setFile(input.files && input.files[0]));
     drop.addEventListener('click', () => input.click());
-    drop.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      drop.classList.add('is-dragover');
-    });
+    drop.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); } });
+    drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.classList.add('is-dragover'); });
     drop.addEventListener('dragleave', () => drop.classList.remove('is-dragover'));
     drop.addEventListener('drop', (e) => {
       e.preventDefault();
       drop.classList.remove('is-dragover');
-      const file = e.dataTransfer?.files?.[0];
-      if (file) {
-        setFile(file);
-        try {
-          const dt = new DataTransfer();
-          dt.items.add(file);
-          input.files = dt.files;
-        } catch {
-          /* ignore */
-        }
-      }
+      const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) setFile(file);
     });
-
     $('faScanBtn').addEventListener('click', runScan);
-    $('faResetBtn').addEventListener('click', resetScan);
+    $('faResetBtn').addEventListener('click', reset);
   });
 })();

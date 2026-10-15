@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Static File Scanner — EVIL Strumenti</title>
+  <title>Analisi file — EVIL Strumenti</title>
   <meta name="description" content="Scanner statico sicuro: hash, entropia, PE, pattern malware — analisi in RAM senza esecuzione.">
 
   <link rel="stylesheet" href="/css/style.css">
@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/security-check.css?v=20260713">
+  <link rel="stylesheet" href="/css/tool-report.css?v=1">
   <link rel="stylesheet" href="/css/http-header-audit.css?v=20260707">
   <link rel="stylesheet" href="/css/file-analysis.css?v=20260712">
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
@@ -30,11 +31,10 @@
   <main>
     <section class="sc-hero">
       <p class="sc-kicker">Strumenti · Malware statico</p>
-      <h1>Static File Scanner</h1>
+      <h1>Analisi file</h1>
       <p class="sc-hero__lead">
-        Analisi statica di livello SOC: hash MD5/SHA-1/SHA-256/SHA-512, magic bytes, entropia Shannon, header PE,
-        estrazione stringhe, pattern sospetti e scoring — <strong>senza eseguire il file</strong> e
-        <strong>senza salvarlo su disco</strong> (solo RAM).
+        Trascina un file e scopri se ha caratteristiche sospette: tipo reale, impronte digitali, struttura, testo nascosto e schemi tipici dei malware.
+        Il file <strong>non viene mai eseguito</strong> né <strong>salvato su disco</strong>.
       </p>
     </section>
 
@@ -42,7 +42,7 @@
       <div class="sc-panel">
         <div class="fa-drop" id="faDrop" tabindex="0" role="button" aria-label="Area caricamento file">
           <div class="fa-drop__title" id="faFileName">Trascina un file o clicca per selezionare</div>
-          <div class="fa-drop__sub">Max 32 MB — eseguibili, documenti, archivi — campioni autorizzati soltanto</div>
+          <div class="fa-drop__sub">Max 32 MB · eseguibili, documenti, archivi · solo file tuoi o autorizzati</div>
           <input type="file" id="faFile" aria-hidden="true">
         </div>
 
@@ -53,13 +53,14 @@
 
         <label class="sc-auth">
           <input type="checkbox" id="faAuth">
-          <span>Possiedo autorizzazione legale ad analizzare questo file (proprietà o mandato esplicito).</span>
+          <span>Il file è mio o ho il permesso di analizzarlo.</span>
         </label>
         <div class="sc-actions">
-          <button type="button" class="sc-btn sc-btn--primary" id="faScanBtn" disabled>Avvia scansione statica</button>
+          <button type="button" class="sc-btn sc-btn--primary" id="faScanBtn" disabled>Analizza file</button>
           <button type="button" class="sc-btn sc-btn--ghost" id="faResetBtn">Reset</button>
         </div>
-        <p class="sc-meta">Zero esecuzione — zero persistenza — link VirusTotal — non è un AV cloud</p>
+        <p class="tr-error" id="faError" role="alert" hidden></p>
+        <p class="sc-meta">Analisi statica: non sostituisce un antivirus</p>
       </div>
 
       <aside class="sc-callout" role="note">
@@ -68,8 +69,8 @@
         Il verdetto EVIL è euristico/statico.
       </aside>
 
-      <div class="sc-log" id="faLog" aria-live="polite"></div>
-      <div class="sc-results" id="faResults"></div>
+      <div id="faSteps" hidden aria-live="polite"></div>
+      <div class="tr-results" id="faResults" hidden></div>
     </div>
   </main>
 
@@ -77,6 +78,7 @@
 
   <script src="/js/matrixrain.js" defer></script>
 <script src="/js/tools-api.js" defer></script>
-  <script src="/js/file-analysis.js?v=20260712" defer></script>
+  <script src="/js/tool-report.js?v=1" defer></script>
+  <script src="/js/file-analysis.js?v=20261015" defer></script>
 </body>
 </html>

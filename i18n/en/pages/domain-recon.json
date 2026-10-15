@@ -5,7 +5,7 @@
   "Ricognizione dominio": "Domain reconnaissance",
   "Tre analisi complementari su un target DNS: record, superficie subdomain e certificato TLS. Per una valutazione rapida completa usa anche <a href=\"/security-check.html\">Check URL</a>.": "Three complementary analyses of a DNS target: records, subdomain surface and TLS certificate. For a complete quick assessment also use the <a href=\"/security-check.html\">URL check</a>.",
   "← Check URL (panoramica)": "← URL check (overview)",
-  "Usa questi strumenti solo su domini e infrastrutture per cui hai autorizzazione esplicita. I risultati sono didattici e basati su lookup pubblici.": "Use these tools only on domains and infrastructure you have explicit authorisation to analyse. The results are for learning purposes and are based on public lookups.",
+  "Usa questi strumenti solo su domini e infrastrutture per cui hai autorizzazione esplicita. I risultati vengono da ricerche pubbliche (DNS, certificati) e non provano attacchi.": "Use these tools only on domains and infrastructure you have explicit authorization for. Results come from public lookups (DNS, certificates) and do not try attacks.",
   "DNS": "DNS",
   "Record DNS": "DNS records",
   "Enumerazione A, AAAA, MX, NS, TXT, CNAME, SOA e lookup WHOIS per mappare l’infrastruttura del dominio.": "Enumerate A, AAAA, MX, NS, TXT, CNAME and SOA records and run a WHOIS lookup to map the domain's infrastructure.",
@@ -18,5 +18,5 @@
   "Certificato SSL": "TLS certificate",
   "Validità, issuer, SAN e scadenza del certificato — utile per audit HTTPS approfondito.": "Validity, issuer, SAN and expiry of the certificate — useful for an in-depth HTTPS audit.",
   "Apri analisi SSL →": "Open TLS certificate →",
-  "Altri strumenti: <a href=\"/vulnerability-scanner.html\">Scanner CVE</a> · <a href=\"/file-analysis.html\">Analisi file</a> · <a href=\"/report-generator.html\">Export report PDF</a>": "Other tools: <a href=\"/vulnerability-scanner.html\">HTTP header audit</a> · <a href=\"/file-analysis.html\">File analysis</a> · <a href=\"/report-generator.html\">PDF report export</a>"
+  "Altri strumenti: <a href=\"/vulnerability-scanner.html\">Audit header HTTP</a> · <a href=\"/file-analysis.html\">Analisi file</a> · <a href=\"/report-generator.html\">Generatore di report</a>": "More tools: <a href=\"/vulnerability-scanner.html\">HTTP header audit</a> · <a href=\"/file-analysis.html\">File analysis</a> · <a href=\"/report-generator.html\">Report generator</a>"
 }
