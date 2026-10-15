@@ -18,11 +18,13 @@
 
 /* Layout e adattamento alla finestra */
 html, body {
-  height: 100%;
   min-height: 100vh;
   margin: 0;
   padding: 0;
 }
+/* body senza altezza fissa: l'header sticky resta agganciato per tutta la pagina */
+html { height: auto; }
+body { height: auto; }
 body {
   min-height: 100vh;
   display: flex;

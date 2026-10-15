@@ -194,10 +194,9 @@
       trigger.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        // Con il mouse il menu si apre già al passaggio: il clic subito dopo non deve richiuderlo
-        // (e.detail === 0: clic da tastiera, Invio o spazio: vale sempre come apri/chiudi)
-        const justHovered = e.detail > 0 && Date.now() - Number(li.dataset.hoverOpenedAt || 0) < 700;
-        const willOpen = justHovered || !li.classList.contains('dropdown-open');
+        // Le tendine si aprono e si chiudono solo con il clic (o Invio/Spazio): restano aperte
+        // finché non scegli una voce, clicchi altrove o premi Esc.
+        const willOpen = !li.classList.contains('dropdown-open');
         closeAllDropdowns(nav, willOpen ? li : null);
         setDropdownState(li, willOpen);
       });
@@ -208,17 +207,33 @@
         }
       });
 
-      if (!isMobileNav()) {
-        li.addEventListener('mouseenter', () => {
+      // con una tendina già aperta, passare su un'altra area la apre al volo (come una barra dei menu)
+      trigger.addEventListener('mouseenter', () => {
+        if (isMobileNav()) return;
+        const anyOpen = nav.querySelector(':scope > ul > li.dropdown-open');
+        if (anyOpen && anyOpen !== li) {
           closeAllDropdowns(nav, li);
-          if (!li.classList.contains('dropdown-open')) li.dataset.hoverOpenedAt = String(Date.now());
           setDropdownState(li, true);
-        });
-        li.addEventListener('mouseleave', () => {
-          delete li.dataset.hoverOpenedAt;
-          setDropdownState(li, false);
-        });
-      }
+        }
+      });
+    });
+
+    if (!window.__evilNavEscBound) {
+      window.__evilNavEscBound = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const menu = document.querySelector('header nav');
+        const open = menu && menu.querySelector(':scope > ul > li.dropdown-open');
+        if (!open) return;
+        closeAllDropdowns(menu, null);
+        const tr = open.querySelector(':scope > a[aria-haspopup]');
+        if (tr) tr.focus();
+      });
+    }
+
+    // dopo la scelta di una voce il menu si chiude
+    nav.querySelectorAll('.dropdown a[href]').forEach((a) => {
+      a.addEventListener('click', () => closeAllDropdowns(nav, null));
     });
 
     if (!window.__evilNavResizeBound) {
