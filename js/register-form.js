@@ -22,6 +22,34 @@
     ageConfirmed: 'accept-age',
   };
 
+  // Strumenti che richiedono un account: se si arriva da uno di questi, la pagina spiega perché
+  const TOOL_NAMES = {
+    'security-check.html': () => t('Check URL'),
+    'vulnerability-scanner.html': () => t('Audit header HTTP'),
+    'dns-enumerator.html': () => t('Ricognizione dominio'),
+    'subdomain-finder.html': () => t('Ricognizione dominio'),
+    'domain-recon.html': () => t('Ricognizione dominio'),
+    'ssl-analyzer.html': () => t('Certificato TLS'),
+    'file-analysis.html': () => t('Analisi file'),
+    'social-profiling.html': () => t('Profilazione social'),
+    'public-info.html': () => t('Esposizione online'),
+    'osint-hub.html': () => t('OSINT'),
+    'report-generator.html': () => t('Generatore di report'),
+  };
+
+  function explainRedirect() {
+    const redirect = new URLSearchParams(window.location.search).get('redirect') || '';
+    if (!/^[a-z0-9][a-z0-9._-]*\.html(\?[a-z0-9=&%._+-]*)?$/i.test(redirect)) return;
+    const page = redirect.split('?')[0];
+    const note = document.getElementById('registerReason');
+    if (note && TOOL_NAMES[page]) {
+      note.textContent = t('Per usare {tool} serve un account EVIL gratuito. Registrati: bastano un’email da confermare e un minuto.', { tool: TOOL_NAMES[page]() });
+      note.hidden = false;
+    }
+    const link = document.getElementById('loginSwitch');
+    if (link) link.href = url(`/login.html?redirect=${encodeURIComponent(redirect)}`);
+  }
+
   function validatePasswordStrength(password) {
     if (!password || password.length < 12) return t('La password deve avere almeno 12 caratteri.');
     if (!/[A-Z]/.test(password)) return t('La password deve contenere almeno una lettera maiuscola (A-Z).');
@@ -53,6 +81,7 @@
     const form = document.getElementById('registerForm');
     if (!form || form.dataset.evilRegisterBound === '1') return;
     form.dataset.evilRegisterBound = '1';
+    explainRedirect();
 
     const errorDiv = document.getElementById('registerError');
     const successDiv = document.getElementById('registerSuccess');

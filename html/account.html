@@ -47,6 +47,7 @@
         <section class="auth-panel" aria-labelledby="register-title">
           <p class="auth-panel__kicker">Registrazione</p>
           <h1 id="register-title">Crea un account</h1>
+          <p id="registerReason" class="auth-message auth-message--info" role="status" hidden></p>
           <form id="registerForm" novalidate>
             <div class="auth-field">
               <label for="name">Nome completo</label>
@@ -86,7 +87,7 @@
             <button type="submit" class="auth-submit">Registrati</button>
           </form>
           <p class="auth-switch">
-            Hai già un account? <a href="/login.html">Accedi qui</a>
+            Hai già un account? <a href="/login.html" id="loginSwitch">Accedi qui</a>
           </p>
           <div id="confirmationLink" class="auth-confirm"></div>
         </section>
@@ -97,7 +98,7 @@
   <!--evil:footer-->
 
   <script src="/js/auth-feedback.js?v=20260702"></script>
-  <script src="/js/register-form.js?v=20261001" defer></script>
+  <script src="/js/register-form.js?v=20261015" defer></script>
   <script src="/js/matrixrain.js" defer></script>
 <script src="/js/progress-manager.js" defer></script>
 </body>

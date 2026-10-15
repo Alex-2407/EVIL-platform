@@ -25,5 +25,5 @@
   "Ho letto e accetto il <a href=\"/ethics.html\" target=\"_blank\" rel=\"noopener\">codice di condotta</a> e l'<a href=\"/site-policies.html\" target=\"_blank\" rel=\"noopener\">informativa privacy</a>: userò gli strumenti solo su sistemi miei o per cui ho un'autorizzazione scritta.": "I have read and accept the <a href=\"/ethics.html\" target=\"_blank\" rel=\"noopener\">code of conduct</a> and the <a href=\"/site-policies.html\" target=\"_blank\" rel=\"noopener\">privacy notice</a>: I will use the tools only on my own systems or on systems I have written authorisation to test.",
   "Dichiaro di avere almeno 14 anni (età minima in Italia per il consenso ai servizi digitali, art. 2-quinquies del Codice privacy).": "I confirm I am at least 14 years old (the minimum age for consenting to online services in Italy, art. 2-quinquies of the Italian Privacy Code).",
   "Registrati": "Sign up",
-  "Hai già un account? <a href=\"/login.html\">Accedi qui</a>": "Already have an account? <a href=\"/login.html\">Sign in here</a>"
+  "Hai già un account? <a href=\"/login.html\" id=\"loginSwitch\">Accedi qui</a>": "Already have an account? <a href=\"/login.html\" id=\"loginSwitch\">Sign in here</a>"
 }

@@ -451,7 +451,10 @@
     if (!lastSessionReachable && isAuthenticated()) return true;
 
     const page = redirectPage || window.location.pathname.split('/').pop() || 'home.html';
-    window.location.replace(I18N.url(`/login.html?redirect=${encodeURIComponent(page)}`));
+    // chi prova uno strumento senza account viene portato alla registrazione (con link per accedere);
+    // il profilo, che presuppone un account già esistente, resta sul login
+    const dest = page === 'profile.html' ? '/login.html' : '/account.html';
+    window.location.replace(I18N.url(`${dest}?redirect=${encodeURIComponent(page + window.location.search)}`));
     return false;
   }
 

@@ -4,7 +4,7 @@
 (function () {
   const $ = (id) => document.getElementById(id);
   const page = window.location.pathname.split('/').pop() || 'security-check.html';
-  const LOGIN_URL = (window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/login.html?redirect=' + encodeURIComponent(page));
+  const LOGIN_URL = (window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/account.html?redirect=' + encodeURIComponent(page));
   let lastReport = null;
 
   const esc = window.EVIL_UTILS.escapeHtml;
