@@ -21,7 +21,7 @@
   "Contenuto": "Content",
   "Natura": "Nature",
   "News di cybersicurezza": "Cybersecurity news",
-  "<strong>Reale</strong>: avvisi dei CERT e vulnerabilità sfruttate da fonti pubbliche (CISA KEV, NIST NVD, CERT-AGID, CERT-EU). Quando una fonte non indica il paese, lo diciamo invece di inventarlo.": "<strong>Real</strong>: CERT advisories and exploited vulnerabilities from public sources (CISA KEV, NIST NVD, CERT-AGID, CERT-EU). When a source does not give the country, we say so rather than inventing it.",
+  "<strong>Reale</strong>: titoli aggiornati ogni ora dai feed pubblici di testate e CERT (The Hacker News, BleepingComputer, Krebs on Security, CISA, CERT-AGID, Red Hot Cyber e altri), con link all'articolo originale.": "<strong>Real</strong>: headlines refreshed hourly from the public feeds of news outlets and CERTs (The Hacker News, BleepingComputer, Krebs on Security, CISA, CERT-AGID, Red Hot Cyber and others), with a link to the original article.",
   "Violazioni storiche": "Historic breaches",
   "<strong>Reale, documentato</strong>: casi noti ricostruiti da fonti pubbliche. Dove una cifra non è certa, il testo resta generico.": "<strong>Real, documented</strong>: known cases rebuilt from public sources. Where a figure is not certain, the text stays general.",
   "Catalogo e tassonomia malware": "Malware catalogue and taxonomy",

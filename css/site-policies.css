@@ -550,3 +550,11 @@
   border-color: #f87171;
   box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25);
 }
+
+/* domande frequenti a tendina */
+.help-q { border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin: 0.6rem 0; background: rgba(255,255,255,0.02); }
+.help-q summary { cursor: pointer; padding: 0.8rem 1rem; font-weight: 600; color: #e2e8f0; list-style: none; display: flex; justify-content: space-between; gap: 1rem; }
+.help-q summary::-webkit-details-marker { display: none; }
+.help-q summary::after { content: "+"; color: #f59e0b; font-size: 1.2rem; line-height: 1; transition: transform .25s; }
+.help-q[open] summary::after { transform: rotate(45deg); }
+.help-q p { margin: 0; padding: 0 1rem 1rem; }

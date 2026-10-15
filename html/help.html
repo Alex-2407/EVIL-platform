@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -142,24 +142,18 @@
             <span class="policy-section__icon" aria-hidden="true">◇</span>
             <h2 id="h-faq">Prima di scriverci</h2>
           </div>
-          <h3>Verifica email non arriva</h3>
-          <p>In locale, senza SMTP configurato, il link può essere nell'outbox del progetto (<code>data/email-outbox</code>).
-            Con Mailtrap Sandbox l'email resta nell'inbox Mailtrap, non in Gmail.</p>
-          <h3>Pagina senza stili o login non funziona</h3>
-          <p>In locale apri <strong>http://localhost:5000</strong> con <code>npm start</code>, non il file HTML dal disco.</p>
-          <p>Online usa sempre lo stesso dominio (es. solo <code>www</code> o solo apex), imposta <code>BASE_URL</code> e
-            <code>COOKIE_DOMAIN=.tuodominio.it</code> in produzione, e verifica l'email prima del primo accesso.</p>
-          <h3>Lab Virtuale: «Avvia VM» non risponde</h3>
-          <p>Il lab usa le API <code>/api/virtual-lab/*</code> sullo stesso dominio. In produzione servono
-            <code>TRUST_PROXY=1</code> e, se hai più istanze, <code>REDIS_URL</code> per le sessioni.
-            Se vedi un messaggio rosso sotto la card, è il dettaglio dell'errore (limite sessioni, rete, ecc.).</p>
-          <h3>Edge: «La connessione non è sicura»</h3>
-          <p>In <strong>locale</strong>, <code>http://localhost</code> non ha certificato TLS: Edge lo segnala ma è normale per lo sviluppo.</p>
-          <p>In <strong>produzione</strong> apri solo <code>https://</code> sul dominio con certificato attivo (Render/Railway: abilita TLS sul custom domain).
-            Imposta <code>NODE_ENV=production</code>, <code>BASE_URL=https://www.tuodominio.it</code>, <code>TRUST_PROXY=1</code> e <code>FORCE_HTTPS=1</code>.
-            Non mescolare <code>www</code> e dominio senza <code>www</code> se il certificato copre un solo host.</p>
-          <h3>Progressi o account diversi tra PC</h3>
-          <p>In sviluppo locale i dati sono sul file <code>users.json</code> di quel computer; non si sincronizzano con produzione.</p>
+          <details class="help-q"><summary>L'email di verifica non arriva</summary>
+            <p>Controlla spam e promozioni e aspetta qualche minuto. Se non compare, torna alla pagina di accesso e richiedi un nuovo invio: il link precedente smette di funzionare.</p></details>
+          <details class="help-q"><summary>Non riesco ad accedere o ho dimenticato la password</summary>
+            <p>Dalla pagina di accesso usa «Hai dimenticato la password?»: riceverai un link per sceglierne una nuova. Se il problema continua, scrivici indicando l'email dell'account.</p></details>
+          <details class="help-q"><summary>La pagina è senza grafica o un pulsante non risponde</summary>
+            <p>Ricarica la pagina senza cache (Ctrl + Maiusc + R) e disattiva le estensioni che bloccano gli script per questo sito. Se persiste, indicaci browser e dispositivo.</p></details>
+          <details class="help-q"><summary>Lab virtuale: «Avvia VM» non risponde</summary>
+            <p>Il lab ha un limite di sessioni contemporanee: attendi che una precedente termini e riprova. Il messaggio rosso sotto la scheda spiega il motivo esatto.</p></details>
+          <details class="help-q"><summary>I miei progressi non sono uguali su due dispositivi</summary>
+            <p>I progressi sono legati all'account: accedi con lo stesso account su entrambi i dispositivi. Senza accesso restano solo su quel browser.</p></details>
+          <details class="help-q"><summary>Uno strumento di Verifica mi porta alla registrazione</summary>
+            <p>Gli strumenti che interrogano siti reali richiedono un account gratuito, per limitare gli abusi. Dopo l'accesso torni alla pagina dello strumento.</p></details>
         </section>
 
         <div class="policy-accept policy-reveal">
