@@ -4,13 +4,7 @@
 (function (global) {
   const POPUP_OPTS = { autoPan: false, autoClose: true, closeOnClick: true };
 
-  function debounce(fn, ms) {
-    let t;
-    return (...args) => {
-      clearTimeout(t);
-      t = setTimeout(() => fn(...args), ms);
-    };
-  }
+  const debounce = window.EVIL_UTILS.debounce;
 
   function waitForFrame(frame, callback) {
     if (!frame || typeof callback !== 'function') return;

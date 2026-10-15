@@ -267,12 +267,7 @@
     return out;
   }
 
-  function escapeHtml(s) {
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;');
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
   function escapeAttr(s) {
     return escapeHtml(s).replace(/"/g, '&quot;');
   }

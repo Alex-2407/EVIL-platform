@@ -12,9 +12,7 @@
     if (vars) return s.replace(/\{(\w+)\}/g, function (m, k) { return vars[k] != null ? vars[k] : m; });
     return s;
   }
-  function esc(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
+  const esc = window.EVIL_UTILS.escapeHtml;
   function escAttr(s) {
     return esc(s).replace(/"/g, '&quot;');
   }

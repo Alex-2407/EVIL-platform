@@ -83,9 +83,7 @@
     return String(name || 'U').trim().split(/\s+/).map((w) => w.charAt(0).toUpperCase()).join('').slice(0, 3) || 'U';
   }
 
-  function escapeHtml(text) {
-    return String(text ?? '').replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
   function formatDate(iso) {
     if (!iso) return '—';

@@ -7,14 +7,7 @@
   const LOGIN_URL = (window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/login.html?redirect=' + encodeURIComponent(page));
   let lastReport = null;
 
-  function esc(s) {
-    if (s == null) return '';
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+  const esc = window.EVIL_UTILS.escapeHtml;
 
   function log(msg, type) {
     const box = $('scLog');

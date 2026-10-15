@@ -65,14 +65,7 @@
     critical: t('critico'),
   };
 
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#39;');
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
   function severityClass(s) {
     return `ir-sev ir-sev--${s}`;

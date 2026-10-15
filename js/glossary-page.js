@@ -87,9 +87,7 @@
     return /[A-Z]/.test(c) ? c : '#';
   }
 
-  function esc(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
+  const esc = window.EVIL_UTILS.escapeHtml;
 
   function fold(s) {
     return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');

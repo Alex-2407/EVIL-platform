@@ -87,13 +87,7 @@
     return state.progress[id] || { bestScore: 0, completed: false, attempts: 0 };
   }
 
-  function escapeHtml(t) {
-    return String(t)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
   function escapeRegex(s) {
     return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

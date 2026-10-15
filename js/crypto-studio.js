@@ -55,9 +55,7 @@
 
   const algoMap = Object.fromEntries(ALGORITHMS.map((a) => [a.id, a]));
 
-  function escapeHtml(str) {
-    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
   function term(key, label) {
     const def = GLOSSARY[key];
@@ -327,13 +325,7 @@
     hashOut.classList.remove('is-computing');
   }
 
-  function debounce(fn, ms) {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => fn(...args), ms);
-    };
-  }
+  const debounce = window.EVIL_UTILS.debounce;
 
   function initForge() {
     hashInput?.addEventListener('input', debounce(computeHash, 240));

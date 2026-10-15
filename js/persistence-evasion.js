@@ -30,17 +30,9 @@
   }
 
   // Escape anche delle virgolette: il risultato finisce pure dentro attributi HTML
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
-  function debounce(fn, ms) {
-    let timer;
-    return function (...args) {
-      clearTimeout(timer);
-      timer = setTimeout(() => fn.apply(this, args), ms);
-    };
-  }
+  const debounce = window.EVIL_UTILS.debounce;
 
   function levelClass(level) {
     if (level === 'high') return 'mt-level--high';

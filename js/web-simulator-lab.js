@@ -79,9 +79,7 @@
     }
   };
 
-  function escapeHtml(s) {
-    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
   function renderPhaseRail(attackId) {
     const meta = ATTACK_LAB[attackId];

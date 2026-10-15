@@ -22,8 +22,7 @@
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-  const esc = (s) =>
-    String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const esc = window.EVIL_UTILS.escapeHtml;
   const loc = (o) => (o && (o[L] || o.it)) || '';
   const pageUrl = (file) => I.url('/' + file);
   const fmt = (n) => Number(n).toLocaleString(I.locale);

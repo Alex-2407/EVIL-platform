@@ -44,17 +44,9 @@
   }
 
   // Escape anche delle virgolette: il risultato finisce pure dentro attributi HTML
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
-  function debounce(fn, ms) {
-    let tm;
-    return function (...args) {
-      clearTimeout(tm);
-      tm = setTimeout(() => fn.apply(this, args), ms);
-    };
-  }
+  const debounce = window.EVIL_UTILS.debounce;
 
   function animateValue(el, end) {
     if (!el) return;

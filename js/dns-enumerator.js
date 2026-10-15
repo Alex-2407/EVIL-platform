@@ -6,14 +6,7 @@
   let lastReport = null;
   let lookupMode = 'dns';
 
-  function esc(s) {
-    if (s == null) return '';
-    return String(s)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+  const esc = window.EVIL_UTILS.escapeHtml;
 
   function log(msg, type) {
     const box = $('deLog');

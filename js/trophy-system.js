@@ -30,12 +30,7 @@
   let catalogCache = null;
   let catalogTs = 0;
 
-  function escapeHtml(text) {
-    if (!text || typeof text !== 'string') return '';
-    return text.replace(/[&<>"']/g, (c) => ({
-      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-    }[c]));
-  }
+  const escapeHtml = (t) => (typeof t === 'string' ? window.EVIL_UTILS.escapeHtml(t) : '');
 
   function normalizeUnlockedIds(list) {
     if (!Array.isArray(list)) return [];

@@ -334,12 +334,7 @@ async function showAchievementNotification(achievementId) {
   if (achievement) queueCeremony(achievement);
 }
 
-function escapeHtml(text) {
-  if (!text || typeof text !== 'string') return '';
-  return text.replace(/[&<>"']/g, (m) => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[m]));
-}
+const escapeHtml = (t) => (typeof t === 'string' ? window.EVIL_UTILS.escapeHtml(t) : '');
 
 function getUnlockedAchievements() {
   return window.TrophySystem

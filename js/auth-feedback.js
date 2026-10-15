@@ -8,9 +8,7 @@
   const { t } = I18N;
 
   // Escape anche delle virgolette: il risultato finisce pure dentro attributi HTML
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-  }
+  const escapeHtml = window.EVIL_UTILS.escapeHtml;
 
   /** Testo tecnico per il supporto: resta in inglese/italiano tecnico neutro, è pensato per chi fa assistenza. */
   function buildReport(opts) {
