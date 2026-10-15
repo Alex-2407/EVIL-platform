@@ -1,171 +1,174 @@
 /**
- * Persistenza ed evasione — render, filtri, tabella
+ * Persistenza ed evasione — due corsie di schede brevi, mappa delle priorità, pannello di dettaglio
  */
 (function () {
   'use strict';
 
   const { t } = window.EVIL_I18N;
   const DATA = window.PERSISTENCE_EVASION_DATA || { techniques: [] };
+  const TECH = DATA.techniques;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (id) => document.getElementById(id);
+  const esc = window.EVIL_UTILS.escapeHtml;
 
-  // stealth, prevalence e detection usano la stessa scala qualitativa
-  const LEVEL_LABEL = {
-    low: t('Bassa'),
-    medium: t('Media'),
-    high: t('Alta'),
+  const LEVEL = { low: t('Bassa'), medium: t('Media'), high: t('Alta') };
+  const N = { low: 1, medium: 2, high: 3 };
+  const CAT = {
+    persistence: { label: t('Persistenza'), color: '#f59e0b', icon: '⚓' },
+    evasion: { label: t('Evasione'), color: '#a78bfa', icon: '🫥' },
   };
+  const TABS = { indicators: 'indicators', detect: 'detect', prevent: 'prevent' };
 
-  function categoryLabel(cat) {
-    return cat === 'evasion' ? t('Evasione') : t('Persistenza');
-  }
+  const state = { cat: 'all', q: '' };
+  let visible = [];
+  let openId = null;
+  let lastFocus = null;
 
-  function listHtml(items, cls) {
-    return `<ul class="mt-list ${cls}">${(items || []).map((i) => `<li>${escapeHtml(i)}</li>`).join('')}</ul>`;
-  }
-
-  let activeCategory = 'all';
-  let searchQuery = '';
-
-  function $(id) {
-    return document.getElementById(id);
-  }
-
-  // Escape anche delle virgolette: il risultato finisce pure dentro attributi HTML
-  const escapeHtml = window.EVIL_UTILS.escapeHtml;
-
-  const debounce = window.EVIL_UTILS.debounce;
-
-  function levelClass(level) {
-    if (level === 'high') return 'mt-level--high';
-    if (level === 'medium') return 'mt-level--med';
-    return 'mt-level--low';
-  }
-
-  function filteredTechniques() {
-    const q = searchQuery.trim().toLowerCase();
-    return DATA.techniques.filter((tech) => {
-      if (activeCategory !== 'all' && tech.category !== activeCategory) return false;
+  function filtered() {
+    const q = state.q.trim().toLowerCase();
+    return TECH.filter((x) => {
+      if (state.cat !== 'all' && x.category !== state.cat) return false;
       if (!q) return true;
-      const hay = [
-        tech.title,
-        tech.mitre,
-        tech.mitreLabel,
-        tech.description,
-        ...(tech.indicators || []),
-        ...(tech.detect || []),
-        ...(tech.prevent || []),
-      ]
-        .join(' ')
-        .toLowerCase();
-      return hay.includes(q);
+      return [x.title, x.mitre, x.mitreLabel, x.description, ...(x.indicators || []), ...(x.detect || []), ...(x.prevent || [])].join(' ').toLowerCase().includes(q);
     });
   }
 
-  function renderCards() {
-    const grid = $('mt-grid');
-    const empty = $('mt-empty');
-    if (!grid) return;
+  function meter(level, good) {
+    // "good" = vantaggio per chi difende quando il valore è alto
+    const n = N[level] || 1;
+    return `<span class="mt-meter" data-n="${n}">${[1, 2, 3].map((i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</span>`;
+  }
 
-    const list = filteredTechniques();
-    if (empty) empty.hidden = list.length > 0;
+  function tile(x, i) {
+    const c = CAT[x.category];
+    return `<button type="button" class="mt-tile" data-id="${esc(x.id)}" style="--c:${c.color};--i:${i}">
+      <span class="mt-tile__top"><span class="mt-mitre" translate="no">${esc(x.mitre)}</span></span>
+      <strong>${esc(x.title)}</strong>
+      <span class="mt-tile__bars">
+        <span title="${esc(t('Stealth'))}"><em>${esc(t('Stealth'))}</em>${meter(x.stealth)}</span>
+        <span title="${esc(t('Prevalenza'))}"><em>${esc(t('Prevalenza'))}</em>${meter(x.prevalence)}</span>
+        <span title="${esc(t('Difficoltà di rilevamento'))}"><em>${esc(t('Rilevamento'))}</em>${meter(x.detection)}</span>
+      </span>
+    </button>`;
+  }
 
-    if (!list.length) {
-      grid.innerHTML = '';
-      return;
+  function renderLanes() {
+    visible = filtered();
+    $('mt-empty').hidden = visible.length > 0;
+    const lane = (cat) => {
+      const items = visible.filter((x) => x.category === cat);
+      if (!items.length) return '';
+      const c = CAT[cat];
+      return `<section class="mt-lane" style="--c:${c.color}">
+        <h2><span>${c.icon}</span> ${esc(c.label)} <b>${items.length}</b></h2>
+        <div class="mt-lane__grid">${items.map((x, i) => tile(x, i)).join('')}</div>
+      </section>`;
+    };
+    $('mt-grid').innerHTML = lane('persistence') + lane('evasion');
+  }
+
+  function renderMatrix() {
+    // asse X: difficoltà di rilevamento (bassa → alta); asse Y: prevalenza (alta in alto)
+    const cells = {};
+    TECH.forEach((x) => {
+      const k = `${x.prevalence}-${x.detection}`;
+      (cells[k] = cells[k] || []).push(x);
+    });
+    const rows = ['high', 'medium', 'low'];
+    const cols = ['low', 'medium', 'high'];
+    let html = `<span class="mt-matrix__y">${esc(t('Prevalenza'))} ↑</span><span class="mt-matrix__x">${esc(t('Difficoltà di rilevamento'))} →</span>`;
+    rows.forEach((r) => cols.forEach((c) => {
+      const list = cells[`${r}-${c}`] || [];
+      const hot = r === 'high' && c === 'low';
+      html += `<div class="mt-cell${hot ? ' mt-cell--hot' : ''}${r === 'high' && c === 'high' ? ' mt-cell--hard' : ''}">${list.map((x) => `<button type="button" class="mt-dot" data-id="${esc(x.id)}" style="--c:${CAT[x.category].color}" title="${esc(x.title)}"><i></i><span>${esc(x.title)}</span></button>`).join('')}</div>`;
+    }));
+    html += `<div class="mt-matrix__legend"><span style="--c:${CAT.persistence.color}"><i></i>${esc(CAT.persistence.label)}</span><span style="--c:${CAT.evasion.color}"><i></i>${esc(CAT.evasion.label)}</span></div>`;
+    $('mt-matrix').innerHTML = html;
+  }
+
+  /* -------------------------------------------------- dettaglio */
+  function setTab(tab) {
+    const x = TECH.find((y) => y.id === openId);
+    if (!x) return;
+    document.querySelectorAll('.mt-drawer__tabs button').forEach((b) => {
+      const on = b.dataset.tab === tab;
+      b.classList.toggle('is-active', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    $('mt-dr-list').innerHTML = (x[TABS[tab]] || []).map((i) => `<li>${esc(i)}</li>`).join('');
+  }
+
+  function openDrawer(id) {
+    const x = TECH.find((y) => y.id === id);
+    if (!x) return;
+    openId = id;
+    const c = CAT[x.category];
+    const dr = $('mt-drawer');
+    dr.style.setProperty('--c', c.color);
+    $('mt-dr-meta').innerHTML = `<span class="mt-chip" style="--c:${c.color}">${c.icon} ${esc(c.label)}</span>`;
+    $('mt-dr-title').textContent = x.title;
+    $('mt-dr-mitre').textContent = `${x.mitre} · ${x.mitreLabel}`;
+    $('mt-dr-desc').textContent = x.description;
+    $('mt-dr-gauges').innerHTML = [['stealth', t('Stealth')], ['prevalence', t('Prevalenza')], ['detection', t('Difficoltà di rilevamento')]]
+      .map(([k, l]) => `<div><em>${esc(l)}</em>${meter(x[k])}<b>${esc(LEVEL[x[k]] || x[k])}</b></div>`).join('');
+    setTab('indicators');
+    const idx = visible.findIndex((y) => y.id === id);
+    $('mt-dr-prev').disabled = idx <= 0;
+    $('mt-dr-next').disabled = idx < 0 || idx >= visible.length - 1;
+    if (dr.hidden) {
+      lastFocus = document.activeElement;
+      dr.hidden = false;
+      document.body.classList.add('mt-lock');
     }
-
-    grid.innerHTML = list
-      .map((tech) => `
-        <article class="mt-card" data-id="${escapeHtml(tech.id)}">
-          <div class="mt-card__meta">
-            <span class="mt-chip mt-chip--${escapeHtml(tech.category)}">${escapeHtml(categoryLabel(tech.category))}</span>
-            <span class="mt-mitre" translate="no" title="${escapeHtml(t('ID MITRE ATT&CK: {id}', { id: tech.mitre }))}">${escapeHtml(tech.mitre)}</span>
-          </div>
-          <h3 class="mt-card__title">${escapeHtml(tech.title)}</h3>
-          <p class="mt-card__mitre-name" translate="no">${escapeHtml(tech.mitreLabel)}</p>
-          <p class="mt-card__desc">${escapeHtml(tech.description)}</p>
-          <p class="mt-card__label mt-card__label--ioc">${escapeHtml(t('Segnali da cercare'))}</p>
-          ${listHtml(tech.indicators, 'mt-list--ioc')}
-          <p class="mt-card__label mt-card__label--det">${escapeHtml(t('Come si rileva'))}</p>
-          ${listHtml(tech.detect, 'mt-list--det')}
-          <p class="mt-card__label mt-card__label--mit">${escapeHtml(t('Come si previene'))}</p>
-          ${listHtml(tech.prevent, 'mt-list--mit')}
-          <dl class="mt-card__levels">
-            <div><dt>${escapeHtml(t('Stealth'))}</dt><dd><span class="mt-level ${levelClass(tech.stealth)}">${escapeHtml(LEVEL_LABEL[tech.stealth] || tech.stealth)}</span></dd></div>
-            <div><dt>${escapeHtml(t('Prevalenza'))}</dt><dd><span class="mt-level ${levelClass(tech.prevalence)}">${escapeHtml(LEVEL_LABEL[tech.prevalence] || tech.prevalence)}</span></dd></div>
-            <div><dt>${escapeHtml(t('Difficoltà di rilevamento'))}</dt><dd><span class="mt-level ${levelClass(tech.detection)}">${escapeHtml(LEVEL_LABEL[tech.detection] || tech.detection)}</span></dd></div>
-          </dl>
-        </article>`)
-      .join('');
+    dr.querySelector('.mt-drawer__close').focus();
   }
-
-  function renderTable() {
-    const tbody = $('mt-compare-body');
-    if (!tbody) return;
-
-    const list =
-      activeCategory === 'all'
-        ? DATA.techniques
-        : DATA.techniques.filter((tech) => tech.category === activeCategory);
-
-    tbody.innerHTML = list
-      .map((tech) => `
-        <tr>
-          <th scope="row">${escapeHtml(tech.title)} <span class="mt-table-cat">${escapeHtml(categoryLabel(tech.category))} · <span translate="no">${escapeHtml(tech.mitre)}</span></span></th>
-          <td><span class="mt-level ${levelClass(tech.stealth)}">${escapeHtml(LEVEL_LABEL[tech.stealth] || tech.stealth)}</span></td>
-          <td><span class="mt-level ${levelClass(tech.prevalence)}">${escapeHtml(LEVEL_LABEL[tech.prevalence] || tech.prevalence)}</span></td>
-          <td><span class="mt-level ${levelClass(tech.detection)}">${escapeHtml(LEVEL_LABEL[tech.detection] || tech.detection)}</span></td>
-          <td>${escapeHtml(tech.mainMitigation)}</td>
-        </tr>`)
-      .join('');
+  function closeDrawer() {
+    $('mt-drawer').hidden = true;
+    document.body.classList.remove('mt-lock');
+    if (lastFocus) lastFocus.focus();
   }
-
-  function renderStats() {
-    const p = DATA.techniques.filter((tech) => tech.category === 'persistence').length;
-    const e = DATA.techniques.filter((tech) => tech.category === 'evasion').length;
-    const shown = filteredTechniques().length;
-    if ($('mt-stat-persistence')) $('mt-stat-persistence').textContent = String(p);
-    if ($('mt-stat-evasion')) $('mt-stat-evasion').textContent = String(e);
-    if ($('mt-stat-shown')) $('mt-stat-shown').textContent = String(shown);
-  }
-
-  function render() {
-    renderStats();
-    renderCards();
-    renderTable();
+  function step(d) {
+    const idx = visible.findIndex((y) => y.id === openId);
+    const n = visible[idx + d];
+    if (n) openDrawer(n.id);
   }
 
   function setCategory(cat) {
-    activeCategory = cat;
+    state.cat = cat;
     document.querySelectorAll('.mt-filter-btn').forEach((btn) => {
       const on = btn.dataset.category === cat;
       btn.classList.toggle('is-active', on);
-      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+      btn.setAttribute('aria-pressed', String(on));
     });
-    render();
+    renderLanes();
   }
 
-  function bindEvents() {
-    $('mt-search')?.addEventListener(
-      'input',
-      debounce((e) => {
-        searchQuery = e.target.value;
-        render();
-      }, 180)
-    );
-
-    document.querySelectorAll('.mt-filter-btn').forEach((btn) => {
-      btn.addEventListener('click', () => setCategory(btn.dataset.category || 'all'));
+  function bind() {
+    $('mt-search').addEventListener('input', window.EVIL_UTILS.debounce((e) => { state.q = e.target.value; renderLanes(); }, 180));
+    document.addEventListener('click', (e) => {
+      const f = e.target.closest('.mt-filter-btn');
+      if (f) { setCategory(f.dataset.category || 'all'); return; }
+      const open = e.target.closest('[data-id]');
+      if (open) { openDrawer(open.dataset.id); return; }
+      if (e.target.closest('[data-close]')) closeDrawer();
+      const tab = e.target.closest('.mt-drawer__tabs button');
+      if (tab) setTab(tab.dataset.tab);
+      if (e.target.closest('#mt-dr-prev')) step(-1);
+      if (e.target.closest('#mt-dr-next')) step(1);
+    });
+    document.addEventListener('keydown', (e) => {
+      if ($('mt-drawer').hidden) return;
+      if (e.key === 'Escape') closeDrawer();
+      if (e.key === 'ArrowLeft') step(-1);
+      if (e.key === 'ArrowRight') step(1);
     });
   }
 
   function boot() {
-    bindEvents();
-    render();
+    bind();
+    renderLanes();
+    renderMatrix();
   }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
