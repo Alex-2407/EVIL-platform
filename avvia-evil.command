@@ -8,7 +8,6 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 [ -f .env ] || node scripts/setup-local.js
-node scripts/build-home-css.js
 ( sleep 3; (open http://localhost:5000 >/dev/null 2>&1 || xdg-open http://localhost:5000 >/dev/null 2>&1) ) &
 echo "[*] Avvio server (CTRL+C per fermare)..."
 node js/server.js
