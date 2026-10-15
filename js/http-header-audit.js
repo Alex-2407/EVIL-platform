@@ -1,243 +1,167 @@
 /**
- * EVIL HTTP Header Audit — UI
+ * EVIL Audit header HTTP — interfaccia (risultati a schede in linguaggio semplice)
  */
 (function () {
+  'use strict';
+  const { t } = window.EVIL_I18N;
+  const R = window.EvilToolReport;
+  const esc = R.esc;
   const $ = (id) => document.getElementById(id);
-  let lastReport = null;
 
-  const esc = window.EVIL_UTILS.escapeHtml;
-
-  function log(msg, type) {
-    const box = $('ahLog');
-    box.classList.add('is-active');
-    const line = document.createElement('div');
-    line.className = 'sc-log__line sc-log__line--' + (type || 'run');
-    line.textContent = `[${new Date().toLocaleTimeString('it-IT')}] ${msg}`;
-    box.appendChild(line);
-    box.scrollTop = box.scrollHeight;
+  function showError(msg) {
+    const el = $('ahError');
+    el.textContent = msg || '';
+    el.hidden = !msg;
   }
 
-  function gradeClass(g) {
-    return 'sc-score-ring--' + String(g || 'f').toLowerCase();
+  /** A cosa serve ogni header, in una riga. */
+  function purpose(id) {
+    switch (id) {
+      case 'hsts': return t('Obbliga il browser a usare sempre HTTPS con questo sito.');
+      case 'csp': return t('Dice al browser da dove può caricare script e risorse: la difesa principale contro gli script iniettati (XSS).');
+      case 'xfo': return t('Impedisce ad altri siti di mostrare le tue pagine dentro un riquadro nascosto (clickjacking).');
+      case 'xcto': return t('Evita che il browser “indovini” il tipo dei file e li esegua come script.');
+      case 'referrer': return t('Decide quanto dell’indirizzo di partenza viene inviato agli altri siti quando clicchi un link.');
+      case 'permissions': return t('Spegne le funzioni del browser che il sito non usa (camera, microfono, posizione).');
+      case 'coop': return t('Isola la finestra del sito da quelle di altri siti aperti insieme (avanzato).');
+      case 'corp': return t('Impedisce ad altri siti di incorporare le tue risorse (avanzato).');
+      case 'coep': return t('Richiede che le risorse caricate diano il permesso esplicito (avanzato).');
+      default: return '';
+    }
   }
 
-  function sevBadge(sev) {
-    const map = { critical: 'fail', high: 'fail', medium: 'warn', low: 'info', info: 'info' };
-    return map[sev] || 'info';
-  }
+  const kv = (rows) => `<dl class="tr-kv">${rows.filter((r) => r[1] != null && r[1] !== '').map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
 
-  function bindSections() {
-    document.querySelectorAll('.sc-section__head').forEach((head) => {
-      head.addEventListener('click', () => {
-        const body = head.nextElementSibling;
-        body.hidden = !body.hidden;
-      });
-    });
-  }
-
-  function renderReport(data) {
-    lastReport = data;
-
-    const headerRows = (data.headerAudit || [])
-      .map((h) => {
-        let state;
-        if (h.skipped) state = '<span class="sc-badge sc-badge--info">N/A (HTTP)</span>';
-        else if (h.present) state = '<span class="sc-badge sc-badge--ok">Presente</span>';
-        else if (h.optional) state = '<span class="sc-badge sc-badge--info">Opzionale</span>';
-        else state = '<span class="sc-badge sc-badge--fail">Assente</span>';
-        const prio = h.optional
-          ? '<span class="sc-badge sc-badge--info">hardening</span>'
-          : `<span class="sc-badge sc-badge--${sevBadge(h.severity)}">${esc(h.severity)}</span>`;
-        return `<tr><td>${esc(h.label)}</td><td>${state}</td><td>${prio}</td><td>${esc(h.value || '—')}</td></tr>`;
-      })
-      .join('');
-
-    const findingRows = (data.findings || [])
-      .map(
-        (f) =>
-          `<div class="sc-finding sc-finding--${esc(f.severity)}"><strong>${esc(f.title)}</strong><span>${esc(f.detail)}</span></div>`
-      )
-      .join('');
-
-    const breakdownRows = (data.scoreBreakdown || [])
-      .filter((b) => b.delta !== 0)
-      .map(
-        (b) =>
-          `<tr><td>${esc(b.label)}</td><td>${b.delta > 0 ? '+' : ''}${b.delta}</td><td><span class="sc-badge sc-badge--${sevBadge(b.severity)}">${esc(b.severity)}</span></td></tr>`
-      )
-      .join('');
-
-    const cookieRows = (data.cookies || []).length
-      ? data.cookies
-          .map((c) => {
-            const riskBadge = c.risk === 'high' ? 'fail' : c.risk === 'medium' ? 'warn' : 'info';
-            return `<tr><td>${esc(c.name)}</td><td>${esc(c.typeLabel || c.type)}</td><td><span class="sc-badge sc-badge--${riskBadge}">${esc(c.risk)}</span></td><td>${c.secure ? '✓' : '✗'}</td><td>${c.httpOnly ? '✓' : '✗'}</td><td>${esc(c.sameSite)}</td></tr>`;
-          })
-          .join('')
-      : '<tr><td colspan="6">Nessun Set-Cookie nella risposta</td></tr>';
-
-    const csp = data.cspAnalysis;
-    const cspBlock = csp?.present
-      ? `<div class="sc-kv"><div class="sc-kv__label">Modalità</div><div class="sc-kv__val">${esc(csp.mode)}</div></div>
-         <div class="sc-kv"><div class="sc-kv__label">Policy</div><div class="sc-kv__val"><code>${esc(csp.value)}</code></div></div>
-         ${(csp.issues || []).length ? (csp.issues.map((i) => `<div class="sc-finding sc-finding--${esc(i.severity)}"><strong>${esc(i.title)}</strong><span>${esc(i.detail)}</span></div>`).join('')) : '<p class="sc-muted">Nessuna debolezza CSP evidente nelle direttive analizzate.</p>'}`
-      : '<p class="sc-muted">Content-Security-Policy non presente nella risposta.</p>';
-
-    const fpRows = (data.fingerprint || []).length
-      ? data.fingerprint
-          .map((f) => `<tr><td>${esc(f.kind)}</td><td>${esc(f.value)}</td><td><span class="sc-badge sc-badge--${sevBadge(f.severity)}">${esc(f.severity)}</span></td><td>${esc(f.note)}</td></tr>`)
-          .join('')
-      : '<tr><td colspan="4">Nessun fingerprint rilevante</td></tr>';
-
-    const limitList = (data.limitations || [])
-      .map((l) => `<li>${esc(l)}</li>`)
-      .join('');
-
-    const rawRows = (data.rawHeaders || [])
-      .slice(0, 25)
-      .map((h) => `<tr><td><code>${esc(h.name)}</code></td><td>${esc(h.value)}</td></tr>`)
-      .join('');
-
-    $('ahResults').innerHTML = `
-      <div class="sc-summary">
-        <div class="sc-score-ring ${gradeClass(data.grade)}">
-          <span class="sc-score-ring__num">${Math.round(data.security_score)}</span>
-          <span class="sc-score-ring__grade">Grade ${esc(data.grade)}</span>
-        </div>
-        <div>
-          <div class="sc-summary-grid">
-            <div><div class="sc-kv__label">URL</div><div class="sc-kv__val">${esc(data.url)}</div></div>
-            <div><div class="sc-kv__label">URL finale</div><div class="sc-kv__val">${esc(data.finalUrl)}</div></div>
-            <div><div class="sc-kv__label">HTTP status</div><div class="sc-kv__val">${esc(data.http?.status)} ${esc(data.http?.statusText || '')}</div></div>
-            <div><div class="sc-kv__label">Trasporto</div><div class="sc-kv__val">${data.http?.isHttps ? 'HTTPS' : 'HTTP'}</div></div>
-            <div><div class="sc-kv__label">Server</div><div class="sc-kv__val">${esc(data.disclosure?.server || '—')}</div></div>
-            <div><div class="sc-kv__label">Durata</div><div class="sc-kv__val">${esc(data.scanDurationMs)} ms</div></div>
-          </div>
-          <div class="sc-export-row">
-            <button type="button" class="sc-btn sc-btn--ghost" id="ahExportJson">Esporta JSON</button>
-            <a class="sc-btn sc-btn--ghost" href="security-check.html">URL Scanner completo →</a>
-          </div>
+  function tabOverview(d) {
+    const v = R.verdict(d.grade);
+    const audit = (d.headerAudit || []).filter((h) => !h.skipped && !h.optional);
+    const ok = audit.filter((h) => h.present).length;
+    const hero = `<div class="tr-hero">
+      ${R.ring(d.security_score, d.grade)}
+      <div>
+        <h2>${esc(v.title)}</h2>
+        <p>${esc(t('{ok} protezioni su {tot} attive.', { ok, tot: audit.length }))} ${esc(v.text)}</p>
+        <dl class="tr-facts">
+          <div><dt>${esc(t('Sito'))}</dt><dd>${esc(d.domain)}</dd></div>
+          <div><dt>${esc(t('Risposta'))}</dt><dd>${esc(d.http ? `${d.http.status} ${d.http.statusText || ''}`.trim() : '—')}</dd></div>
+          <div><dt>HTTPS</dt><dd>${esc(d.http && d.http.isHttps ? t('Sì') : t('No'))}</dd></div>
+        </dl>
+        <div class="tr-actions">
+          <button type="button" class="sc-btn sc-btn--primary" data-act="copy">${esc(t('Copia riepilogo'))}</button>
+          <button type="button" class="sc-btn sc-btn--ghost" data-act="print">${esc(t('Stampa / salva PDF'))}</button>
         </div>
       </div>
+    </div>`;
+    const list = (d.findings || []).length
+      ? `<h3>${esc(t('Cosa sistemare'))}</h3>${R.findings(d.findings)}`
+      : `<p class="tr-muted">${esc(t('Nessun problema rilevato.'))}</p>`;
+    return `${hero}${list}`;
+  }
 
-      <p class="sc-callout"><strong>Nota:</strong> ${esc(data.note)}</p>
-      ${limitList ? `<div class="sc-callout sc-callout--muted"><strong>Limiti dello strumento</strong><ul class="sc-limit-list">${limitList}</ul></div>` : ''}
+  function tabHeaders(d) {
+    const rows = (d.headerAudit || []).filter((h) => !h.skipped);
+    return `<p class="tr-muted">${esc(t('Tocca una voce per leggere a cosa serve e come attivarla.'))}</p><div class="tr-checks">${rows.map((h) => {
+      const cls = h.present ? 'ok' : (h.optional || h.severity === 'low' ? 'warn' : 'bad');
+      const chip = h.present ? t('Attivo') : h.optional ? t('Facoltativo') : t('Manca');
+      return `<details class="tr-check tr-check--${cls}"><summary><span class="tr-check__icon">${h.present ? '✓' : h.optional ? '–' : '!'}</span><div><strong>${esc(h.label)}</strong><small>${esc(purpose(h.id))}</small></div><span class="tr-chip tr-chip--${cls}">${esc(chip)}</span></summary>
+      <div class="tr-check__body">${h.present ? '' : `<b>${esc(t('Come sistemare'))}:</b> ${esc(h.recommendation || '')}`}${h.value ? `<code>${esc(h.value)}</code>` : ''}</div></details>`;
+    }).join('')}</div>`;
+  }
 
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Findings</h2><span class="sc-badge sc-badge--info">${(data.findings || []).length}</span></div>
-        <div class="sc-section__body">${findingRows}</div>
-      </div>
+  function tabCookies(d) {
+    const c = d.cookies || [];
+    if (!c.length) return `<p class="tr-muted">${esc(t('Questa pagina non imposta cookie.'))}</p>`;
+    const yes = (b) => esc(b ? t('Sì') : t('No'));
+    return `<p class="tr-muted">${esc(t('Secure = viaggia solo su HTTPS · HttpOnly = gli script della pagina non possono leggerlo · SameSite = non parte dalle richieste di altri siti.'))}</p><div class="tr-checks">${c.map((k) => `<details class="tr-check tr-check--${k.hardened ? 'ok' : 'warn'}"><summary><span class="tr-check__icon">${k.hardened ? '✓' : '!'}</span><div><strong>${esc(k.name)}</strong><small>Secure: ${yes(k.secure)} · HttpOnly: ${yes(k.httpOnly)} · SameSite: ${esc(k.sameSite)}</small></div><span class="tr-chip tr-chip--${k.hardened ? 'ok' : 'warn'}">${esc(k.hardened ? t('Ben protetto') : t('Da rinforzare'))}</span></summary>${(k.issues || []).length ? `<div class="tr-check__body">${esc(t('Mancano: {flags}', { flags: k.issues.map((i) => i.flag).join(', ') }))}</div>` : ''}</details>`).join('')}</div>`;
+  }
 
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Checklist header di sicurezza</h2></div>
-        <div class="sc-section__body">
-          <table class="sc-table"><thead><tr><th>Header</th><th>Stato</th><th>Priorità</th><th>Valore</th></tr></thead><tbody>${headerRows}</tbody></table>
-        </div>
-      </div>
+  function tabCsp(d) {
+    const c = d.cspAnalysis || {};
+    if (!c.present) return `<p class="tr-muted">${esc(t('Nessuna Content-Security-Policy: è la voce più importante da aggiungere.'))}</p>`;
+    let html = kv([[t('Modalità'), c.mode === 'enforce' ? t('Attiva (blocca)') : t('Solo segnalazione')], [t('Direttive'), (c.directives || []).length]]);
+    html += (c.issues || []).length
+      ? `<h3>${esc(t('Punti deboli'))}</h3>${R.findings(c.issues)}`
+      : `<p class="tr-muted">${esc(t('Nessun punto debole evidente nella policy.'))}</p>`;
+    return html;
+  }
 
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Score breakdown</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Controllo</th><th>Punti</th><th>Severità</th></tr></thead><tbody>${breakdownRows || '<tr><td colspan="3">Nessuna detrazione</td></tr>'}</tbody></table></div>
-      </div>
+  function tabSoftware(d) {
+    const f = d.fingerprint || [];
+    if (!f.length) return `<p class="tr-muted">${esc(t('Il sito non rivela software o versioni negli header.'))}</p>`;
+    return `<p class="tr-muted">${esc(t('Mostrare nome e versione del software aiuta chi cerca falle note: meglio nasconderli.'))}</p><div class="tr-checks">${f.map((i) => `<div class="tr-check tr-check--warn"><div class="tr-check__body" style="padding:0.8rem 1rem"><strong>${esc(i.kind)}</strong><code>${esc(i.value)}</code>${esc(i.note || '')}</div></div>`).join('')}</div>`;
+  }
 
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Analisi CSP</h2></div>
-        <div class="sc-section__body">${cspBlock}</div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Fingerprint componenti</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Tipo</th><th>Valore</th><th>Rischio</th><th>Nota</th></tr></thead><tbody>${fpRows}</tbody></table></div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Cookie (Set-Cookie)</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Nome</th><th>Classificazione</th><th>Rischio</th><th>Secure</th><th>HttpOnly</th><th>SameSite</th></tr></thead><tbody>${cookieRows}</tbody></table></div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Header raw (anteprima)</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Nome</th><th>Valore</th></tr></thead><tbody>${rawRows || '<tr><td colspan="2">—</td></tr>'}</tbody></table></div>
-      </div>
-    `;
-
-    $('ahResults').classList.add('is-active');
-    bindSections();
-    document.getElementById('ahExportJson')?.addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = `evil-header-audit-${Date.now()}.json`;
-      link.click();
-    });
+  function render(d) {
+    const host = $('ahResults');
+    host.hidden = false;
+    host.innerHTML = '<div id="ahTabs"></div>';
+    R.tabs($('ahTabs'), [
+      { id: 'overview', label: t('Panoramica'), html: tabOverview(d), badge: (d.findings || []).length || null },
+      { id: 'headers', label: t('Header'), html: tabHeaders(d) },
+      { id: 'cookies', label: t('Cookie'), html: tabCookies(d), badge: (d.cookies || []).length || null },
+      { id: 'csp', label: 'CSP', html: tabCsp(d) },
+      { id: 'sw', label: t('Software esposto'), html: tabSoftware(d), badge: (d.fingerprint || []).length || null },
+    ]);
+    if ((d.limitations || []).length) {
+      host.insertAdjacentHTML('beforeend', `<details class="tr-more"><summary>${esc(t('Cosa questo audit non può dirti'))}</summary><div><ul>${d.limitations.map((x) => `<li>${esc(typeof x === 'string' ? x : `${x.title}. ${x.detail || ''}`)}</li>`).join('')}</ul></div></details>`);
+    }
+    R.animateRings(host);
+    R.bindActions(host, () => R.summaryText(
+      t('Audit header HTTP — {site}', { site: d.domain }),
+      [[t('Voto'), `${d.grade} (${d.security_score}/100)`], [t('Indirizzo'), d.finalUrl || d.url || d.domain]],
+      d.findings
+    ));
+    host.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function runAudit() {
-    const urlRaw = $('ahUrl').value.trim();
-    if (!urlRaw || !$('ahAuth').checked) {
-      alert('Inserisci URL e conferma autorizzazione.');
-      return;
-    }
-
-    let url = urlRaw;
-    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    try {
-      new URL(url);
-    } catch {
-      alert('URL non valido.');
-      return;
-    }
+    showError('');
+    const page = window.location.pathname.split('/').pop() || 'vulnerability-scanner.html';
+    if (typeof ensureAuthenticatedOrRedirect === 'function' && !(await ensureAuthenticatedOrRedirect(page))) return;
+    const target = R.normalizeUrl($('ahUrl').value);
+    if (!target) { showError(t('Scrivi un indirizzo valido, ad esempio esempio.it')); return; }
+    if (!$('ahAuth').checked) { showError(t('Conferma di essere autorizzato ad analizzare il sito.')); return; }
 
     const btn = $('ahScanBtn');
     btn.disabled = true;
-    btn.textContent = 'Audit in corso…';
-    $('ahLog').innerHTML = '';
-    $('ahResults').classList.remove('is-active');
+    btn.textContent = t('Audit in corso…');
+    $('ahResults').hidden = true;
     $('ahResults').innerHTML = '';
-
-    ['Connessione target', 'Fetch HTTP(S)', 'Audit header', 'Analisi cookie', 'Calcolo score'].forEach((p) =>
-      log(p + '…', 'run')
-    );
-
+    const steps = R.stepper($('ahSteps'), [t('Connessione al sito'), t('Lettura degli header'), t('Controllo cookie e CSP'), t('Calcolo del voto')]);
+    steps.start();
     try {
-      const data = await EvilTools.postToolJson('/api/vulnerability-scan', { url });
-      log(`Completato — Grade ${data.grade} · Score ${data.security_score}`, 'ok');
-      renderReport(data);
-      window.progressManager?.logActivity?.('vulnerability_found', { url, grade: data.grade, source: 'header_audit' });
+      const data = await EvilTools.postToolJson('/api/vulnerability-scan', { url: target });
+      steps.finish(true);
+      setTimeout(() => steps.hide(), 600);
+      render(data);
+      if (window.progressManager && window.progressManager.logActivity) {
+        window.progressManager.logActivity('vulnerability_found', { url: target, grade: data.grade, source: 'header_audit' });
+      }
     } catch (err) {
-      log(err.message, 'err');
-      $('ahResults').innerHTML = `<div class="sc-callout"><strong>Audit fallito</strong><br>${esc(err.message)}</div>`;
-      $('ahResults').classList.add('is-active');
+      steps.finish(false);
+      showError(err.message || t('Audit non riuscito.'));
     } finally {
-      btn.disabled = !urlRaw || !$('ahAuth').checked;
-      btn.textContent = 'Avvia audit header';
+      btn.textContent = t('Avvia audit');
+      btn.disabled = !$('ahAuth').checked || !$('ahUrl').value.trim();
     }
   }
 
-  function resetAudit() {
+  function reset() {
     $('ahUrl').value = '';
     $('ahAuth').checked = false;
     $('ahScanBtn').disabled = true;
-    $('ahLog').innerHTML = '';
-    $('ahLog').classList.remove('is-active');
-    $('ahResults').classList.remove('is-active');
+    showError('');
+    $('ahSteps').hidden = true;
+    $('ahSteps').innerHTML = '';
+    $('ahResults').hidden = true;
     $('ahResults').innerHTML = '';
-    lastReport = null;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const auth = $('ahAuth');
-    const input = $('ahUrl');
-    const btn = $('ahScanBtn');
-    const sync = () => {
-      btn.disabled = !auth.checked || !input.value.trim();
-    };
-    auth.addEventListener('change', sync);
-    input.addEventListener('input', sync);
-    btn.addEventListener('click', runAudit);
-    $('ahResetBtn').addEventListener('click', resetAudit);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !btn.disabled) runAudit();
-    });
+    const sync = () => { $('ahScanBtn').disabled = !$('ahAuth').checked || !$('ahUrl').value.trim(); };
+    $('ahAuth').addEventListener('change', sync);
+    $('ahUrl').addEventListener('input', sync);
+    $('ahForm').addEventListener('submit', (e) => { e.preventDefault(); if (!$('ahScanBtn').disabled) runAudit(); });
+    $('ahResetBtn').addEventListener('click', reset);
   });
 })();

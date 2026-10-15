@@ -241,8 +241,10 @@ module.exports = function registerTools(app, ctx) {
   // ENDPOINT HTTP HEADER AUDIT (ex vulnerability-scan)
   // ========================
   app.post('/api/vulnerability-scan', authenticateTools, scanLimiter, async (req, res) => {
-    const { url } = req.body;
-    if (!url) return res.status(400).json({ error: req.t('Inserisci un URL.'), status: 'error' });
+    const { url } = req.body || {};
+    if (!url || typeof url !== 'string' || url.length > 2048) {
+      return res.status(400).json({ error: req.t('Inserisci un URL.'), status: 'error' });
+    }
 
     try {
       const result = await Promise.race([

@@ -510,7 +510,6 @@ async function runHttpHeaderAudit(inputUrl, lang) {
       isHttps: probe.isHttps,
       probeDurationMs: probe.durationMs,
     },
-    rawHeaders: probe.rawHeaders,
     scanType: 'http_header_audit',
     note: t(lang, 'Lettura passiva degli header HTTP, dei cookie e della Content-Security-Policy di una risposta. Non prova attacchi e non sostituisce un test su autenticazione, API o logica dell’applicazione.'),
     status: 'success',
