@@ -513,3 +513,7 @@
   .profile-certificate { align-items: flex-start; }
   .profile-certificate__actions { width: 100%; }
 }
+
+.profile-course__stats { margin: 0 0 0.75rem; color: #fbbf24; font: 700 0.85rem ui-monospace, Consolas, monospace; }
+.profile-course__head h3 a { color: inherit; text-decoration: none; }
+.profile-course__head h3 a:hover { color: #00ff9c; }

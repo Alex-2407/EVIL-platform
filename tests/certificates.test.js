@@ -6,19 +6,8 @@ const test = require('node:test');
 const { createTestApp, registeredAgent, request } = require('./helpers/app');
 const certs = require('../server/lib/certificates');
 const exams = require('../server/lib/course-exams');
-const courseContent = require('../server/lib/course-content');
 
-async function completeCourse(agent, courseId) {
-  const course = courseContent.getCourse(courseId);
-  for (const module of course.modules) {
-    for (const lesson of module.lessons) {
-      await agent.post(`/api/courses/${courseId}/lessons/${lesson.id}/complete`).send({}).expect(200);
-    }
-    const answers = Object.fromEntries(module.quiz.map((question) => [question.id, question.correctIndex]));
-    await agent.post(`/api/courses/${courseId}/modules/${module.id}/quiz/submit`)
-      .send({ answers }).expect(200);
-  }
-}
+const { completeCourse } = require('./helpers/course-flow');
 
 test('diplomi: emissione unica, verifica della firma, lookup pubblico e impronta deterministica', async () => {
   const { app, ctx } = await createTestApp();

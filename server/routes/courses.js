@@ -3,117 +3,13 @@
 const crypto = require('crypto');
 const exams = require('../lib/course-exams');
 const content = require('../lib/course-content');
+const engine = require('../lib/course-engine');
 const certificates = require('../lib/certificates');
 
-const PASS_SCORE = 70;
 const ATTEMPT_TTL_MS = 30 * 60 * 1000;
 const MAX_ATTEMPTS_STORED = 10;
+const PASS_SCORE = engine.PASS_SCORE;
 const t = (s) => s;
-
-function progressFor(user, courseId) {
-  const progress = user.courseProgress && user.courseProgress[courseId];
-  return progress && typeof progress === 'object'
-    ? {
-      lessonsDone: Array.isArray(progress.lessonsDone) ? progress.lessonsDone : [],
-      moduleScores: progress.moduleScores && typeof progress.moduleScores === 'object' ? progress.moduleScores : {},
-      startedAt: progress.startedAt || null,
-      updatedAt: progress.updatedAt || null,
-    }
-    : { lessonsDone: [], moduleScores: {}, startedAt: null, updatedAt: null };
-}
-
-function moduleUnlocked(course, progress, moduleIndex) {
-  return course.modules.slice(0, moduleIndex).every((module) => Number(progress.moduleScores[module.id]) >= PASS_SCORE);
-}
-
-function lessonsComplete(module, progress) {
-  return module.lessons.every((lesson) => progress.lessonsDone.includes(lesson.id));
-}
-
-function courseComplete(course, progress) {
-  return course.modules.every((module) => Number(progress.moduleScores[module.id]) >= PASS_SCORE);
-}
-
-function publicQuiz(quiz, req) {
-  return quiz.map((item) => ({
-    id: item.id,
-    prompt: req.t(item.prompt),
-    options: item.options.map((option) => req.t(option)),
-  }));
-}
-
-function publicCourse(course, user, req) {
-  const progress = progressFor(user, course.id);
-  const lessonTotal = course.modules.reduce((sum, module) => sum + module.lessons.length, 0);
-  const lessonsDone = course.modules.reduce(
-    (sum, module) => sum + module.lessons.filter((item) => progress.lessonsDone.includes(item.id)).length,
-    0
-  );
-  const modulesPassed = course.modules.filter((module) => Number(progress.moduleScores[module.id]) >= PASS_SCORE).length;
-  const totalUnits = lessonTotal + course.modules.length;
-  const doneUnits = lessonsDone + modulesPassed;
-  return {
-    id: course.id,
-    title: course.title,
-    level: req.t(course.level),
-    description: req.t(course.description),
-    outcome: req.t(course.outcome),
-    percent: Math.round((doneUnits / totalUnits) * 100),
-    lessonsDone,
-    lessonTotal,
-    modulesPassed,
-    moduleTotal: course.modules.length,
-    examUnlocked: courseComplete(course, progress),
-  };
-}
-
-function publicCourseDetail(course, user, req) {
-  const progress = progressFor(user, course.id);
-  return {
-    ...publicCourse(course, user, req),
-    modules: course.modules.map((module, index) => {
-      const unlocked = moduleUnlocked(course, progress, index);
-      const passed = Number(progress.moduleScores[module.id]) >= PASS_SCORE;
-      return {
-        id: module.id,
-        title: req.t(module.title),
-        unlocked,
-        passed,
-        score: Number.isFinite(Number(progress.moduleScores[module.id])) ? Number(progress.moduleScores[module.id]) : null,
-        lessons: module.lessons.map((item) => ({
-          id: item.id,
-          title: req.t(item.title),
-          done: progress.lessonsDone.includes(item.id),
-        })),
-        lessonCount: module.lessons.length,
-        lessonsComplete: lessonsComplete(module, progress),
-        quiz: unlocked ? publicQuiz(module.quiz, req) : [],
-        quizCount: module.quiz.length,
-      };
-    }),
-  };
-}
-
-function saveProgress(user, courseId, progress) {
-  user.courseProgress = user.courseProgress && typeof user.courseProgress === 'object' ? user.courseProgress : {};
-  const now = new Date().toISOString();
-  user.courseProgress[courseId] = {
-    ...progress,
-    startedAt: progress.startedAt || now,
-    updatedAt: now,
-  };
-}
-
-async function saveWithError(db, user, logger, req, res, message, code, meta) {
-  try {
-    await db.save(user);
-    return true;
-  } catch (err) {
-    logger.error('Course progress save failed', { error: err.message, userId: user.id, ...meta });
-    res.status(500).json({ error: req.t(t(message)), code });
-    return false;
-  }
-}
 
 function shuffle(length) {
   const result = Array.from({ length }, (_, i) => i);
@@ -132,109 +28,201 @@ function questionPayload(course, answerOrder, req) {
   }));
 }
 
+async function saveOrFail(db, user, logger, req, res, message, code, meta) {
+  try {
+    await db.save(user);
+    return true;
+  } catch (err) {
+    logger.error('Course progress save failed', { error: err.message, userId: user.id, ...meta });
+    res.status(500).json({ error: req.t(message), code });
+    return false;
+  }
+}
+
 module.exports = function registerCourses(app, ctx) {
   const { db, logger, authenticateToken, courseExamLimiter, courseContentLimiter } = ctx;
 
+  /** Corso dal parametro, oppure null dopo aver risposto 404. */
+  function courseOr404(req, res) {
+    const course = content.getCourse(req.params.courseId);
+    if (!course) {
+      res.status(404).json({ error: req.t(t('Corso non trovato.')), code: 'COURSE_NOT_FOUND' });
+      return null;
+    }
+    return course;
+  }
+
+  /** Livello dal parametro, oppure null dopo aver risposto 404/403. */
+  function levelOr404(req, res, course) {
+    const index = course.modules.findIndex((item) => item.id === req.params.moduleId);
+    if (index < 0) {
+      res.status(404).json({ error: req.t(t('Livello non trovato.')), code: 'MODULE_NOT_FOUND' });
+      return null;
+    }
+    return { module: course.modules[index], index };
+  }
+
+  function locked(req, res, message, code) {
+    res.status(403).json({ error: req.t(message), code });
+    return null;
+  }
+
+  // Programma pubblico: serve anche a chi non ha ancora un account.
+  app.get('/api/courses/catalog', courseContentLimiter, (req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json({ courses: content.COURSES.map((course) => engine.catalogEntry(course, req)) });
+  });
+
   app.get('/api/courses', authenticateToken, courseContentLimiter, (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
-    return res.json({ courses: content.COURSES.map((course) => publicCourse(course, req.userRecord, req)) });
-  });
-
-  app.get('/api/courses/:courseId', authenticateToken, courseContentLimiter, (req, res) => {
-    const course = content.getCourse(req.params.courseId);
-    if (!course) return res.status(404).json({ error: req.t(t('Corso non trovato.')), code: 'COURSE_NOT_FOUND' });
-    res.setHeader('Cache-Control', 'no-store');
-    return res.json({ course: publicCourseDetail(course, req.userRecord, req) });
-  });
-
-  app.get('/api/courses/:courseId/lessons/:lessonId', authenticateToken, courseContentLimiter, (req, res) => {
-    const course = content.getCourse(req.params.courseId);
-    if (!course) return res.status(404).json({ error: req.t(t('Corso non trovato.')), code: 'COURSE_NOT_FOUND' });
-    const moduleIndex = course.modules.findIndex((item) => item.lessons.some((entry) => entry.id === req.params.lessonId));
-    if (moduleIndex < 0) return res.status(404).json({ error: req.t(t('Lezione non trovata.')), code: 'LESSON_NOT_FOUND' });
-    const module = course.modules[moduleIndex];
-    const lessonIndex = module.lessons.findIndex((entry) => entry.id === req.params.lessonId);
-    const progress = progressFor(req.userRecord, course.id);
-    if (!moduleUnlocked(course, progress, moduleIndex)) {
-      return res.status(403).json({ error: req.t(t('Completa il modulo precedente per sbloccare questa lezione.')), code: 'COURSE_MODULE_LOCKED' });
-    }
-    if (module.lessons.slice(0, lessonIndex).some((entry) => !progress.lessonsDone.includes(entry.id))) {
-      return res.status(403).json({ error: req.t(t('Completa le lezioni precedenti di questo modulo.')), code: 'COURSE_LESSON_LOCKED' });
-    }
-    const item = module.lessons[lessonIndex];
-    const lessonData = Object.fromEntries(
-      Object.entries(item).map(([key, value]) => [key, Array.isArray(value) ? value.map((entry) => req.t(entry)) : req.t(value)])
-    );
     return res.json({
-      lesson: lessonData,
-      moduleId: module.id,
-      position: lessonIndex,
-      total: module.lessons.length,
-      done: progress.lessonsDone.includes(item.id),
+      courses: content.COURSES.map((course) => engine.summary(course, req.userRecord, req)),
+      stats: { xp: engine.totalXp(req.userRecord), streak: engine.streakOf(req.userRecord) },
     });
   });
 
-  app.post('/api/courses/:courseId/lessons/:lessonId/complete', authenticateToken, courseContentLimiter, async (req, res) => {
-    const course = content.getCourse(req.params.courseId);
-    if (!course) return res.status(404).json({ error: req.t(t('Corso non trovato.')), code: 'COURSE_NOT_FOUND' });
-    const moduleIndex = course.modules.findIndex((item) => item.lessons.some((entry) => entry.id === req.params.lessonId));
-    if (moduleIndex < 0) return res.status(404).json({ error: req.t(t('Lezione non trovata.')), code: 'LESSON_NOT_FOUND' });
-    const module = course.modules[moduleIndex];
-    const lessonIndex = module.lessons.findIndex((entry) => entry.id === req.params.lessonId);
-    const user = req.userRecord;
-    const progress = progressFor(user, course.id);
-    if (!moduleUnlocked(course, progress, moduleIndex)) {
-      return res.status(403).json({ error: req.t(t('Completa il modulo precedente per sbloccare questa lezione.')), code: 'COURSE_MODULE_LOCKED' });
-    }
-    if (module.lessons.slice(0, lessonIndex).some((entry) => !progress.lessonsDone.includes(entry.id))) {
-      return res.status(403).json({ error: req.t(t('Completa le lezioni precedenti di questo modulo.')), code: 'COURSE_LESSON_LOCKED' });
-    }
-    if (!progress.lessonsDone.includes(req.params.lessonId)) progress.lessonsDone.push(req.params.lessonId);
-    saveProgress(user, course.id, progress);
-    if (!await saveWithError(db, user, logger, req, res, 'Impossibile salvare i progressi del corso. Riprova.', 'COURSE_PROGRESS_SAVE_FAILED', { courseId: course.id })) return;
-    return res.json({ completed: true, course: publicCourseDetail(course, user, req) });
+  app.get('/api/courses/:courseId', authenticateToken, courseContentLimiter, (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json({ course: engine.detail(course, req.userRecord, req) });
   });
 
-  app.post('/api/courses/:courseId/modules/:moduleId/quiz/submit', authenticateToken, courseContentLimiter, async (req, res) => {
-    const course = content.getCourse(req.params.courseId);
-    if (!course) return res.status(404).json({ error: req.t(t('Corso non trovato.')), code: 'COURSE_NOT_FOUND' });
-    const moduleIndex = course.modules.findIndex((item) => item.id === req.params.moduleId);
-    if (moduleIndex < 0) return res.status(404).json({ error: req.t(t('Modulo non trovato.')), code: 'MODULE_NOT_FOUND' });
-    const module = course.modules[moduleIndex];
+  app.get('/api/courses/:courseId/lessons/:lessonId', authenticateToken, courseContentLimiter, (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const found = engine.findLesson(course, req.params.lessonId);
+    if (!found) return res.status(404).json({ error: req.t(t('Lezione non trovata.')), code: 'LESSON_NOT_FOUND' });
+    const progress = engine.progressFor(req.userRecord, course.id);
+    if (!engine.levelUnlocked(course, progress, found.moduleIndex)) {
+      return locked(req, res, t('Supera il livello precedente per sbloccare questa lezione.'), 'COURSE_MODULE_LOCKED');
+    }
+    if (!engine.lessonOpen(course, progress, found.moduleIndex, found.lessonIndex)) {
+      return locked(req, res, t('Completa prima le lezioni precedenti di questo livello.'), 'COURSE_LESSON_LOCKED');
+    }
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json(engine.lessonPayload(course, req.userRecord, found, req));
+  });
+
+  // Verifica immediata di una lezione. Con recall:true è una domanda di ripasso: non cambia il progresso.
+  app.post('/api/courses/:courseId/lessons/:lessonId/check', authenticateToken, courseContentLimiter, async (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const found = engine.findLesson(course, req.params.lessonId);
+    if (!found) return res.status(404).json({ error: req.t(t('Lezione non trovata.')), code: 'LESSON_NOT_FOUND' });
     const user = req.userRecord;
-    const progress = progressFor(user, course.id);
-    if (!moduleUnlocked(course, progress, moduleIndex)) {
-      return res.status(403).json({ error: req.t(t('Supera il modulo precedente per sbloccare questo test.')), code: 'COURSE_MODULE_LOCKED' });
+    const progress = engine.progressFor(user, course.id);
+    const recall = req.body && req.body.recall === true;
+    const open = recall
+      ? progress.lessonsDone.includes(found.lesson.id)
+      : engine.lessonOpen(course, progress, found.moduleIndex, found.lessonIndex);
+    if (!open) return locked(req, res, t('Questa lezione non è ancora disponibile.'), 'COURSE_LESSON_LOCKED');
+    const answer = req.body && req.body.answer;
+    const result = engine.gradeCheck(course.id, found, answer, req);
+    if (!result) return res.status(400).json({ error: req.t(t('Seleziona una risposta valida.')), code: 'COURSE_CHECK_INVALID' });
+    let earned = 0;
+    if (result.correct && !recall && !progress.checksDone.includes(found.lesson.id)) {
+      progress.checksDone.push(found.lesson.id);
+      engine.saveProgress(user, course.id, progress);
+      earned = engine.XP.check;
+      if (!await saveOrFail(db, user, logger, req, res, t('Impossibile salvare i progressi del corso. Riprova.'), 'COURSE_PROGRESS_SAVE_FAILED', { courseId: course.id })) return undefined;
     }
-    if (!lessonsComplete(module, progress)) {
-      return res.status(403).json({ error: req.t(t('Completa tutte le lezioni del modulo prima del test.')), code: 'COURSE_LESSONS_INCOMPLETE' });
+    return res.json({ correct: result.correct, why: result.why, xp: earned });
+  });
+
+  app.post('/api/courses/:courseId/lessons/:lessonId/complete', authenticateToken, courseContentLimiter, async (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const found = engine.findLesson(course, req.params.lessonId);
+    if (!found) return res.status(404).json({ error: req.t(t('Lezione non trovata.')), code: 'LESSON_NOT_FOUND' });
+    const user = req.userRecord;
+    const progress = engine.progressFor(user, course.id);
+    if (!engine.lessonOpen(course, progress, found.moduleIndex, found.lessonIndex)) {
+      return locked(req, res, t('Completa prima le lezioni precedenti di questo livello.'), 'COURSE_LESSON_LOCKED');
     }
-    const answers = req.body && req.body.answers;
-    const questionIds = module.quiz.map((item) => item.id);
-    if (!answers || typeof answers !== 'object' || Array.isArray(answers) ||
-        Object.keys(answers).length !== questionIds.length ||
-        Object.keys(answers).some((id) => !questionIds.includes(id)) ||
-        questionIds.some((id) => !Number.isInteger(answers[id]) || answers[id] < 0 || answers[id] >= 4)) {
-      return res.status(400).json({ error: req.t(t('Seleziona una risposta valida per ogni domanda.')), code: 'COURSE_QUIZ_INVALID' });
+    if (!progress.checksDone.includes(found.lesson.id)) {
+      return locked(req, res, t('Rispondi correttamente alla verifica per completare la lezione.'), 'COURSE_CHECK_REQUIRED');
     }
-    const correctCount = module.quiz.reduce((sum, item) => sum + (answers[item.id] === item.correctIndex ? 1 : 0), 0);
-    const score = Math.round((correctCount / module.quiz.length) * 100);
-    progress.moduleScores[module.id] = Math.max(Number(progress.moduleScores[module.id]) || 0, score);
-    saveProgress(user, course.id, progress);
-    if (!await saveWithError(db, user, logger, req, res, 'Impossibile salvare il risultato del test. Riprova.', 'COURSE_QUIZ_SAVE_FAILED', { courseId: course.id, moduleId: module.id })) return;
+    let earned = 0;
+    if (!progress.lessonsDone.includes(found.lesson.id)) {
+      progress.lessonsDone.push(found.lesson.id);
+      earned = engine.XP.lesson;
+    }
+    engine.saveProgress(user, course.id, progress);
+    if (!await saveOrFail(db, user, logger, req, res, t('Impossibile salvare i progressi del corso. Riprova.'), 'COURSE_PROGRESS_SAVE_FAILED', { courseId: course.id })) return undefined;
+    return res.json({ completed: true, xp: earned, course: engine.detail(course, user, req) });
+  });
+
+  app.get('/api/courses/:courseId/levels/:moduleId/lab', authenticateToken, courseContentLimiter, (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const level = levelOr404(req, res, course);
+    if (!level) return undefined;
+    const progress = engine.progressFor(req.userRecord, course.id);
+    if (!engine.levelUnlocked(course, progress, level.index) || !engine.lessonsComplete(progress, level.module)) {
+      return locked(req, res, t('Completa tutte le lezioni del livello per aprire il laboratorio.'), 'COURSE_LESSONS_INCOMPLETE');
+    }
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json({ lab: engine.labPayload(course.id, level.module, req) });
+  });
+
+  app.post('/api/courses/:courseId/levels/:moduleId/lab/submit', authenticateToken, courseContentLimiter, async (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const level = levelOr404(req, res, course);
+    if (!level) return undefined;
+    const user = req.userRecord;
+    const progress = engine.progressFor(user, course.id);
+    if (!engine.levelUnlocked(course, progress, level.index) || !engine.lessonsComplete(progress, level.module)) {
+      return locked(req, res, t('Completa tutte le lezioni del livello per aprire il laboratorio.'), 'COURSE_LESSONS_INCOMPLETE');
+    }
+    const graded = engine.gradeLab(course.id, level.module, req.body && req.body.answers, req);
+    if (!graded) return res.status(400).json({ error: req.t(t('Completa il laboratorio prima di inviarlo.')), code: 'COURSE_LAB_INVALID' });
+    const wasPassed = engine.labPassed(progress, level.module);
+    progress.labScores[level.module.id] = Math.max(Number(progress.labScores[level.module.id]) || 0, graded.score);
+    engine.saveProgress(user, course.id, progress);
+    if (!await saveOrFail(db, user, logger, req, res, t('Impossibile salvare il risultato. Riprova.'), 'COURSE_LAB_SAVE_FAILED', { courseId: course.id })) return undefined;
+    const feedback = engine.labFeedback(course.id, level.module, graded, req);
+    return res.json({ ...feedback, xp: feedback.passed && !wasPassed ? engine.XP.lab : 0, course: engine.detail(course, user, req) });
+  });
+
+  app.get('/api/courses/:courseId/levels/:moduleId/quiz', authenticateToken, courseContentLimiter, (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const level = levelOr404(req, res, course);
+    if (!level) return undefined;
+    const progress = engine.progressFor(req.userRecord, course.id);
+    if (!engine.levelUnlocked(course, progress, level.index) || !engine.lessonsComplete(progress, level.module) || !engine.labPassed(progress, level.module)) {
+      return locked(req, res, t('Supera il laboratorio del livello per aprire il test.'), 'COURSE_LAB_REQUIRED');
+    }
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json({ passScore: PASS_SCORE, questions: engine.quizPayload(level.module, req) });
+  });
+
+  app.post('/api/courses/:courseId/levels/:moduleId/quiz/submit', authenticateToken, courseContentLimiter, async (req, res) => {
+    const course = courseOr404(req, res);
+    if (!course) return undefined;
+    const level = levelOr404(req, res, course);
+    if (!level) return undefined;
+    const user = req.userRecord;
+    const progress = engine.progressFor(user, course.id);
+    if (!engine.levelUnlocked(course, progress, level.index) || !engine.lessonsComplete(progress, level.module) || !engine.labPassed(progress, level.module)) {
+      return locked(req, res, t('Supera il laboratorio del livello per aprire il test.'), 'COURSE_LAB_REQUIRED');
+    }
+    const graded = engine.gradeQuiz(level.module, req.body && req.body.answers, req);
+    if (!graded) return res.status(400).json({ error: req.t(t('Seleziona una risposta valida per ogni domanda.')), code: 'COURSE_QUIZ_INVALID' });
+    const wasPassed = engine.quizPassed(progress, level.module);
+    progress.moduleScores[level.module.id] = Math.max(Number(progress.moduleScores[level.module.id]) || 0, graded.score);
+    engine.saveProgress(user, course.id, progress);
+    if (!await saveOrFail(db, user, logger, req, res, t('Impossibile salvare il risultato del test. Riprova.'), 'COURSE_QUIZ_SAVE_FAILED', { courseId: course.id, moduleId: level.module.id })) return undefined;
+    const detail = engine.detail(course, user, req);
+    const levelNow = detail.levels.find((item) => item.id === level.module.id);
     return res.json({
-      passed: score >= PASS_SCORE,
-      score,
-      passScore: PASS_SCORE,
-      feedback: module.quiz.map((item) => ({
-        id: item.id,
-        isCorrect: answers[item.id] === item.correctIndex,
-        correctOptionIndex: item.correctIndex,
-        explanation: req.t(item.explanation),
-        selectedOptionIndex: answers[item.id],
-        prompt: req.t(item.prompt),
-      })),
-      course: publicCourseDetail(course, user, req),
+      ...graded,
+      xp: graded.passed && !wasPassed ? engine.XP.quiz : 0,
+      levelCompleted: Boolean(levelNow && levelNow.passed),
+      skill: levelNow && levelNow.passed ? levelNow.skill : '',
+      course: detail,
     });
   });
 
@@ -243,9 +231,6 @@ module.exports = function registerCourses(app, ctx) {
     if (!course) return res.status(404).json({ error: req.t(t('Corso non trovato.')), code: 'COURSE_NOT_FOUND' });
 
     const user = req.userRecord;
-    if (!courseComplete(content.getCourse(req.params.courseId), progressFor(user, req.params.courseId))) {
-      return res.status(403).json({ error: req.t(t('Completa tutti i moduli per sbloccare l’esame finale.')), code: 'COURSE_NOT_COMPLETED' });
-    }
     const existing = (user.certificates || []).find((certificate) => certificate.courseId === req.params.courseId);
     if (existing) {
       return res.json({
@@ -253,6 +238,9 @@ module.exports = function registerCourses(app, ctx) {
         certificate: certificates.publicCertificate(existing, req.lang),
         diplomaUrl: `/diploma.html?c=${encodeURIComponent(existing.code)}`,
       });
+    }
+    if (!engine.courseComplete(content.getCourse(req.params.courseId), engine.progressFor(user, req.params.courseId))) {
+      return res.status(403).json({ error: req.t(t('Completa tutti i livelli per sbloccare l’esame finale.')), code: 'COURSE_NOT_COMPLETED' });
     }
 
     const now = Date.now();
@@ -304,8 +292,8 @@ module.exports = function registerCourses(app, ctx) {
     }
 
     const user = req.userRecord;
-    if (!courseComplete(content.getCourse(courseId), progressFor(user, courseId))) {
-      return res.status(403).json({ error: req.t(t('Completa tutti i moduli per sbloccare l’esame finale.')), code: 'COURSE_NOT_COMPLETED' });
+    if (!engine.courseComplete(content.getCourse(courseId), engine.progressFor(user, courseId))) {
+      return res.status(403).json({ error: req.t(t('Completa tutti i livelli per sbloccare l’esame finale.')), code: 'COURSE_NOT_COMPLETED' });
     }
     const attempts = Array.isArray(user.courseExamAttempts) ? user.courseExamAttempts : [];
     const attempt = attempts.find((item) => item.id === attemptId && item.courseId === courseId);

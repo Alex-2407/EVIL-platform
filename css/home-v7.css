@@ -720,3 +720,4 @@ body.home-v7 { --hv-panel: rgba(14, 19, 30, 0.55); }
   .hv-ticker__track { animation: none; }
   .hv-aurora { animation: none; }
 }
+.hv-path > .hv-btn { margin-top: 18px; }

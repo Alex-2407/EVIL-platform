@@ -277,6 +277,7 @@ const ACCOUNT_PAGES = [
   { file: 'forgot-password.html', sitemap: null, title: { it: 'Password dimenticata', en: 'Forgotten password' } },
   { file: 'reset-password.html', sitemap: null, title: { it: 'Nuova password', en: 'New password' } },
   { file: 'verify-email.html', sitemap: null, title: { it: 'Verifica email', en: 'Verify email' } },
+  { file: 'course.html', sitemap: null, title: { it: 'Corso', en: 'Course' } },
   { file: 'diploma.html', sitemap: null, title: { it: 'Diploma', en: 'Diploma' } },
   {
     file: 'verify.html',

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Corso - EVIL</title>
+  <meta name="description" content="Un corso di cybersecurity a livelli su EVIL: lezioni brevi, verifiche immediate, laboratori pratici, test di livello ed esame finale con diploma verificabile.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/course-page.css?v=20261015">
+</head>
+<body class="evil-theme cp-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <div class="cp-scene" aria-hidden="true">
+    <div class="cp-scene__grid"></div>
+    <div class="cp-scene__mesh"></div>
+  </div>
+
+  <!--evil:header-->
+
+  <main id="course-main">
+    <p id="cp-status" class="cp-status" role="status" aria-live="polite"></p>
+
+    <div id="cp-overview">
+      <p class="cp-loading">Caricamento del corso…</p>
+    </div>
+
+    <section id="cp-stage" class="cp-stage" hidden aria-live="polite"></section>
+  </main>
+
+  <!--evil:footer-->
+
+  <script src="/js/course-page.js" defer></script>
+</body>
+</html>

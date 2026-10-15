@@ -1,10 +1,16 @@
 {
   "Percorsi di apprendimento - EVIL": "Learning paths - EVIL",
-  "Tre corsi guidati per imparare la cybersecurity su EVIL: Fondamenti, Sicurezza web e Difesa e analisi. Scegli un percorso e una barra ti accompagna di pagina in pagina, tappa dopo tappa.": "Three guided courses to learn cybersecurity on EVIL: Fundamentals, Web security and Defence and analysis. Pick a path and a bar walks you from page to page, step by step.",
-  "Impara · Corsi guidati": "Learn · Guided courses",
-  "Non uno strumento alla volta, <em>un percorso</em>.": "Not one tool at a time, <em>a path</em>.",
-  "Lezioni brevi, test di modulo e un esame finale verificano ogni passaggio. I tuoi progressi vengono salvati sul server e il diploma si sblocca solo dopo aver completato l’intero corso.": "Short lessons, module tests and a final exam assess each step. Your progress is saved on the server, and the diploma unlocks only after you complete the entire course.",
-  "Le tecniche offensive mostrate servono a capire come difendersi: usale solo su sistemi tuoi o con <a href=\"/ethics.html\">autorizzazione scritta</a>.": "The offensive techniques shown are there to help you understand how to defend: use them only on your own systems or with <a href=\"/ethics.html\">written authorisation</a>.",
-  "Caricamento percorsi…": "Loading courses…",
-  "Accedi per salvare i progressi, svolgere i test e ottenere un diploma verificabile. <a href=\"/login.html\">Accedi</a> · <a href=\"/account.html\">Crea un account</a>": "Sign in to save your progress, take tests and earn a verifiable diploma. <a href=\"/login.html\">Sign in</a> · <a href=\"/account.html\">Create an account</a>"
+  "Tre corsi di cybersecurity a livelli su EVIL: Fondamenti, Sicurezza web e Difesa e analisi. Lezioni brevi, laboratori pratici, test ed esame finale con diploma verificabile.": "Three level-based cybersecurity courses on EVIL: Foundations, Web security and Defence and analysis. Short lessons, hands-on labs, tests and a final exam with a verifiable diploma.",
+  "Impara · Corsi a livelli": "Learn · Level-based courses",
+  "Non una lista di pagine: <em>un corso che ti porta da qualche parte</em>.": "Not a list of pages: <em>a course that takes you somewhere</em>.",
+  "Ogni corso ha obiettivi chiari, livelli che si sbloccano uno dopo l’altro, lezioni brevi con verifica immediata, laboratori pratici e un esame finale. Alla fine ottieni un diploma con il tuo nome, firmato e verificabile da chiunque con un QR.": "Every course has clear goals, levels that unlock one after another, short lessons with an instant check, hands-on labs and a final exam. At the end you earn a diploma with your name, signed and verifiable by anyone with a QR code.",
+  "I contenuti sono difensivi e basati su fonti pubbliche. Le tecniche offensive servono a capire come proteggersi: usale solo su sistemi tuoi o con <a href=\"/ethics.html\">autorizzazione scritta</a>.": "The content is defensive and based on public sources. Offensive techniques exist to understand how to protect yourself: use them only on your own systems or with <a href=\"/ethics.html\">written authorisation</a>.",
+  "I tuoi progressi": "Your progress",
+  "Caricamento corsi…": "Loading courses…",
+  "Come funziona": "How it works",
+  "<b>1 · Obiettivi</b><span>Sai fin dall’inizio cosa saprai fare alla fine.</span>": "<b>1 · Goals</b><span>You know from the start what you will be able to do at the end.</span>",
+  "<b>2 · Lezioni brevi</b><span>Pochi minuti ciascuna, con una verifica subito dopo.</span>": "<b>2 · Short lessons</b><span>A few minutes each, with a check right after.</span>",
+  "<b>3 · Laboratori</b><span>Metti in pratica ciò che hai imparato, ogni livello.</span>": "<b>3 · Labs</b><span>Put what you learned into practice, every level.</span>",
+  "<b>4 · Diploma</b><span>Esame finale e diploma verificabile con firma e QR.</span>": "<b>4 · Diploma</b><span>Final exam and a verifiable diploma with signature and QR.</span>",
+  "Accedi per salvare i progressi, guadagnare punti e ottenere il diploma. <a href=\"/login.html\">Accedi</a> · <a href=\"/account.html\">Crea un account</a>": "Sign in to save your progress, earn points and get the diploma. <a href=\"/login.html\">Sign in</a> · <a href=\"/account.html\">Create an account</a>"
 }

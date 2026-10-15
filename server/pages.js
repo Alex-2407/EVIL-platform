@@ -57,7 +57,6 @@ const SITE_FOOTER_CSS = '/css/site-footer.css';
 const SITE_HEADER_CSS = '/css/site-header.css';
 const SYSTEM_THEME_CSS = '/css/system-theme.css';
 const EVIL_SCROLLBAR_CSS = '/css/evil-scrollbar.css';
-const EVIL_COURSE_CSS = '/css/evil-course.css?v=20261015';
 const RESPONSIVE_CSS = '/css/responsive.css';
 const EVIL_MOTION_CSS = '/css/evil-motion.css';
 const EVIL_MOTION_JS = '/js/evil-motion.js';
@@ -250,7 +249,7 @@ function injectAuthChromeScripts(html) {
   });
   return out.replace(
     '</head>',
-    `  <script src="/js/evil-site-chrome.js" defer></script>\n  <script src="/js/evil-course.js" defer></script>\n</head>`
+    `  <script src="/js/evil-site-chrome.js" defer></script>\n</head>`
   );
 }
 
@@ -474,10 +473,6 @@ function injectPageAssets(htmlContent, pageName, lang = DEFAULT_LANG) {
 
   if (!html.includes('evil-scrollbar.css')) {
     html = injectSiteChromeCss(html, EVIL_SCROLLBAR_CSS, 'evil-scrollbar.css');
-  }
-
-  if (/<header[\s>]/i.test(html) && !html.includes('evil-course.css')) {
-    html = injectSiteChromeCss(html, EVIL_COURSE_CSS, 'evil-course.css');
   }
 
   html = injectAuthChromeScripts(html);

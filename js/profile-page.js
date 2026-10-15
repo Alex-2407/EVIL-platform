@@ -119,18 +119,20 @@
         mount.textContent = t('Nessun corso disponibile.');
         return;
       }
-      mount.innerHTML = courses.map((course) => {
+      const stats = data.stats || {};
+      const courseUrl = (id) => (window.EVIL_I18N && window.EVIL_I18N.url ? window.EVIL_I18N.url('/course.html') : '/course.html') + '?c=' + encodeURIComponent(id);
+      mount.innerHTML = `<p class="profile-course__stats">${escapeHtml(t('{xp} punti · serie di {days} giorni', { xp: stats.xp || 0, days: stats.streak || 0 }))}</p>` + courses.map((course) => {
         const percent = Math.max(0, Math.min(100, Number(course.percent) || 0));
         const title = lang === 'en' ? course.title.en : course.title.it;
         return `<article class="profile-course">
-          <div class="profile-course__head"><h3>${escapeHtml(title)}</h3>
+          <div class="profile-course__head"><h3><a href="${escapeHtml(courseUrl(course.id))}">${escapeHtml(title)}</a></h3>
             <span>${escapeHtml(t('{percent}% completato', { percent }))}</span></div>
           <div class="profile-course__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"
             aria-label="${escapeHtml(t('Avanzamento corso'))}"><span style="width:${percent}%"></span></div>
-          <p>${escapeHtml(t('{lessons} di {total} lezioni · {passed} di {modules} moduli superati', {
-            lessons: course.lessonsDone, total: course.lessonTotal, passed: course.modulesPassed, modules: course.moduleTotal,
+          <p>${escapeHtml(t('{lessons} di {total} lezioni · {passed} di {levels} livelli superati', {
+            lessons: course.lessonsDone, total: course.lessonTotal, passed: course.levelsPassed, levels: course.levelTotal,
           }))}</p>
-          <small>${escapeHtml(course.examUnlocked ? t('Esame finale sbloccato') : t('Completa i moduli per sbloccare l’esame finale.'))}</small>
+          <small>${escapeHtml(course.diplomaCode ? t('Diploma ottenuto') : course.examUnlocked ? t('Esame finale sbloccato') : t('Supera tutti i livelli per sbloccare l’esame finale.'))}</small>
         </article>`;
       }).join('');
     } catch (error) {
