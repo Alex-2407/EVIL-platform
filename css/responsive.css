@@ -302,29 +302,8 @@ html {
   overflow: hidden;
 }
 
-@media (max-width: 1024px) {
-  .am-page .am-map-frame {
-    height: clamp(260px, 38vh, 360px);
-  }
-
-  .ha-page .ha-map-frame {
-    height: clamp(260px, 36vh, 340px);
-  }
-}
-
-@media (max-width: 768px) {
-  .am-page .am-map-frame,
-  .ha-page .ha-map-frame {
-    height: clamp(240px, 34vh, 300px);
-  }
-}
 
 @media (max-width: 576px) {
-  .am-page .am-map-frame,
-  .ha-page .ha-map-frame {
-    height: clamp(300px, 46vh, 380px);
-  }
-
   .am-ticker {
     height: auto;
     min-height: 42px;
@@ -393,11 +372,6 @@ html {
 
   .auth-page {
     margin-top: 2rem;
-  }
-
-  .am-map-frame,
-  .ha-map-frame {
-    height: clamp(180px, 55vh, 240px) !important;
   }
 }
 

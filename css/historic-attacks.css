@@ -1,4 +1,4 @@
-/* Attacchi storici — editoriale EVIL + mappa Leaflet */
+/* Attacchi storici — editoriale EVIL + mappa SVG */
 
 .ha-page {
   --ha-amber: #f59e0b;
@@ -118,7 +118,6 @@
   position: relative;
   width: 100%;
   max-width: 100%;
-  height: clamp(280px, 42vh, 480px);
   overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(251, 113, 133, 0.35);
@@ -150,59 +149,6 @@
   font-size: 1.35rem;
   color: var(--ha-rose);
   font-variant-numeric: tabular-nums;
-}
-
-.ha-marker {
-  position: relative;
-  width: 28px;
-  height: 28px;
-}
-
-.ha-marker__core {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  margin: -6px 0 0 -6px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 0 12px currentColor;
-}
-
-.ha-marker__ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  opacity: 0.6;
-  animation: haMarkerRing 2.2s ease-out infinite;
-}
-
-.ha-marker__ring:nth-child(2) {
-  animation-delay: 0.7s;
-}
-
-@keyframes haMarkerRing {
-  0% { transform: scale(0.4); opacity: 0.8; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-
-.ha-page .leaflet-marker-icon.ha-leaflet-icon {
-  background: transparent !important;
-  border: none !important;
-  animation: none !important;
-  transition: none !important;
-}
-
-.ha-page .leaflet-marker-icon .ha-marker {
-  animation: haMarkerPop 0.45s ease-out forwards;
-  animation-delay: calc(var(--ha-marker-i, 0) * 0.05s);
-}
-
-@keyframes haMarkerPop {
-  from { opacity: 0; }
-  to { opacity: 1; }
 }
 
 .ha-map-help {
@@ -544,17 +490,6 @@
   color: #94a3b8;
 }
 
-.ha-page .leaflet-popup-content-wrapper {
-  background: rgba(9, 14, 24, 0.95) !important;
-  color: #e2e8f0 !important;
-  border: 1px solid rgba(251, 113, 133, 0.3);
-  border-radius: 10px !important;
-}
-
-.ha-page .leaflet-popup-tip {
-  background: rgba(9, 14, 24, 0.95) !important;
-}
-
 .ha-reveal {
   opacity: 0;
   transform: translateY(16px);
@@ -580,8 +515,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ha-marker__ring,
-  .ha-page .leaflet-marker-icon .ha-marker,
+  .ha-pin__ring,
   .ha-scene__mesh {
     animation: none !important;
   }
@@ -675,4 +609,49 @@
 .ha-compare-scroll .ha-compare {
   margin-bottom: 0;
   min-width: 640px;
+}
+
+/* ——— Mappa del mondo fissa (SVG) ——— */
+.ha-page .ha-map-frame { height: auto; }
+.ha-page #historic-map { position: relative; width: 100%; aspect-ratio: 1000 / 394; background: #070e1a; }
+.ha-page .ha-map-frame .ha-svg { display: block; width: 100%; height: 100%; max-width: none; cursor: grab; touch-action: pan-y pinch-zoom; user-select: none; }
+.ha-page .ha-map-frame.is-zoomed .ha-svg { touch-action: none; }
+.ha-page .ha-map-frame.is-dragging .ha-svg { cursor: grabbing; }
+.ha-graticule line { stroke: rgba(148, 163, 184, 0.1); stroke-width: 0.5; vector-effect: non-scaling-stroke; }
+.ha-land { fill: #14243a; stroke: rgba(103, 232, 249, 0.35); stroke-width: 0.6; vector-effect: non-scaling-stroke; }
+.ha-borders { fill: none; stroke: rgba(148, 163, 184, 0.22); stroke-width: 0.4; vector-effect: non-scaling-stroke; }
+.ha-pin { cursor: pointer; outline: none; }
+.ha-pin__core { transition: filter 0.2s; filter: drop-shadow(0 0 4px currentColor); }
+.ha-pin:hover .ha-pin__core, .ha-pin:focus-visible .ha-pin__core, .ha-pin.is-active .ha-pin__core { filter: drop-shadow(0 0 10px #fff); }
+.ha-pin__ring { transform-box: fill-box; transform-origin: center; animation: haPing 2.4s ease-out infinite; opacity: 0; }
+.ha-pin__ring--b { animation-delay: 1.2s; }
+@keyframes haPing { 0% { transform: scale(0.4); opacity: 0.8; } 100% { transform: scale(1.7); opacity: 0; } }
+.ha-pin__label { fill: #e2e8f0; stroke: #050a12; paint-order: stroke; font-family: var(--ha-mono); pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+.ha-map-frame.is-zoomed .ha-pin__label, .ha-pin:hover .ha-pin__label, .ha-pin.is-active .ha-pin__label { opacity: 1; }
+.ha-pin__count { fill: #fecdd3; font-family: var(--ha-mono); font-weight: 700; pointer-events: none; }
+
+.ha-ctrl { position: absolute; top: 0.6rem; right: 0.6rem; z-index: 3; display: grid; gap: 0.3rem; }
+.ha-ctrl button { width: 2.1rem; height: 2.1rem; border-radius: 8px; border: 1px solid var(--ha-border); background: var(--ha-glass); color: #e2e8f0; font-size: 1.1rem; cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+.ha-ctrl button:hover:not(:disabled) { border-color: var(--ha-rose); transform: scale(1.06); }
+.ha-ctrl button:disabled { opacity: 0.35; cursor: default; }
+.ha-legend { position: absolute; left: 0.6rem; bottom: 0.6rem; z-index: 3; display: flex; gap: 0.7rem; padding: 0.35rem 0.7rem; border-radius: 8px; background: var(--ha-glass); border: 1px solid var(--ha-border); font: 0.68rem var(--ha-mono); color: #94a3b8; }
+.ha-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.3rem; }
+.ha-panel { position: absolute; z-index: 4; left: 0.6rem; top: 3.6rem; width: min(320px, calc(100% - 1.2rem)); max-height: calc(100% - 7rem); overflow: auto; padding: 0.9rem 1rem; border-radius: 12px; background: rgba(9, 14, 24, 0.96); border: 1px solid rgba(251, 113, 133, 0.4); box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5); animation: haPanel 0.25s both; }
+.ha-panel[hidden] { display: none; }
+@keyframes haPanel { from { opacity: 0; transform: translateY(8px); } }
+.ha-panel__close { position: absolute; top: 0.4rem; right: 0.5rem; border: 0; background: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; }
+.ha-panel__more { margin-top: 0.5rem; border: 0; background: none; color: var(--ha-rose); cursor: pointer; font-size: 0.82rem; padding: 0; }
+.ha-panel h4 { margin: 0 1.4rem 0.5rem 0; color: var(--ha-rose); font-family: var(--ha-serif); }
+.ha-panel__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.ha-panel__list button { width: 100%; text-align: left; padding: 0.45rem 0.6rem; border-radius: 8px; border: 1px solid var(--ha-border); background: rgba(255, 255, 255, 0.03); color: #e2e8f0; cursor: pointer; display: grid; gap: 0.1rem; }
+.ha-panel__list button:hover { border-color: var(--ha-rose); }
+.ha-panel__list span { font-size: 0.74rem; color: #94a3b8; }
+@media (max-width: 640px) {
+  .ha-page #historic-map { aspect-ratio: 1000 / 640; }
+  .ha-map-hud { padding: 0.25rem 0.55rem; display: flex; align-items: baseline; gap: 0.4rem; }
+  .ha-map-hud__label { font-size: 0.55rem; }
+  .ha-map-hud__val { font-size: 0.95rem; }
+  .ha-legend { gap: 0.45rem; padding: 0.25rem 0.5rem; font-size: 0.58rem; }
+  .ha-ctrl button { width: 1.8rem; height: 1.8rem; }
+  .ha-panel { position: static; width: auto; max-height: none; margin: 0; border-radius: 0 0 12px 12px; border-width: 1px 0 0; box-shadow: none; }
 }

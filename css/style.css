@@ -623,33 +623,6 @@ body.logo-easter-active header {
   margin-bottom: 20px;
 }
 
-.leaflet-container {
-  background: #0f172a;
-  border-radius: 8px;
-}
-
-/* Non applicare regole globali alla mappa incidenti (layout dedicato in attacks-map.css) */
-.am-page .am-map-frame .leaflet-container,
-.ha-page .ha-map-frame .leaflet-container {
-  border-radius: 0;
-}
-
-.leaflet-popup-content {
-  background: #0b0f1a;
-  color: #e5e7eb;
-  font-size: 13px;
-}
-
-.leaflet-popup-content-wrapper {
-  background: #0b0f1a;
-  border-radius: 4px;
-  box-shadow: 0 0 20px rgba(0, 255, 156, 0.2);
-}
-
-.leaflet-popup-tip {
-  background: #0b0f1a;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .header-container {

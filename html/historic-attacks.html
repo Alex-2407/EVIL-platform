@@ -6,14 +6,12 @@
   <title>Violazioni storiche — EVIL</title>
   <meta name="description" content="Dodici violazioni documentate, da Target a SolarWinds: cosa è successo, come, con quale impatto e quale lezione resta per chi difende, con mappa e tabella di confronto.">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" crossorigin="anonymous" />
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/site-header.css?v=20260612">
   <link rel="stylesheet" href="/css/evil-motion.css?v=20260715">
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css?v=20260604leaflet">
   <link rel="stylesheet" href="/css/historic-attacks.css?v=20260715">
-  <link rel="stylesheet" href="/css/leaflet-maps.css?v=20260702">
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260715" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -91,10 +89,10 @@
             <span class="ha-map-hud__label">Violazioni documentate</span>
             <strong class="ha-map-hud__val" id="ha-map-count">12</strong>
           </div>
-          <div id="historic-map" role="application" aria-label="Mappa mondiale delle violazioni storiche"></div>
+          <div id="historic-map" ><noscript>Per vedere la mappa serve JavaScript: i casi sono elencati nelle schede qui sotto.</noscript></div>
         </div>
         <p class="ha-map-help">
-          Clicca un indicatore sulla mappa o una scheda qui sotto per collegare la posizione al dettaglio del caso.
+          Trascina per spostarti, usa + e − (o Ctrl + rotella) per ingrandire. I cerchi con un numero raggruppano più casi vicini: cliccali per avvicinarti. Clicca un punto o una scheda per vedere il dettaglio.
         </p>
       </section>
 
@@ -144,10 +142,9 @@
 
   <!--evil:footer-->
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js" crossorigin="anonymous"></script>
-  <script src="/js/leaflet-map-fix.js?v=20260703"></script>
+  <script src="/js/world-map-data.js?v=20261015"></script>
   <script src="/js/historic-attacks-data.js?v=20260629"></script>
-  <script src="/js/historic-attacks.js?v=20260703"></script>
+  <script src="/js/historic-attacks.js?v=20261015"></script>
   <script src="/js/matrixrain.js" defer></script>
   <script src="/js/progress-manager.js" defer></script>
 </body>

@@ -157,7 +157,6 @@
     window.__evilMotionReady = true;
     if (!document.body.classList.contains('evil-theme')) return;
 
-    /* Leaflet si rompe se main/header hanno transform in animazione */
     if (!reducedMotion && !shouldSkipPage()) {
       document.body.classList.add('motion-on');
     }
