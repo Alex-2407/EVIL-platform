@@ -152,80 +152,21 @@
   /* ------------------------------------------------------------ sfondo: rete di particelle */
   (function net() {
     const c = $('#hv-net');
-    if (!c || !c.getContext) return;
-    const x = c.getContext('2d');
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    let w = 0;
-    let h = 0;
-    let pts = [];
-    let running = true;
-    const mouse = { x: -9999, y: -9999 };
-    const size = () => {
-      w = c.width = Math.round(window.innerWidth * dpr);
-      h = c.height = Math.round(window.innerHeight * dpr);
-      const n = Math.round(Math.min(80, (window.innerWidth * window.innerHeight) / 17000));
-      pts = Array.from({ length: n }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.35 * dpr,
-        vy: (Math.random() - 0.5) * 0.35 * dpr,
-        g: Math.random() < 0.25,
-      }));
-    };
-    const LINK = 130 * dpr;
-    function draw() {
-      x.clearRect(0, 0, w, h);
-      for (const p of pts) {
-        if (!reduce) {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < 0 || p.x > w) p.vx *= -1;
-          if (p.y < 0 || p.y > h) p.vy *= -1;
-          const dx = mouse.x - p.x;
-          const dy = mouse.y - p.y;
-          if (Math.hypot(dx, dy) < 180 * dpr) {
-            p.x -= dx * 0.004;
-            p.y -= dy * 0.004;
-          }
-        }
-        x.fillStyle = p.g ? 'rgba(0,255,156,.8)' : 'rgba(245,158,11,.6)';
-        x.beginPath();
-        x.arc(p.x, p.y, 1.4 * dpr, 0, 7);
-        x.fill();
-      }
-      for (let i = 0; i < pts.length; i++) {
-        for (let j = i + 1; j < pts.length; j++) {
-          const a = pts[i];
-          const b = pts[j];
-          const d = Math.hypot(a.x - b.x, a.y - b.y);
-          if (d < LINK) {
-            x.strokeStyle = `rgba(125,211,252,${(1 - d / LINK) * 0.22})`;
-            x.lineWidth = dpr * 0.8;
-            x.beginPath();
-            x.moveTo(a.x, a.y);
-            x.lineTo(b.x, b.y);
-            x.stroke();
-          }
-        }
-      }
-      if (running && !reduce) requestAnimationFrame(draw);
-    }
-    size();
-    window.addEventListener('resize', size);
-    window.addEventListener(
-      'pointermove',
-      (e) => {
-        mouse.x = e.clientX * dpr;
-        mouse.y = e.clientY * dpr;
-      },
-      { passive: true }
-    );
-    document.addEventListener('visibilitychange', () => {
-      const was = running;
-      running = !document.hidden;
-      if (running && !was && !reduce) requestAnimationFrame(draw);
+    if (!c || !window.EvilParticles) return;
+    window.EvilParticles.start(c, {
+      density: 17000,
+      max: 80,
+      dpr: 1.5,
+      radius: [1.4, 1.4],
+      speed: 0.175,
+      link: 130,
+      linkAlpha: 0.22,
+      lineWidth: 0.8,
+      repel: 180,
+      still: reduce,
+      dot: (p) => (p.seed < 0.25 ? 'rgba(0,255,156,.8)' : 'rgba(245,158,11,.6)'),
+      line: () => 'rgb(125,211,252)',
     });
-    draw();
   })();
 
   /* ------------------------------------------------------------ cursore, avanzamento, magneti, tilt */

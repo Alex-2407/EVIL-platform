@@ -498,65 +498,20 @@
   }
 
   function initParticles() {
-    const canvas = els.particles;
-    if (!canvas || reducedMotion) return;
-    const ctx = canvas.getContext('2d');
-    let w = 0;
-    let h = 0;
-    const dots = [];
-
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    }
-
-    resize();
-
-    for (let i = 0; i < 70; i++) {
-      dots.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        r: 0.6 + Math.random() * 1.8,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        hue: 260 + Math.random() * 80,
-      });
-    }
-
-    function frame() {
-      ctx.clearRect(0, 0, w, h);
-      dots.forEach((d) => {
-        d.x += d.vx;
-        d.y += d.vy;
-        if (d.x < 0 || d.x > w) d.vx *= -1;
-        if (d.y < 0 || d.y > h) d.vy *= -1;
-      });
-      for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-          const dx = dots[i].x - dots[j].x;
-          const dy = dots[i].y - dots[j].y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < 120) {
-            ctx.strokeStyle = `hsla(${(dots[i].hue + dots[j].hue) / 2}, 60%, 60%, ${0.08 * (1 - dist / 120)})`;
-            ctx.beginPath();
-            ctx.moveTo(dots[i].x, dots[i].y);
-            ctx.lineTo(dots[j].x, dots[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-      dots.forEach((d) => {
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${d.hue}, 70%, 65%, 0.4)`;
-        ctx.fill();
-      });
-      requestAnimationFrame(frame);
-    }
-
-    resize();
-    window.addEventListener('resize', resize, { passive: true });
-    frame();
+    if (!els.particles || reducedMotion || !window.EvilParticles) return;
+    window.EvilParticles.start(els.particles, {
+      count: 70,
+      speed: 0.175,
+      radius: [0.6, 2.4],
+      link: 120,
+      linkAlpha: 0.08,
+      dot: (p) => {
+        p.hue = 260 + p.seed * 80;
+        return `hsla(${p.hue.toFixed(1)}, 70%, 65%, 0.4)`;
+      },
+      // tonalità arrotondata a 5°: stesse sfumature, linee disegnate a gruppi
+      line: (a, b) => `hsl(${Math.round((a.hue + b.hue) / 10) * 5}, 60%, 60%)`,
+    });
   }
 
   function initParallax() {

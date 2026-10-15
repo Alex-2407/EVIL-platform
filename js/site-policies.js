@@ -6,71 +6,17 @@
   const tocLinks = document.querySelectorAll('.policy-toc a[data-section]');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (!reducedMotion && canvas) {
-    const ctx = canvas.getContext('2d');
-    let w = 0;
-    let h = 0;
-    const dots = [];
-    const COUNT = 48;
-
-    function resize() {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-    }
-
-    function initDots() {
-      dots.length = 0;
-      for (let i = 0; i < COUNT; i++) {
-        dots.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: 0.6 + Math.random() * 1.2,
-          vx: (Math.random() - 0.5) * 0.15,
-          vy: (Math.random() - 0.5) * 0.15,
-          a: 0.15 + Math.random() * 0.25,
-        });
-      }
-    }
-
-    function tick() {
-      ctx.clearRect(0, 0, w, h);
-      for (const d of dots) {
-        d.x += d.vx;
-        d.y += d.vy;
-        if (d.x < 0 || d.x > w) d.vx *= -1;
-        if (d.y < 0 || d.y > h) d.vy *= -1;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(148, 163, 184, ${d.a})`;
-        ctx.fill();
-      }
-      for (let i = 0; i < dots.length; i++) {
-        for (let j = i + 1; j < dots.length; j++) {
-          const a = dots[i];
-          const b = dots[j];
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < 140) {
-            ctx.strokeStyle = `rgba(52, 211, 153, ${0.06 * (1 - dist / 140)})`;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-      }
-      requestAnimationFrame(tick);
-    }
-
-    resize();
-    initDots();
-    window.addEventListener('resize', () => {
-      resize();
-      initDots();
+  if (!reducedMotion && canvas && window.EvilParticles) {
+    window.EvilParticles.start(canvas, {
+      count: 48,
+      speed: 0.075,
+      radius: [0.6, 1.8],
+      link: 140,
+      linkAlpha: 0.06,
+      lineWidth: 0.5,
+      dot: (p) => `rgba(148, 163, 184, ${(0.15 + p.seed * 0.25).toFixed(3)})`,
+      line: () => 'rgb(52, 211, 153)',
     });
-    tick();
   }
 
   if (sections.length && !reducedMotion) {
@@ -91,18 +37,47 @@
     const ids = Array.from(tocLinks).map((a) => a.getAttribute('data-section'));
     const targets = ids.map((id) => document.getElementById(id)).filter(Boolean);
 
+    // posizioni lette una volta (e quando cambia la pagina), non a ogni evento di scroll
+    let tops = [];
+    let ticking = false;
+    let active = null;
+    const measure = () => {
+      tops = targets.map((el) => [el.id, el.getBoundingClientRect().top + window.scrollY]);
+    };
+
     function updateToc() {
+      ticking = false;
       const y = window.scrollY + 120;
-      let current = targets[0]?.id;
-      for (const el of targets) {
-        if (el.offsetTop <= y) current = el.id;
+      let current = tops[0]?.[0];
+      for (const [id, top] of tops) {
+        if (top <= y) current = id;
       }
+      if (current === active) return;
+      active = current;
       tocLinks.forEach((link) => {
         link.classList.toggle('is-active', link.getAttribute('data-section') === current);
       });
     }
 
-    window.addEventListener('scroll', updateToc, { passive: true });
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateToc);
+        }
+      },
+      { passive: true }
+    );
+    window.addEventListener('resize', () => {
+      measure();
+      updateToc();
+    });
+    window.addEventListener('load', () => {
+      measure();
+      updateToc();
+    });
+    measure();
     updateToc();
   }
 })();
