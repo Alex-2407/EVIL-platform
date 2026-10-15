@@ -249,14 +249,6 @@
   color: #fecdd3;
 }
 
-.ha-card__date {
-  margin: 0 0 0.35rem;
-  font-family: var(--ha-mono);
-  font-size: 0.72rem;
-  color: #fda4af;
-  letter-spacing: 0.04em;
-}
-
 .ha-card__tag {
   display: inline-block;
   margin-bottom: 0.5rem;
@@ -380,14 +372,6 @@
 .ha-compare__org strong {
   color: #e2e8f0;
   font-weight: 600;
-}
-
-.ha-card__title {
-  margin: 0 0 0.75rem;
-  font-family: var(--ha-serif);
-  font-size: 1.35rem;
-  color: #fecdd3;
-  font-weight: 400;
 }
 
 .ha-card__meta {
@@ -671,23 +655,6 @@
 }
 
 /* Card: riassunto e fonti */
-.ha-card__summary {
-  margin: 0.75rem 0;
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: #cbd5e1;
-}
-
-.ha-card__sources {
-  margin: 0.75rem 0 0;
-  font-size: 0.75rem;
-  line-height: 1.5;
-  color: #7c8aa0;
-}
-
-.ha-card__sources strong {
-  color: #94a3b8;
-}
 
 /* Ritardo dell'animazione delle card, impostato dal JS con --ha-card-i */
 .ha-card.ha-reveal {

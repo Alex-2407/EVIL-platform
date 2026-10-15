@@ -602,7 +602,6 @@ body.home-v7.hv-flip main#hv-main { animation: hvFlip 1.2s cubic-bezier(0.6, 0, 
 .hv-boom { position: fixed; pointer-events: none; z-index: 1300; font: 700 14px var(--hv-mono); color: var(--hv-green); animation: hvBoom 1s ease-out forwards; }
 @keyframes hvBoom { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
 
-
 /* ------------------------------------------------------------ continuità tra le sezioni
    Le sezioni non devono sembrare blocchi impilati: un filo di luce scende
    dalla sezione precedente fino al titolo successivo, ogni sezione ha un

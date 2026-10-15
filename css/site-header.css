@@ -41,7 +41,6 @@ header {
 
 /* EVIL accanto al logo — stesso stile del titolo hero home (editorial, bianco) */
 .header-evil-wordmark,
-.header-evil-title,
 .logo-section .logo,
 header .logo-section a.header-evil-wordmark {
   margin: 0;
@@ -94,7 +93,6 @@ body.home-page header .header-evil-wordmark:hover {
 
 @media (max-width: 480px) {
   .header-evil-wordmark,
-  .header-evil-title,
   .logo-section .logo {
     font-size: 1.35rem;
     letter-spacing: -0.02em;
@@ -303,13 +301,6 @@ header nav li:hover .dropdown {
 }
 
 /* Nasconde markup legacy terminale se ancora in cache */
-.auth-btn__scan,
-.auth-btn__orbit,
-.auth-btn__frame,
-.auth-btn__caret,
-.auth-btn__prompt {
-  display: none !important;
-}
 
 .user-name {
   font-family: ui-monospace, Consolas, monospace;
@@ -366,7 +357,7 @@ header nav li:hover .dropdown {
   }
 }
 
-/* ─── v3: pulsanti di accesso finché la sessione non è nota (era uno <style> inline) ─── */
+/* ─── v3: pulsanti di accesso finché la sessione non è nota (era uno \3c style> inline) ─── */
 html.evil-auth-pending .auth-buttons {
   visibility: hidden;
   pointer-events: none;

@@ -94,8 +94,7 @@ header nav.active::-webkit-scrollbar-track,
 .vlab-modal__body::-webkit-scrollbar-track,
 .vlab-terminal__body::-webkit-scrollbar-track,
 .ir-timeline::-webkit-scrollbar-track,
-.am-feed-list::-webkit-scrollbar-track,
-.ha-feed-list::-webkit-scrollbar-track {
+.am-feed-list::-webkit-scrollbar-track {
   margin: 4px 0;
   background: rgba(9, 14, 24, 0.88);
 }

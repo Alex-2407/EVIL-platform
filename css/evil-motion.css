@@ -44,8 +44,7 @@ body.evil-theme.motion-on header nav > ul > li:nth-child(4) { animation-delay: 0
 
 /* ─── Backdrop mesh animato ─── */
 [class*="-scene__mesh"],
-.st-hub-scene__mesh,
-.evil-scene__mesh {
+.st-hub-scene__mesh {
   animation: evilMeshDrift 30s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -191,7 +190,6 @@ body.evil-theme.motion-on header nav > ul > li:nth-child(4) { animation-delay: 0
 
 /* ─── Card scan hover ─── */
 .st-hub-card,
-.feature-card,
 .mdb-vector,
 [class*="-card"]:not(.quiz-hub-card):not(.portal-card):not(.spotlight-card) {
   position: relative;
@@ -199,7 +197,6 @@ body.evil-theme.motion-on header nav > ul > li:nth-child(4) { animation-delay: 0
 }
 
 .st-hub-card::after,
-.feature-card::after,
 .mdb-vector::after {
   content: '';
   position: absolute;
@@ -216,36 +213,29 @@ body.evil-theme.motion-on header nav > ul > li:nth-child(4) { animation-delay: 0
 }
 
 .st-hub-card:hover::after,
-.feature-card:hover::after,
 .mdb-vector:hover::after {
   transform: translateX(120%);
 }
 
-body.evil-theme.motion-on .st-hub-card,
-body.evil-theme.motion-on .feature-card {
+body.evil-theme.motion-on .st-hub-card {
   transition:
     border-color 0.28s ease,
     transform 0.28s var(--evil-ease),
     box-shadow 0.28s ease;
 }
 
-body.evil-theme.motion-on .st-hub-card:hover,
-body.evil-theme.motion-on .feature-card:hover {
+body.evil-theme.motion-on .st-hub-card:hover {
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35), 0 0 24px rgba(0, 255, 156, 0.06);
 }
 
 /* Stat pulse al reveal */
-.evil-reveal.is-visible .mdb-stat,
-.evil-reveal.is-visible .evil-stat {
+.evil-reveal.is-visible .mdb-stat {
   animation: evilStatPop 0.55s var(--evil-ease) both;
 }
 
-.evil-reveal.is-visible .mdb-stat:nth-child(2),
-.evil-reveal.is-visible .evil-stat:nth-child(2) { animation-delay: 0.08s; }
-.evil-reveal.is-visible .mdb-stat:nth-child(3),
-.evil-reveal.is-visible .evil-stat:nth-child(3) { animation-delay: 0.16s; }
-.evil-reveal.is-visible .mdb-stat:nth-child(4),
-.evil-reveal.is-visible .evil-stat:nth-child(4) { animation-delay: 0.24s; }
+.evil-reveal.is-visible .mdb-stat:nth-child(2) { animation-delay: 0.08s; }
+.evil-reveal.is-visible .mdb-stat:nth-child(3) { animation-delay: 0.16s; }
+.evil-reveal.is-visible .mdb-stat:nth-child(4) { animation-delay: 0.24s; }
 
 @keyframes evilStatPop {
   from { opacity: 0; transform: translateY(12px) scale(0.96); }
@@ -313,8 +303,7 @@ body.evil-theme.motion-on:not(.home-page):not(.quiz-hub-page):not(.crypto-page) 
 .cs-reveal:not(.is-visible),
 .am-reveal:not(.is-visible),
 .ha-reveal:not(.is-visible),
-.policy-reveal:not(.is-visible),
-.home-reveal:not(.is-visible) {
+.policy-reveal:not(.is-visible) {
   /* gestiti dai CSS di pagina */
 }
 
@@ -338,7 +327,6 @@ body.evil-theme.motion-on:not(.home-page):not(.quiz-hub-page):not(.crypto-page) 
   }
 
   .st-hub-card::after,
-  .feature-card::after,
   .mdb-vector::after {
     display: none;
   }

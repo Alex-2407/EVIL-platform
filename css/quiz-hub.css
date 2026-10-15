@@ -885,55 +885,12 @@
 }
 
 /* Introduzione: a chi serve, punteggio, livelli */
-.quiz-hub-intro {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
-  margin: 0 0 2rem;
-}
 
-.quiz-hub-intro__box {
-  padding: 1.1rem 1.2rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: var(--qh-glass);
-}
-
-.quiz-hub-intro__box h2 {
-  margin: 0 0 0.5rem;
-  font-family: var(--qh-mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--qh-amber);
-}
-
-.quiz-hub-intro__box p,
-.quiz-hub-intro__box li {
-  margin: 0 0 0.45rem;
-  font-size: 0.84rem;
-  line-height: 1.6;
-  color: #cbd5e1;
-}
-
-.quiz-hub-intro__box ul {
-  margin: 0;
-  padding-left: 1.1rem;
-}
-
-.quiz-hub-intro__box a,
 .quiz-hub-learn a,
 .quiz-hub-results__paths a {
   color: var(--qh-cyan);
   text-decoration: underline;
   text-underline-offset: 2px;
-}
-
-.quiz-hub-filters {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
 }
 
 /* Livello */

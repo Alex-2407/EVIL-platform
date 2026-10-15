@@ -75,91 +75,6 @@
 /* Profile grid */
 .profile-page main { position: relative; z-index: 2; }
 
-.profile-hero {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 100px 20px 24px;
-}
-
-.profile-hero__grid {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 28px;
-}
-
-.profile-panel {
-  background: rgba(12, 16, 25, 0.82);
-  border: 1px solid rgba(125, 211, 252, 0.18);
-  border-radius: 16px;
-  padding: 28px;
-  backdrop-filter: blur(8px);
-}
-
-.profile-panel h2 {
-  margin: 0 0 20px;
-  font-size: 1.35rem;
-  color: #f8fafc;
-}
-
-.profile-panel__kicker {
-  font-size: 0.7rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #f59e0b;
-  margin: 0 0 8px;
-}
-
-.profile-detail {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  color: #cbd5e1;
-  font-size: 0.95rem;
-}
-
-.profile-detail span:first-child { color: #7dd3fc; font-weight: 600; }
-
-.profile-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-}
-
-.profile-stat {
-  text-align: center;
-  padding: 18px 10px;
-  border-radius: 12px;
-  background: rgba(245, 158, 11, 0.06);
-  border: 1px solid rgba(245, 158, 11, 0.15);
-}
-
-.profile-stat strong {
-  display: block;
-  font-size: 2rem;
-  color: #f59e0b;
-  line-height: 1.1;
-}
-
-.profile-stat span {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #94a3b8;
-}
-
-.profile-logout {
-  width: 100%;
-  margin-top: 18px;
-  padding: 12px;
-  border: none;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 .profile-trophies {
   max-width: 1100px;
   margin: 0 auto 48px;
@@ -169,11 +84,6 @@
 .profile-trophies h2 {
   color: #f8fafc;
   margin-bottom: 8px;
-}
-
-.profile-trophies__sub {
-  color: #94a3b8;
-  margin-bottom: 28px;
 }
 
 .trophy-grid {
@@ -436,7 +346,5 @@
 .trophy-preview-actions button:hover { border-color: #f59e0b; color: #f59e0b; }
 
 @media (max-width: 768px) {
-  .profile-hero__grid { grid-template-columns: 1fr; }
-  .profile-stats { grid-template-columns: 1fr; }
   .activity-feed__item { grid-template-columns: 1fr; }
 }

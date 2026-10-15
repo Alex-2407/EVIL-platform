@@ -2,7 +2,6 @@
  * EVIL — pulsanti stile galaxy (auth e CTA speciali)
  */
 .galaxy-btn,
-.btn-galaxy,
 button.galaxy {
   position: relative;
   display: inline-flex;
@@ -27,8 +26,7 @@ button.galaxy {
   box-shadow: 0 4px 24px rgba(56, 189, 248, 0.12);
 }
 
-.galaxy-btn::before,
-.btn-galaxy::before {
+.galaxy-btn::before {
   content: '';
   position: absolute;
   inset: -40%;
@@ -41,36 +39,24 @@ button.galaxy {
   to { transform: rotate(360deg); }
 }
 
-.galaxy-btn:hover,
-.btn-galaxy:hover {
+.galaxy-btn:hover {
   transform: translateY(-2px);
   border-color: rgba(0, 255, 156, 0.45);
   box-shadow: 0 8px 32px rgba(0, 255, 156, 0.18);
 }
 
-.galaxy-btn:active,
-.btn-galaxy:active {
+.galaxy-btn:active {
   transform: translateY(0);
 }
 
-.galaxy-btn--amber {
-  border-color: rgba(245, 158, 11, 0.4);
-  background:
-    radial-gradient(ellipse 80% 120% at 20% 0%, rgba(251, 191, 36, 0.3), transparent 55%),
-    linear-gradient(135deg, rgba(30, 20, 8, 0.95), rgba(6, 8, 14, 0.98));
-  color: #fef3c7;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .galaxy-btn::before,
-  .btn-galaxy::before {
+  .galaxy-btn::before {
     animation: none;
   }
 }
 
 @media (max-width: 480px) {
-  .galaxy-btn,
-  .btn-galaxy {
+  .galaxy-btn {
     width: 100%;
   }
 }

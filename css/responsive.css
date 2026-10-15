@@ -23,8 +23,7 @@ body.evil-theme {
    schede ancora ruotate dall'animazione di comparsa allargavano la pagina sul telefono
    (413 px su 390 in home), che "ballava" di lato. Il taglio va sui contenitori. */
 body.evil-theme > main,
-body.evil-theme > .auth-scene,
-body.evil-theme > .profile-scene {
+body.evil-theme > .auth-scene {
   overflow-x: clip;
 }
 
@@ -62,10 +61,8 @@ html {
 
 .evil-theme pre,
 .evil-theme code,
-.evil-theme .result-json,
 .evil-theme .scan-log,
-.evil-theme .log-output,
-.evil-theme .code-block {
+.evil-theme .log-output {
   max-width: 100%;
   overflow-x: auto;
   word-break: break-word;
@@ -78,9 +75,7 @@ html {
 }
 
 .evil-theme main,
-.evil-theme .content,
-.evil-theme .container-section,
-.evil-theme .tutorial-main {
+.evil-theme .content {
   width: 100%;
   min-width: 0;
 }
@@ -112,7 +107,6 @@ html {
   }
 
   .logo-section .header-evil-wordmark,
-  .logo-section .header-evil-title,
   .logo-section .logo {
     overflow: visible;
     text-overflow: clip;
@@ -230,24 +224,6 @@ html {
 
 /* ——— Tipografia fluida ——— */
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: clamp(1.65rem, 6vw, 2.4rem) !important;
-  }
-
-  .hero-subtitle,
-  .section-description,
-  .hero-sub {
-    font-size: clamp(0.95rem, 3.5vw, 1.1rem);
-  }
-
-  .section-header {
-    padding: 20px 16px;
-  }
-
-  .section-header h1,
-  .section-title {
-    font-size: clamp(1.2rem, 4.5vw, 1.75rem);
-  }
 
   .content {
     padding: 24px 16px !important;
@@ -260,40 +236,10 @@ html {
 }
 
 /* ——— Hero & CTA ——— */
-.hero-ctas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
-
-@media (max-width: 640px) {
-  .hero-ctas {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .hero-ctas .cta-btn,
-  .hero-ctas button {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .hero-cta-link {
-    display: block;
-    text-align: center;
-  }
-}
 
 /* ——— Griglie & card ——— */
 .card-grid,
-.status-metrics,
-.attacks-grid,
-.stats-panel,
-.stats-grid-cinematic,
-.month-grid,
-.profile-stats,
-.achievements-grid {
+.month-grid {
   min-width: 0;
 }
 
@@ -301,32 +247,10 @@ html {
   .card-grid {
     grid-template-columns: 1fr !important;
   }
-
-  .status-metrics {
-    grid-template-columns: 1fr !important;
-  }
-
-  .stats-grid-cinematic {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .nav-card {
-    padding: 20px 16px;
-  }
-}
-
-@media (max-width: 380px) {
-  .stats-grid-cinematic {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ——— Form & scanner (security-check, dns, ssl, ecc.) ——— */
-.scanner-input-group,
-.form-inline,
-.input-row,
-.scan-form,
-.tool-form-row {
+.scan-form {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -334,24 +258,15 @@ html {
 }
 
 @media (max-width: 640px) {
-  .scanner-input-group,
-  .form-inline,
-  .input-row,
   .scan-form {
     flex-direction: column;
   }
 
-  .scanner-input-group input,
-  .scanner-input-group select,
-  .form-inline input,
-  .form-inline select,
   .scan-form input {
     width: 100% !important;
     flex: 1 1 100%;
   }
 
-  .scanner-input-group button,
-  .form-inline button,
   .scan-form button {
     width: 100%;
     min-width: 0 !important;
@@ -359,53 +274,22 @@ html {
 }
 
 /* ——— Tool pages: pannelli larghi ——— */
-.scanner-section,
 .scan-container,
-.tool-panel,
-.quiz-wrapper,
-.simulator-panel,
 .report-panel,
-.vuln-results,
 .dns-results {
   max-width: 100%;
   overflow-x: auto;
 }
 
 /* ——— Malware / tabelle dati ——— */
-.malware-grid,
-.data-table-wrap,
-.historic-table {
+.data-table-wrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
 /* ——— Footer ——— */
-@media (max-width: 768px) {
-  .footer-inner {
-    grid-template-columns: 1fr !important;
-    gap: 24px;
-    text-align: center;
-  }
-
-  .footer-left,
-  .footer-center,
-  .footer-right {
-    align-items: center;
-  }
-}
 
 /* ——— Auth pages ——— */
-@media (max-width: 480px) {
-  .auth-container,
-  .login-box,
-  .account-form {
-    width: 100% !important;
-    max-width: 100%;
-    margin-left: 0;
-    margin-right: 0;
-    padding: 24px 16px;
-  }
-}
 
 /* ——— Mappe intelligence (attacks-map / historic-attacks) ——— */
 .am-page .am-map-section,
@@ -414,8 +298,7 @@ html {
 }
 
 .am-page .am-map-frame,
-.ha-page .ha-map-frame,
-.attacks-page .map-frame {
+.ha-page .ha-map-frame {
   overflow: hidden;
 }
 
@@ -431,21 +314,18 @@ html {
 
 @media (max-width: 768px) {
   .am-page .am-map-frame,
-  .ha-page .ha-map-frame,
-  .attacks-page .map-frame {
+  .ha-page .ha-map-frame {
     height: clamp(240px, 34vh, 300px);
   }
 }
 
 @media (max-width: 576px) {
   .am-page .am-map-frame,
-  .ha-page .ha-map-frame,
-  .attacks-page .map-frame {
+  .ha-page .ha-map-frame {
     height: clamp(300px, 46vh, 380px);
   }
 
-  .am-ticker,
-  .ticker-wrap {
+  .am-ticker {
     height: auto;
     min-height: 42px;
   }
@@ -460,22 +340,6 @@ html {
 }
 
 /* ——— Utility ——— */
-.u-stack-mobile {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-@media (max-width: 640px) {
-  .u-stack-mobile {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .u-stack-mobile > * {
-    width: 100%;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .ticker-track {
@@ -494,10 +358,7 @@ html {
 
 /* security-check e tool con layout larghi */
 @media (max-width: 768px) {
-  .scan-results,
-  .results-panel,
-  .vuln-card,
-  .malware-card {
+  .scan-results {
     width: 100% !important;
     max-width: 100% !important;
   }
@@ -510,13 +371,11 @@ html {
     gap: 1.5rem;
   }
 
-  .profile-hero__grid,
   .trophy-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .st-hub-grid,
-  .portal-grid {
+  .st-hub-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -546,7 +405,6 @@ html {
 @media (min-width: 1600px) {
   .header-container,
   .evil-site-foot__grid,
-  .evil-site-foot__brand,
   .am-wrap,
   .ha-wrap,
   .st-hub-wrap {
