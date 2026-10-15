@@ -105,14 +105,46 @@ function codeKeys(file) {
   const src = fs.readFileSync(file, 'utf8');
   const keys = [];
   const seen = new Set();
+  const add = (value) => {
+    if (typeof value === 'string' && value.trim() && !seen.has(value)) {
+      seen.add(value);
+      keys.push(value);
+    }
+  };
   for (const re of [CALL_RE, REQ_T_RE]) {
     re.lastIndex = 0;
     let m;
     while ((m = re.exec(src))) {
       const v = literalValue(m[1]);
-      if (typeof v === 'string' && v.trim() && !seen.has(v)) {
-        seen.add(v);
-        keys.push(v);
+      add(v);
+    }
+  }
+
+  const relative = path.relative(root, file).split(path.sep).join('/');
+  if (relative === 'server/lib/course-content.js') {
+    const { COURSES } = require('../server/lib/course-content');
+    for (const course of COURSES) {
+      add(course.title.it);
+      for (const value of [course.level, course.description, course.outcome]) add(value);
+      for (const module of course.modules) {
+        add(module.title);
+        for (const lesson of module.lessons) {
+          for (const key of ['title', 'objective', 'explanation', 'example', 'commonMistakes']) add(lesson[key]);
+          for (const value of lesson.keyPoints) add(value);
+        }
+        for (const item of module.quiz) {
+          add(item.prompt);
+          for (const value of item.options) add(value);
+          add(item.explanation);
+        }
+      }
+    }
+  } else if (relative === 'server/lib/course-exams.js') {
+    const { COURSES } = require('../server/lib/course-exams');
+    for (const course of Object.values(COURSES)) {
+      for (const [, prompt, options] of course.questions) {
+        add(prompt);
+        for (const option of options) add(option);
       }
     }
   }

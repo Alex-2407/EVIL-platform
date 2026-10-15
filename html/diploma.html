@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Diploma — EVIL</title>
+  <meta name="robots" content="noindex">
+  <meta name="description" content="Il tuo diploma EVIL: stampabile in A4 orizzontale, con QR e impronta grafica verificabile.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css">
+  <link rel="stylesheet" href="/css/evil-motion.css">
+  <link rel="stylesheet" href="/css/site-footer.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth-pages.css">
+  <link rel="stylesheet" href="/css/system-theme.css">
+  <link rel="stylesheet" href="/css/evil-scrollbar.css">
+  <link rel="stylesheet" href="/css/certificates.css">
+  <script src="/js/evil-motion.js" defer></script>
+</head>
+<body class="evil-theme auth-page-body cert-page diploma-page" data-evil-auth="required">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <!--evil:header-->
+
+  <main class="cert-main diploma-main">
+    <div id="diplomaBanner" class="cert-toolbar" hidden>
+      <a id="verifyLink" class="cert-toolbar__link" href="/verify.html">Pagina di verifica</a>
+      <button type="button" id="printBtn" class="auth-submit auth-submit--outline">Stampa</button>
+      <button type="button" id="pdfBtn" class="auth-submit">Scarica PDF</button>
+    </div>
+    <p id="diplomaStatus" class="cert-status" role="status" aria-live="polite"></p>
+
+    <article id="diplomaSheet" class="diploma-sheet" hidden>
+      <div class="diploma-sheet__frame" aria-hidden="true"></div>
+      <header class="diploma-head">
+        <p class="diploma-brand">EVIL</p>
+        <p class="diploma-kicker">Diploma</p>
+        <h1 id="diplomaCourse">—</h1>
+      </header>
+      <p class="diploma-of">ha completato il corso</p>
+      <p class="diploma-name" id="diplomaName">—</p>
+      <dl class="diploma-meta">
+        <div><dt>Data</dt><dd id="diplomaDate">—</dd></div>
+        <div><dt>Punteggio</dt><dd id="diplomaScore">—</dd></div>
+        <div><dt>Codice</dt><dd id="diplomaCode" translate="no">—</dd></div>
+      </dl>
+      <div class="diploma-art">
+        <div id="diplomaRosette" class="cert-rosette diploma-rosette" role="img" aria-label="Impronta grafica del diploma"></div>
+        <div id="diplomaQr" class="cert-qr diploma-qr"></div>
+      </div>
+      <p class="diploma-sign">EVIL · piattaforma didattica di cybersecurity</p>
+    </article>
+  </main>
+
+  <!--evil:footer-->
+
+  <script src="/js/certificate-render.js" defer></script>
+  <script src="/js/diploma-page.js" defer></script>
+  <script src="/js/matrixrain.js" defer></script>
+</body>
+</html>

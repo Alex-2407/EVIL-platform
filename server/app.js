@@ -18,6 +18,8 @@ const registerLab = require('./routes/lab');
 const registerProgress = require('./routes/progress');
 const registerHelp = require('./routes/help');
 const registerAuth = require('./routes/auth');
+const { registerCertificates } = require('./routes/certificates');
+const registerCourses = require('./routes/courses');
 const { isDevelopment, isProduction, isTest } = require('../utils/env');
 const { parseTrustProxy, describeTrustProxy } = require('../utils/trust-proxy');
 const { isOriginAllowed, wildcardConfigured } = require('./lib/origins');
@@ -145,6 +147,8 @@ function createApp(ctx) {
   registerHelp(app, ctx);
   registerDiagnostics(app, ctx);
   registerAuth(app, ctx);
+  registerCourses(app, ctx);
+  registerCertificates(app, ctx);
 
   // ==================== 404 ====================
   const notFoundPage = path.join(root, 'html', '404.html');

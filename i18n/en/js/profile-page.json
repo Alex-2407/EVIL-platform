@@ -1,0 +1,13 @@
+{
+  "Nessun corso disponibile.": "No courses are available.",
+  "{percent}% completato": "{percent}% complete",
+  "Avanzamento corso": "Course progress",
+  "{lessons} di {total} lezioni · {passed} di {modules} moduli superati": "{lessons} of {total} lessons · {passed} of {modules} modules passed",
+  "Esame finale sbloccato": "Final exam unlocked",
+  "Completa i moduli per sbloccare l’esame finale.": "Pass the modules to unlock the final exam.",
+  "Impossibile caricare i corsi: {detail}": "Could not load courses: {detail}",
+  "Completa un corso e supera l’esame finale per ottenere il tuo primo diploma.": "Complete a course and pass its final exam to earn your first diploma.",
+  "Apri diploma": "Open diploma",
+  "Verifica": "Verify",
+  "Impossibile caricare i diplomi: {detail}": "Could not load diplomas: {detail}"
+}

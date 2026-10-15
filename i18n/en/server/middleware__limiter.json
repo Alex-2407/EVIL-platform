@@ -16,5 +16,8 @@
   "Troppe richieste al feed incidenti. Riprova tra qualche minuto.": "Too many requests to the incident feed. Please try again in a few minutes.",
   "Troppi avvii di laboratorio. Riprova tra qualche minuto.": "Too many lab launches. Please try again in a few minutes.",
   "Limite comandi del laboratorio raggiunto per quest'ora.": "You have reached this hour's lab command limit.",
+  "Troppe verifiche di diplomi. Riprova tra qualche minuto.": "Too many diploma checks. Please try again in a few minutes.",
+  "Troppi tentativi di esame. Riprova tra qualche minuto.": "Too many exam attempts. Please try again in a few minutes.",
+  "Troppe richieste ai corsi. Riprova tra qualche minuto.": "Too many course requests. Please try again in a few minutes.",
   "Troppe richieste al laboratorio da questa rete. Riprova tra qualche minuto.": "Too many lab requests from this network. Please try again in a few minutes."
 }

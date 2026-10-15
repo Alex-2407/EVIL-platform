@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Verifica un diploma — EVIL</title>
+  <meta name="description" content="Controlla un diploma EVIL: firma Ed25519, impronta grafica e verifica indipendente con la chiave pubblica.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/site-header.css">
+  <link rel="stylesheet" href="/css/evil-motion.css">
+  <link rel="stylesheet" href="/css/site-footer.css">
+  <link rel="stylesheet" href="/css/responsive.css">
+  <link rel="stylesheet" href="/css/auth-pages.css">
+  <link rel="stylesheet" href="/css/system-theme.css">
+  <link rel="stylesheet" href="/css/evil-scrollbar.css">
+  <link rel="stylesheet" href="/css/certificates.css">
+  <script src="/js/evil-motion.js" defer></script>
+</head>
+<body class="evil-theme auth-page-body cert-page">
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+  <div class="auth-scene" aria-hidden="true">
+    <div class="auth-scene__base"></div>
+    <div class="auth-scene__glow auth-scene__glow--one"></div>
+    <div class="auth-scene__glow auth-scene__glow--two"></div>
+  </div>
+
+  <!--evil:header-->
+
+  <main class="cert-main">
+    <section class="cert-panel">
+      <p class="cert-kicker">Diplomi verificabili</p>
+      <h1>Verifica un diploma EVIL</h1>
+      <p class="cert-lead">Inserisci il codice stampato sul diploma. La firma digitale si controlla sul server e puoi ripeterla da te con la chiave pubblica.</p>
+      <form id="verifyForm" class="cert-form" action="/verify.html" method="get">
+        <label for="certCode">Codice del diploma</label>
+        <div class="cert-form__row">
+          <input type="text" id="certCode" name="c" autocomplete="off" spellcheck="false" maxlength="40" placeholder="EVIL-FND-7K3M-Q9TX-2HDP" inputmode="text">
+          <button type="submit" class="auth-submit" id="verifyBtn">Verifica</button>
+        </div>
+      </form>
+      <div id="verifyStatus" class="cert-status" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="verifyResult" class="cert-result" hidden>
+      <div class="cert-result__grid">
+        <div>
+          <h2 id="resultTitle">Dati del diploma</h2>
+          <dl class="cert-dl">
+            <dt>Nome</dt><dd id="certName">—</dd>
+            <dt>Corso</dt><dd id="certCourse">—</dd>
+            <dt>Data</dt><dd id="certDate">—</dd>
+            <dt>Punteggio</dt><dd id="certScore">—</dd>
+            <dt>Codice</dt><dd id="certCodeOut" translate="no">—</dd>
+          </dl>
+        </div>
+        <figure class="cert-figure">
+          <div id="fingerprintMount" class="cert-rosette" role="img" aria-label="Impronta grafica del diploma"></div>
+          <figcaption>Impronta grafica (stessa firma, stesso disegno)</figcaption>
+        </figure>
+        <figure class="cert-figure cert-figure--qr">
+          <div id="qrMount" class="cert-qr"></div>
+          <figcaption>QR verso questa pagina di verifica</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section id="independentBox" class="cert-independent" hidden>
+      <h2>Verifica indipendente</h2>
+      <p>Non devi fidarti solo di questa pagina. Con la chiave pubblica, il testo firmato e la firma puoi ripetere il controllo sul tuo computer.</p>
+      <dl class="cert-dl cert-dl--mono">
+        <dt>Algoritmo</dt><dd translate="no">Ed25519</dd>
+        <dt>keyId</dt><dd id="indKeyId" translate="no">—</dd>
+        <dt>Firma (base64)</dt><dd><textarea id="indSignature" class="cert-pre" readonly rows="3" spellcheck="false"></textarea></dd>
+        <dt>Testo firmato</dt><dd><textarea id="indSignedText" class="cert-pre" readonly rows="8" spellcheck="false"></textarea></dd>
+        <dt>Chiave pubblica (PEM)</dt><dd><textarea id="indPublicKey" class="cert-pre" readonly rows="6" spellcheck="false"></textarea></dd>
+      </dl>
+      <h3>Con Node.js</h3>
+      <pre id="nodeVerifyCode" class="cert-code" translate="no"></pre>
+      <h3>Con OpenSSL 3</h3>
+      <p>Salva il testo firmato in <code translate="no">message.txt</code> (UTF-8, senza newline extra alla fine), la firma decodificata da base64 in <code translate="no">sig.bin</code> e la chiave in <code translate="no">pub.pem</code>, poi:</p>
+      <pre class="cert-code" translate="no">openssl pkeyutl -verify -pubin -inkey pub.pem -rawin -in message.txt -sigfile sig.bin</pre>
+    </section>
+  </main>
+
+  <!--evil:footer-->
+
+  <script src="/js/certificate-render.js" defer></script>
+  <script src="/js/verify-page.js" defer></script>
+  <script src="/js/matrixrain.js" defer></script>
+</body>
+</html>

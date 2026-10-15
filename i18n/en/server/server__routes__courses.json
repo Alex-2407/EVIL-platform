@@ -1,0 +1,21 @@
+{
+  "Corso non trovato.": "Course not found.",
+  "Lezione non trovata.": "Lesson not found.",
+  "Completa il modulo precedente per sbloccare questa lezione.": "Pass the previous module to unlock this lesson.",
+  "Completa le lezioni precedenti di questo modulo.": "Complete the earlier lessons in this module.",
+  "Modulo non trovato.": "Module not found.",
+  "Supera il modulo precedente per sbloccare questo test.": "Pass the previous module to unlock this test.",
+  "Completa tutte le lezioni del modulo prima del test.": "Complete all module lessons before taking the test.",
+  "Seleziona una risposta valida per ogni domanda.": "Select a valid answer for every question.",
+  "Completa tutti i moduli per sbloccare l’esame finale.": "Pass all modules to unlock the final exam.",
+  "Impossibile avviare l’esame. Riprova.": "The exam could not be started. Please try again.",
+  "Risposte d’esame non valide.": "Invalid exam answers.",
+  "Tentativo d’esame non trovato.": "Exam attempt not found.",
+  "Questo tentativo d’esame è già stato inviato.": "This exam attempt has already been submitted.",
+  "Il tempo dell’esame è scaduto. Avvia un nuovo tentativo.": "The exam time has expired. Start a new attempt.",
+  "Completa tutte le risposte dell’esame.": "Complete every exam answer.",
+  "Esame non valido.": "Invalid exam.",
+  "Esame superato, ma il diploma non è disponibile al momento. Riprova più tardi.": "Exam passed, but the diploma is currently unavailable. Please try again later.",
+  "Esame superato, ma non è stato possibile salvare il diploma. Riprova.": "Exam passed, but the diploma could not be saved. Please try again.",
+  "Impossibile salvare il risultato dell’esame. Riprova.": "The exam result could not be saved. Please try again."
+}

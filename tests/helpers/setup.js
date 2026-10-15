@@ -25,6 +25,7 @@ const env = {
   HELP_SUPPORT_EMAIL: 'support@example.test',
   // valori vuoti: dotenv non li sovrascrive con quelli di un eventuale .env locale
   DATABASE_URL: '',
+  CERT_SIGNING_KEY: '',
   REDIS_URL: '',
   SMTP_USER: '',
   SMTP_PASS: '',
@@ -45,6 +46,8 @@ const env = {
   RATE_LIMIT_SCAN_MAX: '1000',
   RATE_LIMIT_VLAB_SESSION_MAX: '1000',
   RATE_LIMIT_VLAB_MAX: '10000',
+  RATE_LIMIT_COURSE_EXAM_MAX: '1000',
+  RATE_LIMIT_COURSE_CONTENT_MAX: '10000',
 };
 for (const [k, v] of Object.entries(env)) process.env[k] = v;
 

@@ -86,6 +86,34 @@ if (!/^BASE_URL=/m.test(content)) {
   changed = true;
 }
 
+function generateEd25519Pem() {
+  const { privateKey } = crypto.generateKeyPairSync('ed25519');
+  return privateKey.export({ type: 'pkcs8', format: 'pem' });
+}
+
+function certKeyLooksSet(value) {
+  const v = String(value || '').trim();
+  return v.length > 80 && !/change_this|example|incolla_/i.test(v);
+}
+
+const certMatch = content.match(/^CERT_SIGNING_KEY=(.*)$/m);
+const certVal = certMatch ? certMatch[1].trim() : '';
+if (!certKeyLooksSet(certVal)) {
+  const pem = generateEd25519Pem();
+  const b64 = Buffer.from(pem, 'utf8').toString('base64');
+  content = upsertEnvLine(content, 'CERT_SIGNING_KEY', b64);
+  changed = true;
+  const keyPath = path.join(root, 'data', 'cert-signing-key.pem');
+  fs.mkdirSync(path.dirname(keyPath), { recursive: true });
+  fs.writeFileSync(keyPath, pem, { encoding: 'utf8', mode: 0o600 });
+  try {
+    fs.chmodSync(keyPath, 0o600);
+  } catch {
+    /* Windows */
+  }
+  console.log('✅ CERT_SIGNING_KEY (Ed25519) generata per uso locale');
+}
+
 if (changed) {
   fs.writeFileSync(envPath, content, 'utf8');
 }

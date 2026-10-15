@@ -51,6 +51,17 @@ for (const [name, value] of [['JWT_SECRET', jwt], ['JWT_SECRET_REFRESH', refresh
 }
 if (jwt && jwt === refresh) (production ? fail : warn)('JWT_SECRET e JWT_SECRET_REFRESH sono uguali');
 
+const certKey = process.env.CERT_SIGNING_KEY || '';
+if (!certKey) {
+  (production ? warn : ok)(
+    production
+      ? 'CERT_SIGNING_KEY mancante: in produzione i diplomi verificabili non verranno emessi'
+      : 'CERT_SIGNING_KEY assente: in sviluppo verrà generata in data/cert-signing-key.pem'
+  );
+} else if (!/BEGIN/.test(certKey.replace(/\\n/g, '\n')) && certKey.length < 80) {
+  warn('CERT_SIGNING_KEY sembra troppo corta o non è un PEM/base64 PKCS8');
+} else ok('CERT_SIGNING_KEY impostata (diplomi verificabili)');
+
 const baseUrl = process.env.BASE_URL || '';
 if (production && !/^https:\/\//.test(baseUrl)) fail(`BASE_URL deve essere https in produzione (ora: "${baseUrl || 'vuota'}")`);
 else if (baseUrl) ok(`BASE_URL = ${baseUrl}`);

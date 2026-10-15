@@ -84,13 +84,97 @@
   }
 
   const escapeHtml = window.EVIL_UTILS.escapeHtml;
+  const t = (text, vars) => window.EVIL_I18N && window.EVIL_I18N.t
+    ? window.EVIL_I18N.t(text, vars)
+    : text;
 
   function formatDate(iso) {
     if (!iso) return '—';
     try {
-      return new Date(iso).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+      const locale = window.EVIL_I18N && window.EVIL_I18N.lang === 'en' ? 'en-GB' : 'it-IT';
+      return new Date(iso).toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
     } catch {
       return '—';
+    }
+  }
+
+  async function renderCourseProgress() {
+    const mount = document.getElementById('profileCourses');
+    if (!mount) return;
+    try {
+      const lang = window.EVIL_I18N && window.EVIL_I18N.lang || 'it';
+      const res = await fetch(`${API_URL}/courses`, {
+        credentials: 'include',
+        cache: 'no-store',
+        headers: { 'X-EVIL-Lang': lang },
+      });
+      if (res.status === 401) {
+        goToLogin();
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || String(res.status));
+      const courses = Array.isArray(data.courses) ? data.courses : [];
+      if (!courses.length) {
+        mount.textContent = t('Nessun corso disponibile.');
+        return;
+      }
+      mount.innerHTML = courses.map((course) => {
+        const percent = Math.max(0, Math.min(100, Number(course.percent) || 0));
+        const title = lang === 'en' ? course.title.en : course.title.it;
+        return `<article class="profile-course">
+          <div class="profile-course__head"><h3>${escapeHtml(title)}</h3>
+            <span>${escapeHtml(t('{percent}% completato', { percent }))}</span></div>
+          <div class="profile-course__bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"
+            aria-label="${escapeHtml(t('Avanzamento corso'))}"><span style="width:${percent}%"></span></div>
+          <p>${escapeHtml(t('{lessons} di {total} lezioni · {passed} di {modules} moduli superati', {
+            lessons: course.lessonsDone, total: course.lessonTotal, passed: course.modulesPassed, modules: course.moduleTotal,
+          }))}</p>
+          <small>${escapeHtml(course.examUnlocked ? t('Esame finale sbloccato') : t('Completa i moduli per sbloccare l’esame finale.'))}</small>
+        </article>`;
+      }).join('');
+    } catch (error) {
+      mount.innerHTML = `<p class="profile-certificates__error">${escapeHtml(t('Impossibile caricare i corsi: {detail}', { detail: error.message }))}</p>`;
+    }
+  }
+
+  async function renderCertificates() {
+    const mount = document.getElementById('profileCertificates');
+    if (!mount) return;
+    try {
+      const res = await fetch(`${API_URL}/certificates/mine`, { credentials: 'include', cache: 'no-store' });
+      if (res.status === 401) {
+        goToLogin();
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || String(res.status));
+      const certificates = Array.isArray(data.certificates) ? data.certificates : [];
+      if (!certificates.length) {
+        mount.innerHTML = `<p>${escapeHtml(t('Completa un corso e supera l’esame finale per ottenere il tuo primo diploma.'))}</p>`;
+        return;
+      }
+      const verifyBase = window.EVIL_I18N && typeof window.EVIL_I18N.url === 'function'
+        ? window.EVIL_I18N.url('/verify.html')
+        : '/verify.html';
+      const diplomaBase = window.EVIL_I18N && typeof window.EVIL_I18N.url === 'function'
+        ? window.EVIL_I18N.url('/diploma.html')
+        : '/diploma.html';
+      mount.innerHTML = certificates.map((certificate) => {
+        const code = String(certificate.code || '');
+        const query = `?c=${encodeURIComponent(code)}`;
+        return `<article class="profile-certificate" role="listitem">
+          <div><h3>${escapeHtml(certificate.courseTitle || '')}</h3>
+            <p>${escapeHtml(certificate.issuedAt ? formatDate(certificate.issuedAt) : '—')} · ${escapeHtml(String(certificate.score))} / 100</p>
+            <code>${escapeHtml(code)}</code></div>
+          <div class="profile-certificate__actions">
+            <a href="${escapeHtml(diplomaBase + query)}">${escapeHtml(t('Apri diploma'))}</a>
+            <a href="${escapeHtml(verifyBase + query)}">${escapeHtml(t('Verifica'))}</a>
+          </div>
+        </article>`;
+      }).join('');
+    } catch (error) {
+      mount.innerHTML = `<p class="profile-certificates__error">${escapeHtml(t('Impossibile caricare i diplomi: {detail}', { detail: error.message }))}</p>`;
     }
   }
 
@@ -299,6 +383,8 @@
     bindLogout();
     startQuoteRotation();
     await renderTrophies();
+    await renderCourseProgress();
+    await renderCertificates();
     renderActivityLog();
   }
 

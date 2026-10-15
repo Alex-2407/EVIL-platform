@@ -597,7 +597,18 @@ module.exports = function registerAuth(app, ctx) {
     const user = req.userRecord;
     const data = {};
     for (const [k, v] of Object.entries(user)) {
-      if (k === 'passwordChangedAt' || k === 'passwordUpgradedAt' || !SECRET_FIELD.test(k)) data[k] = v;
+      if (k === 'passwordChangedAt' || k === 'passwordUpgradedAt' || !SECRET_FIELD.test(k)) {
+        if (k === 'courseExamAttempts' && Array.isArray(v)) {
+          data[k] = v.map((attempt) => {
+            if (!attempt || typeof attempt !== 'object') return attempt;
+            const exportedAttempt = { ...attempt };
+            delete exportedAttempt.answerOrder;
+            return exportedAttempt;
+          });
+        } else {
+          data[k] = v;
+        }
+      }
     }
     data.sessions = sessions.describeSessions(user, req.user?.sid);
     const body = {

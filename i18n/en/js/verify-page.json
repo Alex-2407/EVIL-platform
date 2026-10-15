@@ -1,0 +1,14 @@
+{
+  "Inserisci un codice diploma nel formato EVIL-XXX-XXXX-XXXX-XXXX.": "Enter a diploma code in the format EVIL-XXX-XXXX-XXXX-XXXX.",
+  "Verifica della firma in corso…": "Checking the signature…",
+  "Nessun diploma trovato con questo codice.": "No diploma was found with this code.",
+  "Non è stato possibile verificare il diploma.": "The diploma could not be verified.",
+  "Impronta grafica del diploma": "Visual fingerprint of the diploma",
+  "QR per verificare il diploma": "QR code to verify the diploma",
+  "DIPLOMA VALIDO — firma digitale verificata.": "VALID DIPLOMA — digital signature verified.",
+  "FIRMA NON VALIDA — i dati non corrispondono al diploma emesso.": "INVALID SIGNATURE — the data does not match the issued diploma.",
+  "Chiave pubblica non disponibile.": "Public key unavailable.",
+  "La chiave pubblica attuale ha un keyId diverso: la verifica indipendente richiede la chiave corrispondente al diploma.": "The current public key has a different keyId: independent verification requires the key corresponding to this diploma.",
+  "Diploma consultato, ma la chiave pubblica non è disponibile: {detail}": "Diploma retrieved, but the public key is unavailable: {detail}",
+  "Connessione non riuscita. Riprova.": "Connection failed. Please try again."
+}

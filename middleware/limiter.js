@@ -345,6 +345,28 @@ const virtualLabLimiter = makeLimiter('lab-exec', {
   keyGenerator: labKey,
 });
 
+// Verifica pubblica dei diplomi: per IP, per non far enumerare i codici
+const certificateVerifyLimiter = makeLimiter('cert-verify', {
+  windowMs: 15 * MINUTE,
+  max: envInt('RATE_LIMIT_CERT_MAX', isTest() ? 10000 : 60),
+  message: t('Troppe verifiche di diplomi. Riprova tra qualche minuto.'),
+  keyGenerator: (req) => `ip:${req.ip || 'unknown'}`,
+});
+
+const courseExamLimiter = makeLimiter('course-exam', {
+  windowMs: HOUR,
+  max: envInt('RATE_LIMIT_COURSE_EXAM_MAX', isTest() ? 1000 : 20),
+  message: t('Troppi tentativi di esame. Riprova tra qualche minuto.'),
+  keyGenerator: (req) => `user:${req.userRecord?.id || req.ip || 'unknown'}`,
+});
+
+const courseContentLimiter = makeLimiter('course-content', {
+  windowMs: HOUR,
+  max: envInt('RATE_LIMIT_COURSE_CONTENT_MAX', isTest() ? 10000 : 600),
+  message: t('Troppe richieste ai corsi. Riprova tra qualche minuto.'),
+  keyGenerator: (req) => `user:${req.userRecord?.id || req.ip || 'unknown'}`,
+});
+
 // Tetto per IP sul laboratorio, indipendente dai cookie (che un abuso può azzerare)
 const virtualLabIpLimiter = makeLimiter('lab-ip', {
   windowMs: 15 * MINUTE,
@@ -374,6 +396,9 @@ module.exports = {
   virtualLabSessionLimiter,
   virtualLabLimiter,
   virtualLabIpLimiter,
+  certificateVerifyLimiter,
+  courseExamLimiter,
+  courseContentLimiter,
   ResilientRedisStore,
   _internals: { userOrIpKey, globalKey, labKey, emailKey, emailHash, GLOBAL_EXEMPT },
 };

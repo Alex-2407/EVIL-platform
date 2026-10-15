@@ -277,6 +277,12 @@ const ACCOUNT_PAGES = [
   { file: 'forgot-password.html', sitemap: null, title: { it: 'Password dimenticata', en: 'Forgotten password' } },
   { file: 'reset-password.html', sitemap: null, title: { it: 'Nuova password', en: 'New password' } },
   { file: 'verify-email.html', sitemap: null, title: { it: 'Verifica email', en: 'Verify email' } },
+  { file: 'diploma.html', sitemap: null, title: { it: 'Diploma', en: 'Diploma' } },
+  {
+    file: 'verify.html',
+    sitemap: 0.3,
+    title: { it: 'Verifica un diploma', en: 'Verify a diploma' },
+  },
 ];
 
 const LANGS = ['it', 'en'];

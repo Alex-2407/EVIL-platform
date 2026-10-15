@@ -46,6 +46,7 @@ coverage/
 .env.production
 config/private.json
 users.json
+data/cert-signing-key.pem
 
 # Cache files
 .incidents-cache.json
