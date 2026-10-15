@@ -153,15 +153,15 @@
     const c = $('#hv-net');
     if (!c || !window.EvilParticles) return;
     window.EvilParticles.start(c, {
-      density: 17000,
-      max: 80,
-      dpr: 1.5,
+      density: 24000,
+      max: 56,
+      dpr: 1.25,
       radius: [1.4, 1.4],
       speed: 0.175,
       link: 130,
       linkAlpha: 0.22,
       lineWidth: 0.8,
-      repel: 180,
+      repel: 100,
       still: reduce,
       dot: (p) => (p.seed < 0.25 ? 'rgba(0,255,156,.8)' : 'rgba(245,158,11,.6)'),
       line: () => 'rgb(125,211,252)',
@@ -171,11 +171,18 @@
   /* ------------------------------------------------------------ cursore, avanzamento, magneti, tilt */
   const root = document.documentElement;
   if (finePointer && !reduce) {
+    let pointerFrame = 0;
+    let latestPointer;
     window.addEventListener(
       'pointermove',
       (e) => {
-        document.body.style.setProperty('--mx', e.clientX + 'px');
-        document.body.style.setProperty('--my', e.clientY + 'px');
+        latestPointer = e;
+        if (pointerFrame) return;
+        pointerFrame = requestAnimationFrame(() => {
+          pointerFrame = 0;
+          document.body.style.setProperty('--mx', latestPointer.clientX + 'px');
+          document.body.style.setProperty('--my', latestPointer.clientY + 'px');
+        });
       },
       { passive: true }
     );
@@ -192,27 +199,47 @@
   );
   if (finePointer && !reduce) {
     $$('.hv-magnet').forEach((b) => {
+      let moveFrame = 0;
+      let latestMove;
       b.addEventListener('pointermove', (e) => {
-        const r = b.getBoundingClientRect();
-        b.style.transform = `translate(${(e.clientX - r.left - r.width / 2) * 0.18}px,${(e.clientY - r.top - r.height / 2) * 0.25}px)`;
+        latestMove = e;
+        if (moveFrame) return;
+        moveFrame = requestAnimationFrame(() => {
+          moveFrame = 0;
+          const r = b.getBoundingClientRect();
+          b.style.transform = `translate(${(latestMove.clientX - r.left - r.width / 2) * 0.1}px,${(latestMove.clientY - r.top - r.height / 2) * 0.12}px)`;
+        });
       });
       b.addEventListener('pointerleave', () => {
+        if (moveFrame) cancelAnimationFrame(moveFrame);
+        moveFrame = 0;
         b.style.transform = '';
       });
     });
+    let tiltFrame = 0;
+    let latestTilt;
     document.addEventListener('pointermove', (e) => {
-      const el = e.target.closest && e.target.closest('.hv-tilt');
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      const px = (e.clientX - r.left) / r.width;
-      const py = (e.clientY - r.top) / r.height;
-      el.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 6}deg) rotateY(${(px - 0.5) * 8}deg)`;
-      el.style.setProperty('--px', px * 100 + '%');
-      el.style.setProperty('--py', py * 100 + '%');
+      latestTilt = e;
+      if (tiltFrame) return;
+      tiltFrame = requestAnimationFrame(() => {
+        tiltFrame = 0;
+        const el = latestTilt.target.closest && latestTilt.target.closest('.hv-tilt');
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        const px = (latestTilt.clientX - r.left) / r.width;
+        const py = (latestTilt.clientY - r.top) / r.height;
+        el.style.transform = `perspective(900px) rotateX(${(0.5 - py) * 3}deg) rotateY(${(px - 0.5) * 4}deg)`;
+        el.style.setProperty('--px', px * 100 + '%');
+        el.style.setProperty('--py', py * 100 + '%');
+      });
     });
     document.addEventListener('pointerout', (e) => {
       const el = e.target.closest && e.target.closest('.hv-tilt');
-      if (el && !el.contains(e.relatedTarget)) el.style.transform = '';
+      if (el && !el.contains(e.relatedTarget)) {
+        if (tiltFrame) cancelAnimationFrame(tiltFrame);
+        tiltFrame = 0;
+        el.style.transform = '';
+      }
     });
   }
 
