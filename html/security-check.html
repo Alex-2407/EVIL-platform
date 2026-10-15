@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Advanced URL Scanner — EVIL Strumenti</title>
+  <title>Check URL — EVIL Strumenti</title>
   <meta name="description" content="Scansione passiva professionale: DNS, TLS, header HTTP, redirect, discovery e scoring ponderato. Solo su target autorizzati.">
 
   <link rel="stylesheet" href="/css/style.css">
@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="/css/site-footer.css?v=20260606">
   <link rel="stylesheet" href="/css/responsive.css">
   <link rel="stylesheet" href="/css/security-check.css?v=20260713">
+  <link rel="stylesheet" href="/css/tool-report.css?v=1">
 <link rel="stylesheet" href="/css/system-theme.css?v=20260603e">
   <script src="/js/evil-motion.js?v=20260626" defer></script>
   <link rel="stylesheet" href="/css/evil-scrollbar.css?v=20260717">
@@ -27,38 +28,46 @@
 
   <main>
     <section class="sc-hero">
-      <p class="sc-kicker">Strumenti · URL Scanner</p>
+      <p class="sc-kicker">Strumenti · Check URL</p>
       <h1>Advanced URL Scanner</h1>
       <p class="sc-hero__lead">
-        Valutazione passiva multi-modulo per operatori SOC: risoluzione DNS, GeoIP/ASN, catena TLS,
-        audit header HTTP, redirect, surface discovery e scoring trasparente. Nessun exploit, nessun brute-force.
+        Scrivi l'indirizzo di un sito e ottieni in pochi secondi un voto da A a F, con l'elenco di cosa sistemare:
+        certificato HTTPS, header di sicurezza, reindirizzamenti, rete e file pubblici. Solo lettura, nessun attacco.
       </p>
     </section>
 
     <div class="sc-wrap">
       <div class="sc-panel">
-        <div class="sc-form-row">
-          <input type="url" id="scUrl" class="sc-input" placeholder="https://example.com" autocomplete="off" spellcheck="false">
-        </div>
-        <label class="sc-auth">
-          <input type="checkbox" id="scAuth">
-          <span>Dichiaro di avere autorizzazione esplicita a analizzare questo target (requisito legale e di piattaforma).</span>
-        </label>
-        <div class="sc-actions">
-          <button type="button" class="sc-btn sc-btn--primary" id="scScanBtn" disabled>Avvia scansione</button>
-          <button type="button" class="sc-btn sc-btn--ghost" id="scResetBtn">Reset</button>
-        </div>
-        <p class="sc-meta">5 moduli · ~15–40 s · analisi passiva · serve l'account (gratuito)</p>
+        <form id="scForm" novalidate>
+          <div class="sc-form-row">
+            <input type="text" inputmode="url" id="scUrl" class="sc-input" placeholder="esempio.it" autocomplete="off" spellcheck="false" aria-label="Indirizzo del sito">
+          </div>
+          <label class="sc-auth">
+            <input type="checkbox" id="scAuth">
+            <span>Dichiaro di avere l'autorizzazione ad analizzare questo sito (è un requisito legale e della piattaforma).</span>
+          </label>
+          <div class="sc-actions">
+            <button type="submit" class="sc-btn sc-btn--primary" id="scScanBtn" disabled>Avvia scansione</button>
+            <button type="button" class="sc-btn sc-btn--ghost" id="scResetBtn">Reset</button>
+          </div>
+        </form>
+        <p class="tr-error" id="scError" role="alert" hidden></p>
+        <p class="sc-meta">~15–40 s · analisi passiva · serve l'account (gratuito)</p>
+        <ol class="tr-how">
+          <li><b>1</b><div><strong>Scrivi il sito</strong>Anche solo il nome: aggiungiamo noi https://.</div></li>
+          <li><b>2</b><div><strong>Leggiamo cosa mostra</strong>Come farebbe un browser: DNS, certificato, header, redirect.</div></li>
+          <li><b>3</b><div><strong>Segui la lista</strong>Le voci sono ordinate per gravità, con il rimedio accanto.</div></li>
+        </ol>
       </div>
 
-      <aside class="sc-callout" role="note">
-        <strong>Metodologia:</strong> lookup DNS reali, TLS handshake, GET HTTP limitato (64 KB),
-        GeoIP via ip-api.com, discovery su <code>/.well-known/security.txt</code> e <code>/robots.txt</code>.
-        Threat intel locale solo su domini demo didattici.
-      </aside>
+      <div id="scSteps" hidden aria-live="polite"></div>
+      <div class="tr-results" id="scResults" hidden></div>
 
-      <div class="sc-log" id="scLog" aria-live="polite"></div>
-      <div class="sc-results" id="scResults"></div>
+      <aside class="sc-callout" role="note">
+        <strong>Come lavora:</strong> ricerche DNS, una connessione TLS, una richiesta HTTP limitata (64 KB),
+        informazioni di rete pubbliche (RDAP) e la lettura di <code>security.txt</code> e <code>robots.txt</code>.
+        Niente exploit, niente forza bruta; gli indirizzi interni e privati sono bloccati.
+      </aside>
     </div>
   </main>
 
@@ -66,6 +75,7 @@
 
   <script src="/js/matrixrain.js" defer></script>
 <script src="/js/progress-manager.js" defer></script>
-  <script src="/js/security-check.js?v=20260705" defer></script>
+  <script src="/js/tool-report.js?v=1" defer></script>
+  <script src="/js/security-check.js?v=20261015" defer></script>
 </body>
 </html>

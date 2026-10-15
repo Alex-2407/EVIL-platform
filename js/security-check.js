@@ -1,296 +1,198 @@
 /**
- * EVIL Advanced URL Scanner — UI
+ * EVIL Check URL — interfaccia (risultati a schede, riepilogo copiabile, stampa)
  */
 (function () {
+  'use strict';
+  const { t, url: localUrl } = window.EVIL_I18N;
+  const R = window.EvilToolReport;
+  const esc = R.esc;
   const $ = (id) => document.getElementById(id);
   const page = window.location.pathname.split('/').pop() || 'security-check.html';
-  const LOGIN_URL = (window.EVIL_I18N ? window.EVIL_I18N.url : (p) => p)('/account.html?redirect=' + encodeURIComponent(page));
-  let lastReport = null;
+  const LOGIN_URL = localUrl('/account.html?redirect=' + encodeURIComponent(page));
 
-  const esc = window.EVIL_UTILS.escapeHtml;
-
-  function log(msg, type) {
-    const box = $('scLog');
-    box.classList.add('is-active');
-    const line = document.createElement('div');
-    line.className = 'sc-log__line sc-log__line--' + (type || 'run');
-    line.textContent = `[${new Date().toLocaleTimeString('it-IT')}] ${msg}`;
-    box.appendChild(line);
-    box.scrollTop = box.scrollHeight;
+  function showError(msg) {
+    const el = $('scError');
+    el.textContent = msg || '';
+    el.hidden = !msg;
   }
 
-  function clearLog() {
-    $('scLog').innerHTML = '';
-    $('scLog').classList.remove('is-active');
+  const kv = (rows) => `<dl class="tr-kv">${rows.filter((r) => r[1] != null && r[1] !== '').map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>`;
+  const safeHref = (u) => (/^https?:\/\//i.test(u) ? esc(u) : '#');
+
+  function tabOverview(d) {
+    const v = R.verdict(d.grade);
+    const a = d.analysis || {};
+    const hero = `<div class="tr-hero" style="--g:${esc(({ A: '#34d399', B: '#86efac', C: '#f59e0b', D: '#fb923c', F: '#fb7185' })[d.grade] || '#94a3b8')}">
+      ${R.ring(d.security_score, d.grade)}
+      <div>
+        <h2>${esc(v.title)}</h2>
+        <p>${esc(v.text)}</p>
+        <dl class="tr-facts">
+          <div><dt>${esc(t('Sito'))}</dt><dd>${esc(d.domain)}</dd></div>
+          <div><dt>${esc(t('Indirizzo IP'))}</dt><dd>${esc(a.ip || '—')}</dd></div>
+          <div><dt>${esc(t('Durata'))}</dt><dd>${esc(((d.scanDurationMs || 0) / 1000).toFixed(1))} s</dd></div>
+        </dl>
+        <div class="tr-actions">
+          <button type="button" class="sc-btn sc-btn--primary" data-act="copy">${esc(t('Copia riepilogo'))}</button>
+          <button type="button" class="sc-btn sc-btn--ghost" data-act="print">${esc(t('Stampa / salva PDF'))}</button>
+        </div>
+      </div>
+    </div>`;
+    const list = (d.findings || []).length
+      ? `<h3>${esc(t('Cosa sistemare'))}</h3>${R.findings(d.findings)}`
+      : `<p class="tr-muted">${esc(t('Nessun problema rilevato.'))}</p>`;
+    return `${hero}${list}<h3>${esc(t('Perché questo voto'))}</h3>${R.breakdown(d.scoreBreakdown)}`;
   }
 
-  function gradeClass(g) {
-    return 'sc-score-ring--' + String(g || 'f').toLowerCase();
-  }
-
-  function sevBadge(sev) {
-    const map = { critical: 'fail', high: 'fail', medium: 'warn', low: 'info', info: 'info' };
-    return map[sev] || 'info';
-  }
-
-  function bindSections() {
-    document.querySelectorAll('.sc-section__head').forEach((head) => {
-      head.addEventListener('click', () => {
-        const body = head.nextElementSibling;
-        body.hidden = !body.hidden;
-      });
-    });
-  }
-
-  function renderReport(data) {
-    lastReport = data;
-    const a = data.analysis || {};
-    const ringClass = gradeClass(data.grade);
-
-    let findingsHtml = (data.findings || [])
-      .map(
-        (f) =>
-          `<div class="sc-finding sc-finding--${esc(f.severity)}"><strong>${esc(f.title)}</strong><span>${esc(f.detail)} · ${esc(f.module)}</span></div>`
-      )
-      .join('');
-
-    const headerRows = (a.http?.headerAudit || [])
-      .map(
-        (h) =>
-          `<tr><td>${esc(h.label)}</td><td>${h.present ? '<span class="sc-badge sc-badge--ok">Presente</span>' : '<span class="sc-badge sc-badge--fail">Assente</span>'}</td><td><span class="sc-badge sc-badge--${sevBadge(h.severity)}">${esc(h.severity)}</span></td><td>${esc(h.value || '—')}</td></tr>`
-      )
-      .join('');
-
-    const dns = a.dns?.records || {};
-    const dnsRows = ['A', 'AAAA', 'NS', 'MX', 'TXT', 'CAA']
-      .map((type) => {
-        const val = dns[type];
-        const text = !val || (Array.isArray(val) && !val.length) ? '—' : esc(JSON.stringify(val));
-        return `<tr><td>${type}</td><td>${text}</td></tr>`;
-      })
-      .join('');
-
-    const geo = a.geo || {};
+  function tabConnection(d) {
+    const a = d.analysis || {};
     const tls = a.tls || {};
-    const redirectRows = (a.redirects || [])
-      .map(
-        (r) =>
-          `<tr><td>${esc(r.url)}</td><td>${esc(r.status || r.error || '—')}</td><td>${esc(r.type)}</td></tr>`
-      )
-      .join('');
-
-    const discoveryRows = (a.discovery || [])
-      .map(
-        (d) =>
-          `<tr><td>${esc(d.label)}</td><td>${d.found ? '<span class="sc-badge sc-badge--ok">Trovato</span>' : '<span class="sc-badge sc-badge--warn">Assente</span>'}</td><td><pre class="sc-pre">${esc(d.preview || '—')}</pre></td></tr>`
-      )
-      .join('');
-
-    const breakdownRows = (data.scoreBreakdown || [])
-      .filter((b) => b.delta !== 0)
-      .map(
-        (b) =>
-          `<tr><td>${esc(b.label)}</td><td>${b.delta > 0 ? '+' : ''}${b.delta}</td><td><span class="sc-badge sc-badge--${sevBadge(b.severity)}">${esc(b.severity)}</span></td></tr>`
-      )
-      .join('');
-
-    const sans = (tls.subjectAltNames || []).slice(0, 12).map((s) => esc(s)).join(', ') || '—';
-
-    const limitsHtml = (data.limitations || [])
-      .map((l) => {
-        const links = (l.links || [])
-          .filter((k) => /^https:\/\//.test(k.url))
-          .map((k) => `<a href="${esc(k.url)}" target="_blank" rel="noopener noreferrer">${esc(k.label)}</a>`)
-          .join(' · ');
-        return `<li><strong>${esc(l.title)}.</strong> ${esc(l.detail)}${links ? ` ${links}` : ''}</li>`;
-      })
-      .join('');
-
-    $('scResults').innerHTML = `
-      <div class="sc-summary">
-        <div class="sc-score-ring ${ringClass}">
-          <span class="sc-score-ring__num">${Math.round(data.security_score)}</span>
-          <span class="sc-score-ring__grade">Grade ${esc(data.grade)}</span>
-        </div>
-        <div>
-          <div class="sc-summary-grid">
-            <div><div class="sc-kv__label">Target</div><div class="sc-kv__val">${esc(data.domain)}</div></div>
-            <div><div class="sc-kv__label">URL finale</div><div class="sc-kv__val">${esc(data.finalUrl || data.url)}</div></div>
-            <div><div class="sc-kv__label">IP</div><div class="sc-kv__val">${esc(a.ip || '—')}</div></div>
-            <div><div class="sc-kv__label">Durata</div><div class="sc-kv__val">${esc(data.scanDurationMs)} ms</div></div>
-            <div><div class="sc-kv__label">ASN / Org</div><div class="sc-kv__val">${esc(geo.asnLabel || geo.org || geo.error || '—')}</div></div>
-            <div><div class="sc-kv__label">Paese</div><div class="sc-kv__val">${esc(geo.country || '—')}</div></div>
-          </div>
-          <div class="sc-export-row">
-            <button type="button" class="sc-btn sc-btn--ghost" id="scExportJson">Esporta JSON</button>
-            <a class="sc-btn sc-btn--ghost" href="domain-recon.html">Ricognizione dominio →</a>
-          </div>
-        </div>
-      </div>
-
-      ${limitsHtml ? `<div class="sc-callout sc-callout--limits"><strong>Cosa non dice questo voto</strong><ul>${limitsHtml}</ul></div>` : ''}
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Findings prioritizzati</h2><span class="sc-badge sc-badge--info">${(data.findings || []).length}</span></div>
-        <div class="sc-section__body">${findingsHtml}</div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Score breakdown</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Controllo</th><th>Punti</th><th>Severità</th></tr></thead><tbody>${breakdownRows || '<tr><td colspan="3">Nessuna detrazione</td></tr>'}</tbody></table></div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>TLS &amp; certificato</h2></div>
-        <div class="sc-section__body">
-          ${tls.error ? `<p class="sc-pre">${esc(tls.error)}</p>` : `
-          <table class="sc-table">
-            <tr><th>Protocollo</th><td>${esc(tls.protocol || '—')}</td></tr>
-            <tr><th>Cipher</th><td>${esc(tls.cipher?.name || '—')}</td></tr>
-            <tr><th>Subject CN</th><td>${esc(tls.subject?.CN || '—')}</td></tr>
-            <tr><th>Issuer</th><td>${esc(tls.issuer?.CN || tls.issuer?.O || '—')}</td></tr>
-            <tr><th>Valido fino</th><td>${esc(tls.validTo || '—')} (${esc(tls.daysUntilExpiry)} gg)</td></tr>
-            <tr><th>Trusted</th><td>${tls.authorized ? '<span class="sc-badge sc-badge--ok">Sì</span>' : '<span class="sc-badge sc-badge--fail">No</span>'}</td></tr>
-            <tr><th>SAN</th><td>${sans}</td></tr>
-            <tr><th>SHA-256</th><td><code class="sc-pre">${esc(tls.fingerprintSha256 || '—')}</code></td></tr>
-          </table>`}
-        </div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>HTTP security headers</h2></div>
-        <div class="sc-section__body">
-          ${a.http?.error ? `<p class="sc-pre">${esc(a.http.error)}</p>` : `
-          <p style="font-size:0.82rem;color:#7c8aa0;margin:0 0 0.75rem;">HTTP ${esc(a.http.status)} · Server: ${esc(a.http.server || '—')} · Title: ${esc(a.http.title || '—')}</p>
-          <table class="sc-table"><thead><tr><th>Header</th><th>Stato</th><th>Severità</th><th>Valore</th></tr></thead><tbody>${headerRows}</tbody></table>`}
-        </div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>DNS &amp; infrastruttura</h2></div>
-        <div class="sc-section__body">
-          <table class="sc-table"><thead><tr><th>Tipo</th><th>Record</th></tr></thead><tbody>${dnsRows}</tbody></table>
-          ${a.dns?.reverse ? `<p class="sc-meta">PTR: ${esc(a.dns.reverse.join(', '))}</p>` : ''}
-        </div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Redirect chain</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>URL</th><th>Status</th><th>Tipo</th></tr></thead><tbody>${redirectRows || '<tr><td colspan="3">Nessun hop</td></tr>'}</tbody></table></div>
-      </div>
-
-      <div class="sc-section">
-        <div class="sc-section__head"><h2>Surface discovery</h2></div>
-        <div class="sc-section__body"><table class="sc-table"><thead><tr><th>Risorsa</th><th>Stato</th><th>Anteprima</th></tr></thead><tbody>${discoveryRows}</tbody></table></div>
-      </div>
-    `;
-
-    $('scResults').classList.add('is-active');
-    bindSections();
-    const exportBtn = document.getElementById('scExportJson');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => {
-        const blob = new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `evil-url-scan-${Date.now()}.json`;
-        link.click();
-      });
+    let html = `<h3>${esc(t('Certificato HTTPS'))}</h3>`;
+    if (tls.skipped) html += `<p class="tr-muted">${esc(t('Il sito non usa HTTPS: nessun certificato da controllare.'))}</p>`;
+    else if (tls.error) html += `<p class="tr-error">${esc(tls.error)}</p>`;
+    else {
+      html += kv([
+        [t('Valido'), tls.isExpired ? t('Scaduto') : tls.authorized ? t('Sì, di un’autorità riconosciuta') : t('Non riconosciuto')],
+        [t('Scade tra'), tls.daysUntilExpiry != null ? t('{n} giorni', { n: tls.daysUntilExpiry }) : null],
+        [t('Rilasciato da'), tls.issuer && (tls.issuer.O || tls.issuer.CN)],
+        [t('Intestato a'), tls.subject && (tls.subject.CN || tls.subject.O)],
+        [t('Protocollo'), tls.protocol],
+        [t('Cifratura'), tls.cipher && tls.cipher.name],
+        [t('Valido dal'), tls.validFrom],
+        [t('Valido fino al'), tls.validTo],
+      ]);
+      if ((tls.subjectAltNames || []).length) html += `<h3>${esc(t('Nomi coperti'))}</h3><p class="tr-muted">${esc(tls.subjectAltNames.slice(0, 12).join(', '))}${tls.subjectAltNames.length > 12 ? '…' : ''}</p>`;
     }
+    const chain = a.redirects || [];
+    html += `<h3>${esc(t('Percorso della richiesta'))}</h3>`;
+    html += chain.length
+      ? `<ol class="tr-chain">${chain.map((h) => `<li>${esc(h.url)}<em>${esc(h.error ? t('errore') : h.status)}</em></li>`).join('')}</ol>`
+      : `<p class="tr-muted">${esc(t('Nessun dato.'))}</p>`;
+    return html;
+  }
+
+  function tabHeaders(d) {
+    const rows = (d.analysis && d.analysis.http && d.analysis.http.headerAudit) || [];
+    if (!rows.length) return `<p class="tr-muted">${esc(t('Nessun dato.'))}</p>`;
+    return `<div class="tr-checks">${rows.filter((h) => !h.skipped).map((h) => {
+      const cls = h.present ? 'ok' : (h.severity === 'info' || h.severity === 'low' ? 'warn' : 'bad');
+      return `<details class="tr-check tr-check--${cls}"><summary><span class="tr-check__icon">${h.present ? '✓' : '!'}</span><div><strong>${esc(h.label)}</strong></div><span class="tr-chip tr-chip--${cls}">${esc(h.present ? t('Presente') : t('Assente'))}</span></summary>
+      <div class="tr-check__body">${h.recommendation ? esc(h.recommendation) : ''}${h.value ? `<code>${esc(h.value)}</code>` : ''}</div></details>`;
+    }).join('')}</div>`;
+  }
+
+  function tabNetwork(d) {
+    const a = d.analysis || {};
+    const n = a.network || {};
+    const rec = (a.dns && a.dns.records) || {};
+    const fmt = (arr, f) => (arr && arr.length ? arr.slice(0, 6).map(f || String).join(', ') : null);
+    let html = `<h3>${esc(t('Chi ospita il sito'))}</h3>`;
+    html += kv([[t('Organizzazione'), n.org || n.name], [t('Paese'), n.country], [t('Blocco di rete'), n.cidr], [t('Nome inverso (PTR)'), fmt(a.dns && a.dns.reverse)]]);
+    if (n.error) html += `<p class="tr-muted">${esc(t('Informazioni di rete non disponibili in questo momento.'))}</p>`;
+    html += `<h3>${esc(t('Record DNS'))}</h3>`;
+    html += kv([
+      ['A', fmt(rec.A)], ['AAAA', fmt(rec.AAAA)], ['NS', fmt(rec.NS)],
+      ['MX', fmt(rec.MX, (m) => m.exchange || m)],
+      ['CAA', fmt(rec.CAA, (c) => `${c.issue || c.issuewild || c.iodef || ''}`)],
+    ]);
+    return html;
+  }
+
+  function tabFiles(d) {
+    const files = (d.analysis && d.analysis.discovery) || [];
+    if (!files.length) return `<p class="tr-muted">${esc(t('Nessun dato.'))}</p>`;
+    return `<div class="tr-checks">${files.map((f) => `<details class="tr-check tr-check--${f.found ? 'ok' : 'warn'}"${f.found && f.preview ? '' : ' open'}><summary><span class="tr-check__icon">${f.found ? '✓' : '–'}</span><div><strong>${esc(f.label)}</strong><small>${esc(f.url)}</small></div><span class="tr-chip tr-chip--${f.found ? 'ok' : 'warn'}">${esc(f.found ? t('Trovato') : t('Non trovato'))}</span></summary>${f.found && f.preview ? `<div class="tr-check__body"><code>${esc(f.preview)}</code></div>` : ''}</details>`).join('')}</div>`;
+  }
+
+  function limitations(d) {
+    const l = d.limitations || [];
+    if (!l.length) return '';
+    return `<details class="tr-more"><summary>${esc(t('Cosa questa analisi non può dirti'))}</summary><div><ul>${l.map((x) => `<li><strong>${esc(x.title)}.</strong> ${esc(x.detail)}${(x.links || []).filter((k) => /^https:\/\//i.test(k.url || '')).map((k) => ` <a href="${esc(k.url)}" target="_blank" rel="noopener noreferrer">${esc(k.label || k.url)}</a>`).join('')}</li>`).join('')}</ul></div></details>`;
+  }
+
+  function render(d) {
+    const host = $('scResults');
+    host.hidden = false;
+    host.innerHTML = '<div id="scTabs"></div>';
+    R.tabs($('scTabs'), [
+      { id: 'overview', label: t('Panoramica'), html: tabOverview(d), badge: (d.findings || []).length || null },
+      { id: 'conn', label: t('Connessione'), html: tabConnection(d) },
+      { id: 'headers', label: t('Header'), html: tabHeaders(d) },
+      { id: 'net', label: t('Rete e DNS'), html: tabNetwork(d) },
+      { id: 'files', label: t('File pubblici'), html: tabFiles(d) },
+    ]);
+    host.insertAdjacentHTML('beforeend', limitations(d));
+    R.animateRings(host);
+    R.bindActions(host, () => R.summaryText(
+      t('Check URL — {site}', { site: d.domain }),
+      [[t('Voto'), `${d.grade} (${d.security_score}/100)`], [t('Indirizzo'), d.finalUrl || d.url]],
+      d.findings
+    ));
+    host.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function runScan() {
+    showError('');
     if (typeof ensureAuthenticatedOrRedirect === 'function') {
       if (!(await ensureAuthenticatedOrRedirect(page))) return;
     } else if (typeof isAuthenticated === 'function' && !isAuthenticated()) {
       window.location.href = LOGIN_URL;
       return;
     }
-
-    const urlRaw = $('scUrl').value.trim();
-    const authorized = $('scAuth').checked;
-    if (!urlRaw || !authorized) {
-      alert('Inserisci URL e conferma autorizzazione.');
-      return;
-    }
-
-    let url = urlRaw;
-    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-    try {
-      new URL(url);
-    } catch {
-      alert('URL non valido.');
-      return;
-    }
+    const target = R.normalizeUrl($('scUrl').value);
+    if (!target) { showError(t('Scrivi un indirizzo valido, ad esempio esempio.it')); return; }
+    if (!$('scAuth').checked) { showError(t('Conferma di essere autorizzato ad analizzare il sito.')); return; }
 
     const btn = $('scScanBtn');
     btn.disabled = true;
-    btn.textContent = 'Scansione in corso…';
-    clearLog();
-    $('scResults').classList.remove('is-active');
+    btn.textContent = t('Scansione in corso…');
+    $('scResults').hidden = true;
     $('scResults').innerHTML = '';
-
-    const phases = [
-      'Risoluzione DNS & GeoIP',
-      'Tracciamento redirect',
-      'Handshake TLS & certificato',
-      'Audit header HTTP',
-      'Discovery (robots.txt, security.txt)'
-    ];
-    phases.forEach((p) => log(p + '…', 'run'));
-
+    const steps = R.stepper($('scSteps'), [
+      t('Risoluzione DNS e rete'), t('Percorso dei redirect'), t('Certificato HTTPS'), t('Header di sicurezza'), t('File pubblici'),
+    ]);
+    steps.start();
     try {
       const fetchFn = typeof fetchAuthenticated === 'function' ? fetchAuthenticated : fetch;
       const response = await fetchFn('/api/scan', {
-        method: 'POST',
-        credentials: 'include',
+        method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url: target }),
       });
-      const data = await response.json();
-      if (response.status === 401) {
-        window.location.href = LOGIN_URL;
-        return;
-      }
-      if (!response.ok) throw new Error(data.error || 'Errore server ' + response.status);
-      log(`Completato — Grade ${data.grade} · Score ${data.security_score}`, 'ok');
-      renderReport(data);
-      if (typeof incrementScans === 'function' && isAuthenticated()) {
+      if (response.status === 401) { window.location.href = LOGIN_URL; return; }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || t('Errore del server ({status})', { status: response.status }));
+      steps.finish(true);
+      setTimeout(() => steps.hide(), 600);
+      render(data);
+      if (typeof incrementScans === 'function' && typeof isAuthenticated === 'function' && isAuthenticated()) {
         await incrementScans({ scanType: 'advanced_url_scanner', grade: data.grade });
       }
     } catch (err) {
-      log(err.message, 'err');
-      $('scResults').innerHTML = `<div class="sc-callout"><strong>Scansione fallita</strong><br>${esc(err.message)}</div>`;
-      $('scResults').classList.add('is-active');
+      steps.finish(false);
+      showError(err.message || t('Scansione non riuscita.'));
     } finally {
-      btn.disabled = !authorized || !urlRaw;
-      btn.textContent = 'Avvia scansione';
+      btn.textContent = t('Avvia scansione');
+      btn.disabled = !$('scAuth').checked || !$('scUrl').value.trim();
     }
   }
 
-  function resetScan() {
+  function reset() {
     $('scUrl').value = '';
     $('scAuth').checked = false;
     $('scScanBtn').disabled = true;
-    clearLog();
-    $('scResults').classList.remove('is-active');
+    showError('');
+    $('scSteps').hidden = true;
+    $('scSteps').innerHTML = '';
+    $('scResults').hidden = true;
     $('scResults').innerHTML = '';
-    lastReport = null;
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    const auth = $('scAuth');
-    const input = $('scUrl');
-    const btn = $('scScanBtn');
-    const sync = () => {
-      btn.disabled = !auth.checked || !input.value.trim();
-    };
-    auth.addEventListener('change', sync);
-    input.addEventListener('input', sync);
-    btn.addEventListener('click', runScan);
-    $('scResetBtn').addEventListener('click', resetScan);
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !btn.disabled) runScan();
-    });
+    const sync = () => { $('scScanBtn').disabled = !$('scAuth').checked || !$('scUrl').value.trim(); };
+    $('scAuth').addEventListener('change', sync);
+    $('scUrl').addEventListener('input', sync);
+    $('scForm').addEventListener('submit', (e) => { e.preventDefault(); if (!$('scScanBtn').disabled) runScan(); });
+    $('scResetBtn').addEventListener('click', reset);
   });
 })();
