@@ -540,9 +540,39 @@ function mountStatic(app) {
 
   // File che i motori di ricerca e i browser cercano nella radice del sito
   // (prima /robots.txt, /sitemap.xml e /favicon.ico rispondevano 404)
+  // robots.txt: il file statico fa da base, ma l'indirizzo della sitemap segue sempre il dominio
+  // canonico (BASE_URL), così non può restare scritto a mano su un indirizzo diverso (www o altro).
   app.get('/robots.txt', (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=86400');
-    res.sendFile(path.join(root, 'public', 'robots.txt'));
+    const origin = getCanonicalOrigin();
+    if (!origin) return res.sendFile(path.join(root, 'public', 'robots.txt'));
+    let text = '';
+    try {
+      text = fs.readFileSync(path.join(root, 'public', 'robots.txt'), 'utf8');
+    } catch (_) {
+      text = 'User-agent: *\nAllow: /\n';
+    }
+    text = text.replace(/^Sitemap:.*$/gim, '').replace(/\s+$/, '');
+    return res.type('text/plain; charset=utf-8').send(`${text}\n\nSitemap: ${origin}/sitemap.xml\n`);
+  });
+
+  // security.txt (RFC 9116): a chi segnalare un problema di sicurezza del sito
+  app.get(['/.well-known/security.txt', '/security.txt'], (req, res) => {
+    const origin = getCanonicalOrigin() || `${req.protocol}://${req.get('host')}`;
+    const contact = (process.env.HELP_SUPPORT_EMAIL || 'support@projectevil.it').trim();
+    const expires = new Date(Date.now() + 330 * 24 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res
+      .type('text/plain; charset=utf-8')
+      .send(
+        [
+          `Contact: mailto:${contact}`,
+          `Expires: ${expires}`,
+          'Preferred-Languages: it, en',
+          `Canonical: ${origin}/.well-known/security.txt`,
+          '',
+        ].join('\n'),
+      );
   });
   app.get('/sitemap.xml', (req, res) => {
     res.setHeader('Cache-Control', 'public, max-age=3600');

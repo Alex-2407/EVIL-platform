@@ -70,6 +70,25 @@ test('home: i numeri in pagina sono quelli calcolati dai dati', async () => {
   }
 });
 
+test('robots.txt indica la sitemap sul dominio canonico e security.txt è raggiungibile', async () => {
+  const prev = process.env.BASE_URL;
+  process.env.BASE_URL = 'https://esempio.test';
+  try {
+    const robots = await request(app).get('/robots.txt').expect(200);
+    assert.match(robots.text, /^Sitemap: https:\/\/esempio\.test\/sitemap\.xml$/m);
+    assert.equal((robots.text.match(/^Sitemap:/gim) || []).length, 1, 'una sola riga Sitemap');
+    assert.match(robots.text, /Disallow: \/api\//);
+    const sec = await request(app).get('/.well-known/security.txt').expect(200);
+    assert.match(sec.headers['content-type'], /text\/plain/);
+    assert.match(sec.text, /^Contact: mailto:\S+@\S+$/m);
+    assert.match(sec.text, /^Expires: \d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/m);
+    assert.match(sec.text, /^Canonical: https:\/\/esempio\.test\/\.well-known\/security\.txt$/m);
+  } finally {
+    if (prev === undefined) delete process.env.BASE_URL;
+    else process.env.BASE_URL = prev;
+  }
+});
+
 test('robots.txt, sitemap.xml e favicon nella radice (UX-07)', async () => {
   const robots = await request(app).get('/robots.txt').expect(200);
   assert.match(robots.text, /Sitemap: /);

@@ -5,7 +5,9 @@ Alternativa a Render free: server **sempre acceso** (niente sleep), Francoforte,
 come su Render, quindi il codice non cambia. Per le variabili vale ancora
 [RENDER-MAILTRAP-SETUP.md](RENDER-MAILTRAP-SETUP.md).
 
-File coinvolti: `Dockerfile`, `.dockerignore`, `fly.toml` (nella radice del progetto).
+File coinvolti: `Dockerfile` (a ogni build aggiorna i pacchetti Debian con `apt-get upgrade`), `.dockerignore`, `fly.toml` (nella radice del progetto).
+
+Snyk sul Dockerfile guarda solo l'immagine base `node:22-slim` e non vede quell'aggiornamento. Per verificare l'immagine in esecuzione: `fly ssh console -C "dpkg-query -W perl-base libpcre2-8-0"`.
 
 ## 1. Prima volta
 
@@ -49,19 +51,43 @@ Prova registrazione e arrivo dell'email di verifica.
 
 ## 4. Dominio
 
-**Prima** di spostare il DNS, in `fly.toml` passa dalla fase di prova alla produzione:
-`BASE_URL = "https://projectevil.it"` (la stessa di Render) e togli il `#` da `COOKIE_DOMAIN`. Poi `fly deploy`.
-Con `BASE_URL` sul dominio vero il sito reindirizza ogni altro indirizzo verso quel dominio: per questo durante la prova punta a `*.fly.dev`.
+`fly.toml` è già in configurazione di produzione: `BASE_URL = "https://projectevil.it"` e `COOKIE_DOMAIN = ".projectevil.it"`.
+Con `BASE_URL` sul dominio vero il sito reindirizza ogni altro indirizzo (anche `www` e `*.fly.dev`) verso quel dominio:
+per provare un deploy prima di spostare il DNS serve temporaneamente un `BASE_URL` su `*.fly.dev`.
 
-1. `fly certs add www.projectevil.it` e `fly certs add projectevil.it`.
-2. `fly certs show www.projectevil.it` indica i record DNS da creare (CNAME per `www`, A/AAAA per il dominio nudo).
-3. Cambia i record nel pannello del dominio **solo quando il test su `*.fly.dev` funziona**.
-   Prima abbassa il TTL a 300 s, così un eventuale ritorno a Render è rapido.
-4. Dopo la propagazione controlla `https://www.projectevil.it/api/health`, il login e le email.
+1. `fly certs add projectevil.it` e `fly certs add www.projectevil.it`.
+2. `fly certs show projectevil.it` indica i record DNS da creare (A/AAAA per il dominio, CNAME per `www`).
+3. Cambia i record nel pannello del dominio solo quando il test funziona; prima abbassa il TTL a 300 s.
+4. Dopo la propagazione controlla `https://projectevil.it/api/health`, il login e le email.
 
-## 5. Dopo
+Sul pannello DNS **non toccare** i record DKIM e SPF delle email. Quando aggiungi un record TXT, il **Nome** va scritto
+come quello già presente (`projectevil.it`), non come `@`.
 
-- Spegni Render solo dopo qualche giorno senza problemi.
+## 5. Chiave dei diplomi
+
+`CERT_SIGNING_KEY` firma i diplomi: se la cambi, quelli già emessi non risultano più verificabili. Va generata **una volta sola**,
+sul proprio computer e senza mostrarla (PowerShell):
+
+```
+$k = node -e "const c=require('crypto');const p=c.generateKeyPairSync('ed25519').privateKey.export({type:'pkcs8',format:'pem'});process.stdout.write(Buffer.from(p).toString('base64'))"
+fly secrets set "CERT_SIGNING_KEY=$k"
+```
+
+Non usare `fly secrets import` con la pipe di PowerShell 5: aggiunge un carattere invisibile al nome del segreto.
+Conserva una copia della chiave nel gestore di password.
+
+## 6. Google (Search Console)
+
+1. Aggiungi la proprietà di tipo **Dominio** `projectevil.it` e verifica con un record TXT.
+2. Invia la sitemap con l'indirizzo completo: `https://projectevil.it/sitemap.xml`.
+3. Controllo URL, `https://projectevil.it/`, Richiedi indicizzazione.
+4. Non rimuovere il record TXT di verifica.
+
+`/robots.txt` e `/sitemap.xml` seguono `BASE_URL`; `/.well-known/security.txt` indica a chi segnalare un problema di sicurezza.
+
+## 7. Dopo
+
+- Metti in pausa Render (senza cancellarlo) solo dopo qualche giorno senza problemi.
 - Aggiornamenti: `fly deploy` dopo ogni push. Log: `fly logs`. Riavvio: `fly machine restart`.
 - Se 512 MB non bastano (messaggi di memoria nei log): `fly scale memory 1024`.
 - Un solo server: durante un deploy ci può essere un breve stacco. Per due istanze serve `REDIS_URL`
