@@ -35,7 +35,7 @@ function getRedis() {
   }
   try {
     const Redis = require('ioredis');
-    redisClient = new Redis(url);
+    redisClient = new Redis(url, { protocol: 2 });
     let logged = false;
     redisClient.on('error', (err) => {
       if (!logged) {

@@ -28,7 +28,7 @@ function envInt(name, fallback) {
 let redis = null;
 const redisUrl = (process.env.REDIS_URL || '').trim();
 if (redisUrl && !isTest()) {
-  redis = new Redis(redisUrl, { maxRetriesPerRequest: 1, enableOfflineQueue: false, lazyConnect: false });
+  redis = new Redis(redisUrl, { protocol: 2, maxRetriesPerRequest: 1, enableOfflineQueue: false, lazyConnect: false });
   let logged = false;
   redis.on('error', (err) => {
     if (!logged) {
