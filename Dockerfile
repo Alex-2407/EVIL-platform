@@ -9,9 +9,9 @@ ENV NODE_ENV=production \
     PORT=8080
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-# cartelle scrivibili per cache e upload temporanei; il processo non gira come root
-RUN mkdir -p /app/uploads /app/logs /data && chown -R node:node /app/uploads /app/logs /data
+COPY --chown=node:node . .
+# il sito genera alcuni file all'avvio (menu, dizionari) e scrive cache e upload: l'utente node deve poter scrivere
+RUN mkdir -p /app/uploads /app/logs /data && chown -R node:node /app/uploads /app/logs /data /app/html /app/js /app/css
 USER node
 EXPOSE 8080
 CMD ["node", "js/server.js"]
