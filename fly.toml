@@ -9,9 +9,10 @@ primary_region = "fra"            # Francoforte: la più vicina all'Italia
   PORT = "8080"
   TRUST_PROXY = "1"               # Fly mette un proxy davanti al server
   FORCE_HTTPS = "1"
-  BASE_URL = "https://www.projectevil.it"
-  COOKIE_DOMAIN = ".projectevil.it"
-  CORS_ORIGINS = "https://projectevil.it,https://www.projectevil.it"
+  # FASE DI PROVA (indirizzo *.fly.dev). Al passaggio del dominio vedi docs/FLY-DEPLOY.md, punto 4:
+  BASE_URL = "https://evil-projectevil.fly.dev"
+  # COOKIE_DOMAIN = ".projectevil.it"      # da attivare insieme a BASE_URL = "https://projectevil.it"
+  CORS_ORIGINS = "https://evil-projectevil.fly.dev,https://projectevil.it,https://www.projectevil.it"
   EMAIL_USE_MAILTRAP_API = "1"
   SMTP_FROM_EMAIL = "noreply@projectevil.it"
   HELP_SUPPORT_EMAIL = "support@projectevil.it"

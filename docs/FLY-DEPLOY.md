@@ -49,6 +49,10 @@ Prova registrazione e arrivo dell'email di verifica.
 
 ## 4. Dominio
 
+**Prima** di spostare il DNS, in `fly.toml` passa dalla fase di prova alla produzione:
+`BASE_URL = "https://projectevil.it"` (la stessa di Render) e togli il `#` da `COOKIE_DOMAIN`. Poi `fly deploy`.
+Con `BASE_URL` sul dominio vero il sito reindirizza ogni altro indirizzo verso quel dominio: per questo durante la prova punta a `*.fly.dev`.
+
 1. `fly certs add www.projectevil.it` e `fly certs add projectevil.it`.
 2. `fly certs show www.projectevil.it` indica i record DNS da creare (CNAME per `www`, A/AAAA per il dominio nudo).
 3. Cambia i record nel pannello del dominio **solo quando il test su `*.fly.dev` funziona**.
