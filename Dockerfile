@@ -8,6 +8,10 @@ FROM node:22-slim
 ENV NODE_ENV=production \
     PORT=8080
 WORKDIR /app
+# patch di sicurezza Debian (perl, pcre2, ...) a ogni build; poi si ripulisce la cache apt
+RUN apt-get update \
+ && apt-get upgrade -y --no-install-recommends \
+ && rm -rf /var/lib/apt/lists/*
 COPY --from=deps /app/node_modules ./node_modules
 COPY --chown=node:node . .
 # il sito genera alcuni file all'avvio (menu, dizionari) e scrive cache e upload: l'utente node deve poter scrivere
