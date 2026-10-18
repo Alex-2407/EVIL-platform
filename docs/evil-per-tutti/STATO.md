@@ -4,12 +4,12 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**1.7 Home "Chi sei?"**: ora le destinazioni esistono (Aiuto subito, Primi passi, corsi). Un
-ingresso per ogni pubblico (bambini con un adulto, ragazzi, genitori e nonni, docenti, chi studia
-informatica). Da controllare: a 1366×768 il pulsante Aiuto in basso a sinistra copriva il riquadro
-"Primo accesso" della home; tra 641 e 1439 px adesso è un cerchio da 48 px (la scritta si apre al
-passaggio del mouse), verificare se basta. Poi 1.8 sorprese (la lucciola d'oro di Primi passi è già
-fatta), 2.13 un'animazione breve per tappa, la prova di Primi passi con 5–10 persone.
+**1.8 Sorprese** (STILE.md, tabella degli easter egg; mai nella pagina Aiuto): ricerca del sito con
+"123456" o "password", la parola "luce" scritta sulla tastiera nell'area Per tutti (torcia), Lù
+toccata 5 volte racconta una curiosità vera con la fonte, finto premio nel footer che svela i
+segnali ("Ci sei cascato… per finta"), messaggio in console per chi guarda sotto il cofano, pagina
+404, badge "Esploratore". La lucciola d'oro di Primi passi è già fatta. Poi 2.13 un'animazione breve
+per tappa e la prova di Primi passi con 5–10 persone; poi la fase 3 (EVIL Scuola).
 
 ## Fatto
 
@@ -22,7 +22,8 @@ fatta), 2.13 un'animazione breve per tappa, la prova di Primi passi con 5–10 p
 | 1.5 | Pulsante "Aiuto" fisso in basso a sinistra su tutte le pagine tranne Aiuto (`server/chrome.js`, stili in `css/site-footer.css`), numeri da chiamare in cima a `help.html` prima del modulo | `8fba6ec` |
 | 1.6 | Tutela dei minori: sezione 8 di `site-policies.html` (sezioni dopo rinumerate, EN aggiornato), collegata da `aiuto.html`, test | `5bbb9d9` |
 | 2.2–2.11 (testi) | Contenuto delle 10 tappe in `server/lib/primi-passi-content.js` (IT/EN, storie, tre livelli, giochi, badge, fonti verificate il 18 ottobre 2026) e scheda editoriale `PRIMI-PASSI.md` | `a41e375` |
-| 2.1, 2.2–2.12 | Primi passi online: `scripts/build-primi-passi.js` genera le 11 pagine e i dizionari inglesi dal modulo dei contenuti (`listUnits` in `server/i18n`, controllo di struttura e di traduzioni doppie), pagine in `server/lib/primi-passi-pages.js`, voci della mappa del sito da `sitePages()`, `js/primi-passi.js` (storia, "Fai subito", giochi classifica/ordina/scegli/trova con aiuti e "Gioca di nuovo", badge, riquadro "La tua tappa", percorso con le luci, lucciola d'oro, patentino stampabile in A4 orizzontale, ricomincia da zero), `css/primi-passi.css`, livelli con scheda predefinita da `aria-selected`, pulsante Aiuto compatto tra 641 e 1439 px, test `tests/primi-passi.test.js`, prove nel browser in `scripts/e2e/` | questo commit |
+| 2.1, 2.2–2.12 | Primi passi online: `scripts/build-primi-passi.js` genera le 11 pagine e i dizionari inglesi dal modulo dei contenuti (`listUnits` in `server/i18n`, controllo di struttura e di traduzioni doppie), pagine in `server/lib/primi-passi-pages.js`, voci della mappa del sito da `sitePages()`, `js/primi-passi.js` (storia, "Fai subito", giochi classifica/ordina/scegli/trova con aiuti e "Gioca di nuovo", badge, riquadro "La tua tappa", percorso con le luci, lucciola d'oro, patentino stampabile in A4 orizzontale, ricomincia da zero), `css/primi-passi.css`, livelli con scheda predefinita da `aria-selected`, pulsante Aiuto compatto tra 641 e 1439 px, test `tests/primi-passi.test.js`, prove nel browser in `scripts/e2e/` | `9daf504` |
+| 1.7 | Home "Chi sei?": subito dopo l'apertura una "stanza con la luce accesa" (`.pt-room`, che si accende entrando nello schermo) con Lù e quattro ingressi (ragazzi → Primi passi, genitori e nonni → truffe e Aiuto genitori, docenti → Primi passi alla LIM e Aiuto docenti, chi studia → percorsi), la striscia rossa per l'aiuto e quella scura verso le aree tecniche; il riquadro "Prima volta qui?" porta lì; EN tradotto; il pulsante Aiuto compatto non copre più il riquadro a 1366×768; test | questo commit |
 
 ## Note per chi riprende
 

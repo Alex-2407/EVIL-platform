@@ -27,6 +27,8 @@
 
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="/css/home-v7.css">
+  <link rel="stylesheet" href="/css/per-tutti.css">
+  <script src="/js/per-tutti.js" defer></script>
 </head>
 
 <body class="evil-theme home-v7">
@@ -58,9 +60,9 @@
             <a class="hv-btn hv-btn--amber hv-magnet" href="/web-simulator.html">Inizia dal laboratorio →</a>
             <a class="hv-btn hv-btn--ghost hv-magnet" href="#hv-mappa">Guarda cosa c'è dentro</a>
           </div>
-          <a class="hv-start-here hv-rise hv-rise--4" href="#hv-percorsi">
+          <a class="hv-start-here hv-rise hv-rise--4" href="#chi-sei">
             <span class="hv-start-here__signal" aria-hidden="true"></span>
-            <span><small>PRIMO ACCESSO</small><strong>Fondamenti — da zero, in circa 2 ore</strong></span>
+            <span><small>PRIMA VOLTA QUI?</small><strong>Dicci chi sei: ti portiamo nel posto giusto</strong></span>
             <span class="hv-start-here__arrow" aria-hidden="true">→</span>
           </a>
           <p class="hv-cta-note hv-rise hv-rise--4"><b aria-hidden="true">●</b> gratis · niente da installare · per gli strumenti di analisi serve un account</p>
@@ -99,6 +101,64 @@
       <a class="hv-ticker__label" id="hv-ticker-label" href="/news.html">Live</a>
       <div class="hv-ticker__track" id="hv-ticker-track"></div>
     </div>
+
+    <!-- ============================================================ CHI SEI? (Per tutti: la stanza con la luce accesa) -->
+    <section class="hv-sec hv-who" id="chi-sei" aria-labelledby="chi-sei-title">
+      <div class="hv-wrap">
+        <div class="pt-room pt hv-reveal">
+          <div class="pt-room__head">
+            <div>
+              <p class="pt-kicker evil-kicker-off">Per tutti</p>
+              <h2 id="chi-sei-title">Chi sei? Ti portiamo nel posto giusto.</h2>
+              <p class="pt-room__lead">EVIL è nato per chi studia sicurezza informatica. Adesso è anche per chi ha appena avuto il primo telefono, per chi lo regala e per chi insegna.</p>
+            </div>
+            <div class="pt-room__lu"><!--evil:fragment:mascot-md--></div>
+          </div>
+
+          <ul class="pt-who">
+            <li class="pt-who__item pt-who__item--kids">
+              <span class="pt-who__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><rect x="6.5" y="2" width="11" height="20" rx="2.5"/><path d="M11 18.5h2"/><path d="m12 7.2.9 1.9 2 .3-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.3z"/></svg></span>
+              <p class="pt-who__k">Ragazze e ragazzi</p>
+              <h3 class="pt-who__t"><a href="/primi-passi.html">Ho appena avuto il telefono</a></h3>
+              <p class="pt-who__d">Dieci tappe brevi, ognuna con un gioco: password, truffe, cosa condividere. Senza registrarti.</p>
+              <p class="pt-who__go" aria-hidden="true">Primi passi →</p>
+            </li>
+            <li class="pt-who__item pt-who__item--family">
+              <span class="pt-who__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M12 17.6s-3-1.8-3-3.7a1.6 1.6 0 0 1 3-.8 1.6 1.6 0 0 1 3 .8c0 1.9-3 3.7-3 3.7z"/></svg></span>
+              <p class="pt-who__k">Genitori e nonni</p>
+              <h3 class="pt-who__t"><a href="/pp-truffe.html">Voglio proteggere la mia famiglia</a></h3>
+              <p class="pt-who__d">Si comincia dalle truffe via SMS e telefono, poi si fanno le altre tappe insieme ai ragazzi. Se è già successo qualcosa, <a href="/aiuto.html#genitori">ecco cosa fare</a>.</p>
+              <p class="pt-who__go" aria-hidden="true">Riconoscere le truffe →</p>
+            </li>
+            <li class="pt-who__item pt-who__item--school">
+              <span class="pt-who__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></span>
+              <p class="pt-who__k">Docenti</p>
+              <h3 class="pt-who__t"><a href="/primi-passi.html">Insegno</a></h3>
+              <p class="pt-who__d">Primi passi si proietta alla LIM: la storia si discute, il gioco si fa insieme. Se succede qualcosa in classe, <a href="/aiuto.html#docenti">ecco cosa fare</a>. I kit di EVIL Scuola sono in preparazione.</p>
+              <p class="pt-who__go" aria-hidden="true">Primi passi in classe →</p>
+            </li>
+            <li class="pt-who__item pt-who__item--study">
+              <span class="pt-who__ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/></svg></span>
+              <p class="pt-who__k">Chi studia informatica</p>
+              <h3 class="pt-who__t"><a href="/learning-paths.html">Voglio capire come funzionano gli attacchi</a></h3>
+              <p class="pt-who__d">Tre corsi con laboratori ed esame, dai fondamenti al lavoro di chi difende.</p>
+              <p class="pt-who__go" aria-hidden="true">Percorsi di apprendimento →</p>
+            </li>
+          </ul>
+
+          <a class="pt-room__strip pt-room__strip--help" href="/aiuto.html">
+            <span class="pt-room__strip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/></svg></span>
+            <span class="pt-room__strip-txt"><strong>Ti sta succedendo qualcosa adesso?</strong> Cyberbullismo, ricatti, foto diffuse: cosa fare subito e chi chiamare.</span>
+            <span class="pt-room__strip-go" aria-hidden="true">→</span>
+          </a>
+          <a class="pt-room__strip pt-room__strip--pro" href="#hv-aree">
+            <span class="pt-room__strip-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></span>
+            <span class="pt-room__strip-txt"><strong>Lavori nella sicurezza?</strong> News dai CERT, catalogo malware e strumenti di analisi: le aree Impara, Analizza e Verifica sono qui sotto.</span>
+            <span class="pt-room__strip-go" aria-hidden="true">↓</span>
+          </a>
+        </div>
+      </div>
+    </section>
 
     <!-- ============================================================ 3 AREE -->
     <section class="hv-sec" id="hv-aree" aria-labelledby="hv-aree-title">

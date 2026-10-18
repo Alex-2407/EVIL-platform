@@ -38,7 +38,9 @@
 }
 
 /* ---------------------------------------------------------------- token */
-body.evil-theme.pt-page {
+/* .pt-room: un riquadro "Per tutti" dentro una pagina scura (la home), con gli stessi token */
+body.evil-theme.pt-page,
+.pt-room {
   --pt-paper: #fbf8f1;
   --pt-card: #ffffff;
   --pt-sunken: #f3eee2;
@@ -793,12 +795,173 @@ html.pt-js .pt-switch .pt-panel__title.pt-sr-when-js {
   white-space: nowrap;
 }
 
+/* ---------------------------------------------------------------- "Chi sei?": la stanza con la luce accesa nella home */
+.hv .pt-room {
+  position: relative;
+  padding: clamp(1.4rem, 4vw, 3rem);
+  border-radius: 28px;
+  border: 1px solid rgba(244, 224, 77, 0.35);
+  box-shadow:
+    0 30px 110px -30px rgba(244, 224, 77, 0.3),
+    0 0 160px -40px rgba(255, 214, 102, 0.35);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* la luce entra da in alto a destra, dove sta Lù */
+.hv .pt-room::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(60% 70% at 88% 0%, rgba(255, 236, 140, 0.42), transparent 62%),
+    radial-gradient(40% 50% at 0% 100%, rgba(255, 246, 204, 0.6), transparent 70%);
+  pointer-events: none;
+}
+
+/* entra spenta e si accende quando arriva sullo schermo (classe della home: .hv-reveal.is-pending) */
+.hv .pt-room.hv-reveal {
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 1.1s ease 0.25s;
+}
+
+.hv .pt-room.hv-reveal.is-pending { filter: brightness(0.35) saturate(0.5); }
+
+/* nella stanza chiara il fuoco da tastiera è ambra scuro (il verde della home non si vedrebbe) */
+.hv .pt-room :focus-visible { outline: 3px solid var(--pt-focus); outline-offset: 3px; }
+
+.pt-room__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem 2rem;
+  align-items: center;
+  margin-bottom: 1.6rem;
+}
+
+.pt.pt-room h2 { font-size: clamp(1.8rem, 3.6vw, 2.6rem); margin: 0 0 0.55rem; }
+.pt .pt-room__lead { font-size: clamp(1.08rem, 1.8vw, 1.25rem); color: var(--pt-ink-2); max-width: 44em; margin: 0; }
+
+.pt .pt-who {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 560px) { .pt .pt-who { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .pt .pt-who { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.pt .pt-who > li + li { margin-top: 0; }
+
+/* colore di ogni pubblico (le varianti sotto lo cambiano) */
+.pt-who__item { --who-c: var(--pt-ink); --who-bg: var(--pt-sunken); }
+
+.pt .pt-who__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-width: none;
+  padding: 1.15rem 1.15rem 1rem;
+  background: var(--pt-card);
+  border: 1px solid var(--pt-line);
+  border-radius: var(--pt-radius);
+  box-shadow: var(--pt-shadow);
+  transition: transform 0.18s var(--pt-ease), box-shadow 0.18s var(--pt-ease), border-color 0.18s;
+}
+
+.pt .pt-who__item:hover { transform: translateY(-3px); box-shadow: var(--pt-shadow-lift); border-color: var(--who-c); }
+.pt .pt-who__item:focus-within { border-color: var(--pt-focus); }
+
+.pt-who__item.pt-who__item--kids { --who-c: var(--pt-kids); --who-bg: var(--pt-kids-bg); }
+.pt-who__item.pt-who__item--family { --who-c: var(--pt-safe); --who-bg: var(--pt-safe-bg); }
+.pt-who__item.pt-who__item--school { --who-c: var(--pt-school); --who-bg: var(--pt-school-bg); }
+.pt-who__item.pt-who__item--study { --who-c: var(--pt-info); --who-bg: var(--pt-info-bg); }
+
+.pt-who__ico {
+  display: grid;
+  place-items: center;
+  width: 2.7rem;
+  height: 2.7rem;
+  border-radius: 12px;
+  background: var(--who-bg);
+  color: var(--who-c);
+}
+
+.pt-who__ico svg { width: 1.45rem; height: 1.45rem; }
+
+.pt .pt-who__k { margin: 0.35rem 0 0; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--who-c); }
+.pt .pt-who__t { margin: 0; font-size: 1.15rem; line-height: 1.25; }
+.pt .pt-who__t a { color: var(--pt-ink); text-decoration: none; }
+/* tutta la scheda porta alla destinazione; i link nel testo restano cliccabili sopra */
+.pt .pt-who__t a::after { content: ''; position: absolute; inset: 0; border-radius: var(--pt-radius); }
+.pt .pt-who__t a:focus-visible { outline: none; }
+.pt .pt-who__t a:focus-visible::after { outline: 3px solid var(--pt-focus); outline-offset: 3px; }
+.pt .pt-who__d { margin: 0; color: var(--pt-ink-2); font-size: 1rem; }
+.pt .pt-who__d a { position: relative; z-index: 1; font-weight: 700; }
+.pt .pt-who__go { margin: auto 0 0; padding-top: 0.5rem; font-weight: 800; color: var(--who-c); }
+
+/* due strisce sotto le schede: l'aiuto vero (rosso) e il ponte verso il resto di EVIL (scuro) */
+.pt .pt-room__strip {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+  padding: 0.9rem 1.2rem;
+  border-radius: var(--pt-radius);
+  border: 1px solid var(--pt-line);
+  text-decoration: none;
+  transition: border-color 0.15s, transform 0.15s var(--pt-ease);
+}
+
+.pt .pt-room__strip:first-of-type { margin-top: 1.3rem; }
+.pt .pt-room__strip:hover { transform: translateY(-1px); }
+
+.pt-room__strip-ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+}
+
+.pt-room__strip-ico svg { width: 1.35rem; height: 1.35rem; }
+.pt-room__strip-go { margin-left: auto; padding-left: 0.5rem; font-weight: 800; font-size: 1.3rem; }
+
+.pt .pt-room__strip--help { background: var(--pt-help-bg); border-color: var(--pt-help-line); color: var(--pt-ink); }
+.pt .pt-room__strip--help:hover { border-color: var(--pt-help); color: var(--pt-ink); }
+.pt .pt-room__strip--help strong,
+.pt-room__strip--help .pt-room__strip-go { color: var(--pt-help); }
+.pt-room__strip--help .pt-room__strip-ico { background: var(--pt-help-solid); color: #fff; }
+
+.pt .pt-room__strip--pro { background: var(--pt-tech-bg); border-color: var(--pt-tech-bg); color: var(--pt-tech-ink); }
+.pt .pt-room__strip--pro:hover { border-color: var(--pt-tech-accent); color: var(--pt-tech-ink); }
+.pt .pt-room__strip--pro strong,
+.pt-room__strip--pro .pt-room__strip-go { color: var(--pt-tech-accent); }
+.pt-room__strip--pro .pt-room__strip-ico { background: rgba(0, 255, 156, 0.12); color: var(--pt-tech-accent); }
+
+/* telefono: Lù si posa nell'angolo accanto al titolo, il testo usa tutta la larghezza */
+@media (max-width: 640px) {
+  .pt-room__head { display: block; position: relative; }
+  .pt-room__lu { position: absolute; top: -0.6rem; right: -0.4rem; }
+  .pt-room__lu .lu-wrap--md .lu { width: 68px; }
+  .pt.pt-room h2 { padding-right: 4.2rem; }
+}
+
 /* ---------------------------------------------------------------- movimento ridotto */
 @media (prefers-reduced-motion: reduce) {
   .lu__float, .lu__wing, .lu__halo, .lu__eyes, .lu__spark, .lu-wrap.is-hop .lu { animation: none !important; }
   .pt-btn, .pt-switch__tab, .lu__pupil { transition: none; }
   .pt-will-reveal { opacity: 1; transform: none; }
   .pt-panel.is-entering { animation: none; }
+  .hv .pt-room.hv-reveal { filter: none !important; transition: none; }
+  .pt .pt-who__item, .pt .pt-room__strip { transition: none; }
 }
 
 /* ---------------------------------------------------------------- stampa (kit, contatti) */

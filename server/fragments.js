@@ -16,6 +16,7 @@ const FRAGMENTS = {
   'help-numbers': (lang) => renderHelpNumbers(lang),
   // Lù (docs/evil-per-tutti/STILE.md): pulsante interattivo o immagine decorativa
   mascot: (lang) => renderMascot(lang, { size: 'lg' }),
+  'mascot-md': (lang) => renderMascot(lang, { size: 'md' }),
   'mascot-help': (lang) => renderMascot(lang, { size: 'lg', mood: 'help', interactive: false }),
   'mascot-small': (lang) => renderMascot(lang, { size: 'sm', interactive: false }),
 };

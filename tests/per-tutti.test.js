@@ -78,6 +78,26 @@ test('pulsante Aiuto su ogni pagina (tranne Aiuto) e numeri sopra il modulo di h
   assert.ok(help.text.indexOf('id="help-urgent"') < help.text.indexOf('id="helpContactForm"'), 'i numeri vengono prima del modulo');
 });
 
+test('home "Chi sei?": un ingresso per ogni pubblico, aiuto in evidenza, anche in inglese', async () => {
+  const res = await request(app).get('/').expect(200);
+  const html = res.text;
+  assert.match(html, /\/css\/per-tutti\.css/);
+  assert.match(html, /\/js\/per-tutti\.js/);
+  assert.match(html, /<a class="hv-start-here[^"]*" href="#chi-sei">/, 'il riquadro "Prima volta qui?" porta alla scelta');
+  const start = html.indexOf('id="chi-sei"');
+  assert.ok(start > 0, 'sezione presente');
+  const room = html.slice(start, html.indexOf('id="hv-aree"'));
+  for (const href of ['/primi-passi.html', '/pp-truffe.html', '/learning-paths.html', '/aiuto.html', '/aiuto.html#genitori', '/aiuto.html#docenti', '#hv-aree']) {
+    assert.ok(room.includes(`href="${href}"`), `link a ${href}`);
+  }
+  assert.match(room, /class="lu-wrap lu-wrap--md/, 'Lù nella stanza con la luce');
+  assert.ok(html.indexOf('id="chi-sei"') < html.indexOf('id="hv-aree"'), 'subito dopo l’apertura');
+  const en = await request(app).get('/en/').expect(200);
+  assert.match(en.text, /Who are you\? We’ll take you to the right place\./);
+  assert.match(en.text, /href="\/en\/primi-passi\.html"/);
+  assert.match(en.text, /href="\/en\/aiuto\.html#docenti"/);
+});
+
 test('tutela dei minori: sezione nelle regole del sito, collegata dalla pagina Aiuto', async () => {
   const it = await request(app).get('/site-policies.html').expect(200);
   assert.match(it.text, /id="policy-minors"/);
