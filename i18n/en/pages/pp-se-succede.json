@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Pronto a tutto": "Ready for anything",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Una sera l’account non si apre più.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> One evening the account won’t open.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Si recupera dalla pagina ufficiale e si cambiano le serrature.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Recover it from the official page and change the locks.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Poi si avvisano i contatti. Il piano ha funzionato.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Then warn your contacts. The plan worked.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Domenica sera Paolo non riesce più a entrare nella sua email: la password è cambiata.": "On Sunday evening Paolo can’t get into his email any more: the password has been changed.",
   "Sul suo profilo compaiono messaggi che non ha mai scritto.": "Messages he never wrote are appearing on his profile.",
   "Cosa fa per primo?": "What does he do first?",
@@ -104,5 +111,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

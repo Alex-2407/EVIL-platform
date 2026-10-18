@@ -182,7 +182,95 @@
     }
   }
 
+  /**
+   * La scena in tre quadri (passo 2.13): parte quando entra nello schermo, mostra i quadri una
+   * volta sola e si ferma sull'ultimo; pausa e frecce sempre disponibili. Con il movimento ridotto
+   * resta la striscia a fumetti, senza animazioni.
+   */
+  function initScene() {
+    const fig = document.querySelector('[data-pp-anim]');
+    if (!fig || reducedMotion) return;
+    const list = fig.querySelector('[data-pp-anim-frames]');
+    const frames = Array.from(fig.querySelectorAll('.pp-anim__frame'));
+    const bar = fig.querySelector('[data-pp-anim-bar]');
+    const play = fig.querySelector('[data-pp-anim-play]');
+    const dots = Array.from(fig.querySelectorAll('.pp-anim__dots i'));
+    if (frames.length < 2 || !list || !bar || !play) return;
+    const STEP = 3800;
+    let i = 0;
+    let timer = 0;
+    let playing = false;
+
+    function show(n) {
+      i = (n + frames.length) % frames.length;
+      frames.forEach((f, k) => {
+        f.classList.toggle('is-active', k === i);
+        f.setAttribute('aria-hidden', k === i ? 'false' : 'true');
+      });
+      dots.forEach((d, k) => d.classList.toggle('is-on', k === i));
+    }
+
+    function setPlaying(on) {
+      playing = on;
+      window.clearTimeout(timer);
+      fig.classList.toggle('is-playing', on);
+      play.setAttribute('aria-label', on ? S('scenePause') : S('scenePlay'));
+      if (on) timer = window.setTimeout(tick, STEP);
+    }
+
+    function tick() {
+      if (i >= frames.length - 1) {
+        setPlaying(false);
+        return;
+      }
+      show(i + 1);
+      timer = window.setTimeout(tick, STEP);
+    }
+
+    // i movimenti dentro i quadri partono solo da qui (css: .pp-anim.is-run)
+    const run = () => fig.classList.add('is-run');
+
+    // chi usa le frecce sente la didascalia nuova; durante la riproduzione automatica no
+    function manual(n) {
+      run();
+      setPlaying(false);
+      list.setAttribute('aria-live', 'polite');
+      show(n);
+    }
+
+    fig.classList.add('is-show');
+    bar.hidden = false;
+    list.setAttribute('aria-live', 'off');
+    show(0);
+    setPlaying(false);
+    play.addEventListener('click', () => {
+      run();
+      if (playing) {
+        setPlaying(false);
+        return;
+      }
+      if (i >= frames.length - 1) show(0);
+      setPlaying(true);
+    });
+    fig.querySelector('[data-pp-anim-prev]').addEventListener('click', () => manual(i - 1));
+    fig.querySelector('[data-pp-anim-next]').addEventListener('click', () => manual(i + 1));
+
+    // parte quando metà della scena è sullo schermo, così il primo quadro non si perde
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        run();
+        setPlaying(true);
+      }, { threshold: 0.5 });
+      io.observe(fig);
+    } else {
+      run();
+    }
+  }
+
   function initStory() {
+    initScene();
     document.querySelectorAll('[data-pp-choices] details').forEach((d) => {
       d.addEventListener('toggle', () => {
         if (!d.open || !d.hasAttribute('data-good')) return;

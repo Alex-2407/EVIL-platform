@@ -186,6 +186,45 @@ const ok = (cond, msg) => {
   ok((await status()).startsWith('Got it! Traps: 1 of 3'), `inglese: testi del gioco (${await status()})`);
   ok((await p.textContent('.pp-sms__from')).includes('LuParcel'), 'inglese: marchio inventato tradotto');
 
+  // ---------------------------------------------------- 6b. la scena animata (2.13)
+  // finestra bassa: la scena è sotto la piega, quindi non parte e il pacco (che compare in ritardo) aspetta
+  const parcelOpacity = (pg) => pg.$eval('.pp-anim__frame[data-frame="0"] .a-d2', (e) => Number(getComputedStyle(e).opacity));
+  const low = await b.newContext({ viewport: { width: 1366, height: 480 } });
+  const lp = await low.newPage();
+  await lp.goto(`${BASE}/pp-truffe.html`, { waitUntil: 'networkidle' });
+  await lp.waitForTimeout(300);
+  ok(await lp.$eval('[data-pp-anim]', (e) => e.classList.contains('is-show')), 'scena: un quadro alla volta');
+  ok(!(await lp.$eval('[data-pp-anim]', (e) => e.classList.contains('is-run') || e.classList.contains('is-playing'))), 'scena: fuori dallo schermo non parte');
+  ok((await parcelOpacity(lp)) === 0, 'scena: quello che deve ancora comparire aspetta chi guarda');
+  await lp.locator('[data-pp-anim]').scrollIntoViewIfNeeded();
+  await lp.waitForTimeout(300);
+  ok(await lp.$eval('[data-pp-anim]', (e) => e.classList.contains('is-playing') && e.classList.contains('is-run')), 'scena: parte quando entra nello schermo');
+  await lp.waitForTimeout(1500);
+  ok((await parcelOpacity(lp)) === 1, 'scena: gli oggetti compaiono uno dopo l\'altro');
+  await low.close();
+  await p.goto(`${BASE}/pp-truffe.html`, { waitUntil: 'networkidle' });
+  await p.locator('[data-pp-anim]').scrollIntoViewIfNeeded();
+  await p.waitForTimeout(4400);
+  const activeNow = await p.$eval('.pp-anim__frame.is-active', (e) => e.getAttribute('data-frame'));
+  ok(activeNow === '1', `scena: dopo un po' passa al secondo quadro (${activeNow})`);
+  await p.screenshot({ path: `${OUT}/e2e-scene.png` });
+  await p.click('[data-pp-anim-play]');
+  ok(!(await p.$eval('[data-pp-anim]', (e) => e.classList.contains('is-playing'))), 'scena: pausa');
+  ok((await p.getAttribute('[data-pp-anim-play]', 'aria-label')) === 'Riproduci la storia', 'scena: il pulsante dice cosa fa');
+  await p.click('[data-pp-anim-next]');
+  ok((await p.$eval('.pp-anim__frame.is-active', (e) => e.getAttribute('data-frame'))) === '2', 'scena: freccia avanti');
+  ok((await p.getAttribute('[data-pp-anim-frames]', 'aria-live')) === 'polite', 'scena: dopo un comando la didascalia viene letta');
+  await p.click('[data-pp-anim-prev]');
+  ok((await p.$eval('.pp-anim__frame.is-active', (e) => e.getAttribute('data-frame'))) === '1', 'scena: freccia indietro');
+  const calm = await b.newContext({ viewport: { width: 1366, height: 900 }, reducedMotion: 'reduce' });
+  const cp = await calm.newPage();
+  await cp.goto(`${BASE}/pp-truffe.html`, { waitUntil: 'networkidle' });
+  ok(!(await cp.$eval('[data-pp-anim]', (e) => e.classList.contains('is-show'))), 'scena con movimento ridotto: striscia a fumetti');
+  ok((await cp.$$eval('.pp-anim__frame', (fs) => fs.filter((f) => f.getBoundingClientRect().width > 100).length)) === 3, 'scena con movimento ridotto: tre quadri visibili');
+  await cp.locator('[data-pp-anim]').scrollIntoViewIfNeeded();
+  await cp.screenshot({ path: `${OUT}/e2e-scene-strip.png` });
+  await calm.close();
+
   // ---------------------------------------------------- 7. telefono
   const m = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'it-IT', hasTouch: true, isMobile: true });
   const mp = await m.newPage();

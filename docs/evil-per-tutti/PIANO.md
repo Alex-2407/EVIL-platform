@@ -50,7 +50,7 @@ Decisioni tecniche:
 
 | # | Decisione | Perché |
 |---|---|---|
-| T1 | Primi passi è un percorso statico nel browser: dati in `js/primi-passi-data.js` (copia inglese in `js/i18n/en/`), progressi in `localStorage` | Niente account né dati; funziona alla LIM anche offline; il motore dei corsi resta per i corsi tecnici |
+| T1 | Primi passi è un percorso statico nel browser: pagine generate da `server/lib/primi-passi-content.js` con `scripts/build-primi-passi.js` (dizionari inglesi compresi), progressi in `localStorage` | Niente account né dati; funziona alla LIM anche offline; il motore dei corsi resta per i corsi tecnici |
 | T2 | Nuova area "Per tutti" (`per-tutti`) nella mappa del sito, prima nel menu | Porta d'ingresso visibile per il pubblico generale |
 | T3 | I contenuti fatti di dati (contatti di aiuto) sono generati dal server dopo la traduzione, al posto di un segnaposto `<!--evil:fragment:nome-->` | Una sola fonte dei dati, con fonte, data e revisore, controllata dai test |
 | T4 | Le pagine "Per tutti" usano uno stile chiaro a "carta" (`css/per-tutti.css`); header e footer restano quelli del sito | Più leggibile e meno intimidatorio, senza rifare tutto il sito |

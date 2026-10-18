@@ -25,7 +25,14 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Detective": "Fact checker",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
-  "Sui social gira un video: il preside annuncia che domani la scuola è chiusa. La voce è la sua, la faccia anche.": "A video is going round on social media: the head teacher announces that school is closed tomorrow. The voice is hers, the face too.",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Un video sembra vero e fa il giro dei social.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> A video looks real and spreads across social media.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Si controlla la fonte: il sito ufficiale della scuola.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Check the source: the school’s official website.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> La fonte ufficiale vince sul video più convincente.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> The official source beats the most convincing video.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
+  "Sui social gira un video: la preside annuncia che domani la scuola è chiusa. La voce è la sua, la faccia anche.": "A video is going round on social media: the head teacher announces that school is closed tomorrow. The voice is hers, the face too.",
   "In un’ora lo condividono in centinaia.": "Within an hour hundreds of people have shared it.",
   "Cosa controlli prima di condividerlo?": "What do you check before sharing it?",
   "Apri le risposte e scopri come va a finire.": "Open the answers and find out how it ends.",
@@ -109,5 +116,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

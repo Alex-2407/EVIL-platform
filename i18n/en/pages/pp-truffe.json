@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Occhio di lince": "Eagle eye",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Di notte arriva un SMS: c’è un pacco da pagare.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> A text arrives at night: there’s a parcel to pay for.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Lù guarda l’indirizzo del link: non è il sito del corriere.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Lu checks the link’s address: it isn’t the courier’s site.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Si controlla dall’app ufficiale. Truffa evitata.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Check it in the official app. Scam avoided.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Sono le 23. A Giulia arriva un SMS: «Il tuo pacco è in giacenza. Paga 1,99 € di spese entro oggi o verrà rispedito.» Sotto, un link.": "It’s 11 pm. Giulia gets a text: “Your parcel is on hold. Pay a €1.99 fee today or it will be sent back.” Below it, a link.",
   "Giulia aspetta davvero un pacco.": "Giulia really is waiting for a parcel.",
   "Cosa fa Giulia?": "What does Giulia do?",
@@ -107,5 +114,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Regista della privacy": "Privacy director",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Una foto racconta più di quanto sembra: lo sfondo, il luogo, l’ora.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> A photo says more than it seems: the background, the place, the time.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Messi insieme, i dettagli dicono dove trovarti.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Put together, the details say where to find you.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Posizione spenta e solo gli amici: decidi tu chi ti vede.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Location off and friends only: you decide who sees you.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Elena pubblica una storia: la divisa della squadra, il cancello della scuola sullo sfondo e la posizione attiva, «così si vede dov’è».": "Elena posts a story: her team kit, the school gate in the background and her location switched on, “so people can see where it is”.",
   "Il suo profilo ha 600 follower. Ne conosce davvero una cinquantina.": "Her profile has 600 followers. She actually knows about fifty of them.",
   "Cosa ha raccontato Elena, senza volerlo?": "What did Elena give away without meaning to?",
@@ -107,5 +114,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

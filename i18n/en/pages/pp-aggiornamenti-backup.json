@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Guardiano dei ricordi": "Memory keeper",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Gli aggiornamenti chiudono i buchi che conoscono anche i criminali.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Updates close holes that criminals know about too.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Il backup mette una copia dei ricordi al sicuro.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> A backup puts a copy of your memories somewhere safe.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Se il telefono si rompe, i ricordi tornano sul telefono nuovo.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> If your phone breaks, your memories come back on the new one.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Il computer di casa di Ahmed mostra una scritta rossa: tutti i file sono bloccati e qualcuno chiede soldi per sbloccarli.": "Ahmed’s family computer shows a red message: all the files are locked and someone is demanding money to unlock them.",
   "Dentro ci sono le foto delle vacanze, i compiti, i documenti di famiglia.": "Inside are the holiday photos, homework and family documents.",
   "Cosa avrebbe salvato le foto?": "What would have saved the photos?",
@@ -110,5 +117,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

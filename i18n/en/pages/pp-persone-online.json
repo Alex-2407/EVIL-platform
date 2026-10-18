@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Radar": "Radar",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Nel gioco, un profilo nuovo fa regali.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> In the game, a new profile gives gifts.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Poi chiede segreti e una chat privata.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Then it asks for secrets and a private chat.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> È il momento di parlarne con un adulto di cui ti fidi.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> That’s the moment to talk to an adult you trust.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "In un gioco online, Leo fa amicizia con «Fede, 13 anni». Giocano insieme ogni sera.": "In an online game, Leo makes friends with “Fede, 13”. They play together every evening.",
   "Dopo qualche settimana Fede gli regala dei crediti per il gioco. Poi gli chiede di passare su un’altra app, «più privata», e di non dirlo a nessuno.": "After a few weeks Fede gives him some in-game credits. Then Fede asks him to move to another app, “more private”, and not to tell anyone.",
   "Qual è il segnale più importante?": "What is the most important warning sign?",
@@ -112,5 +119,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

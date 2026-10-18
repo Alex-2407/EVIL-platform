@@ -143,6 +143,29 @@ test('Primi passi: le tappe delicate mostrano i numeri di aiuto, le altre no', a
   assert.doesNotMatch(pw.text, /class="pt-help-numbers"/);
 });
 
+test('Primi passi: ogni tappa ha una scena in tre quadri, con sottotitoli e disegni senza parole', async () => {
+  const { SCENES, sceneSvg } = require('../server/lib/primi-passi-scenes');
+  assert.deepEqual(Object.keys(SCENES).sort(), C.TAPPE.map((t) => t.slug).sort(), 'una scena per tappa');
+  for (const t of C.TAPPE) {
+    assert.equal(t.scene.it.length, 3, `${t.slug}: tre didascalie`);
+    for (let i = 0; i < 3; i++) {
+      const svg = sceneSvg(t.slug, i);
+      assert.match(svg, /^<svg class="pp-scene-svg" viewBox="0 0 320 200" aria-hidden="true" focusable="false">/, `${t.slug}/${i}`);
+      // niente id (si ripeterebbero nella pagina) e nessuna parola dentro i disegni: le dice la didascalia
+      assert.doesNotMatch(svg, /\sid="/, `${t.slug}/${i}: id nel disegno`);
+      for (const m of svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)) assert.equal(m[1], '?', `${t.slug}/${i}: testo nel disegno`);
+    }
+  }
+  const it = await request(app).get('/pp-truffe.html').expect(200);
+  assert.match(it.text, /<figure class="pp-anim" data-pp-anim aria-label="La storia in tre immagini">/);
+  assert.equal((it.text.match(/<li class="pp-anim__frame" data-frame="\d">/g) || []).length, 3);
+  // senza JavaScript restano i tre quadri uno accanto all'altro: i comandi compaiono solo con lo script
+  assert.match(it.text, /<div class="pp-anim__bar" data-pp-anim-bar hidden>/);
+  const en = await request(app).get('/en/pp-truffe.html').expect(200);
+  assert.match(en.text, new RegExp(`> ${C.TAPPE.find((t) => t.slug === 'truffe').scene.en[0].replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}</p>`));
+  assert.match(en.text, /aria-label="Play the story"|aria-label="Pause"/);
+});
+
 test('Primi passi: senza JavaScript le risposte restano leggibili', async () => {
   const res = await request(app).get('/pp-cosa-proteggere.html').expect(200);
   assert.match(res.text, /<details class="pp-choice" data-good="1">/);

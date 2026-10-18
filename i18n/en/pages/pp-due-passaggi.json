@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Doppia mandata": "Double-locked",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> La password è la prima serratura.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Your password is the first lock.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> La seconda chiede un codice che arriva solo sul tuo telefono.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> The second asks for a code that only reaches your phone.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Chi ha rubato la password resta fuori.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Whoever stole the password stays locked out.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Sono le 23. A Sara arriva un SMS con un codice di sei cifre che non ha chiesto.": "It’s 11 pm. Sara gets a text with a six-digit code she didn’t ask for.",
   "Un minuto dopo le scrive un’amica su WhatsApp: «Scusa, ti ho mandato un codice per sbaglio, me lo rimandi?»": "A minute later a friend messages her on WhatsApp: “Sorry, I sent you a code by mistake, can you send it back?”",
   "Cosa fa Sara?": "What does Sara do?",
@@ -111,5 +118,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

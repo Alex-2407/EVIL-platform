@@ -13,7 +13,7 @@ per tecnici). Regole di scrittura in [STILE.md](STILE.md).
 
 ## Com'è fatta una tappa
 
-Storia con una scelta (una sola risposta giusta) · "Te lo spieghiamo" in tre livelli · "Fai subito"
+Scena in tre quadri · storia con una scelta (una sola risposta giusta) · "Te lo spieghiamo" in tre livelli · "Fai subito"
 con il telefono in mano · un gioco (classifica, ordina, scegli le trappole, trova le trappole) · badge ·
 anteprima della tappa successiva · link ai corsi e ai quiz di EVIL · fonti.
 Una tappa è completata quando si finisce il gioco; i progressi restano in `localStorage`
@@ -45,6 +45,28 @@ Prova nel browser: `scripts/e2e/primi-passi.js`.
 Tutte le fonti sono state aperte e verificate il **18 ottobre 2026**. I numeri citati:
 Polizia Postale 2025 (via Cybersecurity360, 13 gennaio 2026): 428 casi di adescamento online,
 174 con vittime tra 10 e 13 anni; 220 casi di sextortion con vittime minorenni, 192 (87%) tra 14 e 17 anni.
+
+## Le scene (passo 2.13)
+
+Ogni storia si apre con una scena in tre quadri: disegni SVG originali in
+`server/lib/primi-passi-scenes.js`, didascalie IT/EN nel campo `scene` di ogni tappa.
+
+- **Niente parole nei disegni:** le dicono le didascalie, che si traducono e si leggono con i
+  lettori di schermo; i disegni sono nascosti ai lettori (`aria-hidden`).
+- **Chi fa del male non ha mai un volto né un colore di pelle:** è un profilo grigio con il punto di
+  domanda, una chiave rubata, un messaggio. I volti sono dei protagonisti delle storie (Martina,
+  Elena, Leo, Tommaso, Paolo, la preside del video falso) e degli adulti che aiutano, con carnagioni
+  e capelli diversi.
+- **Con JavaScript:** un quadro alla volta; parte solo quando metà della scena è sullo schermo,
+  scorre una volta (circa 8 secondi) e si ferma sull'ultimo quadro. Pausa e frecce sono sempre
+  disponibili; con le frecce la didascalia nuova viene letta (`aria-live`), durante la riproduzione
+  automatica no. Gli oggetti di ogni quadro entrano uno dopo l'altro.
+- **Con il movimento ridotto o senza JavaScript:** striscia a fumetti con i tre quadri affiancati
+  (da telefono scorrono di lato), nessun movimento.
+- Per cambiare una scena: si modifica il quadro in `primi-passi-scenes.js` (oggetti già pronti:
+  telefono, fumetto, lucchetto, chiave, persona, Lù…) e si rigenera con
+  `node scripts/build-primi-passi.js`. Il test controlla tre quadri per tappa, niente parole e
+  niente `id` nei disegni.
 
 ## Scelte editoriali
 

@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Alleato": "Ally",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Nel gruppo della classe gira un meme, e piovono risate.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> A meme goes round the class group chat, and the laughs pour in.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Per chi è preso di mira non è uno scherzo.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> For the person being targeted, it’s no joke.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Un messaggio a Tommaso e un adulto avvisato cambiano le cose.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> A message to Tommaso and a grown-up in the loop change everything.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Nel gruppo della classe gira un meme con la faccia di Tommaso. In due ore arrivano quaranta risate.": "A meme with Tommaso’s face is going round the class group chat. In two hours it gets forty laughing reactions.",
   "Tommaso non scrive niente da ieri.": "Tommaso hasn’t written anything since yesterday.",
   "Tu sei nel gruppo. Cosa fai?": "You’re in the group. What do you do?",
@@ -109,5 +116,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }

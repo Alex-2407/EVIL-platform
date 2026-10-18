@@ -61,8 +61,12 @@ quando attivi la verifica in due passaggi, un messaggio che si sfalda quando tro
 - Entrate: dissolvenza più 8 px di salita, una volta sola, quando l'elemento entra nello schermo.
 - Lù respira (scala 1–1,02 in 3 s), batte le ali, sbatte le palpebre ogni 4–7 s; la coda pulsa piano.
 - Successo: un piccolo salto (scala 1 → 1,06 → 1) e la luce di Lù diventa verde.
+- **Scene delle storie** (Primi passi): tre quadri che partono solo quando sono sullo schermo, una
+  volta sola, con pausa e frecce sempre a portata; gli oggetti entrano uno dopo l'altro (0,5–0,6 s
+  ciascuno, a scaglioni fino a 1,55 s). I movimenti che raccontano (la lente che cerca, la freccia
+  dell'aggiornamento che gira) possono durare fino a 1,4 s. Chi fa del male non ha mai un volto.
 - **Movimento ridotto:** con `prefers-reduced-motion` niente animazioni continue né spostamenti;
-  restano solo cambi di colore e opacità istantanei.
+  restano solo cambi di colore e opacità istantanei (le scene diventano una striscia a fumetti).
 - Mai lampeggi più di 3 volte al secondo, mai parallax, mai riproduzione automatica con audio.
 
 ## Parole: tono per chi legge

@@ -161,6 +161,9 @@ const UI = {
   inThisStage: T('In questa tappa', 'In this stage'),
   sideTitle: T('La tua tappa', 'Your stage'),
   storyTitle: T('La storia', 'The story'),
+  sceneLabel: T('La storia in tre immagini', 'The story in three pictures'),
+  scenePrev: T('Immagine precedente', 'Previous picture'),
+  sceneNext: T('Immagine successiva', 'Next picture'),
   storyHint: T('Apri le risposte e scopri come va a finire.', 'Open the answers and find out how it ends.'),
   verdictGood: T('Ottima scelta', 'Great choice'),
   verdictBad: T('Ripensaci', 'Think again'),
@@ -220,6 +223,8 @@ const STRINGS = {
   moveUp: T('Sposta su', 'Move up'),
   moveDown: T('Sposta giù', 'Move down'),
   moved: T('{item}: posizione {n} di {total}', '{item}: position {n} of {total}'),
+  scenePlay: T('Riproduci la storia', 'Play the story'),
+  scenePause: T('Metti in pausa', 'Pause'),
 };
 
 const TAPPE = [
@@ -234,6 +239,10 @@ const TAPPE = [
       'First steps, stage 1: what is inside your phone and why it is worth much more than what you paid for it.'
     ),
     hook: T('Il tuo telefono vale molto più di quanto l’hai pagato. In 4 minuti scopri perché.', 'Your phone is worth much more than what you paid for it. Find out why in 4 minutes.'),
+    scene: T(
+      ['Nel telefono ci sono le tue foto, le tue chat e il tuo nome.', 'Basta un attimo in mano ad altri: un messaggio parte a tuo nome.', 'Per questo il telefono si blocca e non si presta.'],
+      ['Your phone holds your photos, your chats and your name.', 'A moment in someone else’s hands, and a message goes out in your name.', 'That’s why your phone stays locked and isn’t lent out.']
+    ),
     story: {
       text: T(
         ['Martina, 12 anni, presta il telefono a un compagno «solo per un attimo».', 'Dieci minuti dopo, nel gruppo della classe compare un messaggio firmato da lei. Ma Martina non l’ha mai scritto.'],
@@ -326,6 +335,10 @@ const TAPPE = [
       'First steps, stage 2: why a long password that is different for every account protects you even when a site is breached, and what passkeys are.'
     ),
     hook: T('Una password lunga batte una password complicata. Ti spieghiamo perché in 4 minuti.', 'A long password beats a complicated one. Here’s why, in 4 minutes.'),
+    scene: T(
+      ['Una sola password per tutto è una chiave che apre ogni porta.', 'Se un sito perde le password, quella chiave finisce in giro.', 'Una chiave diversa per ogni porta: se ne perdi una, le altre restano chiuse.'],
+      ['One password for everything is a key that opens every door.', 'If a site leaks its passwords, that key gets passed around.', 'A different key for each door: lose one and the others stay locked.']
+    ),
     story: {
       text: T(
         ['Luca usa la stessa password ovunque: il nome del cane e il suo anno di nascita.', 'Un giorno il sito di un videogioco a cui era iscritto subisce un furto di dati. Il giorno dopo qualcuno entra nel suo profilo social.'],
@@ -417,6 +430,10 @@ const TAPPE = [
       'First steps, stage 3: the second lock that keeps out whoever stole your password, and the scam of the code sent “by mistake”.'
     ),
     hook: T('Anche se rubano la tua password, possono restare fuori. Serve una seconda serratura.', 'Even if they steal your password, they can stay locked out. You need a second lock.'),
+    scene: T(
+      ['La password è la prima serratura.', 'La seconda chiede un codice che arriva solo sul tuo telefono.', 'Chi ha rubato la password resta fuori.'],
+      ['Your password is the first lock.', 'The second asks for a code that only reaches your phone.', 'Whoever stole the password stays locked out.']
+    ),
     story: {
       text: T(
         ['Sono le 23. A Sara arriva un SMS con un codice di sei cifre che non ha chiesto.', 'Un minuto dopo le scrive un’amica su WhatsApp: «Scusa, ti ho mandato un codice per sbaglio, me lo rimandi?»'],
@@ -509,6 +526,10 @@ const TAPPE = [
       'First steps, stage 4: why updating your phone and keeping a copy of your files saves you when something goes wrong, even against ransomware.'
     ),
     hook: T('Due abitudini noiose che fanno la differenza il giorno in cui qualcosa va storto.', 'Two boring habits that make all the difference on the day something goes wrong.'),
+    scene: T(
+      ['Gli aggiornamenti chiudono i buchi che conoscono anche i criminali.', 'Il backup mette una copia dei ricordi al sicuro.', 'Se il telefono si rompe, i ricordi tornano sul telefono nuovo.'],
+      ['Updates close holes that criminals know about too.', 'A backup puts a copy of your memories somewhere safe.', 'If your phone breaks, your memories come back on the new one.']
+    ),
     story: {
       text: T(
         ['Il computer di casa di Ahmed mostra una scritta rossa: tutti i file sono bloccati e qualcuno chiede soldi per sbloccarli.', 'Dentro ci sono le foto delle vacanze, i compiti, i documenti di famiglia.'],
@@ -603,6 +624,10 @@ const TAPPE = [
       'First steps, stage 5: spotting scam texts, emails and calls, from the parcel on hold to the fake bank operator, with three questions.'
     ),
     hook: T('Molte truffe usano lo stesso trucco: metterti fretta. Alla fine di questa tappa lo riconoscerai al volo.', 'Many scams use the same trick: rushing you. By the end of this stage you’ll spot it instantly.'),
+    scene: T(
+      ['Di notte arriva un SMS: c’è un pacco da pagare.', 'Lù guarda l’indirizzo del link: non è il sito del corriere.', 'Si controlla dall’app ufficiale. Truffa evitata.'],
+      ['A text arrives at night: there’s a parcel to pay for.', 'Lu checks the link’s address: it isn’t the courier’s site.', 'Check it in the official app. Scam avoided.']
+    ),
     story: {
       text: T(
         ['Sono le 23. A Giulia arriva un SMS: «Il tuo pacco è in giacenza. Paga 1,99 € di spese entro oggi o verrà rispedito.» Sotto, un link.', 'Giulia aspetta davvero un pacco.'],
@@ -696,6 +721,10 @@ const TAPPE = [
       'First steps, stage 6: what your photos and stories say about you, even when you don’t write it, and how to choose who sees you.'
     ),
     hook: T('Una foto può dire dove vivi, a che ora esci e dove vai a scuola. Anche se non lo scrivi.', 'A photo can say where you live, when you go out and where you go to school. Even if you don’t write it.'),
+    scene: T(
+      ['Una foto racconta più di quanto sembra: lo sfondo, il luogo, l’ora.', 'Messi insieme, i dettagli dicono dove trovarti.', 'Posizione spenta e solo gli amici: decidi tu chi ti vede.'],
+      ['A photo says more than it seems: the background, the place, the time.', 'Put together, the details say where to find you.', 'Location off and friends only: you decide who sees you.']
+    ),
     story: {
       text: T(
         ['Elena pubblica una storia: la divisa della squadra, il cancello della scuola sullo sfondo e la posizione attiva, «così si vede dov’è».', 'Il suo profilo ha 600 follower. Ne conosce davvero una cinquantina.'],
@@ -794,6 +823,10 @@ const TAPPE = [
       'First steps, stage 7: the signs of online grooming and what to do if someone blackmails you with a photo. With the numbers of people who can help.'
     ),
     hook: T('Online è facile fingersi qualcun altro. Ecco i segnali da riconoscere.', 'Online it’s easy to pretend to be someone else. Here are the signs to watch for.'),
+    scene: T(
+      ['Nel gioco, un profilo nuovo fa regali.', 'Poi chiede segreti e una chat privata.', 'È il momento di parlarne con un adulto di cui ti fidi.'],
+      ['In the game, a new profile gives gifts.', 'Then it asks for secrets and a private chat.', 'That’s the moment to talk to an adult you trust.']
+    ),
     story: {
       text: T(
         ['In un gioco online, Leo fa amicizia con «Fede, 13 anni». Giocano insieme ogni sera.', 'Dopo qualche settimana Fede gli regala dei crediti per il gioco. Poi gli chiede di passare su un’altra app, «più privata», e di non dirlo a nessuno.'],
@@ -882,6 +915,10 @@ const TAPPE = [
       'First steps, stage 8: recognising cyberbullying, what to do if you see it or it happens to you, and the rights the law gives young people too.'
     ),
     hook: T('Chi guarda può cambiare tutto. Anche tu.', 'Bystanders can change everything. You too.'),
+    scene: T(
+      ['Nel gruppo della classe gira un meme, e piovono risate.', 'Per chi è preso di mira non è uno scherzo.', 'Un messaggio a Tommaso e un adulto avvisato cambiano le cose.'],
+      ['A meme goes round the class group chat, and the laughs pour in.', 'For the person being targeted, it’s no joke.', 'A message to Tommaso and a grown-up in the loop change everything.']
+    ),
     story: {
       text: T(
         ['Nel gruppo della classe gira un meme con la faccia di Tommaso. In due ore arrivano quaranta risate.', 'Tommaso non scrive niente da ieri.'],
@@ -973,9 +1010,13 @@ const TAPPE = [
       'First steps, stage 9: fake news, videos and voices made with artificial intelligence, and three questions to ask before you share.'
     ),
     hook: T('Un video può essere finto anche quando sembra vero. Tre domande per non farsi ingannare.', 'A video can be fake even when it looks real. Three questions so you don’t get fooled.'),
+    scene: T(
+      ['Un video sembra vero e fa il giro dei social.', 'Si controlla la fonte: il sito ufficiale della scuola.', 'La fonte ufficiale vince sul video più convincente.'],
+      ['A video looks real and spreads across social media.', 'Check the source: the school’s official website.', 'The official source beats the most convincing video.']
+    ),
     story: {
       text: T(
-        ['Sui social gira un video: il preside annuncia che domani la scuola è chiusa. La voce è la sua, la faccia anche.', 'In un’ora lo condividono in centinaia.'],
+        ['Sui social gira un video: la preside annuncia che domani la scuola è chiusa. La voce è la sua, la faccia anche.','In un’ora lo condividono in centinaia.'],
         ['A video is going round on social media: the head teacher announces that school is closed tomorrow. The voice is hers, the face too.', 'Within an hour hundreds of people have shared it.']
       ),
       question: T('Cosa controlli prima di condividerlo?', 'What do you check before sharing it?'),
@@ -1069,6 +1110,10 @@ const TAPPE = [
       'First steps, stage 10: an emergency plan for stolen accounts, misused cards, photos and threats. What to do in the first few minutes.'
     ),
     hook: T('Può capitare anche ai più attenti. Chi ha un piano sa cosa fare nei primi minuti, quelli che contano di più.', 'It can happen to the most careful people. With a plan, you know what to do in the first few minutes, the ones that matter most.'),
+    scene: T(
+      ['Una sera l’account non si apre più.', 'Si recupera dalla pagina ufficiale e si cambiano le serrature.', 'Poi si avvisano i contatti. Il piano ha funzionato.'],
+      ['One evening the account won’t open.', 'Recover it from the official page and change the locks.', 'Then warn your contacts. The plan worked.']
+    ),
     story: {
       text: T(
         ['Domenica sera Paolo non riesce più a entrare nella sua email: la password è cambiata.', 'Sul suo profilo compaiono messaggi che non ha mai scritto.'],

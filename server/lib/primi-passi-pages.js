@@ -13,6 +13,7 @@
 
 const { svgIcon } = require('../icons');
 const C = require('./primi-passi-content');
+const { sceneSvg } = require('./primi-passi-scenes');
 
 const QUOTE = { it: ['«', '»'], en: ['“', '”'] };
 
@@ -196,6 +197,31 @@ ${body(g, lang, t.slug)}
         </div>`;
 }
 
+// ------------------------------------------------------------------ la scena animata (passo 2.13)
+
+/**
+ * Tre quadri con didascalia. Senza JavaScript, o con il movimento ridotto, è una striscia a fumetti;
+ * con JavaScript js/primi-passi.js la trasforma in una breve animazione con pausa e frecce.
+ */
+function scene(t, lang) {
+  const U = C.UI;
+  const frames = L(t.scene, lang).map((cap, i) => `            <li class="pp-anim__frame" data-frame="${i}">
+              ${sceneSvg(t.slug, i).replace(/\n\s*/g, '')}
+              <p class="pp-anim__cap"><span class="pp-anim__n" aria-hidden="true">${i + 1}</span> ${x(cap)}</p>
+            </li>`).join('\n');
+  return `        <figure class="pp-anim" data-pp-anim aria-label="${a(L(U.sceneLabel, lang))}">
+          <ol class="pp-anim__frames" data-pp-anim-frames>
+${frames}
+          </ol>
+          <div class="pp-anim__bar" data-pp-anim-bar hidden>
+            <button class="pp-anim__btn" type="button" data-pp-anim-prev aria-label="${a(L(U.scenePrev, lang))}">‹</button>
+            <button class="pp-anim__btn pp-anim__btn--play" type="button" data-pp-anim-play aria-label="${a(L(C.STRINGS.scenePause, lang))}"></button>
+            <button class="pp-anim__btn" type="button" data-pp-anim-next aria-label="${a(L(U.sceneNext, lang))}">›</button>
+            <span class="pp-anim__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+          </div>
+        </figure>`;
+}
+
 // ------------------------------------------------------------------ pagina di una tappa
 
 function renderStage(t, lang) {
@@ -291,6 +317,7 @@ ${trail(lang, t)}
     <section class="pt-section pp-story" id="story" aria-labelledby="story-title">
       <div class="pt__wrap pt__narrow">
         <h2 id="story-title"><span class="pp-n" aria-hidden="true">1</span> ${x(L(U.storyTitle, lang))}</h2>
+${scene(t, lang)}
         <div class="pp-scene">
 ${storyText}
         </div>

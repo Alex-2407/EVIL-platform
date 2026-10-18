@@ -25,6 +25,13 @@
   "<a href=\"#explain\">Te lo spieghiamo</a>": "<a href=\"#explain\">Let us explain</a>",
   "Custode": "Keeper",
   "<span class=\"pp-n\" aria-hidden=\"true\">1</span> La storia": "<span class=\"pp-n\" aria-hidden=\"true\">1</span> The story",
+  "La storia in tre immagini": "The story in three pictures",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Nel telefono ci sono le tue foto, le tue chat e il tuo nome.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">1</span> Your phone holds your photos, your chats and your name.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> Basta un attimo in mano ad altri: un messaggio parte a tuo nome.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">2</span> A moment in someone else’s hands, and a message goes out in your name.",
+  "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> Per questo il telefono si blocca e non si presta.": "<span class=\"pp-anim__n\" aria-hidden=\"true\">3</span> That’s why your phone stays locked and isn’t lent out.",
+  "Immagine precedente": "Previous picture",
+  "Metti in pausa": "Pause",
+  "Immagine successiva": "Next picture",
   "Martina, 12 anni, presta il telefono a un compagno «solo per un attimo».": "Martina, 12, lends her phone to a classmate “just for a second”.",
   "Dieci minuti dopo, nel gruppo della classe compare un messaggio firmato da lei. Ma Martina non l’ha mai scritto.": "Ten minutes later, a message signed by her appears in the class group chat. But Martina never wrote it.",
   "Che cosa ha perso Martina, in quei dieci minuti?": "What did Martina lose in those ten minutes?",
@@ -105,5 +112,6 @@
   "Sposta su": "Move up",
   "Sposta giù": "Move down",
   "{item}: posizione {n} di {total}": "{item}: position {n} of {total}",
+  "Riproduci la storia": "Play the story",
   "_note": "Generato da scripts/build-primi-passi.js: modifica i testi in server/lib/primi-passi-content.js e rigenera."
 }
