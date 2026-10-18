@@ -6,7 +6,7 @@
   'use strict';
 
   const SKIP_PAGE =
-    /\b(home-page|home-v7|quiz-hub-page|crypto-page|am-page|ha-page|policy-page)\b/;
+    /\b(home-page|home-v7|quiz-hub-page|crypto-page|am-page|ha-page|policy-page|pt-page)\b/;
 
   const REVEAL_SELECTORS = [
     '.st-hub-hero',

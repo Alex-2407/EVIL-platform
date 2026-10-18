@@ -4,7 +4,8 @@ Obiettivo: fare di EVIL il punto di riferimento per la sicurezza digitale di tut
 con il primo telefono al tecnico. Proposta approvata da Alessandro il 18 ottobre 2026
 (documento "EVIL per tutti — proposta di evoluzione").
 
-Questo file è la mappa completa. Lo stato di avanzamento sta in [STATO.md](STATO.md).
+Questo file è la mappa completa. Lo stato di avanzamento sta in [STATO.md](STATO.md); colori,
+carattere, movimento, tono delle parole ed easter egg in [STILE.md](STILE.md).
 
 ## Protocollo: come si lavora e come si riprende dopo un'interruzione
 
@@ -70,6 +71,8 @@ Le date sono indicative (proposta, sezione "Come costruirlo").
 - 1.5 Pulsante "Aiuto" su tutte le pagine; contatti in evidenza sopra il modulo di `help.html`.
 - 1.6 Politica di tutela dei minori e impegni sulla privacy (niente tracciamento).
 - 1.7 Home "Chi sei?": un ingresso per ogni pubblico (dopo che esistono le destinazioni).
+- 1.8 Sorprese: gli easter egg di STILE.md (ricerca "123456", "luce", Lù cliccata 5 volte, finto
+  premio nel footer, messaggio in console, pagina 404), con fatti verificati e citati.
 - Controllo: la sezione Aiuto va online solo dopo la revisione di un esperto (D3).
 
 ### Fase 2 — Primi passi (dicembre 2026–gennaio 2027)

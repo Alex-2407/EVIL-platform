@@ -9,10 +9,15 @@
  */
 
 const { renderHelpContacts, renderHelpNumbers } = require('./lib/help-contacts');
+const { renderMascot } = require('./lib/mascot');
 
 const FRAGMENTS = {
   'help-contacts': (lang) => renderHelpContacts(lang, { heading: 'h3' }),
   'help-numbers': (lang) => renderHelpNumbers(lang),
+  // Lù (docs/evil-per-tutti/STILE.md): pulsante interattivo o immagine decorativa
+  mascot: (lang) => renderMascot(lang, { size: 'lg' }),
+  'mascot-help': (lang) => renderMascot(lang, { size: 'md', mood: 'help', interactive: false }),
+  'mascot-small': (lang) => renderMascot(lang, { size: 'sm', interactive: false }),
 };
 
 const PLACEHOLDER = /<!--evil:fragment:([a-z0-9-]+)-->/g;
