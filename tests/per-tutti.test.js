@@ -77,3 +77,14 @@ test('pulsante Aiuto su ogni pagina (tranne Aiuto) e numeri sopra il modulo di h
   assert.match(help.text, /class="pt-help-numbers"/);
   assert.ok(help.text.indexOf('id="help-urgent"') < help.text.indexOf('id="helpContactForm"'), 'i numeri vengono prima del modulo');
 });
+
+test('tutela dei minori: sezione nelle regole del sito, collegata dalla pagina Aiuto', async () => {
+  const it = await request(app).get('/site-policies.html').expect(200);
+  assert.match(it.text, /id="policy-minors"/);
+  assert.match(it.text, /Sotto i 14 anni niente account/);
+  assert.match(it.text, /href="#policy-minors"/);
+  const en = await request(app).get('/en/site-policies.html').expect(200);
+  assert.match(en.text, /8\. Protecting minors/);
+  const aiuto = await request(app).get('/aiuto.html').expect(200);
+  assert.match(aiuto.text, /href="\/site-policies\.html#policy-minors"/);
+});
