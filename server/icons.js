@@ -30,6 +30,11 @@ const ICON = {
   help: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/>',
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
   star: '<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+  // Primi passi (badge delle tappe)
+  radar: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="1.5"/><path d="m12 12 6-6"/>',
+  heart: '<path d="M12 20.5s-7.6-4.6-9.4-9.4C1.3 7.5 3.6 4 7.1 4c2 0 3.5 1.1 4.9 2.9C13.4 5.1 14.9 4 16.9 4c3.5 0 5.8 3.5 4.5 7.1-1.8 4.8-9.4 9.4-9.4 9.4z"/>',
+  newspaper: '<path d="M4 5h12v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M16 9h4v10a2 2 0 0 1-2 2h-4"/><path d="M7 9h6M7 13h6M7 17h3"/>',
+  flag: '<path d="M5 21V4"/><path d="M5 4h11l-2.5 4.5L16 13H5"/>',
 };
 
 /** SVG inline di un'icona del site-map (tratto, colore dal testo) */

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Truffe: SMS, email e telefonate · Primi passi, tappa 5 - EVIL</title>
+  <meta name="description" content="Primi passi, tappa 5: riconoscere SMS, email e telefonate truffa, dal pacco in giacenza al finto operatore della banca, con tre domande.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/per-tutti.css">
+  <link rel="stylesheet" href="/css/primi-passi.css">
+  <script src="/js/per-tutti.js" defer></script>
+  <script src="/js/primi-passi.js" defer></script>
+</head>
+<body class="evil-theme pt-page pp-page" data-pp-page="stage" data-pp-stage="truffe" data-pp-n="5">
+  <!-- Generato da scripts/build-primi-passi.js: i testi stanno in server/lib/primi-passi-content.js -->
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <!--evil:header-->
+
+  <main id="primi-passi" class="pt pp">
+    <div class="pt__wrap">
+      <nav class="pp-trail" aria-label="Le 10 tappe del percorso">
+        <a class="pp-trail__home" href="/primi-passi.html">Primi passi</a>
+        <ol class="pp-trail__list">
+          <li><a class="pp-trail__dot" href="/pp-cosa-proteggere.html" data-pp-dot="cosa-proteggere" title="Tappa 1: Cosa c’è da proteggere"><span aria-hidden="true">1</span><span class="pt-sr">Tappa 1: Cosa c’è da proteggere</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-password.html" data-pp-dot="password" title="Tappa 2: Password e passkey"><span aria-hidden="true">2</span><span class="pt-sr">Tappa 2: Password e passkey</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-due-passaggi.html" data-pp-dot="due-passaggi" title="Tappa 3: Verifica in due passaggi"><span aria-hidden="true">3</span><span class="pt-sr">Tappa 3: Verifica in due passaggi</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-aggiornamenti-backup.html" data-pp-dot="aggiornamenti-backup" title="Tappa 4: Aggiornamenti e backup"><span aria-hidden="true">4</span><span class="pt-sr">Tappa 4: Aggiornamenti e backup</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-truffe.html" data-pp-dot="truffe" title="Tappa 5: Truffe: SMS, email e telefonate" aria-current="step"><span aria-hidden="true">5</span><span class="pt-sr">Tappa 5: Truffe: SMS, email e telefonate</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-condividere.html" data-pp-dot="condividere" title="Tappa 6: Cosa condivido"><span aria-hidden="true">6</span><span class="pt-sr">Tappa 6: Cosa condivido</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-persone-online.html" data-pp-dot="persone-online" title="Tappa 7: Persone online"><span aria-hidden="true">7</span><span class="pt-sr">Tappa 7: Persone online</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-cyberbullismo.html" data-pp-dot="cyberbullismo" title="Tappa 8: Cyberbullismo"><span aria-hidden="true">8</span><span class="pt-sr">Tappa 8: Cyberbullismo</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-vero-falso.html" data-pp-dot="vero-falso" title="Tappa 9: Vero o falso"><span aria-hidden="true">9</span><span class="pt-sr">Tappa 9: Vero o falso</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-se-succede.html" data-pp-dot="se-succede" title="Tappa 10: Se succede"><span aria-hidden="true">10</span><span class="pt-sr">Tappa 10: Se succede</span></a></li>
+        </ol>
+      </nav>
+
+      <section class="pt-hero pp-hero" aria-labelledby="pp-title">
+        <div>
+          <p class="pt-kicker">Primi passi · Tappa 5 di 10</p>
+          <h1 id="pp-title">Truffe: SMS, email e telefonate</h1>
+          <p class="pt-hero__lead">Molte truffe usano lo stesso trucco: metterti fretta. Alla fine di questa tappa lo riconoscerai al volo.</p>
+          <p class="pp-time">5 minuti</p>
+          <nav class="pp-jump" aria-label="In questa tappa">
+            <ul>
+              <li><a href="#story">La storia</a></li>
+              <li><a href="#do-now">Fai subito</a></li>
+              <li><a href="#game">Il gioco</a></li>
+            </ul>
+          </nav>
+        </div>
+        <div class="pt-hero__art"><!--evil:fragment:mascot--></div>
+      </section>
+    </div>
+
+    <aside class="pp-side" data-pp-side aria-labelledby="side-title">
+      <p class="pp-side__k" id="side-title">La tua tappa</p>
+      <ol class="pp-side__list">
+        <li data-pp-step="story"><a href="#story">La storia</a></li>
+        <li data-pp-step="explain"><a href="#explain">Te lo spieghiamo</a></li>
+        <li data-pp-step="do"><a href="#do-now">Fai subito</a></li>
+        <li data-pp-step="game"><a href="#game">Il gioco</a></li>
+      </ol>
+      <p class="pp-side__badge"><span class="pp-medal" aria-hidden="true"><span class="pp-medal__ring"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m21 21-5-5"/></svg></span><span>Occhio di lince</span></p>
+    </aside>
+
+    <section class="pt-section pp-story" id="story" aria-labelledby="story-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="story-title"><span class="pp-n" aria-hidden="true">1</span> La storia</h2>
+        <div class="pp-scene">
+          <p>Sono le 23. A Giulia arriva un SMS: «Il tuo pacco è in giacenza. Paga 1,99 € di spese entro oggi o verrà rispedito.» Sotto, un link.</p>
+          <p>Giulia aspetta davvero un pacco.</p>
+        </div>
+        <p class="pp-question">Cosa fa Giulia?</p>
+        <p class="pp-hint">Apri le risposte e scopri come va a finire.</p>
+        <div class="pp-choices" data-pp-choices>
+          <details class="pp-choice">
+            <summary>Paga: sono solo 1,99 €.</summary>
+            <div class="pp-choice__out">
+              <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
+              <p>Il link porta a una pagina che imita il corriere e chiede i dati della carta. Non rubano 1,99 €: rubano la carta.</p>
+            </div>
+          </details>
+          <details class="pp-choice" data-good="1">
+            <summary>Controlla la spedizione dall’app o dal sito del corriere, aperti da lei.</summary>
+            <div class="pp-choice__out">
+              <p class="pp-verdict pp-verdict--good">Ottima scelta</p>
+              <p>Esatto. I corrieri non chiedono pagamenti via SMS per le consegne normali: per verificare, vai tu sul sito ufficiale.</p>
+            </div>
+          </details>
+          <details class="pp-choice">
+            <summary>Risponde all’SMS chiedendo spiegazioni.</summary>
+            <div class="pp-choice__out">
+              <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
+              <p>Rispondere non serve: chi l’ha mandato non è il corriere. Verifica tu dal sito ufficiale.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-explain" id="explain" aria-labelledby="explain-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="explain-title"><span class="pp-n" aria-hidden="true">2</span> Te lo spieghiamo</h2>
+        <p class="pt-section__lead">Scegli il livello: la verità è la stessa, cambiano le parole.</p>
+        <div class="pt-switch pp-depth pp-depth--tech" data-pt-switch="pp-depth">
+          <div class="pt-switch__list" role="tablist" aria-label="Livello della spiegazione">
+            <button class="pt-switch__tab pp-tab--kids" type="button" role="tab" id="tab-pp-kids" aria-controls="pp-kids" aria-selected="false">Per i più piccoli</button>
+            <button class="pt-switch__tab pp-tab--all" type="button" role="tab" id="tab-pp-all" aria-controls="pp-all" aria-selected="true">Per tutti</button>
+            <button class="pt-switch__tab pp-tab--deep" type="button" role="tab" id="tab-pp-deep" aria-controls="pp-deep" aria-selected="false">Per tecnici</button>
+          </div>
+          <section class="pt-panel" id="pp-kids" role="tabpanel" aria-labelledby="tab-pp-kids" data-pt-panel="kids">
+            <h3 class="pt-panel__title pt-sr-when-js">Per i più piccoli</h3>
+            <div class="pt-depth--kids pp-kids">
+              <div class="pp-kids__lu"><!--evil:fragment:mascot-small--></div>
+              <div class="pp-kids__text"><p>Se un messaggio dice «Hai vinto!» o «Corri, presto!», fermati. Prima di toccare qualsiasi cosa, chiedi a un adulto.</p><p>I trucchi più vecchi del mondo funzionano anche online: la fretta e i regali troppo belli.</p></div>
+            </div>
+          </section>
+          <section class="pt-panel" id="pp-all" role="tabpanel" aria-labelledby="tab-pp-all" data-pt-panel="all">
+            <h3 class="pt-panel__title pt-sr-when-js">Per tutti</h3>
+            <ol class="pp-why">
+              <li>Le truffe imitano chi conosci: la banca, il corriere, un parente, un’app.</li>
+              <li>Il trucco è metterti fretta o paura, così non ti fermi a controllare.</li>
+              <li>La regola d’oro: se c’è fretta e ti chiedono soldi, codici o dati, chiudi e controlla tu, dal sito o dal numero ufficiale.</li>
+            </ol>
+          </section>
+          <section class="pt-panel" id="pp-deep" role="tabpanel" aria-labelledby="tab-pp-deep" data-pt-panel="deep">
+            <h3 class="pt-panel__title pt-sr-when-js">Per tecnici</h3>
+            <div class="pt-depth--tech pp-deep"><p>Phishing (email), smishing (SMS), vishing (voce, anche con numero falsificato: spoofing). Segnali tecnici: un dominio che non corrisponde al mittente, sottodomini ingannevoli, richieste fuori dai canali soliti, urgenza.</p><p>Difese: passkey e chiavi FIDO resistono al phishing; per le email SPF, DKIM e DMARC; segnalare il messaggio alla piattaforma. Su EVIL puoi analizzare un indirizzo sospetto con Check URL.</p></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-do" id="do-now" aria-labelledby="do-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="do-title"><span class="pp-n" aria-hidden="true">3</span> Fai subito</h2>
+        <p class="pt-section__lead">Prendi il telefono: lo facciamo insieme, adesso.</p>
+        <div class="pp-do__card">
+          <h3>Impara le tre domande</h3>
+          <ol class="pt-steps">
+            <li><strong>Chi me lo manda davvero?</strong> Guarda il numero, l’indirizzo email, il dominio del link, non solo il nome.</li>
+            <li><strong>Mi mette fretta o paura?</strong></li>
+            <li><strong>Mi chiede soldi, codici o dati?</strong> Se rispondi sì anche a una sola domanda, non cliccare: apri tu l’app o il sito ufficiale.</li>
+            <li>Se ti chiama la «banca», non fidarti del numero sul display, che si può falsificare: chiudi e contatta tu la banca dai canali ufficiali.</li>
+          </ol>
+          <div class="pp-do__done">
+            <button class="pt-btn pt-btn--safe pp-done-btn" type="button" aria-pressed="false" data-pp-done>Ho fatto!</button>
+            <p class="pp-done-msg" data-pp-done-msg hidden>Fatto! Una porta in più chiusa.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-play" id="game" aria-labelledby="game-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="game-title"><span class="pp-n" aria-hidden="true">4</span> Il gioco</h2>
+        <div class="pp-game pp-game--spot" data-pp-game="spot">
+          <h3 class="pp-game__title">Trova le tre trappole</h3>
+          <p class="pp-game__intro">Tocca le parti del messaggio che non tornano.</p>
+          <div class="pp-sms" role="group" aria-label="Messaggio da controllare">
+            <p class="pp-sms__from"><span class="pp-sms__avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="m3 7.5 9 4.5 9-4.5M12 12v9"/></svg></span> SpediLù</p>
+            <p class="pp-sms__body" data-pp-spot><span class="pp-seg" data-seg="0">Gentile cliente, il tuo pacco è in giacenza.</span> <span class="pp-seg" data-seg="1" data-trap="1">Paga 1,99 € di spese</span> <span class="pp-seg" data-seg="2" data-trap="1">entro 2 ore o verrà distrutto:</span> <span class="pp-seg pp-mono" data-seg="3" data-trap="1">https://spedilu.consegna-pacchi.top/paga</span></p>
+            <p class="pp-sms__time" aria-hidden="true">23:04</p>
+            <p class="pp-stamp" data-pp-stamp hidden>Truffa smascherata</p>
+          </div>
+          <details class="pp-solution" data-pp-solution>
+            <summary>Mostra la soluzione</summary>
+            <ul class="pp-spot__whys">
+              <li data-seg="0"><strong>«Gentile cliente, il tuo pacco è in giacenza.»</strong> Una frase normale: le truffe copiano i messaggi veri.</li>
+              <li data-seg="1" data-trap="1"><strong>«Paga 1,99 € di spese»</strong> I corrieri non chiedono pagamenti via SMS per le consegne normali.</li>
+              <li data-seg="2" data-trap="1"><strong>«entro 2 ore o verrà distrutto:»</strong> Fretta e minaccia: servono a non farti pensare.</li>
+              <li data-seg="3" data-trap="1"><strong>«https://spedilu.consegna-pacchi.top/paga»</strong> Il nome del corriere c’è, ma l’indirizzo finisce con «consegna-pacchi.top»: è un altro sito. Trucco: guarda la parte prima della prima barra singola e leggila da destra.</li>
+            </ul>
+          </details>
+          <div class="pp-game__bar">
+            <button class="pt-btn pt-btn--ghost" type="button" data-pp-hint hidden>Dammi un aiuto</button>
+            <button class="pt-btn pt-btn--ghost" type="button" data-pp-replay hidden>Gioca di nuovo</button>
+          </div>
+          <p class="pp-game__status" data-pp-status role="status" aria-live="polite"></p>
+        </div>
+        <div class="pp-badge" data-pp-badge>
+          <span class="pp-medal" aria-hidden="true"><span class="pp-medal__ring"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7"/><path d="m21 21-5-5"/></svg></span>
+          <div class="pp-badge__txt">
+            <p class="pp-badge__k">Il tuo badge</p>
+            <p class="pp-badge__name">Occhio di lince</p>
+            <p class="pp-badge__state pp-badge__state--locked">Completa il gioco per guadagnarlo.</p>
+            <p class="pp-badge__state pp-badge__state--won">Guadagnato! Lo ritrovi nella pagina del percorso.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-next" id="next" aria-labelledby="next-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="next-title">E adesso?</h2>
+        <p class="pp-next__teaser">Prossima tappa: cosa racconta di te quello che pubblichi, anche quando non lo scrivi.</p>
+        <p class="pp-next__actions"><a class="pt-btn pt-btn--primary" href="/pp-condividere.html" data-pp-next>Vai alla tappa 6</a> <a class="pt-btn pt-btn--ghost" href="/primi-passi.html">Tutte le tappe</a></p>
+        <p class="pp-next__enough">Per oggi basta così? Nessun problema: i progressi restano su questo dispositivo.</p>
+      </div>
+    </section>
+
+    <section class="pt-section pp-more" aria-labelledby="more-title">
+      <div class="pt__wrap pp-more__grid">
+        <div class="pp-more__col">
+          <h2 id="more-title">Su EVIL, per chi vuole di più</h2>
+          <ul class="pp-links">
+            <li><a href="/quiz-hub.html?cat=smishing-vishing">Quiz «Squilla il sospetto»: SMS e telefonate truffa</a></li>
+            <li><a href="/quiz-hub.html?cat=phishing-email">Quiz «Non abboccare»: le email truffa</a></li>
+            <li><a href="/security-check.html">Check URL: analizza un indirizzo sospetto (serve un account)</a></li>
+          </ul>
+        </div>
+        <div class="pp-more__col">
+          <h2 id="sources-title">Fonti</h2>
+          <ul class="pp-sources">
+            <li><a href="https://www.liberoquotidiano.it/news/italia/47027268/truffe-dei-pacchi-non-ritirati-come-funzionano-davvero-e-perche-sempre-piu-italiani-ci-cascano/" target="_blank" rel="noopener noreferrer">Libero, la truffa del pacco in giacenza, 2026</a></li>
+            <li><a href="https://quifinanza.it/info-utili/truffe-online-telefono-guida-abi-2025/939235/" target="_blank" rel="noopener noreferrer">Vademecum ABI contro le truffe, sintesi QuiFinanza, 2025</a></li>
+            <li><a href="https://fidoalliance.org/passkeys/" target="_blank" rel="noopener noreferrer">FIDO Alliance, passkey</a></li>
+          </ul>
+          <p class="pp-sources__note">Pagine verificate il 18 ottobre 2026.</p>
+        </div>
+      </div>
+    </section>
+
+    <ul class="pp-strings" hidden>
+      <li data-pp-str="right">Giusto!</li>
+      <li data-pp-str="almost">Quasi! Riprova.</li>
+      <li data-pp-str="orderScore">Quasi! Al posto giusto: {ok} su {n}.</li>
+      <li data-pp-str="selectScore">Quasi! Trappole trovate: {found} su {total}.</li>
+      <li data-pp-str="selectExtra">Tra le tue scelte c’è anche qualcosa di innocuo.</li>
+      <li data-pp-str="spotFound">Trovata! Trappole: {found} su {total}.</li>
+      <li data-pp-str="spotMiss">Questa parte è normale.</li>
+      <li data-pp-str="hintTrap">Guarda bene qui.</li>
+      <li data-pp-str="solved">Perfetto! Gioco completato.</li>
+      <li data-pp-str="firstTry">Al primo colpo: {ok} su {n}.</li>
+      <li data-pp-str="attempts">Tentativi: {n}.</li>
+      <li data-pp-str="stamp">Truffa smascherata</li>
+      <li data-pp-str="labelTrap">Trappola</li>
+      <li data-pp-str="labelSafe">Innocua</li>
+      <li data-pp-str="badgeEarned">Badge guadagnato: {badge}</li>
+      <li data-pp-str="doneDot">{label}, completata</li>
+      <li data-pp-str="moveUp">Sposta su</li>
+      <li data-pp-str="moveDown">Sposta giù</li>
+      <li data-pp-str="moved">{item}: posizione {n} di {total}</li>
+    </ul>
+  </main>
+
+  <!--evil:footer-->
+  <script src="/js/matrixrain.js" defer></script>
+</body>
+</html>

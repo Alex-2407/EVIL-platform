@@ -2,6 +2,9 @@
 // Mappa del sito: unica fonte per menu, footer, home, ricerca rapida e sitemap.
 // Ogni pagina ha titolo e descrizione in tutte le lingue supportate.
 
+// Primi passi: il percorso e le sue 10 tappe vengono dal modulo dei contenuti
+const { sitePages: primiPassiPages } = require('./lib/primi-passi-content');
+
 const AREAS = [
   {
     id: 'per-tutti',
@@ -58,6 +61,7 @@ const AREAS = [
 // nav: compare nel menu in alto · auth: serve un account · sitemap: priorità (null = esclusa)
 const PAGES = [
   // ------------------------------------------------------------------ Per tutti
+  ...primiPassiPages(),
   {
     file: 'aiuto.html', area: 'per-tutti', icon: 'lifebuoy', nav: true, sitemap: 0.9,
     title: { it: 'Aiuto subito', en: 'Get help now' },

@@ -144,13 +144,15 @@ const OVERVIEW = {
 
 /** Testi comuni delle pagine di tappa. */
 const UI = {
+  metaTitle: T('{title} · Primi passi, tappa {n} - EVIL', '{title} · First steps, stage {n} - EVIL'),
   kicker: T('Primi passi · Tappa {n} di 10', 'First steps · Stage {n} of 10'),
   minutes: T('{n} minuti', '{n} minutes'),
   trailLabel: T('Le 10 tappe del percorso', 'The 10 stages of the path'),
   trailItem: T('Tappa {n}: {title}', 'Stage {n}: {title}'),
   inThisStage: T('In questa tappa', 'In this stage'),
+  sideTitle: T('La tua tappa', 'Your stage'),
   storyTitle: T('La storia', 'The story'),
-  storyHint: T('Tu cosa faresti? Apri una risposta per scoprire come va a finire.', 'What would you do? Open an answer to see how it ends.'),
+  storyHint: T('Apri le risposte e scopri come va a finire.', 'Open the answers and find out how it ends.'),
   verdictGood: T('Ottima scelta', 'Great choice'),
   verdictBad: T('Ripensaci', 'Think again'),
   helpTitle: T('Se sta succedendo a te', 'If this is happening to you'),
@@ -171,8 +173,6 @@ const UI = {
   check: T('Controlla', 'Check'),
   hint: T('Dammi un aiuto', 'Give me a hint'),
   replay: T('Gioca di nuovo', 'Play again'),
-  moveUp: T('Sposta su', 'Move up'),
-  moveDown: T('Sposta giù', 'Move down'),
   spotLabel: T('Messaggio da controllare', 'Message to check'),
   badgeTitle: T('Il tuo badge', 'Your badge'),
   badgeLocked: T('Completa il gioco per guadagnarlo.', 'Finish the game to earn it.'),
@@ -208,6 +208,9 @@ const STRINGS = {
   labelSafe: T('Innocua', 'Harmless'),
   badgeEarned: T('Badge guadagnato: {badge}', 'Badge earned: {badge}'),
   doneDot: T('{label}, completata', '{label}, completed'),
+  moveUp: T('Sposta su', 'Move up'),
+  moveDown: T('Sposta giù', 'Move down'),
+  moved: T('{item}: posizione {n} di {total}', '{item}: position {n} of {total}'),
 };
 
 const TAPPE = [
@@ -365,6 +368,7 @@ const TAPPE = [
     },
     game: {
       kind: 'order',
+      mono: true,
       title: T('Dalla più debole alla più forte', 'From weakest to strongest'),
       intro: T('Metti in ordine queste password, dalla più facile da scoprire alla più robusta.', 'Put these passwords in order, from the easiest to crack to the strongest.'),
       items: [
@@ -592,14 +596,14 @@ const TAPPE = [
     hook: T('Molte truffe usano lo stesso trucco: metterti fretta. Alla fine di questa tappa lo riconoscerai al volo.', 'Many scams use the same trick: rushing you. By the end of this stage you’ll spot it instantly.'),
     story: {
       text: T(
-        ['Sono le 23. A Giulia arriva un SMS: «Il tuo pacco è in giacenza. Paga 1,99 € di spese entro oggi o verrà rispedito.» Sotto, un link.', 'Giulia aspetta davvero un pacco.'],
+        ['Sono le 23. A Giulia arriva un SMS: «Il tuo pacco è in giacenza. Paga 1,99 € di spese entro oggi o verrà rispedito.» Sotto, un link.', 'Giulia aspetta davvero un pacco.'],
         ['It’s 11 pm. Giulia gets a text: “Your parcel is on hold. Pay a €1.99 fee today or it will be sent back.” Below it, a link.', 'Giulia really is waiting for a parcel.']
       ),
       question: T('Cosa fa Giulia?', 'What does Giulia do?'),
       choices: [
         {
-          text: T('Paga: sono solo 1,99 €.', 'She pays: it’s only €1.99.'),
-          outcome: T('Il link porta a una pagina che imita il corriere e chiede i dati della carta. Non rubano 1,99 €: rubano la carta.', 'The link leads to a page that imitates the courier and asks for card details. They don’t steal €1.99: they steal the card.'),
+          text: T('Paga: sono solo 1,99 €.', 'She pays: it’s only €1.99.'),
+          outcome: T('Il link porta a una pagina che imita il corriere e chiede i dati della carta. Non rubano 1,99 €: rubano la carta.', 'The link leads to a page that imitates the courier and asks for card details. They don’t steal €1.99: they steal the card.'),
         },
         {
           good: true,
@@ -648,7 +652,7 @@ const TAPPE = [
       from: T('SpediLù', 'LuParcel'),
       segments: [
         { text: T('Gentile cliente, il tuo pacco è in giacenza.', 'Dear customer, your parcel is on hold.'), why: T('Una frase normale: le truffe copiano i messaggi veri.', 'A normal sentence: scams copy real messages.') },
-        { trap: true, text: T('Paga 1,99 € di spese', 'Pay a €1.99 fee'), why: T('I corrieri non chiedono pagamenti via SMS per le consegne normali.', 'Couriers don’t ask for payment by text for normal deliveries.') },
+        { trap: true, text: T('Paga 1,99 € di spese', 'Pay a €1.99 fee'), why: T('I corrieri non chiedono pagamenti via SMS per le consegne normali.', 'Couriers don’t ask for payment by text for normal deliveries.') },
         { trap: true, text: T('entro 2 ore o verrà distrutto:', 'within 2 hours or it will be destroyed:'), why: T('Fretta e minaccia: servono a non farti pensare.', 'Rush and threat: they’re there to stop you thinking.') },
         { trap: true, mono: true, text: T('https://spedilu.consegna-pacchi.top/paga', 'https://luparcel.parcel-delivery.top/pay'), why: T('Il nome del corriere c’è, ma l’indirizzo finisce con «consegna-pacchi.top»: è un altro sito. Trucco: guarda la parte prima della prima barra singola e leggila da destra.', 'The courier’s name is there, but the address ends in “parcel-delivery.top”: it’s a different site. Tip: look at the part before the first single slash and read it from the right.') },
       ],

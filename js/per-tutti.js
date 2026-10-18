@@ -68,9 +68,11 @@
       });
     });
 
+    // ordine: scheda nell'indirizzo (#…), poi l'ultima scelta, poi quella indicata nell'HTML
     const fromHash = indexOfKey(decodeURIComponent((window.location.hash || '').slice(1)));
     const fromStore = indexOfKey(store(`pt-switch:${name}`));
-    select(fromHash >= 0 ? fromHash : fromStore >= 0 ? fromStore : 0);
+    const fromMarkup = tabs.findIndex((t) => t.getAttribute('aria-selected') === 'true');
+    select(fromHash >= 0 ? fromHash : fromStore >= 0 ? fromStore : Math.max(0, fromMarkup));
 
     window.addEventListener('hashchange', () => {
       const i = indexOfKey(decodeURIComponent(window.location.hash.slice(1)));

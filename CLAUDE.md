@@ -31,4 +31,6 @@ npm run check:encoding                 # codifica dei file
 - `html/*.html`: pagine in italiano; traduzioni in `i18n/en/pages/*.json` (vedi `docs/I18N.md`).
 - `js/i18n/en/`: copie inglesi dei file di dati.
 - `server/lib/course-*.js`: corsi tecnici, laboratori, esami, diplomi.
-- `tests/`: test con `node:test` e `supertest`.
+- `server/lib/primi-passi-content.js`: testi di Primi passi (IT/EN). Le pagine `html/primi-passi.html`,
+  `html/pp-*.html` e i loro dizionari sono generati: dopo ogni modifica `node scripts/build-primi-passi.js`.
+- `tests/`: test con `node:test` e `supertest`; prove nel browser in `scripts/e2e/` (con Playwright).

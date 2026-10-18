@@ -215,10 +215,39 @@ h2.evil-site-foot__tag {
 .evil-help-fab:hover { background: #a61e2a; }
 .evil-help-fab:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
 
+/*
+ * Schermi medi (tablet, portatili fino a 1439 px): il margine a sinistra del contenuto è stretto e
+ * l'etichetta coprirebbe l'inizio delle righe. Resta il salvagente in un cerchio da 48 px; la parola
+ * "Aiuto" si apre al passaggio del mouse o con il fuoco da tastiera (il nome accessibile non cambia).
+ */
+@media (min-width: 641px) and (max-width: 1439px) {
+  .evil-help-fab {
+    gap: 0;
+    min-width: 48px;
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    justify-content: center;
+  }
+  .evil-help-fab span {
+    max-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    opacity: 0;
+    transition: max-width 0.22s ease-out, opacity 0.18s ease-out, margin 0.22s ease-out;
+  }
+  .evil-help-fab:hover span,
+  .evil-help-fab:focus-visible span {
+    max-width: 6rem;
+    margin-left: 0.45rem;
+    opacity: 1;
+  }
+}
+
 @keyframes evilHelpIn { to { opacity: 1; transform: none; } }
 
 @media (prefers-reduced-motion: reduce) {
   .evil-help-fab { animation: none; opacity: 1; transform: none; }
+  .evil-help-fab span { transition: none !important; }
 }
 
 @media print {

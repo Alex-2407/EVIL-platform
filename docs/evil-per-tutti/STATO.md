@@ -4,17 +4,12 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**2.1 Motore di Primi passi**, prima della home "Chi sei?" (1.7): la home deve portare a
-destinazioni che esistono. I testi delle 10 tappe sono pronti (`server/lib/primi-passi-content.js`,
-scheda in [PRIMI-PASSI.md](PRIMI-PASSI.md)). Da fare: `listUnits` in `server/i18n` (blocchi in
-ordine, con i doppioni), `scripts/build-primi-passi.js` che genera `html/primi-passi.html`,
-`html/pp-<tappa>.html` e i dizionari `i18n/en/pages/*.json` rendendo la stessa pagina in IT e in EN
-e accoppiando i blocchi (un test controlla che i file generati siano aggiornati), voci della mappa
-del sito da `sitePages()`, `js/primi-passi.js` (giochi classifica, ordina, scegli, trova la
-trappola; progressi in `localStorage` `evil-pp-v1`; badge; patentino stampabile),
-`css/primi-passi.css`, schede di profondità con la scheda predefinita da `aria-selected`.
-Poi 1.7 home "Chi sei?" (attenzione: il pulsante Aiuto in basso a sinistra copre il riquadro
-"Primo accesso" della home a 1366×768), 1.8 sorprese.
+**1.7 Home "Chi sei?"**: ora le destinazioni esistono (Aiuto subito, Primi passi, corsi). Un
+ingresso per ogni pubblico (bambini con un adulto, ragazzi, genitori e nonni, docenti, chi studia
+informatica). Da controllare: a 1366×768 il pulsante Aiuto in basso a sinistra copriva il riquadro
+"Primo accesso" della home; tra 641 e 1439 px adesso è un cerchio da 48 px (la scritta si apre al
+passaggio del mouse), verificare se basta. Poi 1.8 sorprese (la lucciola d'oro di Primi passi è già
+fatta), 2.13 un'animazione breve per tappa, la prova di Primi passi con 5–10 persone.
 
 ## Fatto
 
@@ -26,14 +21,19 @@ Poi 1.7 home "Chi sei?" (attenzione: il pulsante Aiuto in basso a sinistra copre
 | 1.4 | Pagina Aiuto (`html/aiuto.html`, EN in `i18n/en/pages/aiuto.json`): per ruolo con schede, prove, diritti, contatti, Esci subito sotto l'header (anche con Esc Esc), area `per-tutti` prima nel menu (colore rosa, lucciole nel menu a tendina), header ricalibrato per cinque aree (1024–1920 px), suggerimento lingua su due righe da telefono, test `tests/per-tutti.test.js` | `3ab1fe3` |
 | 1.5 | Pulsante "Aiuto" fisso in basso a sinistra su tutte le pagine tranne Aiuto (`server/chrome.js`, stili in `css/site-footer.css`), numeri da chiamare in cima a `help.html` prima del modulo | `8fba6ec` |
 | 1.6 | Tutela dei minori: sezione 8 di `site-policies.html` (sezioni dopo rinumerate, EN aggiornato), collegata da `aiuto.html`, test | `5bbb9d9` |
-| 2.2–2.11 (testi) | Contenuto delle 10 tappe in `server/lib/primi-passi-content.js` (IT/EN, storie, tre livelli, giochi, badge, fonti verificate il 18 ottobre 2026) e scheda editoriale `PRIMI-PASSI.md` | questo commit |
+| 2.2–2.11 (testi) | Contenuto delle 10 tappe in `server/lib/primi-passi-content.js` (IT/EN, storie, tre livelli, giochi, badge, fonti verificate il 18 ottobre 2026) e scheda editoriale `PRIMI-PASSI.md` | `a41e375` |
+| 2.1, 2.2–2.12 | Primi passi online: `scripts/build-primi-passi.js` genera le 11 pagine e i dizionari inglesi dal modulo dei contenuti (`listUnits` in `server/i18n`, controllo di struttura e di traduzioni doppie), pagine in `server/lib/primi-passi-pages.js`, voci della mappa del sito da `sitePages()`, `js/primi-passi.js` (storia, "Fai subito", giochi classifica/ordina/scegli/trova con aiuti e "Gioca di nuovo", badge, riquadro "La tua tappa", percorso con le luci, lucciola d'oro, patentino stampabile in A4 orizzontale, ricomincia da zero), `css/primi-passi.css`, livelli con scheda predefinita da `aria-selected`, pulsante Aiuto compatto tra 641 e 1439 px, test `tests/primi-passi.test.js`, prove nel browser in `scripts/e2e/` | questo commit |
 
 ## Note per chi riprende
 
 - Alessandro ha chiesto il massimo su animazioni, colori, parole, frasi che agganciano, easter egg
   (simpatici ma non banali per gli adolescenti, più sobri per gli adulti): tutto passa da STILE.md.
-- Prove nel browser: script in `/tmp/.../scratchpad` (srv.sh, shots.js, e2e-aiuto.js) non sono nel
-  repository; il controllo e2e dell'Aiuto copre schede, tastiera, link diretti, senza JS, Esci subito.
+- Prove nel browser: `scripts/e2e/aiuto.js` e `scripts/e2e/primi-passi.js` (serve Playwright,
+  `PLAYWRIGHT=/percorso/node_modules/playwright`, e il server avviato). Le schermate di controllo
+  si fanno con script nella cartella temporanea della sessione, non nel repository.
+- Primi passi: i file `html/primi-passi.html`, `html/pp-*.html` e `i18n/en/pages/p*.json` sono
+  generati. Si cambiano i testi in `server/lib/primi-passi-content.js` e si esegue
+  `node scripts/build-primi-passi.js`; il test fallisce se ci si dimentica.
 - I contatti di aiuto vanno riverificati entro il 16 gennaio 2027 (il test fallisce dopo 90 giorni).
 - Le decisioni provvisorie (D1 nome, D3 revisori) aspettano Alessandro: non bloccano il codice,
   bloccano solo la pubblicazione della sezione Aiuto.

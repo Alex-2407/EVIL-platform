@@ -238,6 +238,18 @@ function extractUnits(html) {
 }
 
 /**
+ * Tutti i blocchi traducibili di un HTML, in ordine e con i doppioni: { kind, key, name }.
+ * Serve ai generatori di pagine (scripts/build-primi-passi.js) per accoppiare blocco per blocco
+ * due versioni della stessa pagina costruite con la stessa struttura in due lingue.
+ */
+function listUnits(html) {
+  const doc = parse(html, PARSE_OPTS);
+  const units = [];
+  collectUnits(doc, (u) => units.push({ kind: u.kind, key: u.key, name: u.name || null }));
+  return units;
+}
+
+/**
  * Traduce un HTML italiano. Restituisce { html, missing } dove missing sono i blocchi
  * senza traduzione (restano in italiano).
  */
@@ -294,6 +306,7 @@ module.exports = {
   i18nMiddleware,
   translateHtml,
   extractUnits,
+  listUnits,
   normalize,
   pageDict,
   buildClientDicts,

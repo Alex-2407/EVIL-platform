@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Cyberbullismo · Primi passi, tappa 8 - EVIL</title>
+  <meta name="description" content="Primi passi, tappa 8: riconoscere il cyberbullismo, cosa fare se lo vedi o lo subisci, e i diritti che la legge dà anche ai ragazzi.">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/per-tutti.css">
+  <link rel="stylesheet" href="/css/primi-passi.css">
+  <script src="/js/per-tutti.js" defer></script>
+  <script src="/js/primi-passi.js" defer></script>
+</head>
+<body class="evil-theme pt-page pp-page" data-pp-page="stage" data-pp-stage="cyberbullismo" data-pp-n="8">
+  <!-- Generato da scripts/build-primi-passi.js: i testi stanno in server/lib/primi-passi-content.js -->
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <!--evil:header-->
+
+  <main id="primi-passi" class="pt pp">
+    <div class="pt__wrap">
+      <nav class="pp-trail" aria-label="Le 10 tappe del percorso">
+        <a class="pp-trail__home" href="/primi-passi.html">Primi passi</a>
+        <ol class="pp-trail__list">
+          <li><a class="pp-trail__dot" href="/pp-cosa-proteggere.html" data-pp-dot="cosa-proteggere" title="Tappa 1: Cosa c’è da proteggere"><span aria-hidden="true">1</span><span class="pt-sr">Tappa 1: Cosa c’è da proteggere</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-password.html" data-pp-dot="password" title="Tappa 2: Password e passkey"><span aria-hidden="true">2</span><span class="pt-sr">Tappa 2: Password e passkey</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-due-passaggi.html" data-pp-dot="due-passaggi" title="Tappa 3: Verifica in due passaggi"><span aria-hidden="true">3</span><span class="pt-sr">Tappa 3: Verifica in due passaggi</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-aggiornamenti-backup.html" data-pp-dot="aggiornamenti-backup" title="Tappa 4: Aggiornamenti e backup"><span aria-hidden="true">4</span><span class="pt-sr">Tappa 4: Aggiornamenti e backup</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-truffe.html" data-pp-dot="truffe" title="Tappa 5: Truffe: SMS, email e telefonate"><span aria-hidden="true">5</span><span class="pt-sr">Tappa 5: Truffe: SMS, email e telefonate</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-condividere.html" data-pp-dot="condividere" title="Tappa 6: Cosa condivido"><span aria-hidden="true">6</span><span class="pt-sr">Tappa 6: Cosa condivido</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-persone-online.html" data-pp-dot="persone-online" title="Tappa 7: Persone online"><span aria-hidden="true">7</span><span class="pt-sr">Tappa 7: Persone online</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-cyberbullismo.html" data-pp-dot="cyberbullismo" title="Tappa 8: Cyberbullismo" aria-current="step"><span aria-hidden="true">8</span><span class="pt-sr">Tappa 8: Cyberbullismo</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-vero-falso.html" data-pp-dot="vero-falso" title="Tappa 9: Vero o falso"><span aria-hidden="true">9</span><span class="pt-sr">Tappa 9: Vero o falso</span></a></li>
+          <li><a class="pp-trail__dot" href="/pp-se-succede.html" data-pp-dot="se-succede" title="Tappa 10: Se succede"><span aria-hidden="true">10</span><span class="pt-sr">Tappa 10: Se succede</span></a></li>
+        </ol>
+      </nav>
+
+      <section class="pt-hero pp-hero" aria-labelledby="pp-title">
+        <div>
+          <p class="pt-kicker">Primi passi · Tappa 8 di 10</p>
+          <h1 id="pp-title">Cyberbullismo</h1>
+          <p class="pt-hero__lead">Chi guarda può cambiare tutto. Anche tu.</p>
+          <p class="pp-time">4 minuti</p>
+          <nav class="pp-jump" aria-label="In questa tappa">
+            <ul>
+              <li><a href="#story">La storia</a></li>
+              <li><a href="#do-now">Fai subito</a></li>
+              <li><a href="#game">Il gioco</a></li>
+            </ul>
+          </nav>
+        </div>
+        <div class="pt-hero__art"><!--evil:fragment:mascot--></div>
+      </section>
+    </div>
+
+    <aside class="pp-side" data-pp-side aria-labelledby="side-title">
+      <p class="pp-side__k" id="side-title">La tua tappa</p>
+      <ol class="pp-side__list">
+        <li data-pp-step="story"><a href="#story">La storia</a></li>
+        <li data-pp-step="explain"><a href="#explain">Te lo spieghiamo</a></li>
+        <li data-pp-step="do"><a href="#do-now">Fai subito</a></li>
+        <li data-pp-step="game"><a href="#game">Il gioco</a></li>
+      </ol>
+      <p class="pp-side__badge"><span class="pp-medal" aria-hidden="true"><span class="pp-medal__ring"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.6-4.6-9.4-9.4C1.3 7.5 3.6 4 7.1 4c2 0 3.5 1.1 4.9 2.9C13.4 5.1 14.9 4 16.9 4c3.5 0 5.8 3.5 4.5 7.1-1.8 4.8-9.4 9.4-9.4 9.4z"/></svg></span><span>Alleato</span></p>
+    </aside>
+
+    <section class="pt-section pp-story" id="story" aria-labelledby="story-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="story-title"><span class="pp-n" aria-hidden="true">1</span> La storia</h2>
+        <div class="pp-scene">
+          <p>Nel gruppo della classe gira un meme con la faccia di Tommaso. In due ore arrivano quaranta risate.</p>
+          <p>Tommaso non scrive niente da ieri.</p>
+        </div>
+        <p class="pp-question">Tu sei nel gruppo. Cosa fai?</p>
+        <p class="pp-hint">Apri le risposte e scopri come va a finire.</p>
+        <div class="pp-choices" data-pp-choices>
+          <details class="pp-choice">
+            <summary>Rido anch’io, tanto è uno scherzo.</summary>
+            <div class="pp-choice__out">
+              <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
+              <p>Per chi è preso di mira non è uno scherzo: ogni risata pesa, e chi attacca si sente più forte.</p>
+            </div>
+          </details>
+          <details class="pp-choice" data-good="1">
+            <summary>Non rido, scrivo in privato a Tommaso e avviso un adulto.</summary>
+            <div class="pp-choice__out">
+              <p class="pp-verdict pp-verdict--good">Ottima scelta</p>
+              <p>È la mossa che cambia le cose: Tommaso non è più solo e un adulto può intervenire.</p>
+            </div>
+          </details>
+          <details class="pp-choice">
+            <summary>Esco dal gruppo e basta.</summary>
+            <div class="pp-choice__out">
+              <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
+              <p>Uscire ti protegge, ma Tommaso resta solo. Un messaggio a lui e uno a un adulto fanno la differenza.</p>
+            </div>
+          </details>
+        </div>
+        <div class="pt-callout pt-callout--help pp-help" role="note">
+          <span class="pt-callout__icon" aria-hidden="true">!</span>
+          <p class="pt-callout__title">Se sta succedendo a te</p>
+          <div class="pt-callout__body">
+            <p>Succede a tante persone e non è colpa tua. Puoi chiamare a qualsiasi ora, oppure aprire <a href="/aiuto.html">Aiuto subito</a>.</p>
+            <!--evil:fragment:help-numbers-->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-explain" id="explain" aria-labelledby="explain-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="explain-title"><span class="pp-n" aria-hidden="true">2</span> Te lo spieghiamo</h2>
+        <p class="pt-section__lead">Scegli il livello: la verità è la stessa, cambiano le parole.</p>
+        <div class="pt-switch pp-depth pp-depth--deep" data-pt-switch="pp-depth">
+          <div class="pt-switch__list" role="tablist" aria-label="Livello della spiegazione">
+            <button class="pt-switch__tab pp-tab--kids" type="button" role="tab" id="tab-pp-kids" aria-controls="pp-kids" aria-selected="false">Per i più piccoli</button>
+            <button class="pt-switch__tab pp-tab--all" type="button" role="tab" id="tab-pp-all" aria-controls="pp-all" aria-selected="true">Per tutti</button>
+            <button class="pt-switch__tab pp-tab--deep" type="button" role="tab" id="tab-pp-deep" aria-controls="pp-deep" aria-selected="false">Per approfondire</button>
+          </div>
+          <section class="pt-panel" id="pp-kids" role="tabpanel" aria-labelledby="tab-pp-kids" data-pt-panel="kids">
+            <h3 class="pt-panel__title pt-sr-when-js">Per i più piccoli</h3>
+            <div class="pt-depth--kids pp-kids">
+              <div class="pp-kids__lu"><!--evil:fragment:mascot-small--></div>
+              <div class="pp-kids__text"><p>Se qualcuno ti prende in giro online o ti fa stare male, non è colpa tua: dillo subito a un adulto.</p><p>E se succede a un amico, stagli vicino e avvisa un grande.</p></div>
+            </div>
+          </section>
+          <section class="pt-panel" id="pp-all" role="tabpanel" aria-labelledby="tab-pp-all" data-pt-panel="all">
+            <h3 class="pt-panel__title pt-sr-when-js">Per tutti</h3>
+            <ol class="pp-why">
+              <li>Cyberbullismo è offendere, minacciare, deridere o isolare qualcuno online, spesso davanti a tante persone.</li>
+              <li>Chi attacca cerca pubblico: un like o una risata lo fanno sentire più forte.</li>
+              <li>La legge protegge chi lo subisce: dai 14 anni puoi chiedere da solo di togliere i contenuti, e ogni scuola ha un referente.</li>
+            </ol>
+          </section>
+          <section class="pt-panel" id="pp-deep" role="tabpanel" aria-labelledby="tab-pp-deep" data-pt-panel="deep">
+            <h3 class="pt-panel__title pt-sr-when-js">Per approfondire</h3>
+            <div class="pp-deep pp-deep--info"><p>La legge 71/2017, aggiornata dalla legge 70/2024, prevede un referente in ogni scuola, la richiesta di rimozione dei contenuti al sito o al social e, se non risponde entro 24 ore o non provvede entro 48, al Garante privacy, e l’ammonimento del questore per chi ha più di 14 anni.</p><p>Dal 2025 il 114 Emergenza Infanzia offre anche prima assistenza psicologica e legale a chi subisce bullismo e cyberbullismo (d.lgs. 99/2025).</p></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-do" id="do-now" aria-labelledby="do-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="do-title"><span class="pp-n" aria-hidden="true">3</span> Fai subito</h2>
+        <p class="pt-section__lead">Prendi il telefono: lo facciamo insieme, adesso.</p>
+        <div class="pp-do__card">
+          <h3>Preparati a essere un alleato</h3>
+          <ol class="pt-steps">
+            <li>Salva tra i preferiti la pagina <a href="/aiuto.html">Aiuto subito</a>.</li>
+            <li>Scopri chi è il referente per il cyberbullismo della tua scuola: puoi chiederlo a un insegnante.</li>
+            <li>Scrivi adesso il messaggio che manderesti a un amico preso di mira: «Ho visto. Mi dispiace. Ci sono.»</li>
+          </ol>
+          <div class="pp-do__done">
+            <button class="pt-btn pt-btn--safe pp-done-btn" type="button" aria-pressed="false" data-pp-done>Ho fatto!</button>
+            <p class="pp-done-msg" data-pp-done-msg hidden>Fatto! Una porta in più chiusa.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-play" id="game" aria-labelledby="game-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="game-title"><span class="pp-n" aria-hidden="true">4</span> Il gioco</h2>
+        <div class="pp-game pp-game--classify" data-pp-game="classify">
+          <h3 class="pp-game__title">Scherzo o cyberbullismo?</h3>
+          <p class="pp-game__intro">Per ogni situazione, decidi.</p>
+          <ul class="pp-cats" data-pp-cats>
+            <li data-cat="joke">Scherzo</li>
+            <li data-cat="cb">Cyberbullismo</li>
+          </ul>
+          <ol class="pp-items" data-pp-items>
+            <li class="pp-item" data-cat="cb">
+              <p class="pp-item__text">Un meme con la foto di un compagno, girato senza il suo permesso</p>
+              <details class="pp-item__answer">
+                <summary>Mostra la risposta</summary>
+                <p class="pp-item__why"><strong>Cyberbullismo.</strong> Usare la faccia di qualcuno per deriderlo davanti a tutti è cyberbullismo.</p>
+              </details>
+            </li>
+            <li class="pp-item" data-cat="joke">
+              <p class="pp-item__text">Un soprannome che piace anche a chi lo riceve</p>
+              <details class="pp-item__answer">
+                <summary>Mostra la risposta</summary>
+                <p class="pp-item__why"><strong>Scherzo.</strong> Se ride anche lui ed è d’accordo, è uno scherzo. Se smette di ridere, non lo è più.</p>
+              </details>
+            </li>
+            <li class="pp-item" data-cat="cb">
+              <p class="pp-item__text">Escludere sempre la stessa persona dal gruppo della classe</p>
+              <details class="pp-item__answer">
+                <summary>Mostra la risposta</summary>
+                <p class="pp-item__why"><strong>Cyberbullismo.</strong> Isolare qualcuno è una forma di cyberbullismo.</p>
+              </details>
+            </li>
+            <li class="pp-item" data-cat="cb">
+              <p class="pp-item__text">Commenti cattivi ripetuti sotto i post di qualcuno</p>
+              <details class="pp-item__answer">
+                <summary>Mostra la risposta</summary>
+                <p class="pp-item__why"><strong>Cyberbullismo.</strong> Offese ripetute fanno male anche se sono «solo parole».</p>
+              </details>
+            </li>
+            <li class="pp-item" data-cat="cb">
+              <p class="pp-item__text">Creare un profilo falso a nome di un compagno</p>
+              <details class="pp-item__answer">
+                <summary>Mostra la risposta</summary>
+                <p class="pp-item__why"><strong>Cyberbullismo.</strong> Il furto d’identità rientra nella definizione di cyberbullismo della legge 71/2017.</p>
+              </details>
+            </li>
+          </ol>
+          <div class="pp-game__bar">
+            <button class="pt-btn pt-btn--ghost" type="button" data-pp-replay hidden>Gioca di nuovo</button>
+          </div>
+          <p class="pp-game__status" data-pp-status role="status" aria-live="polite"></p>
+        </div>
+        <div class="pp-badge" data-pp-badge>
+          <span class="pp-medal" aria-hidden="true"><span class="pp-medal__ring"></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20.5s-7.6-4.6-9.4-9.4C1.3 7.5 3.6 4 7.1 4c2 0 3.5 1.1 4.9 2.9C13.4 5.1 14.9 4 16.9 4c3.5 0 5.8 3.5 4.5 7.1-1.8 4.8-9.4 9.4-9.4 9.4z"/></svg></span>
+          <div class="pp-badge__txt">
+            <p class="pp-badge__k">Il tuo badge</p>
+            <p class="pp-badge__name">Alleato</p>
+            <p class="pp-badge__state pp-badge__state--locked">Completa il gioco per guadagnarlo.</p>
+            <p class="pp-badge__state pp-badge__state--won">Guadagnato! Lo ritrovi nella pagina del percorso.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pt-section pp-next" id="next" aria-labelledby="next-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="next-title">E adesso?</h2>
+        <p class="pp-next__teaser">Prossima tappa: notizie vere, false e fatte con l’intelligenza artificiale.</p>
+        <p class="pp-next__actions"><a class="pt-btn pt-btn--primary" href="/pp-vero-falso.html" data-pp-next>Vai alla tappa 9</a> <a class="pt-btn pt-btn--ghost" href="/primi-passi.html">Tutte le tappe</a></p>
+        <p class="pp-next__enough">Per oggi basta così? Nessun problema: i progressi restano su questo dispositivo.</p>
+      </div>
+    </section>
+
+    <section class="pt-section pp-more" aria-labelledby="more-title">
+      <div class="pt__wrap pp-more__grid">
+        <div class="pp-more__col">
+          <h2 id="more-title">Su EVIL, per chi vuole di più</h2>
+          <ul class="pp-links">
+            <li><a href="/aiuto.html">Aiuto subito: cosa fare e chi chiamare</a></li>
+          </ul>
+        </div>
+        <div class="pp-more__col">
+          <h2 id="sources-title">Fonti</h2>
+          <ul class="pp-sources">
+            <li><a href="https://www.garanteinfanzia.org/sites/default/files/scheda_legge_71.pdf" target="_blank" rel="noopener noreferrer">Legge 71/2017, scheda dell’Autorità garante per l’infanzia</a></li>
+            <li><a href="https://www.studiocataldi.it/articoli/46838-bullismo-e-cyberbullismo-cosa-prevede-la-legge-702024.asp" target="_blank" rel="noopener noreferrer">Legge 70/2024, sintesi Studio Cataldi</a></li>
+            <li><a href="https://www.normattiva.it/eli/id/2025/07/01//25G00100/CONSOLIDATED" target="_blank" rel="noopener noreferrer">D.lgs. 99/2025, Normattiva</a></li>
+          </ul>
+          <p class="pp-sources__note">Pagine verificate il 18 ottobre 2026.</p>
+        </div>
+      </div>
+    </section>
+
+    <ul class="pp-strings" hidden>
+      <li data-pp-str="right">Giusto!</li>
+      <li data-pp-str="almost">Quasi! Riprova.</li>
+      <li data-pp-str="orderScore">Quasi! Al posto giusto: {ok} su {n}.</li>
+      <li data-pp-str="selectScore">Quasi! Trappole trovate: {found} su {total}.</li>
+      <li data-pp-str="selectExtra">Tra le tue scelte c’è anche qualcosa di innocuo.</li>
+      <li data-pp-str="spotFound">Trovata! Trappole: {found} su {total}.</li>
+      <li data-pp-str="spotMiss">Questa parte è normale.</li>
+      <li data-pp-str="hintTrap">Guarda bene qui.</li>
+      <li data-pp-str="solved">Perfetto! Gioco completato.</li>
+      <li data-pp-str="firstTry">Al primo colpo: {ok} su {n}.</li>
+      <li data-pp-str="attempts">Tentativi: {n}.</li>
+      <li data-pp-str="stamp">Truffa smascherata</li>
+      <li data-pp-str="labelTrap">Trappola</li>
+      <li data-pp-str="labelSafe">Innocua</li>
+      <li data-pp-str="badgeEarned">Badge guadagnato: {badge}</li>
+      <li data-pp-str="doneDot">{label}, completata</li>
+      <li data-pp-str="moveUp">Sposta su</li>
+      <li data-pp-str="moveDown">Sposta giù</li>
+      <li data-pp-str="moved">{item}: posizione {n} di {total}</li>
+    </ul>
+  </main>
+
+  <!--evil:footer-->
+  <script src="/js/matrixrain.js" defer></script>
+</body>
+</html>

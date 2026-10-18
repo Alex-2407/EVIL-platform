@@ -63,6 +63,13 @@ module.exports = [
     },
   },
   {
+    // prove nel browser (Playwright): il codice dentro page.evaluate gira nella pagina
+    files: ['scripts/e2e/**/*.js'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
+  {
     files: ['js/**/*.js'],
     ignores: ['js/server.js'],
     languageOptions: {

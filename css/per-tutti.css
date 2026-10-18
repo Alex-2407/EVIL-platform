@@ -162,6 +162,18 @@ body.pt-page .pt [class*='-kicker']::after {
   letter-spacing: -0.015em;
 }
 
+/* titoli su righe equilibrate, niente parola sola in fondo ai paragrafi (dove il browser lo sa fare) */
+.pt h1,
+.pt h2,
+.pt h3 {
+  text-wrap: balance;
+}
+
+.pt p,
+.pt li {
+  text-wrap: pretty;
+}
+
 .pt h2 {
   font-size: clamp(1.55rem, 3.4vw, 2.1rem);
   margin-top: 0;
@@ -365,6 +377,10 @@ body.pt-page summary:focus-visible {
 .lu--happy { --lu-glow: #7cf2b4; --lu-glow-deep: #1fae6e; }
 .lu--warn { --lu-glow: #ffc14d; --lu-glow-deep: #c47a00; }
 .lu--help { --lu-glow: #ff9a8a; --lu-glow-deep: #d0473a; }
+/* Lucciola d'oro: tutte le tappe di Primi passi completate (vince sugli altri umori) */
+.lu--gold { --lu-glow: #ffd54a; --lu-glow-deep: #b8860b; --lu-collar: #e0a100; }
+.lu--gold .lu__halo { animation-duration: 1.6s; }
+.lu--gold .lu__spark { fill: #e0a100; }
 
 .lu__float,
 .lu__wing,
@@ -477,6 +493,9 @@ body.pt-page summary:focus-visible {
 .pt-callout--info { background: var(--pt-info-bg); border-color: var(--pt-info-line); }
 .pt-callout--info .pt-callout__icon { background: var(--pt-info); color: #fff; }
 .pt-callout--info .pt-callout__title { color: var(--pt-info); }
+.pt-callout--school { background: var(--pt-school-bg); border-color: var(--pt-school-line); }
+.pt-callout--school .pt-callout__icon { background: var(--pt-school); color: #fff; }
+.pt-callout--school .pt-callout__title { color: var(--pt-school); }
 
 /* ---------------------------------------------------------------- schede e griglie */
 .pt-grid {

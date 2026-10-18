@@ -19,6 +19,14 @@ anteprima della tappa successiva · link ai corsi e ai quiz di EVIL · fonti.
 Una tappa è completata quando si finisce il gioco; i progressi restano in `localStorage`
 (`evil-pp-v1`), senza account. Il nome sul patentino non viene salvato.
 
+I giochi non hanno limiti di tempo né errori "rossi": una risposta sbagliata è ambra ("Quasi!
+Riprova."), dopo due tentativi a vuoto arriva "Dammi un aiuto", e alla fine si può rigiocare. Da
+schermo largo un riquadro "La tua tappa" spunta le quattro parti man mano. Nella pagina del percorso
+ogni tappa completata accende una luce; con tutte e dieci Lù diventa d'oro (la "lucciola d'oro" di
+STILE.md) e si sblocca il patentino, che si stampa su un A4 orizzontale.
+
+Prova nel browser: `scripts/e2e/primi-passi.js`.
+
 ## Le tappe
 
 | # | Tappa | Gioco | Badge | Fonti |
