@@ -101,7 +101,7 @@ footer.evil-site-foot {
 
 /* ─── v3: footer con le quattro aree del sito ─── */
 .evil-site-foot__grid--v3 {
-  grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1.5fr) repeat(5, minmax(0, 1fr));
 }
 
 .evil-site-foot__col--brand .evil-site-foot__title {
@@ -120,6 +120,7 @@ footer.evil-site-foot {
 .evil-site-foot__col--amber .evil-site-foot__tag { color: #fbbf24; }
 .evil-site-foot__col--green .evil-site-foot__tag { color: #00ff9c; }
 .evil-site-foot__col--violet .evil-site-foot__tag { color: #c4b5fd; }
+.evil-site-foot__col--rose .evil-site-foot__tag { color: #fda4af; }
 
 h2.evil-site-foot__tag {
   margin: 0 0 0.35rem;

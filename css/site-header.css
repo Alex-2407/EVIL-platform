@@ -371,6 +371,7 @@ header nav > ul > li.evil-nav__area > a {
 header nav > ul > li.evil-nav__area--amber > a { --area: #fbbf24; }
 header nav > ul > li.evil-nav__area--green > a { --area: #00ff9c; }
 header nav > ul > li.evil-nav__area--violet > a { --area: #c4b5fd; }
+header nav > ul > li.evil-nav__area--rose > a { --area: #fda4af; }
 
 header nav > ul > li.evil-nav__area.is-active > a {
   color: var(--area);
@@ -570,6 +571,23 @@ header nav .dropdown a[aria-current="page"] .evil-nav__t::before {
   cursor: pointer;
 }
 
+/* Su telefono il suggerimento va su due righe: prima la frase, poi i pulsanti */
+@media (max-width: 560px) {
+  .evil-lang-hint {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    width: calc(100vw - 24px);
+    border-radius: 18px;
+    padding: 0.7rem 0.7rem 0.7rem 1rem;
+  }
+  .evil-lang-hint > span {
+    flex: 1 0 100%;
+  }
+}
+.evil-lang-hint__close {
+  flex: 0 0 auto;
+}
+
 /* Ricerca rapida (Ctrl+K) */
 html.evil-search-open {
   overflow: hidden;
@@ -711,11 +729,55 @@ html.evil-search-open {
 @media (min-width: 993px) {
   header nav > ul {
     flex-wrap: nowrap;
-    gap: clamp(10px, 1.4vw, 26px);
+    gap: clamp(8px, 1vw, 16px);
   }
 
   header nav > ul > li > a {
     white-space: nowrap;
+  }
+}
+
+/* Cinque aree (Per tutti · Impara · Analizza · Verifica · Progetto): il contenitore
+   si allarga e, fino a 1439 px, la ricerca resta un'icona e il menù si stringe. */
+.header-container {
+  max-width: 1280px;
+}
+
+@media (min-width: 1440px) {
+  header nav a {
+    letter-spacing: 0.08em;
+  }
+}
+
+@media (min-width: 993px) and (max-width: 1439px) {
+  .evil-search-btn__label,
+  .evil-search-btn kbd {
+    display: none;
+  }
+
+  .evil-search-btn {
+    padding: 0.4rem 0.55rem;
+  }
+
+  header nav > ul {
+    gap: clamp(6px, 0.9vw, 16px);
+  }
+
+  header nav a {
+    letter-spacing: 0.06em;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+}
+
+@media (min-width: 993px) and (max-width: 1179px) {
+  header nav a {
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+  }
+
+  .header-evil-wordmark {
+    font-size: 1.6rem !important;
   }
 }
 
@@ -746,6 +808,7 @@ header nav .evil-nav__area { --area: #7dd3fc; }
 header nav .evil-nav__area--amber { --area: #fbbf24; }
 header nav .evil-nav__area--green { --area: #00ff9c; }
 header nav .evil-nav__area--violet { --area: #c4b5fd; }
+header nav .evil-nav__area--rose { --area: #fda4af; }
 
 header nav .dropdown.evil-dd {
   padding: 0 !important;
@@ -909,6 +972,20 @@ header nav .dropdown .evil-dd__peek .evil-nav__intro { padding: 0; border: 0; fo
 }
 .evil-dd--progetto .evil-dd__fx::before { top: -4px; left: 50%; }
 .evil-dd--progetto .evil-dd__fx::after { bottom: 20px; left: 8px; opacity: 0.6; }
+/* Per tutti: lucciole che salgono piano (docs/evil-per-tutti/STILE.md) */
+.evil-dd--per-tutti .evil-dd__fx {
+  background:
+    radial-gradient(circle at 20% 80%, #f4e04d 0 2px, transparent 3px),
+    radial-gradient(circle at 70% 60%, #f4e04d 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 45% 30%, #fde68a 0 2px, transparent 3px),
+    radial-gradient(circle at 85% 90%, #fde68a 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 10% 40%, #f4e04d 0 1.5px, transparent 2.5px);
+  background-size: 100% 200px;
+  filter: drop-shadow(0 0 4px rgba(244, 224, 77, 0.8));
+  animation: evilDdFireflies 9s linear infinite, evilDdTwinkle 2.6s ease-in-out infinite alternate;
+}
+@keyframes evilDdFireflies { to { background-position: 0 -200px; } }
+@keyframes evilDdTwinkle { from { opacity: 0.35; } to { opacity: 0.75; } }
 
 @media (min-width: 993px) {
   header nav .dropdown.evil-dd {

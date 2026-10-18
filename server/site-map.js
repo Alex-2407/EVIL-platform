@@ -4,6 +4,16 @@
 
 const AREAS = [
   {
+    id: 'per-tutti',
+    color: 'rose',
+    label: { it: 'Per tutti', en: 'For everyone' },
+    sub: { it: 'Sicurezza di ogni giorno', en: 'Everyday safety' },
+    desc: {
+      it: 'Dal primo telefono in poi: cosa fare, a chi chiedere aiuto e come proteggersi, spiegato per ogni età.',
+      en: 'From your first phone onwards: what to do, who to ask for help and how to stay safe, explained for every age.',
+    },
+  },
+  {
     id: 'impara',
     color: 'cyan',
     label: { it: 'Impara', en: 'Learn' },
@@ -47,6 +57,15 @@ const AREAS = [
 
 // nav: compare nel menu in alto · auth: serve un account · sitemap: priorità (null = esclusa)
 const PAGES = [
+  // ------------------------------------------------------------------ Per tutti
+  {
+    file: 'aiuto.html', area: 'per-tutti', icon: 'lifebuoy', nav: true, sitemap: 0.9,
+    title: { it: 'Aiuto subito', en: 'Get help now' },
+    desc: {
+      it: 'Cyberbullismo, ricatti, foto diffuse: cosa fare subito, come salvare le prove e chi contattare.',
+      en: 'Cyberbullying, blackmail, shared photos: what to do right away, how to keep evidence and who to contact.',
+    },
+  },
   // ------------------------------------------------------------------ Impara
   {
     file: 'learning-paths.html', area: 'impara', icon: 'route', nav: true, sitemap: 0.9,

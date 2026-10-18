@@ -6,7 +6,7 @@ const { AREAS, PAGES, LANGS, DEFAULT_LANG, pagesOf } = require('./site-map');
 const { svgIcon } = require('./icons');
 
 // Icona grande dell'anteprima nel menu, una per area
-const AREA_ICON = { impara: 'book', analizza: 'globe', verifica: 'shield', progetto: 'star' };
+const AREA_ICON = { 'per-tutti': 'sun', impara: 'book', analizza: 'globe', verifica: 'shield', progetto: 'star' };
 
 const STR = {
   it: {

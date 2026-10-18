@@ -179,6 +179,16 @@
 
     buttons.forEach((b) => b.addEventListener('click', leave));
 
+    // il pulsante sta subito sotto l'header (che resta in alto mentre si scorre)
+    const header = document.querySelector('header[role="banner"], body > header');
+    function placeBelowHeader() {
+      if (!header) return;
+      const h = Math.round(header.getBoundingClientRect().height);
+      if (h > 0) root.style.setProperty('--pt-header-h', `${h}px`);
+    }
+    placeBelowHeader();
+    window.addEventListener('resize', placeBelowHeader, { passive: true });
+
     // Esc due volte di seguito (entro 800 ms), se non c'è una finestra di dialogo aperta
     let last = 0;
     document.addEventListener('keydown', (e) => {
