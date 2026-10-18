@@ -4,15 +4,17 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**2.1 Primi passi**, prima della home "Chi sei?" (1.7): la home deve portare a destinazioni che
-esistono. Il contenuto delle 10 tappe va progettato in `docs/evil-per-tutti/PRIMI-PASSI.md`.
-Architettura decisa: contenuto bilingue in `server/lib/primi-passi-content.js` (come
-`course-design.js`), uno script `scripts/build-primi-passi.js` che genera `html/primi-passi.html`,
-`html/pp-<tappa>.html` e i dizionari `i18n/en/pages/*.json` (un test controlla che i file generati
-siano aggiornati), voci nella mappa del sito generate dallo stesso modulo, `js/primi-passi.js` per
-giochi (classifica, ordina, scegli, trova la trappola), progressi in `localStorage`, badge e
-patentino stampabile. Poi 1.7 home "Chi sei?" (attenzione: il pulsante Aiuto in basso a sinistra
-copre il riquadro "Primo accesso" della home a 1366×768), 1.8 sorprese.
+**2.1 Motore di Primi passi**, prima della home "Chi sei?" (1.7): la home deve portare a
+destinazioni che esistono. I testi delle 10 tappe sono pronti (`server/lib/primi-passi-content.js`,
+scheda in [PRIMI-PASSI.md](PRIMI-PASSI.md)). Da fare: `listUnits` in `server/i18n` (blocchi in
+ordine, con i doppioni), `scripts/build-primi-passi.js` che genera `html/primi-passi.html`,
+`html/pp-<tappa>.html` e i dizionari `i18n/en/pages/*.json` rendendo la stessa pagina in IT e in EN
+e accoppiando i blocchi (un test controlla che i file generati siano aggiornati), voci della mappa
+del sito da `sitePages()`, `js/primi-passi.js` (giochi classifica, ordina, scegli, trova la
+trappola; progressi in `localStorage` `evil-pp-v1`; badge; patentino stampabile),
+`css/primi-passi.css`, schede di profondità con la scheda predefinita da `aria-selected`.
+Poi 1.7 home "Chi sei?" (attenzione: il pulsante Aiuto in basso a sinistra copre il riquadro
+"Primo accesso" della home a 1366×768), 1.8 sorprese.
 
 ## Fatto
 
@@ -23,7 +25,8 @@ copre il riquadro "Primo accesso" della home a 1366×768), 1.8 sorprese.
 | 1.2 | Sistema di stile: `STILE.md`, `css/per-tutti.css` (token con contrasto verificato, componenti, stampa, movimento ridotto), Atkinson Hyperlegible Next e Mono self-hosted (OFL), Lù in SVG (`server/lib/mascot.js`, frammenti `mascot*`), `js/per-tutti.js` (schede ARIA, entrate, Lù, Esci subito) | `cd29393` |
 | 1.4 | Pagina Aiuto (`html/aiuto.html`, EN in `i18n/en/pages/aiuto.json`): per ruolo con schede, prove, diritti, contatti, Esci subito sotto l'header (anche con Esc Esc), area `per-tutti` prima nel menu (colore rosa, lucciole nel menu a tendina), header ricalibrato per cinque aree (1024–1920 px), suggerimento lingua su due righe da telefono, test `tests/per-tutti.test.js` | `3ab1fe3` |
 | 1.5 | Pulsante "Aiuto" fisso in basso a sinistra su tutte le pagine tranne Aiuto (`server/chrome.js`, stili in `css/site-footer.css`), numeri da chiamare in cima a `help.html` prima del modulo | `8fba6ec` |
-| 1.6 | Tutela dei minori: sezione 8 di `site-policies.html` (sezioni dopo rinumerate, EN aggiornato), collegata da `aiuto.html`, test | questo commit |
+| 1.6 | Tutela dei minori: sezione 8 di `site-policies.html` (sezioni dopo rinumerate, EN aggiornato), collegata da `aiuto.html`, test | `5bbb9d9` |
+| 2.2–2.11 (testi) | Contenuto delle 10 tappe in `server/lib/primi-passi-content.js` (IT/EN, storie, tre livelli, giochi, badge, fonti verificate il 18 ottobre 2026) e scheda editoriale `PRIMI-PASSI.md` | questo commit |
 
 ## Note per chi riprende
 
