@@ -85,7 +85,7 @@ Le date sono indicative (proposta, sezione "Come costruirlo").
   8. Cyberbullismo · 9. Vero o falso · 10. Se succede.
 - 2.12 Patentino stampabile, generato nel browser (il nome non va al server).
 - 2.13 Un'animazione breve per tappa, con sottotitoli e rispetto del movimento ridotto.
-- Controllo: prova con 5–10 persone vere di età diverse.
+- Controllo: prova con 5–10 persone vere di età diverse (scheda in [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md)).
 
 ### Fase 3 — EVIL Scuola (gennaio–febbraio 2027)
 

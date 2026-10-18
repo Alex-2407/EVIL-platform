@@ -85,5 +85,5 @@ Ogni storia si apre con una scena in tre quadri: disegni SVG originali in
 |---|---|
 | Fatti e fonti | verificati il 18 ottobre 2026 |
 | Tappe 7 e 8 (adescamento, sextortion, cyberbullismo) | da far rivedere a esperti di ascolto e tutela dei minori prima della pubblicazione, come la pagina Aiuto (decisione D3) |
-| Tutto il percorso, testi per i più piccoli compresi | da provare con 5–10 persone di età diverse (controllo di fine fase 2) |
+| Tutto il percorso, testi per i più piccoli compresi | da provare con 5–10 persone di età diverse (controllo di fine fase 2, scheda in [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md)) |
 | Versione inglese | da far rileggere a una persona di madrelingua |

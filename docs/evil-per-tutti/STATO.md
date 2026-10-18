@@ -4,11 +4,13 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**Controllo di fine fase 2:** preparare la scheda per la **prova di Primi passi con 5–10 persone**
-di età diverse (cosa far fare, cosa osservare, domande finali, come annotare senza raccogliere dati;
-la prova la fa Alessandro). Poi la **fase 3, EVIL Scuola**, a partire da **3.1 pagina Scuola e sei
-kit da 50 minuti** (due per ciclo, stampabili, collegati alle linee guida di educazione civica),
-quindi modalità classe alla LIM, kit per le famiglie e per il referente cyberbullismo.
+**Fase 3, EVIL Scuola — 3.1 pagina Scuola e sei kit da 50 minuti** (due per ciclo, stampabili,
+collegati alle linee guida di educazione civica e alle fonti ufficiali), poi modalità classe alla
+LIM, kit per le famiglie e per il referente cyberbullismo.
+
+In parallelo, quando Alessandro può: la **prova di Primi passi con 5–10 persone** (controllo di fine
+fase 2) con la scheda [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md); le correzioni che ne escono
+diventano un passo dedicato.
 
 ## Fatto
 
@@ -24,7 +26,8 @@ quindi modalità classe alla LIM, kit per le famiglie e per il referente cyberbu
 | 2.1, 2.2–2.12 | Primi passi online: `scripts/build-primi-passi.js` genera le 11 pagine e i dizionari inglesi dal modulo dei contenuti (`listUnits` in `server/i18n`, controllo di struttura e di traduzioni doppie), pagine in `server/lib/primi-passi-pages.js`, voci della mappa del sito da `sitePages()`, `js/primi-passi.js` (storia, "Fai subito", giochi classifica/ordina/scegli/trova con aiuti e "Gioca di nuovo", badge, riquadro "La tua tappa", percorso con le luci, lucciola d'oro, patentino stampabile in A4 orizzontale, ricomincia da zero), `css/primi-passi.css`, livelli con scheda predefinita da `aria-selected`, pulsante Aiuto compatto tra 641 e 1439 px, test `tests/primi-passi.test.js`, prove nel browser in `scripts/e2e/` | `9daf504` |
 | 1.7 | Home "Chi sei?": subito dopo l'apertura una "stanza con la luce accesa" (`.pt-room`, che si accende entrando nello schermo) con Lù e quattro ingressi (ragazzi → Primi passi, genitori e nonni → truffe e Aiuto genitori, docenti → Primi passi alla LIM e Aiuto docenti, chi studia → percorsi), la striscia rossa per l'aiuto e quella scura verso le aree tecniche; il riquadro "Prima volta qui?" porta lì; EN tradotto; il pulsante Aiuto compatto non copre più il riquadro a 1366×768; test | `9c858fb` |
 | 1.8 | Sorprese di Lù: password famose nella ricerca, "luce" accende la torcia con consigli nascosti, Lù toccata 5 volte racconta una curiosità vera con la fonte, premio finto nel footer → `trappola-finta.html`, pagina 404 vera (IT/EN, header, "password su un post-it"), messaggio in console, avvisi e badge segreto Esploratore (`js/sorprese.js`), badge segreti nella pagina di Primi passi; mai nella pagina Aiuto; test e `scripts/e2e/sorprese.js` | `b116814` |
-| 2.13 | Scene delle storie: tre quadri per tappa (30 disegni SVG originali in `server/lib/primi-passi-scenes.js`, didascalie IT/EN nel campo `scene`), un quadro alla volta con pausa e frecce, partenza solo quando la scena è sullo schermo, oggetti che entrano uno dopo l'altro; striscia a fumetti con il movimento ridotto o senza JavaScript; chi fa del male non ha mai un volto, protagonisti con carnagioni e capelli diversi; corretto "la preside" nella tappa 9; regole in `PRIMI-PASSI.md` e `STILE.md`; test e prova nel browser | questo commit |
+| 2.13 | Scene delle storie: tre quadri per tappa (30 disegni SVG originali in `server/lib/primi-passi-scenes.js`, didascalie IT/EN nel campo `scene`), un quadro alla volta con pausa e frecce, partenza solo quando la scena è sullo schermo, oggetti che entrano uno dopo l'altro; striscia a fumetti con il movimento ridotto o senza JavaScript; chi fa del male non ha mai un volto, protagonisti con carnagioni e capelli diversi; corretto "la preside" nella tappa 9; regole in `PRIMI-PASSI.md` e `STILE.md`; test e prova nel browser | `74da170` |
+| fine fase 2 | Scheda per la prova con 5–10 persone (`PROVA-PRIMI-PASSI.md`): chi, regole di tutela e privacy, preparazione in locale e da telefono, compiti, domande, cosa osservare, criteri di superamento, foglio di annotazione | questo commit |
 
 ## Note per chi riprende
 
