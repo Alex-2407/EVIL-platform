@@ -596,7 +596,7 @@ body.home-v7 main#hv-main {
 .hv-toast.is-show { transform: none; }
 .hv-toast b { color: var(--hv-green); display: block; letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px; margin-bottom: 4px; }
 .hv-eggs {
-  position: fixed; left: 34px; bottom: 20px; z-index: 1100; font: 11px var(--hv-mono); color: var(--hv-dim); letter-spacing: 0.1em;
+  position: fixed; left: 34px; bottom: 74px; z-index: 1100; font: 11px var(--hv-mono); color: var(--hv-dim); letter-spacing: 0.1em;
   background: rgba(5, 8, 13, 0.85); border: 1px solid var(--hv-line); padding: 6px 10px; border-radius: 999px; opacity: 0; transition: opacity 0.4s; pointer-events: none;
 }
 .hv-eggs.is-show { opacity: 1; }

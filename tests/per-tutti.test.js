@@ -64,3 +64,16 @@ test('Lù: il carattere e i file della mascotte sono serviti', async () => {
   assert.match(res.text, /class="lu"/);
   assert.match(res.text, /lu--help/);
 });
+
+test('pulsante Aiuto su ogni pagina (tranne Aiuto) e numeri sopra il modulo di help', async () => {
+  const home = await request(app).get('/').expect(200);
+  assert.match(home.text, /<a class="evil-help-fab" href="\/aiuto\.html" aria-label="Aiuto subito: cyberbullismo, ricatti, minacce">/);
+  const en = await request(app).get('/en/news.html').expect(200);
+  assert.match(en.text, /<a class="evil-help-fab" href="\/en\/aiuto\.html" aria-label="Get help now/);
+  const aiuto = await request(app).get('/aiuto.html').expect(200);
+  assert.doesNotMatch(aiuto.text, /evil-help-fab/, 'nella pagina Aiuto il pulsante non serve');
+  const help = await request(app).get('/help.html').expect(200);
+  assert.match(help.text, /id="help-urgent"/);
+  assert.match(help.text, /class="pt-help-numbers"/);
+  assert.ok(help.text.indexOf('id="help-urgent"') < help.text.indexOf('id="helpContactForm"'), 'i numeri vengono prima del modulo');
+});

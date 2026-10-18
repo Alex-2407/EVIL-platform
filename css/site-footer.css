@@ -176,3 +176,72 @@ h2.evil-site-foot__tag {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ─── Aiuto sempre raggiungibile (server/chrome.js → helpButton) ─── */
+.evil-help-fab {
+  position: fixed;
+  left: max(14px, env(safe-area-inset-left));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 900;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem 0.5rem 0.75rem;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  background: #c2272f;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font: 700 0.95rem/1 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: 0.01em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+  opacity: 0;
+  transform: translateY(8px);
+  animation: evilHelpIn 0.4s ease-out 0.9s forwards;
+}
+
+.evil-help-fab svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.evil-help-fab:hover { background: #a61e2a; }
+.evil-help-fab:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }
+
+@keyframes evilHelpIn { to { opacity: 1; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .evil-help-fab { animation: none; opacity: 1; transform: none; }
+}
+
+@media print {
+  .evil-help-fab { display: none !important; }
+}
+
+/* numeri da chiamare subito (server/lib/help-contacts.js → renderHelpNumbers) */
+.pt-help-numbers { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0; }
+
+.pt-help-number {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: #c2272f;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 700;
+}
+
+.pt-help-number b { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.02em; }
+.pt-help-number span { font-size: 0.95rem; opacity: 0.95; }
+.pt-help-number:hover { background: #a61e2a; }
+.pt-help-number:focus-visible { outline: 3px solid #fbbf24; outline-offset: 3px; }

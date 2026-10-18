@@ -35,6 +35,8 @@ const STR = {
     footLegal: 'Strumenti da usare solo su sistemi tuoi o con autorizzazione scritta.',
     code: 'Codice su GitHub',
     langName: { it: 'Italiano', en: 'English' },
+    help: 'Aiuto',
+    helpAria: 'Aiuto subito: cyberbullismo, ricatti, minacce',
   },
   en: {
     headerLabel: 'Main header',
@@ -62,6 +64,8 @@ const STR = {
     footLegal: 'Use the tools only on your own systems or with written authorisation.',
     code: 'Source code on GitHub',
     langName: { it: 'Italiano', en: 'English' },
+    help: 'Help',
+    helpAria: 'Get help now: cyberbullying, blackmail, threats',
   },
 };
 
@@ -190,7 +194,18 @@ function renderFooter(lang, file) {
     </p>
     ${langSwitch(file, lang, 'evil-lang--foot')}
   </div>
-</footer>`;
+</footer>${helpButton(lang, file)}`;
+}
+
+/**
+ * Pulsante "Aiuto" sempre raggiungibile (docs/evil-per-tutti/PIANO.md, passo 1.5).
+ * Sta fuori dal footer: un genitore con transform sposterebbe un elemento fixed.
+ */
+function helpButton(lang, file) {
+  if (file === 'aiuto.html') return '';
+  const s = STR[lang] || STR.it;
+  return `
+<a class="evil-help-fab" href="${pageUrl('aiuto.html', lang)}" aria-label="${esc(s.helpAria)}">${svgIcon('lifebuoy')}<span>${esc(s.help)}</span></a>`;
 }
 
 /** Manifest per il browser (home, ricerca rapida): pagine e aree nella lingua indicata. */

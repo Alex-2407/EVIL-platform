@@ -682,24 +682,7 @@ html.pt-js .pt-switch .pt-panel__title.pt-sr-when-js {
 .pt .pt-help-card__src { margin: 0.35rem 0 0; font-size: 0.8125rem; color: var(--pt-ink-2); }
 .pt .pt-help-card__src a { color: var(--pt-ink-2); }
 
-.pt-help-numbers { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0; }
-
-.pt-help-number {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  min-height: 48px;
-  padding: 0.6rem 1.1rem;
-  border-radius: 999px;
-  background: var(--pt-help-solid);
-  color: #fff !important;
-  text-decoration: none !important;
-  font-weight: 700;
-}
-
-.pt-help-number b { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.02em; }
-.pt-help-number span { font-size: 0.95rem; opacity: 0.95; }
-.pt-help-number:hover { background: #a61e2a; }
+/* .pt-help-numbers e .pt-help-number stanno in css/site-footer.css: servono anche fuori da "Per tutti" */
 
 /* ---------------------------------------------------------------- pagina Aiuto e blocchi comuni */
 .pt-note {

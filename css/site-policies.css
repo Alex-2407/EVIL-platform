@@ -558,3 +558,17 @@
 .help-q summary::after { content: "+"; color: #f59e0b; font-size: 1.2rem; line-height: 1; transition: transform .25s; }
 .help-q[open] summary::after { transform: rotate(45deg); }
 .help-q p { margin: 0; padding: 0 1rem 1rem; }
+
+/* Help: chi è in difficoltà va subito dai servizi giusti (docs/evil-per-tutti/PIANO.md, 1.5) */
+.policy-section.help-urgent {
+  border-color: rgba(248, 113, 113, 0.55);
+  background: linear-gradient(180deg, rgba(194, 39, 47, 0.16), rgba(194, 39, 47, 0.06));
+}
+
+.policy-section.help-urgent .policy-section__icon {
+  color: #fecaca;
+}
+
+.policy-section.help-urgent .pt-help-numbers {
+  margin-top: 0.9rem;
+}
