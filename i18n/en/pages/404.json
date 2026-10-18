@@ -1,0 +1,17 @@
+{
+  "Pagina non trovata - EVIL": "Page not found - EVIL",
+  "Questa pagina non esiste o non esiste più. Da qui puoi ripartire: home, ricerca, Primi passi, Aiuto subito, percorsi.": "This page doesn’t exist or no longer exists. Start again from here: home, search, First steps, Get help now, learning paths.",
+  "Errore 404": "Error 404",
+  "Questa pagina si è persa, come una password scritta su un post-it.": "This page got lost, like a password on a sticky note.",
+  "L’indirizzo non esiste, o non esiste più. Succede: ecco qualche strada per ripartire.": "The address doesn’t exist, or no longer does. It happens: here are a few ways to start again.",
+  "Torna alla home": "Back to the home page",
+  "Cerca nel sito": "Search the site",
+  "Da dove ripartire": "Where to start again",
+  "<a href=\"/primi-passi.html\">Primi passi</a>": "<a href=\"/primi-passi.html\">First steps</a>",
+  "La sicurezza online da zero, in 10 tappe brevi con un gioco ciascuna.": "Online safety from scratch, in 10 short stages with a game each.",
+  "<a href=\"/aiuto.html\">Aiuto subito</a>": "<a href=\"/aiuto.html\">Get help now</a>",
+  "Cyberbullismo, ricatti, foto diffuse: cosa fare e chi chiamare.": "Cyberbullying, blackmail, shared photos: what to do and who to call.",
+  "<a href=\"/learning-paths.html\">Percorsi di apprendimento</a>": "<a href=\"/learning-paths.html\">Learning paths</a>",
+  "Corsi con laboratori ed esame, per chi studia sicurezza informatica.": "Courses with labs and an exam, for cybersecurity students.",
+  "A proposito di post-it: le password non si scrivono sul monitor. Si salvano in un gestore di password, e la tappa <a href=\"/pp-password.html\">Password e passkey</a> spiega come.": "Speaking of sticky notes: passwords don’t go on your screen. They go in a password manager, and the <a href=\"/pp-password.html\">Passwords and passkeys</a> stage explains how."
+}

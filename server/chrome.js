@@ -37,6 +37,7 @@ const STR = {
     langName: { it: 'Italiano', en: 'English' },
     help: 'Aiuto',
     helpAria: 'Aiuto subito: cyberbullismo, ricatti, minacce',
+    prize: 'Hai vinto un buono da 500 €! Ritiralo oggi',
   },
   en: {
     headerLabel: 'Main header',
@@ -66,6 +67,7 @@ const STR = {
     langName: { it: 'Italiano', en: 'English' },
     help: 'Help',
     helpAria: 'Get help now: cyberbullying, blackmail, threats',
+    prize: 'You’ve won a €500 voucher! Claim it today',
   },
 };
 
@@ -167,10 +169,15 @@ ${menus}
 function renderFooter(lang, file) {
   const s = STR[lang] || STR.it;
   const cols = AREAS.map((area) => {
-    const links = pagesOf(area.id)
+    let links = pagesOf(area.id)
       .filter((p) => p.nav)
       .map((p) => `<li><a class="evil-site-foot__link" href="${pageUrl(p.file, lang)}">${esc(p.title[lang])}</a></li>`)
       .join('');
+    // sorpresa di Lù (docs/evil-per-tutti/STILE.md): un premio troppo bello per essere vero.
+    // Porta a una pagina che spiega i segnali; mai nella pagina Aiuto.
+    if (area.id === 'per-tutti' && file !== 'aiuto.html') {
+      links += `<li><a class="evil-site-foot__link evil-site-foot__prize" href="${pageUrl('trappola-finta.html', lang)}">${esc(s.prize)}</a></li>`;
+    }
     return `<section class="evil-site-foot__col evil-site-foot__col--${area.color}">
       <h2 class="evil-site-foot__tag">${esc(area.label[lang])}</h2>
       <ul class="evil-site-foot__list">${links}</ul>

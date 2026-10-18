@@ -11,6 +11,7 @@ const { httpsRedirectMiddleware } = require('../middleware/https-enforce');
 const { logger, httpLogger } = require('../middleware/logger');
 const { globalLimiter } = require('../middleware/limiter');
 const pages = require('./pages');
+const { LANGS, DEFAULT_LANG } = require('./site-map');
 const { i18nMiddleware } = require('./i18n');
 const { registerHealth, registerDiagnostics } = require('./routes/health');
 const registerTools = require('./routes/tools');
@@ -152,12 +153,21 @@ function createApp(ctx) {
   registerCertificates(app, ctx);
 
   // ==================== 404 ====================
+  // Chi naviga vede una pagina vera (header, footer, nella sua lingua: /en/… → inglese);
+  // le API e i client che chiedono JSON ricevono JSON.
   const notFoundPage = path.join(root, 'html', '404.html');
   app.use((req, res) => {
     const wantsHtml = req.method === 'GET' && !req.path.startsWith('/api/') && req.accepts(['html', 'json']) === 'html';
     if (wantsHtml && fs.existsSync(notFoundPage)) {
-      res.status(404);
-      return res.sendFile(notFoundPage);
+      const m = /^\/([a-z]{2})(?:\/|$)/.exec(req.path);
+      const lang = m && LANGS.includes(m[1]) ? m[1] : DEFAULT_LANG;
+      const html = pages.renderPage('404.html', '404.html', lang);
+      if (html) {
+        res.status(404);
+        res.setHeader('Content-Language', lang);
+        res.setHeader('Cache-Control', 'no-cache');
+        return res.type('html').send(html);
+      }
     }
     return res.status(404).json({ error: tr(req, t('Risorsa non trovata.')), code: 'NOT_FOUND', status: 'error' });
   });

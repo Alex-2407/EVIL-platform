@@ -419,7 +419,12 @@ function injectI18nRuntime(html, lang) {
   if (lang !== DEFAULT_LANG) scripts.push(`<script src="/js/i18n/${lang}.js"></script>`);
   scripts.push('<script src="/js/i18n.js"></script>', '<script src="/js/evil-utils.js"></script>');
   if (/<header[\s>]/i.test(out)) {
-    scripts.push('<script src="/js/site-pages.js" defer></script>', '<script src="/js/site-search.js" defer></script>');
+    scripts.push(
+      '<script src="/js/site-pages.js" defer></script>',
+      '<script src="/js/site-search.js" defer></script>',
+      // sorprese di Lù (easter egg, docs/evil-per-tutti/STILE.md)
+      '<script src="/js/sorprese.js" defer></script>'
+    );
   }
   // prima di qualunque altro script della pagina
   const headEnd = out.indexOf('</head>');

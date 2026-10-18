@@ -202,11 +202,164 @@
     });
   }
 
+  // ------------------------------------------------------------ sorprese (STILE.md): mai nella pagina Aiuto
+  const t = (window.EVIL_I18N && window.EVIL_I18N.t) || ((s) => s);
+
+  function isHelpPage() {
+    return document.body.classList.contains('pt-help-page');
+  }
+
+  function egg(id) {
+    if (!isHelpPage() && window.EvilEggs) window.EvilEggs.found(id);
+  }
+
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  // Curiosità vere, con la fonte (verificate il 18 ottobre 2026): Lù ne racconta una ogni 5 tocchi
+  const FACTS = [
+    { text: t('Le passkey non si possono rubare con una pagina falsa: ognuna funziona solo con il sito vero.'), src: t('FIDO Alliance, passkey'), url: 'https://fidoalliance.org/passkeys/' },
+    { text: t('Tre parole a caso fanno una password lunga e facile da ricordare: lo consiglia il centro per la cybersicurezza del Regno Unito.'), src: t('NCSC, «Three random words», 2016'), url: 'https://www.ncsc.gov.uk/blog-post/three-random-words-or-thinkrandom-0' },
+    { text: t('I codici delle app di autenticazione cambiano ogni 30 secondi: è il passo consigliato dallo standard TOTP, del 2011.'), src: t('IETF, RFC 6238'), url: 'https://datatracker.ietf.org/doc/html/rfc6238' },
+    { text: t('Con l’intelligenza artificiale basta un breve audio per imitare la voce di una persona. Se al telefono ti chiedono soldi, richiama tu.'), src: t('FTC, voci clonate con l’IA, 2023'), url: 'https://consumer.ftc.gov/node/80688' },
+    { text: t('Pagare un riscatto non garantisce di riavere i file: per questo l’FBI invita a non pagare.'), src: t('FBI, ransomware'), url: 'https://www.fbi.gov/how-we-can-help-you/scams-and-safety/common-frauds-and-scams/ransomware' },
+    { text: t('Esiste un elenco pubblico delle falle che i criminali sfruttano davvero: lo tiene la CISA. Aggiornare chiude proprio quelle porte.'), src: t('CISA, catalogo KEV'), url: 'https://www.cisa.gov/known-exploited-vulnerabilities' },
+    { text: t('Alcune foto e video portano le «credenziali del contenuto», che raccontano come sono stati creati: lo standard si chiama C2PA.'), src: t('C2PA, Content Credentials'), url: 'https://c2pa.org/' },
+  ];
+
+  function showFact(lu) {
+    let i = 0;
+    try {
+      i = (Number(window.localStorage.getItem('evil-lu-fact')) || 0) % FACTS.length;
+      window.localStorage.setItem('evil-lu-fact', String(i + 1));
+    } catch (_) {
+      i = Math.floor(Math.random() * FACTS.length);
+    }
+    const f = FACTS[i];
+    const host = lu.parentElement;
+    host.classList.add('pt-fact-host');
+    let bubble = host.querySelector('.pt-fact');
+    if (!bubble) {
+      bubble = el('div', 'lu-bubble pt-fact');
+      bubble.setAttribute('role', 'status');
+      host.appendChild(bubble);
+    }
+    const src = el('p', 'pt-fact__src', `${t('Fonte:')} `);
+    const a = el('a', '', f.src);
+    a.href = f.url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    src.appendChild(a);
+    const close = el('button', 'pt-fact__close', '×');
+    close.type = 'button';
+    close.setAttribute('aria-label', t('Chiudi la curiosità'));
+    close.addEventListener('click', () => {
+      bubble.remove();
+      lu.focus();
+    });
+    bubble.replaceChildren(el('p', 'pt-fact__k', t('Lo sapevi?')), el('p', 'pt-fact__t', f.text), src, close);
+    egg('lu');
+  }
+
+  function initFacts() {
+    document.addEventListener('lu:tap', (e) => {
+      const lu = e.target && e.target.closest && e.target.closest('[data-lu]');
+      if (!lu || isHelpPage()) return;
+      const taps = (e.detail && e.detail.taps) || 0;
+      if (taps > 0 && taps % 5 === 0) showFact(lu);
+    });
+  }
+
+  // "luce" (o "light") scritto sulla tastiera nell'area Per tutti: Lù diventa una torcia
+  const TIPS = [
+    t('Psst: un codice arrivato per SMS non si gira a nessuno.'),
+    t('Una password lunga batte una password complicata.'),
+    t('Prima di pubblicare una foto, guarda lo sfondo.'),
+    t('Se un messaggio ti mette fretta, rallenta: è il trucco più vecchio del mondo.'),
+    t('Chiedere aiuto è una mossa da esperti.'),
+  ];
+
+  function initTorch() {
+    if (isHelpPage() || !document.body.classList.contains('pt-page')) return;
+    const WORDS = ['luce', 'light'];
+    let typed = '';
+    let layer = null;
+
+    function build() {
+      const wrap = el('div', 'pt-torch');
+      const tips = el('div', 'pt-torch__tips');
+      // tre consigli a caso, in tre zone diverse dello schermo
+      const spots = [[12, 26], [58, 48], [18, 72]];
+      TIPS.slice()
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .forEach((text, i) => {
+          const tip = el('p', 'pt-torch__tip', text);
+          tip.style.left = `${spots[i][0] + Math.round(Math.random() * 12)}vw`;
+          tip.style.top = `${spots[i][1] + Math.round(Math.random() * 8)}vh`;
+          tips.appendChild(tip);
+        });
+      const bar = el('div', 'pt-torch__bar');
+      const off = el('button', 'pt-torch__off', t('Spegni la torcia'));
+      off.type = 'button';
+      off.addEventListener('click', () => toggle(false));
+      bar.append(el('p', 'pt-torch__hint', t('Muovi la luce: qualche consiglio è nascosto nel buio.')), off);
+      wrap.append(tips, el('div', 'pt-torch__dark'), bar);
+      return wrap;
+    }
+
+    function move(e) {
+      if (!layer) return;
+      layer.style.setProperty('--x', `${e.clientX}px`);
+      layer.style.setProperty('--y', `${e.clientY}px`);
+    }
+
+    function toggle(on) {
+      if (on && !layer) {
+        layer = build();
+        document.body.appendChild(layer);
+        root.classList.add('pt-torch-on');
+        window.addEventListener('pointermove', move, { passive: true });
+        layer.querySelector('.pt-torch__off').focus();
+        egg('light');
+      } else if (!on && layer) {
+        layer.remove();
+        layer = null;
+        root.classList.remove('pt-torch-on');
+        window.removeEventListener('pointermove', move);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (layer && e.key === 'Escape') {
+        toggle(false);
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;
+      const target = e.target;
+      if (target && (target.isContentEditable || /^(input|textarea|select)$/i.test(target.tagName))) return;
+      typed = (typed + e.key.toLowerCase()).slice(-8);
+      if (WORDS.some((w) => typed.endsWith(w))) {
+        typed = '';
+        toggle(!layer);
+      }
+    });
+  }
+
   function init() {
     document.querySelectorAll('[data-pt-switch]').forEach(initSwitch);
     initReveal();
     initMascots();
     initQuickExit();
+    initFacts();
+    initTorch();
+    // pagine che sono esse stesse una sorpresa (premio finto, 404)
+    const pageEgg = document.body.getAttribute('data-pt-egg');
+    if (pageEgg) egg(pageEgg);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

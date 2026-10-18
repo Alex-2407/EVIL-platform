@@ -1232,6 +1232,15 @@ html.pt-js .pp-tile.is-done .pp-status--done { display: inline-flex; background:
   .pt .pp-cert__badges { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
+/* badge segreti */
+.pt .pp-secrets__list { list-style: none; padding: 0; margin: 0; display: grid; gap: 1rem; }
+.pt .pp-secrets__list > li + li { margin-top: 0; }
+.pt .pp-secret { margin-top: 0; max-width: none; }
+.pt .pp-secret .pp-badge__state { max-width: none; }
+.pt .pp-secret__count { margin-top: 0.35rem; font-weight: 750; color: var(--pt-ink); }
+html:not(.pt-js) .pp-secret__count { display: none; }
+.pp-secret.is-won .pp-badge__name::after { content: ' ✓'; color: var(--pt-safe); }
+
 .pp-reset .is-armed { border-color: var(--pt-warn); color: var(--pt-warn); background: var(--pt-warn-bg); }
 .pt .pp-reset__msg { font-weight: 750; color: var(--pt-safe); min-height: 1.5em; }
 

@@ -508,6 +508,30 @@ ${certBadges}
       </div>
     </section>
 
+    <section class="pt-section pp-secrets" aria-labelledby="secrets-title">
+      <div class="pt__wrap pt__narrow">
+        <h2 id="secrets-title">${x(L(O.secretsTitle, lang))}</h2>
+        <p class="pt-section__lead">${x(L(O.secretsLead, lang))}</p>
+        <ul class="pp-secrets__list">
+          <li class="pp-badge pp-secret" data-pp-secret="gold">
+            ${badgeMedal('sun')}
+            <div class="pp-badge__txt">
+              <p class="pp-badge__name">${x(L(O.goldTitle, lang).replace(/!$/, ''))}</p>
+              <p class="pp-badge__state">${x(L(O.goldHow, lang))}</p>
+            </div>
+          </li>
+          <li class="pp-badge pp-secret" data-pp-secret="explorer">
+            ${badgeMedal('globe')}
+            <div class="pp-badge__txt">
+              <p class="pp-badge__name">${x(L(O.explorerName, lang))}</p>
+              <p class="pp-badge__state">${x(L(O.explorerHow, lang))}</p>
+              <p class="pp-badge__state pp-secret__count">${L(O.eggsCount, lang)}</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </section>
+
     <section class="pt-section pp-privacy" aria-labelledby="privacy-title">
       <div class="pt__wrap pt__narrow">
         <h2 id="privacy-title">${x(L(O.privacyTitle, lang))}</h2>

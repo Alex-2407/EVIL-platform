@@ -98,6 +98,24 @@ test('home "Chi sei?": un ingresso per ogni pubblico, aiuto in evidenza, anche i
   assert.match(en.text, /href="\/en\/aiuto\.html#docenti"/);
 });
 
+test('sorprese di Lù: script su ogni pagina, premio finto nel footer tranne che in Aiuto, pagina che spiega i segnali', async () => {
+  const home = await request(app).get('/').expect(200);
+  assert.match(home.text, /<script src="\/js\/sorprese\.js[^"]*" defer><\/script>/);
+  assert.match(home.text, /class="evil-site-foot__link evil-site-foot__prize" href="\/trappola-finta\.html">Hai vinto un buono da 500 €!/);
+  const aiuto = await request(app).get('/aiuto.html').expect(200);
+  assert.doesNotMatch(aiuto.text, /evil-site-foot__prize/, 'niente sorprese nella pagina Aiuto');
+  const trap = await request(app).get('/trappola-finta.html').expect(200);
+  assert.match(trap.text, /data-pt-egg="prize"/);
+  assert.match(trap.text, /<meta name="robots" content="noindex">/);
+  assert.match(trap.text, /I segnali che dovevano insospettirti/);
+  const en = await request(app).get('/en/trappola-finta.html').expect(200);
+  assert.match(en.text, /It was a trap… a fake one/);
+  assert.match(en.text, /href="\/en\/trappola-finta\.html">You’ve won a €500 voucher!/);
+  // le pagine sorpresa non stanno nella sitemap né nella ricerca del sito
+  const map = await request(app).get('/sitemap.xml').expect(200);
+  assert.doesNotMatch(map.text, /trappola-finta|404\.html/);
+});
+
 test('tutela dei minori: sezione nelle regole del sito, collegata dalla pagina Aiuto', async () => {
   const it = await request(app).get('/site-policies.html').expect(200);
   assert.match(it.text, /id="policy-minors"/);

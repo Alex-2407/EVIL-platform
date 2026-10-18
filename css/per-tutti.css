@@ -513,6 +513,11 @@ body.pt-page summary:focus-visible {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
 }
 
+/* poche schede che riempiono la riga */
+.pt-grid--fit {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+}
+
 .pt-card {
   background: var(--pt-card);
   border: 1px solid var(--pt-line);
@@ -786,6 +791,8 @@ html.pt-js .pt-switch .pt-panel__title.pt-sr-when-js {
 
 @keyframes pt-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+.pt-gap-top { margin-top: 1.25rem; }
+
 .pt-sr {
   position: absolute !important;
   width: 1px;
@@ -954,6 +961,134 @@ html.pt-js .pt-switch .pt-panel__title.pt-sr-when-js {
   .pt.pt-room h2 { padding-right: 4.2rem; }
 }
 
+/* ---------------------------------------------------------------- sorprese (js/per-tutti.js, STILE.md) */
+/* Lù toccata 5 volte: una curiosità vera, con la fonte */
+.pt-fact-host { position: relative; }
+
+.pt-fact {
+  position: absolute;
+  z-index: 30;
+  top: 100%;
+  right: 0;
+  width: min(20rem, calc(100vw - 2.5rem));
+  margin-top: 0.5rem;
+  padding: 0.85rem 2.4rem 0.8rem 1rem;
+  font-family: var(--pt-font);
+  text-align: left;
+  line-height: 1.45;
+  animation: pt-in 0.3s var(--pt-ease);
+}
+
+/* la punta del fumetto verso Lù */
+.pt-fact::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  right: 2.6rem;
+  width: 12px;
+  height: 12px;
+  background: var(--pt-card);
+  border-left: 1px solid var(--pt-line);
+  border-top: 1px solid var(--pt-line);
+  transform: rotate(45deg);
+}
+
+.pt-fact p { margin: 0; max-width: none; }
+.pt-fact .pt-fact__k { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--pt-kids); }
+.pt-fact .pt-fact__t { margin: 0.2rem 0 0.4rem; font-size: 1rem; color: var(--pt-ink); }
+.pt-fact .pt-fact__src { font-size: 0.8rem; color: var(--pt-ink-2); }
+.pt-fact .pt-fact__src a { color: var(--pt-info); }
+
+.pt-fact__close {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--pt-ink-2);
+  font: 700 1.3rem/1 var(--pt-font);
+  cursor: pointer;
+}
+
+.pt-fact__close:hover { background: var(--pt-sunken); color: var(--pt-ink); }
+
+/* "luce": la torcia. Il buio copre la pagina tranne il cerchio di luce; i consigli stanno sotto il buio */
+.pt-torch {
+  --x: 50vw;
+  --y: 45vh;
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  pointer-events: none;
+}
+
+.pt-torch__tips,
+.pt-torch__dark { position: absolute; inset: 0; }
+
+.pt-torch__dark {
+  background: radial-gradient(
+    circle 170px at var(--x) var(--y),
+    rgba(255, 236, 140, 0.1) 0%,
+    rgba(255, 236, 140, 0.05) 55%,
+    rgba(5, 7, 11, 0.97) 100%
+  );
+}
+
+.pt-torch .pt-torch__tip {
+  position: absolute;
+  max-width: 17rem;
+  margin: 0;
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  border: 1px dashed rgba(244, 224, 77, 0.8);
+  background: #fffbe0;
+  color: #1b2130;
+  font: 750 1rem/1.4 var(--pt-font);
+  box-shadow: 0 0 24px rgba(244, 224, 77, 0.55);
+  transform: rotate(-2deg);
+}
+
+.pt-torch__bar {
+  position: absolute;
+  top: calc(var(--pt-header-h, 84px) + 1rem);
+  left: 50%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 1rem;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem 0.8rem 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(11, 18, 32, 0.92);
+  border: 1px solid rgba(244, 224, 77, 0.5);
+  transform: translateX(-50%);
+  pointer-events: auto;
+}
+
+.pt-torch .pt-torch__hint { margin: 0; color: #f8f4d8; font: 600 0.95rem/1.3 var(--pt-font); max-width: none; }
+
+.pt-torch__off {
+  min-height: 40px;
+  padding: 0.4rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: #f4e04d;
+  color: #1b2130;
+  font: 800 0.95rem/1 var(--pt-font);
+  cursor: pointer;
+}
+
+.pt-torch__off:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
+@media print {
+  .pt-torch, .pt-fact { display: none !important; }
+}
+
 /* ---------------------------------------------------------------- movimento ridotto */
 @media (prefers-reduced-motion: reduce) {
   .lu__float, .lu__wing, .lu__halo, .lu__eyes, .lu__spark, .lu-wrap.is-hop .lu { animation: none !important; }
@@ -961,6 +1096,7 @@ html.pt-js .pt-switch .pt-panel__title.pt-sr-when-js {
   .pt-will-reveal { opacity: 1; transform: none; }
   .pt-panel.is-entering { animation: none; }
   .hv .pt-room.hv-reveal { filter: none !important; transition: none; }
+  .pt-fact { animation: none; }
   .pt .pt-who__item, .pt .pt-room__strip { transition: none; }
 }
 

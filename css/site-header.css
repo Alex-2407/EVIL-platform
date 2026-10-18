@@ -685,6 +685,17 @@ html.evil-search-open {
 .evil-search__opt--amber { --opt: #fbbf24; }
 .evil-search__opt--green { --opt: #00ff9c; }
 .evil-search__opt--violet { --opt: #c4b5fd; }
+.evil-search__opt--rose { --opt: #fda4af; }
+
+/* sorpresa: Lù arrossisce quando si cerca una password famosa (js/site-search.js) */
+.evil-search__opt--egg { --opt: #f4e04d; }
+.evil-search__opt--egg a {
+  background: linear-gradient(100deg, rgba(244, 224, 77, 0.12), rgba(244, 224, 77, 0.02));
+  border: 1px solid rgba(244, 224, 77, 0.35);
+}
+.evil-search__opt--egg .evil-search__t { display: flex; align-items: center; gap: 0.55rem; color: #fff6c2; }
+.evil-search__opt--egg .evil-search__t svg { width: 1.6rem; height: 1.6rem; flex: none; filter: drop-shadow(0 0 6px rgba(244, 224, 77, 0.6)); }
+.evil-search__opt--egg .evil-search__d { color: #cbd5e1; }
 
 .evil-search__t {
   color: #f1f5f9;

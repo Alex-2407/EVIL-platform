@@ -113,7 +113,18 @@ test('ogni pagina ha descrizione, anteprima Open Graph e canonical propria', asy
   }
 });
 
-test('pagina inesistente: 404 in JSON', async () => {
-  const res = await request(app).get('/pagina-che-non-esiste.html');
+test('pagina inesistente: 404 vera per chi naviga (anche in inglese), JSON per le API', async () => {
+  const res = await request(app).get('/pagina-che-non-esiste.html').set('Accept', 'text/html');
   assert.equal(res.status, 404);
+  assert.match(res.text, /<html lang="it"/);
+  assert.match(res.text, /si è persa, come una password scritta su un post-it/);
+  assert.match(res.text, /<meta name="robots" content="noindex">/);
+  assert.match(res.text, /<header role="banner"/, 'con header e menu');
+  const en = await request(app).get('/en/pagina-che-non-esiste.html').set('Accept', 'text/html');
+  assert.equal(en.status, 404);
+  assert.match(en.text, /<html lang="en"/);
+  assert.match(en.text, /like a password on a sticky note/);
+  const api = await request(app).get('/api/non-esiste').set('Accept', 'application/json');
+  assert.equal(api.status, 404);
+  assert.equal(api.body.code, 'NOT_FOUND');
 });

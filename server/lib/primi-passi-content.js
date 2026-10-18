@@ -127,6 +127,15 @@ const OVERVIEW = {
     'has completed the 10 stages of First steps on EVIL: passwords and passkeys, two-step verification, updates and backups, scams, privacy, people online, cyberbullying, fake news and an emergency plan.'
   ),
   certIssued: T('Rilasciato il {date}', 'Issued on {date}'),
+  secretsTitle: T('Badge segreti', 'Secret badges'),
+  secretsLead: T('Due badge non si vedono finché non li trovi.', 'Two badges stay hidden until you find them.'),
+  goldHow: T('Si accende quando completi tutte le tappe.', 'It lights up when you complete every stage.'),
+  explorerName: T('Esploratore', 'Explorer'),
+  explorerHow: T(
+    'Trova le cinque sorprese di Lù nascoste nel sito. Indizi: Lù è curiosa, certe password non si cercano, una parola accende la luce, i premi troppo belli…',
+    'Find Lu’s five surprises hidden around the site. Clues: Lu is curious, some passwords shouldn’t be searched for, one word switches on the light, prizes that are too good…'
+  ),
+  eggsCount: T('Sorprese trovate: <b data-pp-eggs>0</b> di 5', 'Surprises found: <b data-pp-eggs>0</b> of 5'),
   privacyTitle: T('I tuoi progressi', 'Your progress'),
   privacy: T(
     'Restano solo su questo dispositivo, nel browser: niente account e niente tracciamento. Su un computer condiviso, per esempio a scuola, puoi cancellarli quando vuoi.',

@@ -254,6 +254,67 @@ h2.evil-site-foot__tag {
   .evil-help-fab { display: none !important; }
 }
 
+/* ─── sorpresa nel footer "Per tutti": un premio troppo bello per essere vero (server/chrome.js) ─── */
+.evil-site-foot__prize::before {
+  content: '✦';
+  margin-right: 0.35em;
+  color: #f4e04d;
+}
+
+/* ─── sorprese di Lù: avviso breve quando se ne trova una (js/sorprese.js) ─── */
+.evil-egg-toasts {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  z-index: 3000;
+  display: grid;
+  gap: 0.5rem;
+  width: min(26rem, calc(100vw - 2rem));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.evil-egg-toast {
+  position: relative;
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.75rem 1rem 0.8rem 2.6rem;
+  border-radius: 14px;
+  border: 1px solid rgba(244, 224, 77, 0.55);
+  background: #0b1220;
+  color: #e2e8f0;
+  font: 0.92rem/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45), 0 0 26px -8px rgba(244, 224, 77, 0.6);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+}
+
+.evil-egg-toast.is-in { opacity: 1; transform: none; }
+
+/* una lucciola accesa accanto al testo */
+.evil-egg-toast::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: #f4e04d;
+  box-shadow: 0 0 10px 3px rgba(244, 224, 77, 0.7);
+}
+
+.evil-egg-toast strong { color: #f4e04d; font-weight: 800; }
+
+@media (prefers-reduced-motion: reduce) {
+  .evil-egg-toast { transition: none; }
+}
+
+@media print {
+  .evil-egg-toasts { display: none !important; }
+}
+
 /* numeri da chiamare subito (server/lib/help-contacts.js → renderHelpNumbers) */
 .pt-help-numbers { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0; }
 

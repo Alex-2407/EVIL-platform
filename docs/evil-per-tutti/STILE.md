@@ -109,13 +109,18 @@ Ognuno fa sorridere e insegna qualcosa. Nessuno spaventa, nessuno è per adulti.
 | Ricerca del sito | Cercare "123456" o "password" | Lù arrossisce: "Questa password la conoscono anche i muri" e mostra come crearne una vera | ragazzi, adolescenti |
 | Area "Per tutti" | Scrivere "luce" sulla tastiera | Si spegne la luce: Lù diventa una torcia e illumina consigli nascosti nella pagina | ragazzi, adolescenti |
 | Mascotte | Cliccare Lù 5 volte | Lù racconta una curiosità vera sulla sicurezza (con fonte) | tutti |
-| Footer "Per tutti" | Un link troppo bello per essere vero ("Hai vinto un buono da 500 €") | "Ci sei cascato… per finta": la pagina mostra i segnali che dovevano insospettire, senza prendere in giro | adolescenti, adulti |
+| Footer "Per tutti" | Un link troppo bello per essere vero ("Hai vinto un buono da 500 €! Ritiralo oggi") | "Era una trappola… finta" (`trappola-finta.html`): la pagina mostra i segnali che dovevano insospettire, senza prendere in giro | adolescenti, adulti |
 | Console del browser | Aprire gli strumenti per sviluppatori | Un messaggio per chi guarda sotto il cofano: "Ti piace capire come funziona? L'area Impara fa per te" | adolescenti curiosi |
 | Pagina 404 | Un indirizzo sbagliato | "Questa pagina si è persa come una password scritta su un post-it", con i link utili | tutti |
 | Primi passi | Completare tutte le tappe | Badge segreto "Lucciola d'oro" con un'animazione dedicata | tutti |
-| Tutto il sito | Trovare tutte le sorprese | Badge "Esploratore" | adolescenti |
+| Tutto il sito | Trovare tutte le sorprese | Badge "Esploratore" (le cinque sorprese qui sopra, esclusa la console) | adolescenti |
 
 Gli easter egg non sono mai nella sezione Aiuto: lì si cerca aiuto, non si gioca.
+
+Dove stanno nel codice: `js/sorprese.js` (registro nel browser, chiave `evil-pt-eggs-v1`, avvisi,
+badge Esploratore, messaggio in console), `js/site-search.js` (password famose), `js/per-tutti.js`
+(torcia, curiosità di Lù con fonte, pagine sorpresa), `server/chrome.js` (premio finto),
+`html/trappola-finta.html`, `html/404.html`. Prova nel browser: `scripts/e2e/sorprese.js`.
 
 ## Accessibilità (sempre)
 

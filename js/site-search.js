@@ -14,6 +14,9 @@
       account: 'con account',
       hint: '↑ ↓ per scegliere · Invio per aprire · Esc per chiudere',
       close: 'Chiudi la ricerca',
+      eggTitle: 'Lù arrossisce: questa password la conoscono anche i muri.',
+      eggMeta: 'sorpresa',
+      eggDesc: 'È tra le prime che si provano per entrare in un account. Tre parole a caso fanno una password lunga e facile da ricordare: ti mostriamo come.',
     },
     en: {
       placeholder: 'Search a page: quiz, phishing, DNS, TLS…',
@@ -22,9 +25,20 @@
       account: 'account needed',
       hint: '↑ ↓ to choose · Enter to open · Esc to close',
       close: 'Close search',
+      eggTitle: 'Lu is blushing: even the walls know this password.',
+      eggMeta: 'surprise',
+      eggDesc: 'It’s one of the first ones tried to break into an account. Three random words make a long password that’s easy to remember: we’ll show you how.',
     },
   }[I.lang] || null;
   if (!L) return;
+
+  // sorpresa (docs/evil-per-tutti/STILE.md): chi cerca una delle password più usate trova Lù
+  const WEAK = new Set(['123456', '12345678', '123456789', '111111', '000000', 'password', 'password1', 'qwerty']);
+  const EGG = { egg: true, file: 'pp-password.html' };
+  const LU_FACE =
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="17.5" r="5" fill="#f4e04d"/>' +
+    '<circle cx="12" cy="9.5" r="6.5" fill="#1b2130"/><circle cx="9.6" cy="9" r="1.6" fill="#fff"/><circle cx="14.4" cy="9" r="1.6" fill="#fff"/>' +
+    '<circle cx="7.6" cy="12" r="1.5" fill="#ff7a8a"/><circle cx="16.4" cy="12" r="1.5" fill="#ff7a8a"/></svg>';
 
   let dialog = null;
   let input = null;
@@ -66,6 +80,11 @@
       .sort((a, b) => b.s - a.s)
       .slice(0, 12)
       .map((x) => x.p);
+    // nella pagina Aiuto niente sorprese: lì si cerca aiuto, non si gioca
+    if (WEAK.has(q.replace(/\s+/g, '')) && !/(^|\/)aiuto\.html$/.test(window.location.pathname)) {
+      items = [EGG, ...items.filter((p) => p.file !== EGG.file)];
+      if (window.EvilEggs) window.EvilEggs.found('search');
+    }
     active = Math.min(active, Math.max(0, items.length - 1));
     list.replaceChildren();
     if (!items.length) {
@@ -81,19 +100,20 @@
       li.id = `evil-search-opt-${i}`;
       li.setAttribute('role', 'option');
       li.setAttribute('aria-selected', i === active ? 'true' : 'false');
-      li.className = `evil-search__opt evil-search__opt--${(areas[p.area] || {}).color || 'cyan'}`;
+      li.className = p.egg ? 'evil-search__opt evil-search__opt--egg' : `evil-search__opt evil-search__opt--${(areas[p.area] || {}).color || 'cyan'}`;
       const a = document.createElement('a');
       a.href = I.url(`/${p.file}`);
       a.tabIndex = -1;
       const top = document.createElement('span');
       top.className = 'evil-search__t';
-      top.textContent = p.title[I.lang];
+      top.textContent = p.egg ? L.eggTitle : p.title[I.lang];
+      if (p.egg) top.insertAdjacentHTML('afterbegin', LU_FACE);
       const meta = document.createElement('span');
       meta.className = 'evil-search__m';
-      meta.textContent = (areas[p.area] ? areas[p.area].label[I.lang] : '') + (p.auth ? ` · ${L.account}` : '');
+      meta.textContent = p.egg ? L.eggMeta : (areas[p.area] ? areas[p.area].label[I.lang] : '') + (p.auth ? ` · ${L.account}` : '');
       const d = document.createElement('span');
       d.className = 'evil-search__d';
-      d.textContent = p.desc[I.lang];
+      d.textContent = p.egg ? L.eggDesc : p.desc[I.lang];
       a.append(top, meta, d);
       li.appendChild(a);
       li.addEventListener('mousemove', () => {

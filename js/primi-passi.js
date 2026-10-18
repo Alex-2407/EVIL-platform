@@ -706,7 +706,23 @@
       if (complete && animate) {
         sparkle(document.querySelector('.pp-hero .pt-hero__art'), 14);
       }
+      renderSecrets(complete);
     }
+
+    // badge segreti: lucciola d'oro (tutte le tappe) ed Esploratore (tutte le sorprese, js/sorprese.js)
+    function renderSecrets(complete) {
+      const gold = document.querySelector('[data-pp-secret="gold"]');
+      if (gold) gold.classList.toggle('is-won', complete);
+      const eggs = window.EvilEggs ? window.EvilEggs.list() : [];
+      const totalEggs = window.EvilEggs ? window.EvilEggs.total : 5;
+      document.querySelectorAll('[data-pp-eggs]').forEach((b) => {
+        b.textContent = String(eggs.length);
+      });
+      const explorer = document.querySelector('[data-pp-secret="explorer"]');
+      if (explorer) explorer.classList.toggle('is-won', eggs.length >= totalEggs);
+    }
+
+    document.addEventListener('evil:egg', () => renderSecrets(slugs.every((s) => state.done[s])));
 
     render(true);
 
