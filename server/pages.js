@@ -10,6 +10,7 @@ const { renderHeader, renderFooter, clientManifest } = require('./chrome');
 const i18n = require('./i18n');
 const { PAGES, ACCOUNT_PAGES, LANGS, DEFAULT_LANG } = require('./site-map');
 const { computeStats } = require('./stats');
+const { fillFragments } = require('./fragments');
 
 const root = path.resolve(__dirname, '..');
 
@@ -314,6 +315,8 @@ function renderPage(relativeName, canonicalPath, lang = DEFAULT_LANG) {
       console.warn(`⚠️ i18n ${lang}/${relativeName}: ${out.missing.length} testi senza traduzione (npm run i18n:check)`);
     }
   }
+  // dati generati dal server (contatti di aiuto…): dopo la traduzione, già nella lingua giusta
+  html = fillFragments(html, lang);
   html = fillStats(html);
   html = injectPageAssets(html, canonicalPath ?? relativeName, lang);
   if (isProduction()) renderedPages.set(key, html);
