@@ -35,10 +35,10 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 
 | # | Compito | Chi | Stato |
 |---|---|---|---|
-| G1 | Verifica delle fonti per la fase 3 (EVIL Scuola) | Gemini | da fare |
+| G1 | Verifica delle fonti per la fase 3 (EVIL Scuola): [fonti/FASE3.md](fonti/FASE3.md) | Gemini | fatto il 22 ottobre (unito) |
 | G2 | Revisione dei passi 1.8, 2.13 e della scheda di prova | Gemini | da fare |
 | C1 | 3.1a: motore dei kit, pagina Scuola, kit 1 e kit 4 | Claude | da fare |
-| C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | dopo G1 |
+| C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | da fare |
 
 ## Prompt da incollare in Gemini
 
