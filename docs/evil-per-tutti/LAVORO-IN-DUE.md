@@ -38,8 +38,8 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 | G1 | Verifica delle fonti per la fase 3 (EVIL Scuola): [fonti/FASE3.md](fonti/FASE3.md) | Gemini | fatto il 22 ottobre (unito) |
 | G2 | Revisione dei passi 1.8, 2.13 e della scheda di prova | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
 | C1 | 3.1a: motore dei kit, pagina Scuola, kit 1 e kit 4 | Claude | fatto il 22 ottobre |
-| G3 | Revisione del passo 3.1a (EVIL Scuola) | Gemini | da fare |
-| G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | da fare (dopo G3) |
+| G3 | Revisione del passo 3.1a (EVIL Scuola) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
+| G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | da fare |
 | C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | da fare |
 
 ## Prompt da incollare in Gemini

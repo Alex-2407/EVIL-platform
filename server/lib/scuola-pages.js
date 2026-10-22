@@ -88,7 +88,7 @@ function renderKit(k, lang) {
   ].join('\n');
   const ticketLines = L(k.ticket, lang).map((line) => `                <li>${x(line)}</li>`).join('\n');
   const ticket = `            <li class="sk-ticket">
-              <p class="sk-ticket__k">EVIL Scuola · ${x(title)}</p>
+              <p class="sk-ticket__k">${x(L(S.PAGE.navTitle, lang))} · ${x(title)}</p>
               <p class="sk-ticket__name">${x(L(U.nameLine, lang))}</p>
               <ol class="sk-ticket__lines">
 ${ticketLines}
@@ -256,7 +256,7 @@ ${items}
   }).join('\n');
   const curriculum = L(P.curriculum, lang).map((c) => `          <li>${c}</li>`).join('\n');
   const care = L(P.care, lang).map((c) => `            <li>${c}</li>`).join('\n');
-  const resources = [S.SRC.epolicy, S.SRC.lineeGuida, S.SRC.orientamento, S.SRC.digcomp, S.SRC.nota5274, S.SRC.nota3392, S.SRC.nota121];
+  const resources = [S.SRC.epolicy, S.SRC.legge92, S.SRC.lineeGuida, S.SRC.orientamento, S.SRC.digcomp, S.SRC.nota5274, S.SRC.nota3392, S.SRC.nota121];
 
   return `${head(L(P.metaTitle, lang), L(P.navDesc, lang))}
 <body class="evil-theme pt-page sk-page sk-home">

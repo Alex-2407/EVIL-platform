@@ -201,7 +201,8 @@
   .evil-help-fab, .sk-print, .sk-print__hint, .sk-back, .sk-hero__ico, .sk-stages, .pt-hero__art { display: none !important; }
   .pt a[href^='http']::after { content: none; }
   .pt-section { padding: 0.4rem 0 !important; }
-  .sk-step, .sk-discussion li, .sk-answers li { break-inside: avoid; }
+  .sk-step, .sk-discussion li, .sk-answers li, .sk-kit, .sk-how__item, .sk-cut, .sk-ticket { break-inside: avoid; }
+  .sk-adapt dt { break-after: avoid; }
   .sk h2, .sk h3 { break-after: avoid; }
   .sk-sheets > .pt__wrap > h2 { display: none; }
   .sk-sheet { break-before: page; margin: 0; padding: 0; border: 0; }

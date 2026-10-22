@@ -225,7 +225,7 @@ const KITS = [
         from: 30,
         to: 40,
         title: T('Una chiave per ogni porta', 'A key for every door'),
-        text: T('Proietta la scena della tappa 2: una sola password per tutto è una chiave che apre ogni porta. Ogni studente inventa sul biglietto una password finta fatta di tre parole a caso e le disegna.', 'Project the scene from stage 2: one password for everything is a key that opens every door. Each student invents a pretend password made of three random words on the ticket and draws them.'),
+        text: T('Proietta la scena della tappa 2: una sola password per tutto è una chiave che apre ogni porta. Distribuisci adesso i biglietti d’uscita: ogni studente inventa una password finta fatta di tre parole a caso, la scrive e la disegna. Il biglietto resta sul banco fino alla fine.', 'Project the scene from stage 2: one password for everything is a key that opens every door. Hand out the exit tickets now: each student invents a pretend password made of three random words, writes it and draws it. The ticket stays on the desk until the end.'),
         say: T('«Le password migliori sono lunghe e strane, come “elefante-lampone-ombrello”. Inventatene una finta: quella vera non si scrive e non si dice a nessuno, nemmeno qui.»', '“The best passwords are long and odd, like ‘elephant-raspberry-umbrella’. Make up a pretend one: the real one isn’t written down or told to anyone, not even here.”'),
       },
       {
@@ -324,13 +324,13 @@ const KITS = [
     materials: T(
       [
         'LIM o proiettore con le tappe 5 e 3 di Primi passi.',
-        'Una copia delle carte-messaggio per ogni gruppo, ritagliata, e un evidenziatore o una matita per gruppo.',
+        'Una copia delle sei carte-messaggio per ogni gruppo, ritagliata, e un evidenziatore o una matita per gruppo.',
         'Un biglietto d’uscita per ogni studente.',
         'Nessun telefono degli studenti: i messaggi sono stampati.',
       ],
       [
         'A classroom screen or projector showing stages 5 and 3 of First steps.',
-        'One set of message cards per group, cut out, and a highlighter or pencil per group.',
+        'One set of the six message cards per group, cut out, and a highlighter or pencil per group.',
         'One exit ticket per student.',
         'No student phones: the messages are printed.',
       ]
@@ -366,7 +366,7 @@ const KITS = [
         from: 15,
         to: 30,
         title: T('Caccia alle trappole a gruppi', 'Group trap hunt'),
-        text: T('Ogni gruppo riceve tre carte-messaggio (a metà tempo i gruppi si scambiano le carte). Sottolineano le parti sospette e decidono: truffa, oppure messaggio vero arrivato da un canale ufficiale. Poi ogni gruppo spiega una carta.', 'Each group gets three message cards (halfway through, groups swap cards). They underline the suspicious parts and decide: scam, or a genuine message from an official channel. Then each group explains one card.'),
+        text: T('Ogni gruppo riceve le sei carte-messaggio. In dieci minuti sottolinea le parti sospette e decide: truffa, oppure messaggio vero arrivato da un canale ufficiale. Poi ogni gruppo spiega una carta, scelta da te.', 'Each group gets the six message cards. In ten minutes they underline the suspicious parts and decide: scam, or a genuine message from an official channel. Then each group explains one card, chosen by you.'),
         say: T('«Per ogni messaggio, le tre domande: chi lo manda davvero? Mette fretta? Chiede soldi, codici o dati?»', '“For every message, the three questions: who is really sending it? Is it rushing you? Is it asking for money, codes or details?”'),
       },
       {
