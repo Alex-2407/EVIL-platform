@@ -26,6 +26,9 @@ const SRC = {
   orientamento: { label: T('MIM, Linee di orientamento su bullismo e cyberbullismo (2021)', 'Italian Ministry of Education, guidelines on bullying and cyberbullying (2021, Italian)'), url: 'https://www.mim.gov.it/documents/20182/0/Linee+di+orientamento+per+la+prevenzione+e+il+contrasto+dei+fenomeni+di+bullismo+e+cyberbullismo-2021.pdf/37003208-7571-0e5f-7730-63fb0f86a0bd' },
   digcomp: { label: T('DigComp 2.2, versione italiana', 'DigComp 2.2, Italian version'), url: 'https://www.agid.gov.it/sites/agid/files/2024-05/digcomp_2.2_italiano.pdf' },
   epolicy: { label: T('Generazioni Connesse, percorso ePolicy per le scuole', 'Generazioni Connesse, ePolicy programme for schools (Italian)'), url: 'https://www.generazioniconnesse.it/site/it/epolicy/' },
+  legge132: { label: T('Legge 132/2025 sull’intelligenza artificiale (art. 612-quater c.p.), Gazzetta Ufficiale', 'Law 132/2025 on artificial intelligence (Article 612-quater of the Criminal Code), Official Journal (Italian)'), url: 'https://www.gazzettaufficiale.it/eli/id/2025/09/25/25G00143/sg' },
+  aiAct: { label: T('Regolamento UE 2024/1689 sull’intelligenza artificiale (AI Act, art. 50), EUR-Lex', 'EU Regulation 2024/1689 on artificial intelligence (AI Act, Article 50), EUR-Lex'), url: 'https://eur-lex.europa.eu/eli/reg/2024/1689/oj' },
+  fbiPsa: { label: T('FBI, avviso IC3 I-120324-PSA sulle truffe con l’IA (3 dicembre 2024)', 'FBI, IC3 alert I-120324-PSA on AI fraud (3 December 2024)'), url: 'https://www.ic3.gov/PSA/2024/PSA241203' },
 };
 
 /** Pagina di presentazione (html/scuola.html). */
@@ -434,13 +437,156 @@ const KITS = [
     digcomp: T('1.2 Valutare dati, informazioni e contenuti digitali · 4.2 Proteggere i dati personali e la privacy', '1.2 Evaluating data, information and digital content · 4.2 Protecting personal data and privacy'),
     sources: [SRC.lineeGuida, SRC.digcomp, SRC.nota5274, PP.SRC.pacco, PP.SRC.geopop, PP.SRC.abi],
   },
+
+  // ------------------------------------------------------------------ kit 5
+  {
+    n: 5,
+    slug: 'vero-o-falso',
+    cycle: 'superiori',
+    icon: 'newspaper',
+    classes: T('Secondaria di secondo grado, classi 1ª–5ª', 'Upper secondary, ages 14–19'),
+    stages: ['vero-falso'],
+    title: T('Vero o falso nell’era dell’IA', 'True or false in the age of AI'),
+    desc: T(
+      'Kit 5 di EVIL Scuola, secondaria di secondo grado: fonti ufficiali, video e voci creati con l’intelligenza artificiale (deepfake) e responsabilità di chi condivide. Lezione pronta da 50 minuti.',
+      'EVIL for Schools kit 5, upper secondary: official sources, AI-generated videos and voices (deepfakes) and the responsibility of sharing. A ready-made 50-minute lesson.'
+    ),
+    hook: T('Vedere non basta più: fonti, deepfake e responsabilità di chi condivide.', 'Seeing is no longer enough: sources, deepfakes and the responsibility of sharing.'),
+    idea: T('Un video o una voce realistici non sono una prova: prima di credere o condividere mi chiedo chi lo dice, quando e se una fonte ufficiale o indipendente lo conferma. Contro le voci clonate si richiama sul numero noto; diffondere un falso creato con l’IA che danneggia qualcuno non è uno scherzo.', 'A realistic video or voice isn’t proof: before believing or sharing I ask who is saying it, when, and whether an official or independent source confirms it. Against cloned voices, call back on a known number; spreading an AI fake that harms someone is no joke.'),
+    goals: T(
+      [
+        'verificare una notizia con tre controlli: chi è la fonte originale, quando è uscita e se è confermata da canali ufficiali o indipendenti;',
+        'spiegare perché «sembra vero» non basta di fronte a video e voci generati con l’IA (deepfake) e come difendersi dalle truffe con voci clonate;',
+        'riconoscere la responsabilità personale, etica e legale di chi crea o diffonde contenuti falsificati che danneggiano altre persone.',
+      ],
+      [
+        'check a piece of news with three questions: who the original source is, when it was published, and whether official or independent channels confirm it;',
+        'explain why “it looks real” is no longer enough with AI-generated videos and voices (deepfakes) and how to guard against cloned-voice scams;',
+        'recognise the personal, ethical and legal responsibility of creating or sharing falsified content that harms other people.',
+      ]
+    ),
+    materials: T(
+      [
+        'LIM o proiettore con la tappa 9 di Primi passi.',
+        'Una copia delle otto carte del gioco per ogni gruppo, ritagliata.',
+        'Un biglietto d’uscita per ogni studente.',
+        'Nessun telefono degli studenti: si lavora con la LIM e le carte stampate.',
+      ],
+      [
+        'A classroom screen or projector showing stage 9 of First steps.',
+        'One set of the eight game cards per group, cut out.',
+        'One exit ticket per student.',
+        'No student phones: everything works with the classroom screen and printed cards.',
+      ]
+    ),
+    before: T(
+      [
+        'Stampa la guida, le carte (una copia per gruppo) e i biglietti; ritaglia le carte.',
+        'Apri la tappa 9 alla LIM e controlla la scena animata e il livello «Per tecnici».',
+        'Leggi i riferimenti su AI Act (art. 50) e art. 612-quater c.p. nelle note della lezione qui sotto.',
+      ],
+      [
+        'Print the guide, the cards (one set per group) and the tickets; cut out the cards.',
+        'Open stage 9 on the screen and check the animated scene and the “For techies” tab.',
+        'Read the notes on the EU AI Act (Article 50) and Italian Criminal Code Article 612-quater in the lesson plan below.',
+      ]
+    ),
+    plan: [
+      {
+        from: 0,
+        to: 5,
+        title: T('Aggancio: perché ci caschiamo anche quando siamo svegli', 'Hook: why smart people still fall for it'),
+        text: T('Chiedi qual è l’ultima notizia assurda o il video più sospetto visto girare sui social o nelle chat, senza fare nomi di compagni. Scrivi alla lavagna: «Chi lo dice? Quando? Chi lo conferma?»', 'Ask what the wildest story or most suspicious video they’ve seen going round on social media or group chats was, without naming classmates. Write on the board: “Who says so? When? Who confirms it?”'),
+        say: T('«La disinformazione non funziona perché siamo ingenui: funziona perché colpisce rabbia, paura o tifo in mezzo secondo, prima ancora che parta il pensiero critico.»', '“Disinformation doesn’t work because we’re gullible: it works because it triggers anger, fear or bias in half a second, before critical thinking even kicks in.”'),
+      },
+      {
+        from: 5,
+        to: 15,
+        title: T('Il video della preside e la prova della fonte', 'The head teacher’s video and the source test'),
+        text: T('Proietta la tappa 9 di Primi passi: guardate la scena animata, leggi la storia del video della preside e fai votare la classe per alzata di mano prima di aprire le tre scelte. Poi scorrete insieme i punti di «Fai subito».', 'Project stage 9 of First steps: watch the animated scene, read the story about the head teacher’s video and take a show-of-hands vote before opening the three choices. Then go through “Do this now” together.'),
+        say: T('«Oggi l’intelligenza artificiale può imitare un volto e una voce in modo molto realistico: “si vede che è lei” non è più una prova. La prova è il canale ufficiale.»', '“Today artificial intelligence can imitate a face and a voice very realistically: ‘you can see it’s her’ is no longer proof. The official channel is the proof.”'),
+      },
+      {
+        from: 15,
+        to: 30,
+        title: T('Redazione in classe: mi fido o prima verifico?', 'Classroom newsroom: do I trust it or check first?'),
+        text: T('Gruppi da 3–4, una copia completa delle otto carte per gruppo. Per dieci minuti ogni gruppo lavora come una redazione e divide le carte nelle due colonne «Mi fido» e «Prima verifico», annotando l’indizio decisivo; negli ultimi cinque minuti ogni gruppo spiega una carta e tu confermi con le risposte della guida.', 'Groups of 3–4, one full set of eight cards per group. For ten minutes each group acts as a newsroom and sorts the cards into “I trust it” and “I check first”, noting the key clue; in the last five minutes each group explains one card and you confirm using the guide.'),
+        say: T('«Siete la redazione di un giornale: se pubblicate un falso fate un danno, se controllate la fonte proteggete chi legge. Quale dettaglio vi fa fermare?»', '“You’re a newsroom: if you publish a fake you cause harm, if you check the source you protect your readers. Which detail makes you stop?”'),
+      },
+      {
+        from: 30,
+        to: 40,
+        title: T('Deepfake, voci clonate e responsabilità di chi condivide', 'Deepfakes, cloned voices and the responsibility of sharing'),
+        text: T('Apri alla LIM il livello «Per tecnici» della tappa 9. Spiega come difendersi dalle voci clonate al telefono (chiudere e richiamare sul numero noto; scegliere una parola segreta di famiglia, come consiglia l’FBI) e riassumi il quadro legale: l’obbligo europeo di dichiarare i deepfake (AI Act, art. 50, dal 2 agosto 2026) e, in Italia, il reato per chi diffonde senza consenso immagini, video o voci falsificati con l’IA causando un danno ingiusto (art. 612-quater c.p., legge 132/2025, reclusione da 1 a 5 anni). Distribuisci i biglietti d’uscita.', 'Open the “For techies” tab of stage 9 on the screen. Explain how to defend against cloned voices on the phone (hang up and call back on a known number; agree on a family secret word, as the FBI advises) and sum up the law: the EU duty to disclose deepfakes (AI Act, Article 50, from 2 August 2026) and, in Italy, the criminal offence of spreading AI-falsified images, videos or voices without consent and causing unjust harm (Article 612-quater of the Criminal Code, Law 132/2025, 1 to 5 years’ imprisonment). Hand out the exit tickets.'),
+        say: T('«Inoltrare non è mai neutro: chi rilancia un falso diventa il suo megafono. E se quel video o quell’audio finto danneggia una persona, in Italia non è una bravata: è un reato.»', '“Forwarding is never neutral: whoever passes on a fake becomes its megaphone. And if that fake video or audio harms someone, in Italy it isn’t a prank: it’s a crime.”'),
+      },
+      {
+        from: 40,
+        to: 47,
+        title: T('Discussione', 'Discussion'),
+        text: T('Usa due o tre domande qui sotto per far emergere il legame tra verifica tecnica, emozioni e responsabilità verso gli altri.', 'Use two or three of the questions below to connect technical verification, emotions and responsibility towards others.'),
+      },
+      {
+        from: 47,
+        to: 50,
+        title: T('Chiusura', 'Wrap-up'),
+        text: T('Ogni studente completa il biglietto d’uscita. Ricorda la proposta da portare a casa in famiglia.', 'Each student fills in the exit ticket. Remind them of the idea to take home to their family.'),
+        say: T('«Prima di toccare “condividi”: se non so chi l’ha detto, quando e se una fonte ufficiale lo conferma, la catena si ferma a me.»', '“Before tapping ‘share’: if I don’t know who said it, when, and whether an official source confirms it, the chain stops with me.”'),
+      },
+    ],
+    game: {
+      categories: [
+        { id: 'trust', label: T('Mi fido', 'I trust it') },
+        { id: 'check', label: T('Prima verifico', 'I check first') },
+      ],
+      items: [
+        { cat: 'check', text: T('Video sui social: la preside annuncia che domani la scuola è chiusa per lavori. La voce e il volto sembrano i suoi, ma sul sito della scuola non c’è nulla.', 'Video on social media: the head teacher announces school is closed tomorrow for repairs. The voice and face look like hers, but there’s nothing on the school website.'), why: T('Un volto e una voce si possono imitare con l’IA: per gli avvisi ufficiali conta il sito o il registro della scuola.', 'A face and a voice can be imitated with AI: for official notices, only the school website or register counts.') },
+        { cat: 'trust', text: T('Circolare pubblicata sul sito ufficiale della scuola e sul registro elettronico, aperto da te: «Domani entrata alle 9:00 per assemblea.»', 'Notice published on the school’s official website and in the online register, opened by you: “Tomorrow lessons start at 9:00 due to a staff meeting.”'), why: T('È la fonte primaria e ufficiale, controllata direttamente sul canale dell’istituto.', 'It’s the primary, official source, checked directly on the school’s own channel.') },
+        { cat: 'check', text: T('Vocale inoltrato decine di volte nella chat di classe: «È tutto vero, me l’ha girato il cugino di un amico che lavora in ospedale!»', 'Voice note forwarded dozens of times in the class chat: “It’s all true, my friend’s cousin who works at the hospital sent it to me!”'), why: T('Un audio inoltrato a catena senza nome, data né fonte verificabile è il classico passaparola delle bufale.', 'A chain-forwarded voice note with no name, date or checkable source is classic rumour-mill material.') },
+        { cat: 'check', text: T('Screenshot di un articolo con un titolo clamoroso, ritagliato senza data, senza autore e senza link alla pagina originale.', 'Screenshot of an article with a sensational headline, cropped with no date, no author and no link to the original page.'), why: T('Uno screenshot si altera in pochi secondi: bisogna cercare il testo originale sul sito della testata.', 'A screenshot can be doctored in seconds: look for the original piece on the publication’s website.') },
+        { cat: 'trust', text: T('Avviso di allerta meteo con data e ora di oggi, letto direttamente sul sito istituzionale della Protezione Civile o del tuo Comune.', 'Weather warning with today’s date and time, read directly on the official Civil Protection or municipal website.'), why: T('Ha un ente pubblico responsabile, data e ora precise ed è verificato alla fonte.', 'It has an accountable public body, an exact date and time, and is checked at the source.') },
+        { cat: 'check', text: T('Telefonata da un numero sconosciuto: una voce identica a quella di tua madre dice che ha rotto il telefono e chiede subito un bonifico.', 'Call from an unknown number: a voice identical to your mother’s says she broke her phone and asks for an urgent bank transfer.'), why: T('Bastano pochi secondi di audio per clonare una voce con l’IA: si chiude e si richiama sul numero abituale (o si chiede la parola segreta di famiglia).', 'A few seconds of audio are enough to clone a voice with AI: hang up and call back on her usual number (or ask for the family secret word).') },
+        { cat: 'check', text: T('Foto drammatica di un incendio in città con 50.000 condivisioni: cercando l’immagine si scopre che è di quattro anni fa, in un altro Paese.', 'Dramatic photo of a city fire with 50,000 shares: a search shows the picture is from four years ago in another country.'), why: T('Una foto vera ma vecchia o fuori contesto inganna quanto un falso: le condivisioni non misurano la verità.', 'A real photo that is old or out of context misleads just like a fake: shares don’t measure truth.') },
+        { cat: 'trust', text: T('Rapporto con data di pubblicazione, nota metodologica e dati scaricabili, letto sul portale ufficiale dell’istituto nazionale di statistica.', 'Report with publication date, methodology note and downloadable data, read on the national statistics institute’s official portal.'), why: T('Dichiara chi ha raccolto i dati, quando e con quale metodo, su una fonte istituzionale verificabile.', 'It states who collected the data, when and how, on a verifiable institutional source.') },
+      ],
+    },
+    discussion: [
+      {
+        q: T('Perché cercare a occhio i difetti di un video (le mani, le ombre, le labbra) non basta più per capire se è fatto con l’IA?', 'Why is spotting visual glitches in a video (hands, shadows, lips) no longer enough to tell if it was made with AI?'),
+        a: T('I modelli generativi migliorano continuamente e i difetti visivi spariscono. L’unico controllo che regge nel tempo è fuori dal video: risalire alla fonte originale, alla data, alle credenziali di provenienza (come C2PA) e alle conferme su canali indipendenti.', 'Generative models keep improving and visual glitches fade away. The only check that holds up over time is outside the video: tracing the original source, date, provenance credentials (such as C2PA) and confirmation on independent channels.'),
+      },
+      {
+        q: T('«Non l’ho creato io, l’ho solo inoltrato nel gruppo»: perché questa scusa non regge, né sul piano umano né per la legge?', '“I didn’t make it, I only forwarded it to the group”: why does that excuse fail, both humanly and legally?'),
+        a: T('Senza chi inoltra, un falso resta fermo. Chi condivide gli dà visibilità e credibilità davanti ai propri contatti; inoltre, in Italia, l’art. 612-quater c.p. (legge 132/2025) punisce anche chi cede, pubblica o diffonde senza consenso immagini, video o voci falsificati con l’IA che arrecano un danno ingiusto.', 'Without people forwarding it, a fake goes nowhere. Sharing gives it reach and credibility among your contacts; moreover, in Italy, Article 612-quater of the Criminal Code (Law 132/2025) also punishes anyone who passes on, publishes or spreads AI-falsified images, videos or voices without consent, causing unjust harm.'),
+      },
+      {
+        q: T('Dal 2 agosto 2026 l’articolo 50 dell’AI Act europeo obbliga a dichiarare i deepfake. Allora perché dobbiamo continuare a verificare?', 'From 2 August 2026 Article 50 of the EU AI Act requires deepfakes to be disclosed. Why do we still need to check for ourselves?'),
+        a: T('Perché la regola vincola chi rispetta la legge, ma chi costruisce una truffa o una campagna di disinformazione non metterà mai il bollino «creato con l’IA». L’etichetta aiuta, ma il filtro finale resta chi legge.', 'Because the rule binds those who follow the law, whereas someone running a scam or a disinformation campaign will never add an “AI-generated” label. Labels help, but the reader remains the final filter.'),
+      },
+    ],
+    ticket: T(
+      ['Le tre domande che mi faccio prima di condividere una notizia o un video:', 'Se una voce identica a quella di un familiare mi chiede soldi al telefono, io:', 'Perché «non l’ho creato io, l’ho solo inoltrato» non basta:'],
+      ['The three questions I ask before sharing a story or a video:', 'If a voice identical to a family member’s asks me for money on the phone, I:', 'Why “I didn’t make it, I only forwarded it” isn’t good enough:']
+    ),
+    adapt: {
+      easier: T('Nel biennio usa sei carte e tieni scritte alla lavagna per tutta l’ora le tre domande («Chi lo dice? Quando? Chi lo conferma?»).', 'With younger classes use six cards and keep the three questions (“Who says so? When? Who confirms it?”) on the board for the whole lesson.'),
+      harder: T('Nel triennio confrontate come funziona la firma di provenienza C2PA (Content Credentials) e analizzate il testo dell’art. 612-quater c.p. e dell’art. 50 dell’AI Act.', 'With older classes compare how C2PA provenance credentials (Content Credentials) work and analyse the text of Article 612-quater of the Italian Criminal Code and Article 50 of the EU AI Act.'),
+      inclusion: T('Carte lette e discusse in coppia; possibilità di completare il biglietto d’uscita con parole chiave o mappa schematica.', 'Cards read and discussed in pairs; students can complete the exit ticket using keywords or a short mind map.'),
+    },
+    home: T(
+      'In famiglia, scegliete insieme una «parola segreta di famiglia» (consiglio dell’FBI contro le truffe con voci clonate) da chiedere al telefono nelle emergenze sospette, e provate insieme la tappa 9 di Primi passi.',
+      'At home, agree on a “family secret word” together (as the FBI advises against cloned-voice scams) to ask for during suspicious phone emergencies, and try stage 9 of First steps together.'
+    ),
+    civica: T('Competenze n. 10, 11 e 12 (secondo ciclo): accedere alle informazioni e alle fonti «in modo critico, responsabile e consapevole»; adottare le regole comportamentali proprie di ciascun contesto comunicativo; salvaguardare la propria e altrui sicurezza negli ambienti digitali.', 'Competences 10, 11 and 12 (upper secondary): accessing information and sources critically, responsibly and consciously; following appropriate rules of conduct for each communication context; keeping oneself and others safe in digital environments.'),
+    digcomp: T('1.2 Valutare dati, informazioni e contenuti digitali · 2.5 Netiquette · 4.2 Proteggere i dati personali e la privacy', '1.2 Evaluating data, information and digital content · 2.5 Netiquette · 4.2 Protecting personal data and privacy'),
+    sources: [SRC.lineeGuida, SRC.digcomp, SRC.nota3392, SRC.legge132, SRC.aiAct, SRC.fbiPsa, PP.SRC.c2pa, PP.SRC.ftcVoice],
+  },
 ];
 
 /** Kit dei prossimi passi: compaiono nella pagina di presentazione come «in preparazione». */
 const PLANNED = [
   { n: 2, cycle: 'primaria', title: T('Lo dico a un adulto', 'I tell a grown-up'), hook: T('Segreti che pesano, regali da sconosciuti, messaggi che fanno stare male: si dice a un adulto.', 'Secrets that feel heavy, gifts from strangers, messages that hurt: you tell a grown-up.') },
   { n: 3, cycle: 'media', title: T('Il gruppo della classe', 'The class group chat'), hook: T('Nel gruppo nessuno è spettatore: tre mosse per chi assiste al cyberbullismo.', 'In the group nobody is just watching: three moves for bystanders to cyberbullying.') },
-  { n: 5, cycle: 'superiori', title: T('Vero o falso nell’era dell’IA', 'True or false in the age of AI'), hook: T('Vedere non basta più: fonti, deepfake e responsabilità di chi condivide.', 'Seeing is no longer enough: sources, deepfakes and the responsibility of sharing.') },
   { n: 6, cycle: 'superiori', title: T('Le mie foto, i miei diritti', 'My photos, my rights'), hook: T('Nessuno ha il diritto di chiederti foto. Tu hai il diritto di farle sparire.', 'Nobody has the right to ask you for photos. You have the right to make them disappear.') },
 ];
 
