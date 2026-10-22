@@ -232,8 +232,8 @@ function renderStage(t, lang) {
   const metaTitle = fmt(L(U.metaTitle, lang), { title, n: t.n });
 
   const storyText = L(t.story.text, lang).map((p) => `          <p>${x(p)}</p>`).join('\n');
-  const choices = t.story.choices.map((ch) => `          <details class="pp-choice"${ch.good ? ' data-good="1"' : ''}>
-            <summary>${x(L(ch.text, lang))}</summary>
+  const choices = t.story.choices.map((ch, i) => `          <details class="pp-choice"${ch.good ? ' data-good="1"' : ''}>
+            <summary><span class="pp-choice__letter" aria-hidden="true">${'ABCD'[i]}</span> ${x(L(ch.text, lang))}</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--${ch.good ? 'good' : 'bad'}">${x(L(ch.good ? U.verdictGood : U.verdictBad, lang))}</p>
               <p>${x(L(ch.outcome, lang))}</p>
@@ -291,6 +291,7 @@ ${trail(lang, t)}
           <h1 id="pp-title">${x(title)}</h1>
           <p class="pt-hero__lead">${x(L(t.hook, lang))}</p>
           <p class="pp-time">${x(fmt(L(U.minutes, lang), { n: t.minutes }))}</p>
+          <p class="pp-classmode"><button class="pt-btn pt-btn--ghost" type="button" data-pp-class-on hidden>${x(L(U.classOn, lang))}</button></p>
           <nav class="pp-jump" aria-label="${a(L(U.inThisStage, lang))}">
             <ul>
               <li><a href="#story">${x(L(U.storyTitle, lang))}</a></li>
@@ -412,6 +413,13 @@ ${links}
         </div>${sources}
       </div>
     </section>
+
+    <nav class="pp-classbar" data-pp-classbar aria-label="${a(L(U.classBar, lang))}" hidden>
+      <button class="pp-classbar__btn" type="button" data-pp-class-prev>‹ ${x(L(U.classPrev, lang))}</button>
+      <p class="pp-classbar__step" data-pp-class-step aria-live="polite"></p>
+      <button class="pp-classbar__btn pp-classbar__btn--next" type="button" data-pp-class-next>${x(L(U.classNext, lang))} ›</button>
+      <button class="pp-classbar__btn pp-classbar__btn--off" type="button" data-pp-class-off>${x(L(U.classOff, lang))}</button>
+    </nav>
 
 ${strings(lang, Object.entries(C.STRINGS))}
   </main>

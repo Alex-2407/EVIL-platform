@@ -9,6 +9,7 @@
   "<strong>Da rivedere.</strong> Questo kit tratta un tema delicato ed è in attesa della revisione di esperti di ascolto e tutela dei minori. Usalo dopo averne parlato con il referente della scuola.": "<strong>Under review.</strong> This kit deals with a sensitive topic and is awaiting review by child safeguarding and helpline experts. Use it after talking to your school’s contact person.",
   "Stampa la guida": "Print the guide",
   "Stampa le carte": "Print the cards",
+  "Stampa i cartellini A–D": "Print the A–D cards",
   "Senza i pulsanti: stampa la pagina dal browser, esce tutto.": "No buttons? Print the page from your browser and you get everything.",
   "L’idea da portare a casa": "The idea to take home",
   "Se qualcosa online mi fa stare male, o qualcuno mi chiede un segreto, lo dico a un adulto di cui mi fido. Non è colpa mia e nessuno mi sgrida: ho fatto la cosa giusta.": "If something online makes me feel bad, or someone asks me to keep a secret, I tell an adult I trust. It isn’t my fault and nobody will be cross with me: I did the right thing.",
@@ -16,8 +17,8 @@
   "distinguere una sorpresa, che finisce e fa felici, da un segreto che pesa e che qualcuno chiede di tenere per sempre;": "tell a surprise, which ends and makes people happy, from a heavy secret that someone wants kept for ever;",
   "riconoscere tre segnali online: regali da chi non si conosce, richiesta di segreti o di foto, messaggi che fanno stare male;": "recognise three online signs: gifts from people they don’t know, requests for secrets or photos, messages that make them feel bad;",
   "dire chi sono i loro adulti di fiducia e quale frase usare per chiedere aiuto.": "name their trusted adults and the words to use when asking for help.",
-  "<a href=\"/pp-persone-online.html\">Primi passi, tappa 7: Persone online</a>": "<a href=\"/pp-persone-online.html\">First steps, stage 7: People online</a>",
-  "<a href=\"/pp-cyberbullismo.html\">Primi passi, tappa 8: Cyberbullismo</a>": "<a href=\"/pp-cyberbullismo.html\">First steps, stage 8: Cyberbullying</a>",
+  "<a href=\"/pp-persone-online.html?classe=1\">Alla LIM, in modalità classe: tappa 7, Persone online</a>": "<a href=\"/pp-persone-online.html?classe=1\">On the whiteboard, in class mode: stage 7, People online</a>",
+  "<a href=\"/pp-cyberbullismo.html?classe=1\">Alla LIM, in modalità classe: tappa 8, Cyberbullismo</a>": "<a href=\"/pp-cyberbullismo.html?classe=1\">On the whiteboard, in class mode: stage 8, Cyberbullying</a>",
   "Cosa serve": "What you need",
   "LIM o proiettore con la tappa 7 di Primi passi, livello «Per i più piccoli».": "A classroom screen or projector showing stage 7 of First steps, “For little ones” level.",
   "Una copia delle carte del gioco per ogni gruppo, ritagliata.": "One set of game cards per group, cut out.",
@@ -106,5 +107,6 @@
   "Una sorpresa è diversa da un segreto che pesa perché:": "A surprise is different from a heavy secret because:",
   "Se qualcosa online mi fa stare male, lo dico a:": "If something online makes me feel bad, I tell:",
   "La frase per chiedere aiuto:": "The words for asking for help:",
+  "Cartellini per votare · una copia per studente · si piegano o si ritagliano": "Voting cards · one copy per student · fold or cut them out",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }

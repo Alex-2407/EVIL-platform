@@ -42,6 +42,7 @@
           <h1 id="pp-title">Verifica in due passaggi</h1>
           <p class="pt-hero__lead">Anche se rubano la tua password, possono restare fuori. Serve una seconda serratura.</p>
           <p class="pp-time">4 minuti</p>
+          <p class="pp-classmode"><button class="pt-btn pt-btn--ghost" type="button" data-pp-class-on hidden>Modalità classe (LIM)</button></p>
           <nav class="pp-jump" aria-label="In questa tappa">
             <ul>
               <li><a href="#story">La storia</a></li>
@@ -98,21 +99,21 @@
         <p class="pp-hint">Apri le risposte e scopri come va a finire.</p>
         <div class="pp-choices" data-pp-choices>
           <details class="pp-choice">
-            <summary>Lo rimanda: è un’amica.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">A</span> Lo rimanda: è un’amica.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
               <p>Era il codice per spostare il suo WhatsApp su un altro telefono. L’account dell’amica era già stato rubato: ora tocca a quello di Sara.</p>
             </div>
           </details>
           <details class="pp-choice" data-good="1">
-            <summary>Non lo manda a nessuno e chiama l’amica per verificare.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">B</span> Non lo manda a nessuno e chiama l’amica per verificare.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--good">Ottima scelta</p>
               <p>Perfetto. Un codice non si gira mai, nemmeno a un amico: e chiamando, Sara scopre che l’amica non le ha mai scritto.</p>
             </div>
           </details>
           <details class="pp-choice">
-            <summary>Lo mette nelle storie per chiedere a tutti cos’è.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">C</span> Lo mette nelle storie per chiedere a tutti cos’è.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
               <p>Un codice mostrato a tutti è un codice regalato: chiunque potrebbe usarlo per primo.</p>
@@ -268,6 +269,13 @@
       </div>
     </section>
 
+    <nav class="pp-classbar" data-pp-classbar aria-label="Comandi della lezione" hidden>
+      <button class="pp-classbar__btn" type="button" data-pp-class-prev>‹ Indietro</button>
+      <p class="pp-classbar__step" data-pp-class-step aria-live="polite"></p>
+      <button class="pp-classbar__btn pp-classbar__btn--next" type="button" data-pp-class-next>Avanti ›</button>
+      <button class="pp-classbar__btn pp-classbar__btn--off" type="button" data-pp-class-off>Esci</button>
+    </nav>
+
     <ul class="pp-strings" hidden>
       <li data-pp-str="right">Giusto!</li>
       <li data-pp-str="almost">Quasi! Riprova.</li>
@@ -290,6 +298,7 @@
       <li data-pp-str="moved">{item}: posizione {n} di {total}</li>
       <li data-pp-str="scenePlay">Riproduci la storia</li>
       <li data-pp-str="scenePause">Metti in pausa</li>
+      <li data-pp-str="classStep">{n} di {total} · {title}</li>
     </ul>
   </main>
 

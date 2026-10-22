@@ -8,6 +8,7 @@
   "Primaria, classi 3ª–5ª · 50 minuti · gruppi da 3–4": "Primary, ages 8–10 · 50 minutes · groups of 3–4",
   "Stampa la guida": "Print the guide",
   "Stampa le carte": "Print the cards",
+  "Stampa i cartellini A–D": "Print the A–D cards",
   "Senza i pulsanti: stampa la pagina dal browser, esce tutto.": "No buttons? Print the page from your browser and you get everything.",
   "L’idea da portare a casa": "The idea to take home",
   "Le mie informazioni e le mie password sono chiavi: non le do a chi non conosco, la password non la presto a nessuno, e se qualcuno me la chiede lo dico a un adulto di cui mi fido.": "My information and my passwords are keys: I don’t give them to people I don’t know, I don’t lend my password to anyone, and if someone asks for it I tell an adult I trust.",
@@ -15,8 +16,8 @@
   "riconoscere quali informazioni sono personali (indirizzo, scuola, password, codici, posizione) e quali si possono raccontare;": "tell which information is personal (address, school, passwords, codes, location) and which they can share;",
   "spiegare con parole loro perché la password non si presta, nemmeno all’amico del cuore;": "explain in their own words why you don’t lend your password, not even to your best friend;",
   "dire a chi chiedono aiuto se qualcuno online chiede password o dove abitano.": "say who they would ask for help if someone online asks for a password or where they live.",
-  "<a href=\"/pp-cosa-proteggere.html\">Primi passi, tappa 1: Cosa c’è da proteggere</a>": "<a href=\"/pp-cosa-proteggere.html\">First steps, stage 1: What there is to protect</a>",
-  "<a href=\"/pp-password.html\">Primi passi, tappa 2: Password e passkey</a>": "<a href=\"/pp-password.html\">First steps, stage 2: Passwords and passkeys</a>",
+  "<a href=\"/pp-cosa-proteggere.html?classe=1\">Alla LIM, in modalità classe: tappa 1, Cosa c’è da proteggere</a>": "<a href=\"/pp-cosa-proteggere.html?classe=1\">On the whiteboard, in class mode: stage 1, What there is to protect</a>",
+  "<a href=\"/pp-password.html?classe=1\">Alla LIM, in modalità classe: tappa 2, Password e passkey</a>": "<a href=\"/pp-password.html?classe=1\">On the whiteboard, in class mode: stage 2, Passwords and passkeys</a>",
   "Cosa serve": "What you need",
   "LIM o proiettore con le tappe 1 e 2 di Primi passi (aprile prima: funzionano anche senza registrarsi).": "A classroom screen or projector showing stages 1 and 2 of First steps (open them beforehand: no sign-up needed).",
   "Una copia delle carte del gioco per ogni gruppo, ritagliata.": "One set of game cards per group, cut out.",
@@ -114,5 +115,6 @@
   "Una cosa che online tengo per me:": "One thing I keep to myself online:",
   "Se qualcuno mi chiede la password, lo dico a:": "If someone asks for my password, I tell:",
   "La mia password finta di tre parole (non quella vera!):": "My pretend three-word password (not the real one!):",
+  "Cartellini per votare · una copia per studente · si piegano o si ritagliano": "Voting cards · one copy per student · fold or cut them out",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }

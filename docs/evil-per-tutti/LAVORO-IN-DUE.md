@@ -42,6 +42,7 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 | G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | fatto il 22 ottobre (unito, rivisto da Claude) |
 | C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | fatto il 22 ottobre |
 | G5 | Revisione dei kit 2, 3 e 6 (temi delicati) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
+| G6 | Revisione del passo 3.2 (modalità classe alla LIM) | Gemini | da fare |
 
 ## Prompt da incollare in Gemini
 
@@ -156,6 +157,18 @@ Polizia Postale, 114 e 1.96.96) corrispondono a fonti/FASE3.md; le indicazioni a
 fare se uno studente racconta qualcosa sono prudenti e coerenti con la pagina Aiuto; tempi da 0 a
 50 minuti realistici. Scrivi i problemi in fondo a REVISIONI.md, senza correggere i testi.
 Commit, push, riassunto.
+```
+
+### G6 — Revisione della modalità classe
+
+```text
+Compito G6 (leggi prima GEMINI.md). Ramo: gemini/revisione-4.
+Rivedi il passo 3.2: la modalità classe alla LIM in js/primi-passi.js (initClassMode),
+css/primi-passi.css e server/lib/primi-passi-pages.js, e i cartellini A–D nei kit di EVIL Scuola.
+Prova in locale alcune tappe con ?classe=1 (per esempio /pp-truffe.html?classe=1) a 1366×768 e a
+1920×1080, da tastiera (Tab, Invio, Pagina giù/su, Esc) e con i giochi: si vede tutto, niente è
+coperto, i giochi funzionano in modalità classe? Prova la stampa dei cartellini da un kit.
+Scrivi i problemi in fondo a REVISIONI.md, senza correggere il codice. Commit, push, riassunto.
 ```
 
 ## Lista di controllo per le revisioni

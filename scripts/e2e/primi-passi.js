@@ -225,6 +225,25 @@ const ok = (cond, msg) => {
   await cp.screenshot({ path: `${OUT}/e2e-scene-strip.png` });
   await calm.close();
 
+  // ---------------------------------------------------- 6c. modalità classe alla LIM (3.2)
+  const lim = await b.newContext({ viewport: { width: 1366, height: 768 }, locale: 'it-IT' });
+  const lp2 = await lim.newPage();
+  await lp2.goto(`${BASE}/pp-truffe.html?classe=1`, { waitUntil: 'networkidle' });
+  const visible = () => lp2.$$eval('main.pp > .pt-section', (els) => els.filter((e) => getComputedStyle(e).display !== 'none').map((e) => e.id));
+  ok(await lp2.$eval('body', (e) => e.classList.contains('pp-class')), 'classe: ?classe=1 apre la modalità classe');
+  ok(JSON.stringify(await visible()) === '["story"]', `classe: si vede solo la storia (${await visible()})`);
+  ok((await lp2.textContent('[data-pp-class-step]')).startsWith('1 di 5'), 'classe: il passo è indicato');
+  ok(!(await lp2.isVisible('header[role="banner"]')), 'classe: niente menu del sito');
+  await lp2.screenshot({ path: `${OUT}/e2e-classe.png` });
+  await lp2.click('[data-pp-class-next]');
+  ok(JSON.stringify(await visible()) === '["explain"]', 'classe: Avanti mostra la spiegazione');
+  await lp2.keyboard.press('PageDown');
+  ok(JSON.stringify(await visible()) === '["do-now"]', 'classe: il telecomando (Pagina giù) va avanti');
+  await lp2.keyboard.press('Escape');
+  ok(!(await lp2.$eval('body', (e) => e.classList.contains('pp-class'))) && (await visible()).length >= 5, 'classe: Esc torna alla pagina intera');
+  ok((await lp2.$$eval('.pp-choice__letter', (els) => els.map((e) => e.textContent).join(''))) === 'ABC', 'classe: risposte con le lettere per i cartellini');
+  await lim.close();
+
   // ---------------------------------------------------- 7. telefono
   const m = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'it-IT', hasTouch: true, isMobile: true });
   const mp = await m.newPage();

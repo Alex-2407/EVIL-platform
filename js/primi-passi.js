@@ -122,12 +122,72 @@
     initSide(slug);
     initStory();
     initDoNow(slug);
+    initClassMode();
     if (state.done[slug]) showBadge(false);
     const root = document.querySelector('[data-pp-game]');
     if (!root) return;
     const kind = root.getAttribute('data-pp-game');
     const games = { classify: initClassify, order: initOrder, select: initSelect, spot: initSpot };
     if (games[kind]) games[kind](root, slug);
+  }
+
+  /**
+   * Modalità classe (passo 3.2): alla LIM una parte della tappa alla volta, testo grande, il docente
+   * avanza con i pulsanti o con il telecomando delle presentazioni (Pagina giù/su).
+   * Si apre dal pulsante o con ?classe=1 nell'indirizzo (i kit di EVIL Scuola lo usano); Esc la chiude.
+   */
+  function initClassMode() {
+    const on = document.querySelector('[data-pp-class-on]');
+    const bar = document.querySelector('[data-pp-classbar]');
+    if (!on || !bar) return;
+    const steps = ['story', 'explain', 'do-now', 'game', 'next']
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+    const label = bar.querySelector('[data-pp-class-step]');
+    let i = 0;
+    let active = false;
+
+    function title(sec) {
+      const h = sec.querySelector('h2');
+      return h ? h.textContent.replace(/^\s*\d+\s*/, '').trim() : '';
+    }
+
+    function go(n) {
+      i = Math.max(0, Math.min(steps.length - 1, n));
+      steps.forEach((sec, k) => sec.classList.toggle('is-class-current', k === i));
+      label.textContent = S('classStep', { n: i + 1, total: steps.length, title: title(steps[i]) });
+      bar.querySelector('[data-pp-class-prev]').disabled = i === 0;
+      bar.querySelector('[data-pp-class-next]').disabled = i === steps.length - 1;
+      window.scrollTo(0, 0);
+      if (steps[i].id === 'story') document.dispatchEvent(new CustomEvent('pp:story'));
+    }
+
+    function setActive(v) {
+      active = v;
+      document.body.classList.toggle('pp-class', v);
+      document.documentElement.classList.toggle('pp-class-root', v);
+      bar.hidden = !v;
+      if (v) go(i);
+      else {
+        steps.forEach((sec) => sec.classList.remove('is-class-current'));
+        on.focus();
+      }
+    }
+
+    on.hidden = false;
+    on.addEventListener('click', () => setActive(true));
+    bar.querySelector('[data-pp-class-prev]').addEventListener('click', () => go(i - 1));
+    bar.querySelector('[data-pp-class-next]').addEventListener('click', () => go(i + 1));
+    bar.querySelector('[data-pp-class-off]').addEventListener('click', () => setActive(false));
+    document.addEventListener('keydown', (e) => {
+      if (!active || e.altKey || e.ctrlKey || e.metaKey) return;
+      const t = e.target;
+      if (t && (t.isContentEditable || /^(input|textarea|select)$/i.test(t.tagName))) return;
+      if (e.key === 'Escape') setActive(false);
+      else if (e.key === 'PageDown') { e.preventDefault(); go(i + 1); }
+      else if (e.key === 'PageUp') { e.preventDefault(); go(i - 1); }
+    });
+    if (new URLSearchParams(window.location.search).get('classe') === '1') setActive(true);
   }
 
   /**

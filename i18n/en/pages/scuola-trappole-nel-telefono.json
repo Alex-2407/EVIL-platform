@@ -8,6 +8,7 @@
   "Secondaria di primo grado, classi 1ª–3ª · 50 minuti · gruppi da 3–4": "Lower secondary, ages 11–14 · 50 minutes · groups of 3–4",
   "Stampa la guida": "Print the guide",
   "Stampa le carte": "Print the cards",
+  "Stampa i cartellini A–D": "Print the A–D cards",
   "Senza i pulsanti: stampa la pagina dal browser, esce tutto.": "No buttons? Print the page from your browser and you get everything.",
   "L’idea da portare a casa": "The idea to take home",
   "Prima di toccare un link mi chiedo: chi me lo manda davvero? Mi mette fretta? Mi chiede soldi, codici o dati? Se sì, controllo da un’altra strada. E il codice che arriva sul telefono non lo do a nessuno.": "Before I tap a link I ask: who is really sending this? Is it rushing me? Is it asking for money, codes or details? If so, I check another way. And I never give anyone the code that arrives on my phone.",
@@ -15,8 +16,8 @@
   "trovare in un messaggio i segnali della truffa: fretta, link che non torna, richiesta di soldi, codici o dati;": "spot the signs of a scam in a message: rushing, a link that doesn’t add up, a request for money, codes or details;",
   "spiegare perché un codice di verifica non si dà a nessuno, nemmeno a un amico;": "explain why a verification code is never given to anyone, not even a friend;",
   "controllare «da un’altra strada»: l’app o il sito ufficiale aperti da loro, una telefonata al numero che conoscono, un adulto.": "check “another way”: the official app or site opened themselves, a call to a number they know, an adult.",
-  "<a href=\"/pp-truffe.html\">Primi passi, tappa 5: Truffe: SMS, email e telefonate</a>": "<a href=\"/pp-truffe.html\">First steps, stage 5: Scams: texts, emails and calls</a>",
-  "<a href=\"/pp-due-passaggi.html\">Primi passi, tappa 3: Verifica in due passaggi</a>": "<a href=\"/pp-due-passaggi.html\">First steps, stage 3: Two-step verification</a>",
+  "<a href=\"/pp-truffe.html?classe=1\">Alla LIM, in modalità classe: tappa 5, Truffe: SMS, email e telefonate</a>": "<a href=\"/pp-truffe.html?classe=1\">On the whiteboard, in class mode: stage 5, Scams: texts, emails and calls</a>",
+  "<a href=\"/pp-due-passaggi.html?classe=1\">Alla LIM, in modalità classe: tappa 3, Verifica in due passaggi</a>": "<a href=\"/pp-due-passaggi.html?classe=1\">On the whiteboard, in class mode: stage 3, Two-step verification</a>",
   "Cosa serve": "What you need",
   "LIM o proiettore con le tappe 5 e 3 di Primi passi.": "A classroom screen or projector showing stages 5 and 3 of First steps.",
   "Una copia delle sei carte-messaggio per ogni gruppo, ritagliata, e un evidenziatore o una matita per gruppo.": "One set of the six message cards per group, cut out, and a highlighter or pencil per group.",
@@ -103,5 +104,6 @@
   "Le tre domande prima di toccare un link:": "The three questions before tapping a link:",
   "Il codice che arriva sul mio telefono lo do a:": "I give the code that arrives on my phone to:",
   "A casa insegno la regola del codice a:": "At home I’ll teach the code rule to:",
+  "Cartellini per votare · una copia per studente · si piegano o si ritagliano": "Voting cards · one copy per student · fold or cut them out",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }

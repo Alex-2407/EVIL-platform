@@ -4,10 +4,8 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**3.2 Modalità classe alla LIM** (testo grande, avanzamento del docente, cartellini A–D da
-stampare), poi 3.3 kit per le famiglie (lettera e patto del primo telefono) e 3.4 kit per il
-referente cyberbullismo. I sei kit di 3.1 sono pronti; i kit 2, 3 e 6 aspettano la revisione di un
-esperto (D3) come la pagina Aiuto e le tappe 7 e 8.
+**3.3 Kit per le famiglie** (lettera ai genitori e patto del primo telefono, stampabili, IT/EN),
+poi 3.4 kit per il referente cyberbullismo, 3.5 account docente (ruolo) e 3.6 pilota.
 
 In parallelo, quando Alessandro può: la **prova di Primi passi con 5–10 persone** (controllo di fine
 fase 2) con la scheda [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md).

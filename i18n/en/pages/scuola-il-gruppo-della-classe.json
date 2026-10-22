@@ -9,6 +9,7 @@
   "<strong>Da rivedere.</strong> Questo kit tratta un tema delicato ed è in attesa della revisione di esperti di ascolto e tutela dei minori. Usalo dopo averne parlato con il referente della scuola.": "<strong>Under review.</strong> This kit deals with a sensitive topic and is awaiting review by child safeguarding and helpline experts. Use it after talking to your school’s contact person.",
   "Stampa la guida": "Print the guide",
   "Stampa le carte": "Print the cards",
+  "Stampa i cartellini A–D": "Print the A–D cards",
   "Senza i pulsanti: stampa la pagina dal browser, esce tutto.": "No buttons? Print the page from your browser and you get everything.",
   "L’idea da portare a casa": "The idea to take home",
   "Se nel gruppo qualcuno viene preso di mira non rido e non inoltro, scrivo in privato a chi è preso di mira e avviso un adulto. A scuola c’è un referente, e la legge protegge chi lo subisce.": "If someone is targeted in the group I don’t laugh and I don’t forward, I message the person privately and I tell an adult. In Italy every school has a contact person, and the law protects whoever is targeted.",
@@ -16,8 +17,8 @@
   "distinguere uno scherzo dal cyberbullismo: si ripete, c’è chi ha più forza, fa stare male, avviene davanti a un pubblico;": "tell a joke from cyberbullying: it repeats, someone has more power, it makes someone feel bad, it happens in front of an audience;",
   "riconoscere i ruoli nel gruppo (chi attacca, chi ride o rilancia, chi tace, chi aiuta) e tre mosse concrete per chi assiste;": "recognise the roles in the group (attacker, those who laugh or forward, those who stay silent, those who help) and three concrete moves for bystanders;",
   "sapere a chi rivolgersi a scuola e cosa prevede la legge in breve.": "know who to turn to at school and what the law says, in brief.",
-  "<a href=\"/pp-cyberbullismo.html\">Primi passi, tappa 8: Cyberbullismo</a>": "<a href=\"/pp-cyberbullismo.html\">First steps, stage 8: Cyberbullying</a>",
-  "<a href=\"/pp-condividere.html\">Primi passi, tappa 6: Cosa condivido</a>": "<a href=\"/pp-condividere.html\">First steps, stage 6: What I share</a>",
+  "<a href=\"/pp-cyberbullismo.html?classe=1\">Alla LIM, in modalità classe: tappa 8, Cyberbullismo</a>": "<a href=\"/pp-cyberbullismo.html?classe=1\">On the whiteboard, in class mode: stage 8, Cyberbullying</a>",
+  "<a href=\"/pp-condividere.html?classe=1\">Alla LIM, in modalità classe: tappa 6, Cosa condivido</a>": "<a href=\"/pp-condividere.html?classe=1\">On the whiteboard, in class mode: stage 6, What I share</a>",
   "Cosa serve": "What you need",
   "LIM o proiettore con la tappa 8 di Primi passi.": "A classroom screen or projector showing stage 8 of First steps.",
   "Una copia delle carte del gioco per ogni gruppo, ritagliata.": "One set of game cards per group, cut out.",
@@ -108,5 +109,6 @@
   "Il messaggio privato che manderei a chi è preso di mira:": "The private message I’d send the person targeted:",
   "Le tre mosse di chi assiste:": "The bystander’s three moves:",
   "A scuola posso parlarne con:": "At school I can talk to:",
+  "Cartellini per votare · una copia per studente · si piegano o si ritagliano": "Voting cards · one copy per student · fold or cut them out",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }

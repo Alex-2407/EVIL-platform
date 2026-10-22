@@ -64,7 +64,7 @@ function renderKit(k, lang) {
 
   const stageLinks = k.stages.map((slug) => {
     const t = stage(slug);
-    return `            <li><a href="/${t.file}">${x(fmt(L(U.stageLink, lang), { n: t.n, title: L(t.title, lang) }))}</a></li>`;
+    return `            <li><a href="/${t.file}?classe=1">${x(fmt(L(U.stageLink, lang), { n: t.n, title: L(t.title, lang) }))}</a></li>`;
   }).join('\n');
   const goals = L(k.goals, lang).map((g) => `          <li>${x(g)}</li>`).join('\n');
   const materials = L(k.materials, lang).map((m) => `          <li>${x(m)}</li>`).join('\n');
@@ -117,6 +117,7 @@ ${ticketLines}
             <div class="sk-print" data-sk-print-bar hidden>
               <button class="pt-btn pt-btn--primary" type="button" data-sk-print="guide">${x(L(U.printGuide, lang))}</button>
               <button class="pt-btn pt-btn--ghost" type="button" data-sk-print="sheets">${x(L(U.printCards, lang))}</button>
+              <button class="pt-btn pt-btn--ghost" type="button" data-sk-print="votes">${x(L(U.printVotes, lang))}</button>
             </div>
             <p class="sk-print__hint" data-sk-print-hint>${x(L(U.printHint, lang))}</p>
           </div>
@@ -216,6 +217,15 @@ ${cards}
           <p class="sk-sheet__k">${x(L(U.ticketSheet, lang))}</p>
           <ul class="sk-tickets">
 ${[ticket, ticket, ticket, ticket].join('\n')}
+          </ul>
+        </div>
+        <div class="sk-sheet sk-sheet--votes">
+          <p class="sk-sheet__k">${x(L(U.votesSheet, lang))}</p>
+          <ul class="sk-votes" aria-hidden="true">
+            <li>A</li>
+            <li>B</li>
+            <li>C</li>
+            <li>D</li>
           </ul>
         </div>
       </div>

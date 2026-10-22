@@ -8,6 +8,7 @@
   "Secondaria di secondo grado, classi 1ª–5ª · 50 minuti · gruppi da 3–4": "Upper secondary, ages 14–19 · 50 minutes · groups of 3–4",
   "Stampa la guida": "Print the guide",
   "Stampa le carte": "Print the cards",
+  "Stampa i cartellini A–D": "Print the A–D cards",
   "Senza i pulsanti: stampa la pagina dal browser, esce tutto.": "No buttons? Print the page from your browser and you get everything.",
   "L’idea da portare a casa": "The idea to take home",
   "Un video o una voce realistici non sono una prova: prima di credere o condividere mi chiedo chi lo dice, quando e se una fonte ufficiale o indipendente lo conferma. Contro le voci clonate si richiama sul numero noto; diffondere un falso creato con l’IA che danneggia qualcuno non è uno scherzo.": "A realistic video or voice isn’t proof: before believing or sharing I ask who is saying it, when, and whether an official or independent source confirms it. Against cloned voices, call back on a known number; spreading an AI fake that harms someone is no joke.",
@@ -15,7 +16,7 @@
   "verificare una notizia con tre controlli: chi è la fonte originale, quando è uscita e se è confermata da canali ufficiali o indipendenti;": "check a piece of news with three questions: who the original source is, when it was published, and whether official or independent channels confirm it;",
   "spiegare perché «sembra vero» non basta di fronte a video e voci generati con l’IA (deepfake) e come difendersi dalle truffe con voci clonate;": "explain why “it looks real” is no longer enough with AI-generated videos and voices (deepfakes) and how to guard against cloned-voice scams;",
   "riconoscere la responsabilità personale, etica e legale di chi crea o diffonde contenuti falsificati che danneggiano altre persone.": "recognise the personal, ethical and legal responsibility of creating or sharing falsified content that harms other people.",
-  "<a href=\"/pp-vero-falso.html\">Primi passi, tappa 9: Vero o falso</a>": "<a href=\"/pp-vero-falso.html\">First steps, stage 9: True or false</a>",
+  "<a href=\"/pp-vero-falso.html?classe=1\">Alla LIM, in modalità classe: tappa 9, Vero o falso</a>": "<a href=\"/pp-vero-falso.html?classe=1\">On the whiteboard, in class mode: stage 9, True or false</a>",
   "Cosa serve": "What you need",
   "LIM o proiettore con la tappa 9 di Primi passi.": "A classroom screen or projector showing stage 9 of First steps.",
   "Una copia delle otto carte del gioco per ogni gruppo, ritagliata.": "One set of the eight game cards per group, cut out.",
@@ -109,5 +110,6 @@
   "Le tre domande che mi faccio prima di condividere una notizia o un video:": "The three questions I ask before sharing a story or a video:",
   "Se una voce identica a quella di un familiare mi chiede soldi al telefono, io:": "If a voice identical to a family member’s asks me for money on the phone, I:",
   "Perché «non l’ho creato io, l’ho solo inoltrato» non basta:": "Why “I didn’t make it, I only forwarded it” isn’t good enough:",
+  "Cartellini per votare · una copia per studente · si piegano o si ritagliano": "Voting cards · one copy per student · fold or cut them out",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }

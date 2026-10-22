@@ -83,7 +83,7 @@ test('EVIL Scuola: pagina nel menu, kit nella sitemap, serviti in italiano e in 
   assert.match(landing.text, /href="\/scuola-chiavi-di-casa\.html"/);
   const kit = await request(app).get('/en/scuola-trappole-nel-telefono.html').expect(200);
   assert.match(kit.text, /Traps in your phone/);
-  assert.match(kit.text, /href="\/en\/pp-truffe\.html"/, 'i link alle tappe restano in inglese');
+  assert.match(kit.text, /href="\/en\/pp-truffe\.html\?classe=1"/, 'i link alle tappe restano in inglese e aprono la modalità classe');
   // i kit sui temi delicati sono segnati da rivedere e mostrano i numeri di aiuto
   assert.deepEqual(S.KITS.filter((k) => k.sensitive).map((k) => k.n), [2, 3, 6]);
   const delicate = await request(app).get('/scuola-le-mie-foto-i-miei-diritti.html').expect(200);

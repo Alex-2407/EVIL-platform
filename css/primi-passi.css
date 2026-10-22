@@ -1492,3 +1492,75 @@ html:not(.pt-js) .pp-secret__count { display: none; }
   size: A4 landscape;
   margin: 10mm;
 }
+
+/* ---------------------------------------------------------------- modalità classe alla LIM (passo 3.2) */
+.pt .pp-classmode { margin: 0.8rem 0 0; }
+.pp-choice__letter {
+  display: inline-grid;
+  place-items: center;
+  width: 1.7em;
+  height: 1.7em;
+  margin-right: 0.35rem;
+  border-radius: 8px;
+  background: var(--pt-ink);
+  color: #fff;
+  font-weight: 850;
+  font-size: 0.85em;
+}
+
+.pp-classbar {
+  position: fixed;
+  left: 50%;
+  bottom: 1rem;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.5rem;
+  border-radius: 999px;
+  background: var(--pt-ink);
+  box-shadow: 0 10px 30px rgba(27, 33, 48, 0.3);
+  transform: translateX(-50%);
+}
+
+.pp-classbar__btn {
+  min-height: 52px;
+  padding: 0 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--pt-ink);
+  font: 800 1.15rem/1 var(--pt-font);
+  cursor: pointer;
+}
+
+.pp-classbar__btn--next { background: var(--lu-glow); }
+.pp-classbar__btn--off { background: transparent; color: #fff; border: 2px solid rgba(255, 255, 255, 0.5); }
+.pp-classbar__btn:disabled { opacity: 0.35; cursor: default; }
+.pp-classbar__btn:focus-visible { outline: 3px solid var(--lu-glow); outline-offset: 2px; }
+.pt .pp-classbar__step { margin: 0 0.4rem; color: #fff; font-weight: 750; font-size: 1.05rem; white-space: nowrap; }
+
+/* una parte alla volta, testo grande, niente distrazioni */
+/* testo grande: si ingrandisce la radice, perché le misure sono in rem */
+html.pp-class-root { font-size: 125%; }
+body.pp-class .pp > .pt__wrap,
+body.pp-class .pp-side,
+body.pp-class .pp-more,
+body.pp-class .evil-help-fab,
+body.pp-class header[role='banner'],
+body.pp-class footer.evil-site-foot { display: none !important; }
+body.pp-class .pp > .pt-section:not(.is-class-current) { display: none; }
+body.pp-class .pp > .pt-section.is-class-current { padding-top: 2rem; padding-bottom: 7rem; }
+body.pp-class .pt__narrow { max-width: 60rem; }
+body.pp-class .pp h2 { font-size: 2.2rem; }
+body.pp-class .pp-anim.is-show { max-width: 34rem; }
+body.pp-class .pp-classbar { left: auto; right: 1rem; transform: none; }
+
+@media (max-width: 640px) {
+  .pt .pp-classbar__step { display: none; }
+}
+
+@media print {
+  .pp-classbar, .pp-classmode { display: none !important; }
+}

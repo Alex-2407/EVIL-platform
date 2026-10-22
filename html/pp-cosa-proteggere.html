@@ -42,6 +42,7 @@
           <h1 id="pp-title">Cosa c’è da proteggere</h1>
           <p class="pt-hero__lead">Il tuo telefono vale molto più di quanto l’hai pagato. In 4 minuti scopri perché.</p>
           <p class="pp-time">4 minuti</p>
+          <p class="pp-classmode"><button class="pt-btn pt-btn--ghost" type="button" data-pp-class-on hidden>Modalità classe (LIM)</button></p>
           <nav class="pp-jump" aria-label="In questa tappa">
             <ul>
               <li><a href="#story">La storia</a></li>
@@ -98,21 +99,21 @@
         <p class="pp-hint">Apri le risposte e scopri come va a finire.</p>
         <div class="pp-choices" data-pp-choices>
           <details class="pp-choice">
-            <summary>Niente: il telefono gliel’hanno ridato.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">A</span> Niente: il telefono gliel’hanno ridato.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
               <p>Il telefono è tornato, ma nel frattempo qualcuno ha parlato al posto suo, con il suo nome e con i suoi amici.</p>
             </div>
           </details>
           <details class="pp-choice" data-good="1">
-            <summary>Il controllo del suo nome: qualcuno ha parlato al posto suo.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">B</span> Il controllo del suo nome: qualcuno ha parlato al posto suo.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--good">Ottima scelta</p>
               <p>Esatto. Nel telefono ci sono le tue chat, i tuoi amici, le tue foto e il tuo nome: chi lo usa può fingere di essere te.</p>
             </div>
           </details>
           <details class="pp-choice">
-            <summary>Un po’ di batteria.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">C</span> Un po’ di batteria.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
               <p>Forse anche quella. Ma la batteria si ricarica; la fiducia dei compagni è molto più difficile da ricaricare.</p>
@@ -265,6 +266,13 @@
       </div>
     </section>
 
+    <nav class="pp-classbar" data-pp-classbar aria-label="Comandi della lezione" hidden>
+      <button class="pp-classbar__btn" type="button" data-pp-class-prev>‹ Indietro</button>
+      <p class="pp-classbar__step" data-pp-class-step aria-live="polite"></p>
+      <button class="pp-classbar__btn pp-classbar__btn--next" type="button" data-pp-class-next>Avanti ›</button>
+      <button class="pp-classbar__btn pp-classbar__btn--off" type="button" data-pp-class-off>Esci</button>
+    </nav>
+
     <ul class="pp-strings" hidden>
       <li data-pp-str="right">Giusto!</li>
       <li data-pp-str="almost">Quasi! Riprova.</li>
@@ -287,6 +295,7 @@
       <li data-pp-str="moved">{item}: posizione {n} di {total}</li>
       <li data-pp-str="scenePlay">Riproduci la storia</li>
       <li data-pp-str="scenePause">Metti in pausa</li>
+      <li data-pp-str="classStep">{n} di {total} · {title}</li>
     </ul>
   </main>
 

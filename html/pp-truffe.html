@@ -42,6 +42,7 @@
           <h1 id="pp-title">Truffe: SMS, email e telefonate</h1>
           <p class="pt-hero__lead">Molte truffe usano lo stesso trucco: metterti fretta. Alla fine di questa tappa lo riconoscerai al volo.</p>
           <p class="pp-time">5 minuti</p>
+          <p class="pp-classmode"><button class="pt-btn pt-btn--ghost" type="button" data-pp-class-on hidden>Modalità classe (LIM)</button></p>
           <nav class="pp-jump" aria-label="In questa tappa">
             <ul>
               <li><a href="#story">La storia</a></li>
@@ -98,21 +99,21 @@
         <p class="pp-hint">Apri le risposte e scopri come va a finire.</p>
         <div class="pp-choices" data-pp-choices>
           <details class="pp-choice">
-            <summary>Paga: sono solo 1,99 €.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">A</span> Paga: sono solo 1,99 €.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
               <p>Il link porta a una pagina che imita il corriere e chiede i dati della carta. Non rubano 1,99 €: rubano la carta.</p>
             </div>
           </details>
           <details class="pp-choice" data-good="1">
-            <summary>Controlla la spedizione dall’app o dal sito del corriere, aperti da lei.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">B</span> Controlla la spedizione dall’app o dal sito del corriere, aperti da lei.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--good">Ottima scelta</p>
               <p>Esatto. I corrieri non chiedono pagamenti via SMS per le consegne normali: per verificare, vai tu sul sito ufficiale.</p>
             </div>
           </details>
           <details class="pp-choice">
-            <summary>Risponde all’SMS chiedendo spiegazioni.</summary>
+            <summary><span class="pp-choice__letter" aria-hidden="true">C</span> Risponde all’SMS chiedendo spiegazioni.</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--bad">Ripensaci</p>
               <p>Rispondere non serve: chi l’ha mandato non è il corriere. Verifica tu dal sito ufficiale.</p>
@@ -245,6 +246,13 @@
       </div>
     </section>
 
+    <nav class="pp-classbar" data-pp-classbar aria-label="Comandi della lezione" hidden>
+      <button class="pp-classbar__btn" type="button" data-pp-class-prev>‹ Indietro</button>
+      <p class="pp-classbar__step" data-pp-class-step aria-live="polite"></p>
+      <button class="pp-classbar__btn pp-classbar__btn--next" type="button" data-pp-class-next>Avanti ›</button>
+      <button class="pp-classbar__btn pp-classbar__btn--off" type="button" data-pp-class-off>Esci</button>
+    </nav>
+
     <ul class="pp-strings" hidden>
       <li data-pp-str="right">Giusto!</li>
       <li data-pp-str="almost">Quasi! Riprova.</li>
@@ -267,6 +275,7 @@
       <li data-pp-str="moved">{item}: posizione {n} di {total}</li>
       <li data-pp-str="scenePlay">Riproduci la storia</li>
       <li data-pp-str="scenePause">Metti in pausa</li>
+      <li data-pp-str="classStep">{n} di {total} · {title}</li>
     </ul>
   </main>
 

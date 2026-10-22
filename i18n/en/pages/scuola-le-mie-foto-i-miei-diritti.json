@@ -9,6 +9,7 @@
   "<strong>Da rivedere.</strong> Questo kit tratta un tema delicato ed è in attesa della revisione di esperti di ascolto e tutela dei minori. Usalo dopo averne parlato con il referente della scuola.": "<strong>Under review.</strong> This kit deals with a sensitive topic and is awaiting review by child safeguarding and helpline experts. Use it after talking to your school’s contact person.",
   "Stampa la guida": "Print the guide",
   "Stampa le carte": "Print the cards",
+  "Stampa i cartellini A–D": "Print the A–D cards",
   "Senza i pulsanti: stampa la pagina dal browser, esce tutto.": "No buttons? Print the page from your browser and you get everything.",
   "L’idea da portare a casa": "The idea to take home",
   "Se qualcuno mi ricatta con una foto non pago, salvo le prove, blocco e chiedo aiuto: non è colpa mia. Se una foto intima di qualcuno arriva a me, non la inoltro. E ci sono strumenti per farla togliere.": "If someone blackmails me with a photo I don’t pay, I keep the evidence, I block and I ask for help: it isn’t my fault. If someone’s intimate photo reaches me, I don’t forward it. And there are tools to get it taken down.",
@@ -16,8 +17,8 @@
   "riconoscere pressione e ricatto: richieste insistenti, minacce, richiesta di soldi o di altre immagini;": "recognise pressure and blackmail: insistent requests, threats, demands for money or more images;",
   "conoscere le mosse da fare: non pagare, salvare le prove, bloccare e segnalare, parlarne con un adulto o con la Polizia Postale;": "know the moves: don’t pay, keep the evidence, block and report, talk to an adult or the police;",
   "sapere che chi diffonde immagini intime senza consenso commette un reato, anche se le ha solo ricevute, e quali strumenti aiutano a toglierle.": "know that sharing intimate images without consent is a crime even if you only received them, and which tools help remove them.",
-  "<a href=\"/pp-persone-online.html\">Primi passi, tappa 7: Persone online</a>": "<a href=\"/pp-persone-online.html\">First steps, stage 7: People online</a>",
-  "<a href=\"/pp-condividere.html\">Primi passi, tappa 6: Cosa condivido</a>": "<a href=\"/pp-condividere.html\">First steps, stage 6: What I share</a>",
+  "<a href=\"/pp-persone-online.html?classe=1\">Alla LIM, in modalità classe: tappa 7, Persone online</a>": "<a href=\"/pp-persone-online.html?classe=1\">On the whiteboard, in class mode: stage 7, People online</a>",
+  "<a href=\"/pp-condividere.html?classe=1\">Alla LIM, in modalità classe: tappa 6, Cosa condivido</a>": "<a href=\"/pp-condividere.html?classe=1\">On the whiteboard, in class mode: stage 6, What I share</a>",
   "Cosa serve": "What you need",
   "LIM o proiettore con la tappa 7 di Primi passi, livello «Per approfondire».": "A classroom screen or projector showing stage 7 of First steps, “Go deeper” level.",
   "Una copia delle carte del gioco per ogni gruppo, ritagliata.": "One set of game cards per group, cut out.",
@@ -109,5 +110,6 @@
   "Una cosa che ho imparato oggi:": "One thing I learned today:",
   "Le quattro mosse se qualcuno ricatta con una foto:": "The four moves if someone blackmails with a photo:",
   "Una domanda che non ho fatto in classe (facoltativa, il biglietto è anonimo):": "A question I didn’t ask in class (optional, the ticket is anonymous):",
+  "Cartellini per votare · una copia per studente · si piegano o si ritagliano": "Voting cards · one copy per student · fold or cut them out",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }

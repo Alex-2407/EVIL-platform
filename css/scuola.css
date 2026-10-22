@@ -168,6 +168,14 @@
   .sk-cuts, .sk-tickets { grid-template-columns: none; }
 }
 
+/* cartellini A–D per votare alla LIM */
+.pt .sk-votes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.pt .sk-votes > li { margin: 0; display: grid; place-items: center; min-height: 9rem; border: 1.5px dashed #9aa3b5; font: 900 5rem/1 var(--pt-font); }
+.pt .sk-votes > li:nth-child(1) { color: #1c5592; }
+.pt .sk-votes > li:nth-child(2) { color: #0b6b4b; }
+.pt .sk-votes > li:nth-child(3) { color: #8a4b00; }
+.pt .sk-votes > li:nth-child(4) { color: #5b3796; }
+
 /* ---------------------------------------------------------------- pagina dei kit */
 .sk-how__list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
 .pt .sk-how__list > li + li { margin-top: 0; }
@@ -221,6 +229,9 @@
   .sk-cut { min-height: 34mm; }
   .sk-ticket { min-height: 62mm; }
   body[data-sk-print='guide'] .sk-sheets { display: none !important; }
-  body[data-sk-print='sheets'] .sk-guide { display: none !important; }
+  body[data-sk-print='sheets'] .sk-guide, body[data-sk-print='sheets'] .sk-sheet--votes { display: none !important; }
+  body[data-sk-print='votes'] .sk-guide, body[data-sk-print='votes'] .sk-sheet:not(.sk-sheet--votes) { display: none !important; }
+  body[data-sk-print='votes'] .sk-sheet--votes { break-before: auto; }
+  .sk-votes > li { min-height: 125mm; font-size: 90mm; }
   body[data-sk-print='sheets'] .sk-sheet:first-child { break-before: auto; }
 }

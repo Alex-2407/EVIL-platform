@@ -197,6 +197,11 @@ const UI = {
   learnMore: T('Su EVIL, per chi vuole di più', 'On EVIL, if you want more'),
   sourcesTitle: T('Fonti', 'Sources'),
   sourcesNote: T('Pagine verificate il 18 ottobre 2026.', 'Pages checked on 18 October 2026.'),
+  classOn: T('Modalità classe (LIM)', 'Class mode (whiteboard)'),
+  classBar: T('Comandi della lezione', 'Lesson controls'),
+  classPrev: T('Indietro', 'Back'),
+  classNext: T('Avanti', 'Next'),
+  classOff: T('Esci', 'Exit'),
 };
 
 /**
@@ -225,6 +230,7 @@ const STRINGS = {
   moved: T('{item}: posizione {n} di {total}', '{item}: position {n} of {total}'),
   scenePlay: T('Riproduci la storia', 'Play the story'),
   scenePause: T('Metti in pausa', 'Pause'),
+  classStep: T('{n} di {total} · {title}', '{n} of {total} · {title}'),
 };
 
 const TAPPE = [
