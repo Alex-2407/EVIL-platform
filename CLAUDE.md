@@ -8,6 +8,10 @@ account su Postgres (Neon). Testi sorgente in italiano, versione inglese sotto `
 Progetto "EVIL per tutti": **leggi prima [docs/evil-per-tutti/STATO.md](docs/evil-per-tutti/STATO.md)**,
 poi il piano in [docs/evil-per-tutti/PIANO.md](docs/evil-per-tutti/PIANO.md) (protocollo, decisioni, fasi).
 
+Si lavora in due con Gemini ([docs/evil-per-tutti/LAVORO-IN-DUE.md](docs/evil-per-tutti/LAVORO-IN-DUE.md)):
+a inizio sessione `git fetch`, guarda i rami `gemini/*` da rivedere e unire, e i problemi aperti in
+[REVISIONI.md](docs/evil-per-tutti/REVISIONI.md).
+
 ## Regole di Alessandro
 
 - Commit in locale a ogni passo; push solo sul ramo di lavoro o su richiesta esplicita. Mai su `main`
