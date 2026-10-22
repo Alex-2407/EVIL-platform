@@ -63,7 +63,7 @@ const PAGE = {
     ]
   ),
   kitsTitle: T('I kit', 'The kits'),
-  kitsLead: T('Due kit per ciclo. Quelli segnati «in preparazione» arrivano nei prossimi passi.', 'Two kits per school stage. Those marked “in preparation” are on their way.'),
+  kitsLead: T('Due kit per ciclo. Quelli segnati «da rivedere» trattano temi delicati e aspettano la revisione di esperti: usali dopo averne parlato con il referente della scuola.', 'Two kits per school stage. Those marked “under review” deal with sensitive topics and are awaiting expert review: use them after talking to your school’s contact person.'),
   planned: T('In preparazione', 'In preparation'),
   open: T('Apri il kit', 'Open the kit'),
   curriculumTitle: T('Nel curricolo', 'In the curriculum'),
@@ -146,6 +146,11 @@ const UI = {
   cardsSheet: T('Carte del gioco · una copia per gruppo · ritaglia lungo le linee', 'Game cards · one copy per group · cut along the lines'),
   ticketSheet: T('Biglietto d’uscita · uno per studente', 'Exit ticket · one per student'),
   nameLine: T('Nome (facoltativo)', 'Name (optional)'),
+  review: T('Da rivedere', 'Under review'),
+  reviewNote: T(
+    'Questo kit tratta un tema delicato ed è in attesa della revisione di esperti di ascolto e tutela dei minori. Usalo dopo averne parlato con il referente della scuola.',
+    'This kit deals with a sensitive topic and is awaiting review by child safeguarding and helpline experts. Use it after talking to your school’s contact person.'
+  ),
 };
 
 const KITS = [
@@ -584,12 +589,11 @@ const KITS = [
 ];
 
 /** Kit dei prossimi passi: compaiono nella pagina di presentazione come «in preparazione». */
-const PLANNED = [
-  { n: 2, cycle: 'primaria', title: T('Lo dico a un adulto', 'I tell a grown-up'), hook: T('Segreti che pesano, regali da sconosciuti, messaggi che fanno stare male: si dice a un adulto.', 'Secrets that feel heavy, gifts from strangers, messages that hurt: you tell a grown-up.') },
-  { n: 3, cycle: 'media', title: T('Il gruppo della classe', 'The class group chat'), hook: T('Nel gruppo nessuno è spettatore: tre mosse per chi assiste al cyberbullismo.', 'In the group nobody is just watching: three moves for bystanders to cyberbullying.') },
-  { n: 6, cycle: 'superiori', title: T('Le mie foto, i miei diritti', 'My photos, my rights'), hook: T('Nessuno ha il diritto di chiederti foto. Tu hai il diritto di farle sparire.', 'Nobody has the right to ask you for photos. You have the right to make them disappear.') },
-];
+const PLANNED = [];
 
+// i kit su temi delicati stanno in un modulo a parte (da rivedere, decisione D3)
+KITS.push(...require('./scuola-kit-delicati')(T, SRC, PP));
+KITS.sort((a, b) => a.n - b.n);
 for (const k of KITS) k.file = `scuola-${k.slug}.html`;
 
 /** Voci per server/site-map.js */

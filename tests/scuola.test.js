@@ -84,6 +84,13 @@ test('EVIL Scuola: pagina nel menu, kit nella sitemap, serviti in italiano e in 
   const kit = await request(app).get('/en/scuola-trappole-nel-telefono.html').expect(200);
   assert.match(kit.text, /Traps in your phone/);
   assert.match(kit.text, /href="\/en\/pp-truffe\.html"/, 'i link alle tappe restano in inglese');
+  // i kit sui temi delicati sono segnati da rivedere e mostrano i numeri di aiuto
+  assert.deepEqual(S.KITS.filter((k) => k.sensitive).map((k) => k.n), [2, 3, 6]);
+  const delicate = await request(app).get('/scuola-le-mie-foto-i-miei-diritti.html').expect(200);
+  assert.match(delicate.text, /class="sk-review"/);
+  assert.match(delicate.text, /href="tel:114"/);
+  const plain = await request(app).get('/scuola-chiavi-di-casa.html').expect(200);
+  assert.doesNotMatch(plain.text, /class="sk-review"/);
   // senza JavaScript i pulsanti di stampa restano nascosti: si stampa dal browser
   assert.match(kit.text, /data-sk-print-bar hidden/);
 });

@@ -4,10 +4,10 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**Fase 3, EVIL Scuola — 3.1b–c: i kit 2, 3 e 6** (il 5 è fatto) nel formato dei kit 1 e 4
-(`server/lib/scuola-content.js`), con le fonti verificate da Gemini in [fonti/FASE3.md](fonti/FASE3.md).
-I kit 2, 3 e 6 sono su temi delicati: restano "da rivedere" (D3). Poi 3.2 modalità classe alla LIM,
-3.3 kit per le famiglie, 3.4 kit per il referente cyberbullismo.
+**3.2 Modalità classe alla LIM** (testo grande, avanzamento del docente, cartellini A–D da
+stampare), poi 3.3 kit per le famiglie (lettera e patto del primo telefono) e 3.4 kit per il
+referente cyberbullismo. I sei kit di 3.1 sono pronti; i kit 2, 3 e 6 aspettano la revisione di un
+esperto (D3) come la pagina Aiuto e le tappe 7 e 8.
 
 In parallelo, quando Alessandro può: la **prova di Primi passi con 5–10 persone** (controllo di fine
 fase 2) con la scheda [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md).

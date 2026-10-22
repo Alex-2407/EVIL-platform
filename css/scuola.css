@@ -103,8 +103,9 @@
 .pt .sk-answers, .pt .sk-discussion { padding-left: 1.2rem; }
 .pt .sk-answers li + li, .pt .sk-discussion li + li { margin-top: 0.6rem; }
 .sk-answer { font-weight: 800; }
-.sk-answer--mine, .sk-answer--scam, .sk-answer--check { color: var(--pt-warn); }
-.sk-answer--share, .sk-answer--ok, .sk-answer--trust { color: var(--pt-safe); }
+.sk-answer--mine, .sk-answer--scam, .sk-answer--check, .sk-answer--cb, .sk-answer--harm { color: var(--pt-warn); }
+.sk-answer--share, .sk-answer--ok, .sk-answer--trust, .sk-answer--joke, .sk-answer--help { color: var(--pt-safe); }
+.sk-answer--tell { color: var(--pt-info); }
 .pt .sk-q { margin: 0; font-weight: 750; }
 .pt .sk-a { margin: 0.25rem 0 0; }
 .sk-care { margin-top: 1.8rem; }
@@ -152,8 +153,9 @@
 }
 
 .pt .sk-cut--head { font-size: 1.3rem; font-weight: 850; background: var(--pt-sunken); }
-.pt .sk-cut--mine, .pt .sk-cut--scam, .pt .sk-cut--check { color: var(--pt-warn); }
-.pt .sk-cut--share, .pt .sk-cut--ok, .pt .sk-cut--trust { color: var(--pt-safe); }
+.pt .sk-cut--mine, .pt .sk-cut--scam, .pt .sk-cut--check, .pt .sk-cut--cb, .pt .sk-cut--harm { color: var(--pt-warn); }
+.pt .sk-cut--share, .pt .sk-cut--ok, .pt .sk-cut--trust, .pt .sk-cut--joke, .pt .sk-cut--help { color: var(--pt-safe); }
+.pt .sk-cut--tell { color: var(--pt-info); }
 
 .pt .sk-ticket { margin: 0; padding: 1rem 1.1rem; border: 1.5px dashed #9aa3b5; }
 .pt .sk-ticket__k { margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--pt-school); }
@@ -194,6 +196,16 @@
 .pt .sk-kit p:last-child { margin-bottom: 0; }
 .sk-kit--planned { border-top-color: var(--pt-line); box-shadow: none; background: var(--pt-sunken); }
 .sk-kit__soon { color: var(--pt-school); }
+.sk-kit__review { color: var(--pt-help); }
+
+.pt .sk-review {
+  margin: 0.9rem 0 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  background: var(--pt-warn-bg);
+  border: 1px solid var(--pt-warn-line);
+  font-size: 0.95rem;
+}
 
 /* ---------------------------------------------------------------- stampa */
 @media print {

@@ -112,7 +112,8 @@ ${ticketLines}
             <p class="pt-kicker">${x(fmt(L(U.kicker, lang), { n: k.n, cycle }))}</p>
             <h1 id="sk-title">${x(title)}</h1>
             <p class="pt-hero__lead">${x(L(k.hook, lang))}</p>
-            <p class="sk-facts">${x(fmt(L(U.facts, lang), { classes: L(k.classes, lang) }))}</p>
+            <p class="sk-facts">${x(fmt(L(U.facts, lang), { classes: L(k.classes, lang) }))}</p>${k.sensitive ? `
+            <p class="sk-review"><strong>${x(L(U.review, lang))}.</strong> ${x(L(U.reviewNote, lang))}</p>` : ''}
             <div class="sk-print" data-sk-print-bar hidden>
               <button class="pt-btn pt-btn--primary" type="button" data-sk-print="guide">${x(L(U.printGuide, lang))}</button>
               <button class="pt-btn pt-btn--ghost" type="button" data-sk-print="sheets">${x(L(U.printCards, lang))}</button>
@@ -171,7 +172,8 @@ ${discussion}
             <span class="pt-callout__icon" aria-hidden="true">!</span>
             <p class="pt-callout__title">${x(L(U.disclosureTitle, lang))}</p>
             <div class="pt-callout__body">
-              <p>${x(L(U.disclosure, lang))}</p>
+              <p>${x(L(U.disclosure, lang))}</p>${k.sensitive ? `
+              <!--evil:fragment:help-numbers-->` : ''}
             </div>
           </div>
         </div>
@@ -238,7 +240,7 @@ function renderLanding(lang) {
     const all = [...ready, ...planned].sort((p, q) => p.n - q.n);
     const items = all.map((k) => (k.ready
       ? `            <li class="sk-kit">
-              <p class="sk-kit__k">Kit ${k.n} · ${x(L(k.classes, lang))}</p>
+              <p class="sk-kit__k">Kit ${k.n} · ${x(L(k.classes, lang))}${k.sensitive ? ` · <span class="sk-kit__review">${x(L(S.UI.review, lang))}</span>` : ''}</p>
               <h4 class="sk-kit__t"><a href="/${k.file}">${x(L(k.title, lang))}</a></h4>
               <p>${x(L(k.hook, lang))}</p>
             </li>`

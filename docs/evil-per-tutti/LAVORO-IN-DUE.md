@@ -40,7 +40,8 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 | C1 | 3.1a: motore dei kit, pagina Scuola, kit 1 e kit 4 | Claude | fatto il 22 ottobre |
 | G3 | Revisione del passo 3.1a (EVIL Scuola) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
 | G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | fatto il 22 ottobre (unito, rivisto da Claude) |
-| C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | da fare |
+| C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | fatto il 22 ottobre |
+| G5 | Revisione dei kit 2, 3 e 6 (temi delicati) | Gemini | da fare |
 
 ## Prompt da incollare in Gemini
 
@@ -140,6 +141,21 @@ Gioco: 8 carte con contenuti inventati (niente persone o marchi reali), due colo
 Poi: node scripts/build-scuola.js, npm run lint, npm test, node scripts/i18n.js check --strict,
 npm run check:encoding. Aggiungi al commit solo i file del kit (contenuto, html e json generati).
 Commit, push, riassunto con le scelte fatte e i dubbi.
+```
+
+### G5 — Revisione dei kit 2, 3 e 6
+
+```text
+Compito G5 (leggi prima GEMINI.md). Ramo: gemini/revisione-3.
+Rivedi i kit su temi delicati in server/lib/scuola-kit-delicati.js (kit 2 «Lo dico a un adulto»,
+kit 3 «Il gruppo della classe», kit 6 «Le mie foto, i miei diritti") e le loro pagine
+/scuola-*.html, anche in inglese. Oltre alla lista di controllo qui sotto, guarda con particolare
+attenzione: nessuna frase che dia la colpa a chi subisce; nessun dettaglio esplicito; le leggi e i
+servizi citati (L. 71/2017 e 70/2024, art. 612-ter c.p., Garante art. 144-bis, Take It Down,
+Polizia Postale, 114 e 1.96.96) corrispondono a fonti/FASE3.md; le indicazioni ai docenti su cosa
+fare se uno studente racconta qualcosa sono prudenti e coerenti con la pagina Aiuto; tempi da 0 a
+50 minuti realistici. Scrivi i problemi in fondo a REVISIONI.md, senza correggere i testi.
+Commit, push, riassunto.
 ```
 
 ## Lista di controllo per le revisioni
