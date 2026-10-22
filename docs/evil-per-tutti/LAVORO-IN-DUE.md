@@ -37,7 +37,9 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 |---|---|---|---|
 | G1 | Verifica delle fonti per la fase 3 (EVIL Scuola): [fonti/FASE3.md](fonti/FASE3.md) | Gemini | fatto il 22 ottobre (unito) |
 | G2 | Revisione dei passi 1.8, 2.13 e della scheda di prova | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
-| C1 | 3.1a: motore dei kit, pagina Scuola, kit 1 e kit 4 | Claude | da fare |
+| C1 | 3.1a: motore dei kit, pagina Scuola, kit 1 e kit 4 | Claude | fatto il 22 ottobre |
+| G3 | Revisione del passo 3.1a (EVIL Scuola) | Gemini | da fare |
+| G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | da fare (dopo G3) |
 | C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | da fare |
 
 ## Prompt da incollare in Gemini
@@ -106,6 +108,38 @@ Esegui npm run lint, npm test, node scripts/i18n.js check --strict e npm run che
 Non correggere il codice: scrivi i problemi in docs/evil-per-tutti/REVISIONI.md, in fondo, nel
 formato indicato lì (file e riga, cosa non va, perché, proposta, gravità). Se non trovi problemi
 in un punto della lista, scrivilo. Poi commit in italiano, push del ramo e un riassunto.
+```
+
+### G3 — Revisione del passo 3.1a
+
+```text
+Compito G3 (leggi prima GEMINI.md). Ramo: gemini/revisione-2.
+Rivedi il commit più recente di feat/evil-per-tutti che ha nel titolo "EVIL Scuola" (passo 3.1a):
+server/lib/scuola-content.js, server/lib/scuola-pages.js, css/scuola.css, js/scuola.js,
+scripts/lib/generated-pages.js, html/scuola*.html. Avvia il sito in locale e apri /scuola.html,
+/scuola-chiavi-di-casa.html e /scuola-trappole-nel-telefono.html, anche in inglese (/en/...),
+e prova l'anteprima di stampa del browser. Segui la lista di controllo qui sotto e in più:
+la lezione dura davvero 50 minuti ed è fattibile in una classe vera? Le parole sono adatte all'età?
+I riferimenti alle Linee guida e alle note del MIM corrispondono a fonti/FASE3.md?
+Scrivi i problemi in fondo a REVISIONI.md, senza correggere il codice. Commit, push, riassunto.
+```
+
+### G4 — Bozza del kit 5
+
+```text
+Compito G4 (leggi prima GEMINI.md). Ramo: gemini/kit-5.
+Scrivi il kit 5 «Vero o falso nell'era dell'IA» (secondaria di secondo grado) in
+server/lib/scuola-content.js, nello stesso formato dei kit 1 e 4 (stessi campi, testi in italiano e
+inglese, slug 'vero-o-falso', cycle 'superiori', stages ['vero-falso'], icona 'newspaper') e toglilo
+da PLANNED. Contenuto: fonti ufficiali e loro verifica (chi lo dice, quando, conferme), video e voci
+creati con l'IA, perché "sembra vero" non è una prova, responsabilità di chi condivide. Usa solo
+fatti di fonti/FASE3.md o delle tappe di Primi passi (per esempio art. 612-quater c.p., art. 50
+dell'AI Act, l'avviso dell'FBI sulla parola segreta di famiglia), con la fonte in `sources`.
+Gioco: 8 carte con contenuti inventati (niente persone o marchi reali), due colonne
+«Mi fido» / «Prima verifico». Lezione da 0 a 50 minuti senza buchi, niente telefoni degli studenti.
+Poi: node scripts/build-scuola.js, npm run lint, npm test, node scripts/i18n.js check --strict,
+npm run check:encoding. Aggiungi al commit solo i file del kit (contenuto, html e json generati).
+Commit, push, riassunto con le scelte fatte e i dubbi.
 ```
 
 ## Lista di controllo per le revisioni

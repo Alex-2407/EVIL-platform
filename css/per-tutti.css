@@ -1108,6 +1108,9 @@ html.pt-js .pt-switch .pt-panel__title.pt-sr-when-js {
   .pt-card, .pt-help-card, .pt-callout { box-shadow: none; break-inside: avoid; }
   .pt a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.85em; word-break: break-all; }
   .pt-panel[hidden] { display: block !important; }
+  /* in stampa le sezioni che entrano scorrendo devono esserci tutte; niente avvisi fissi */
+  .pt-will-reveal { opacity: 1 !important; transform: none !important; }
+  .evil-lang-hint, .evil-help-fab { display: none !important; }
 }
 
 /* Aiuto su telefono: prima i numeri, la lucciola resta solo da desktop */

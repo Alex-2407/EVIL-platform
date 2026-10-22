@@ -1,0 +1,213 @@
+/* EVIL Scuola (docs/evil-per-tutti/PIANO.md, fase 3): presentazione dei kit e pagina di un kit,
+   che è insieme guida per il docente e fogli da stampare. Componenti di base in per-tutti.css. */
+
+.sk [hidden] { display: none !important; }
+
+/* elenchi che sono griglie o righe: niente rientro delle liste di per-tutti.css */
+.pt .sk-cuts, .pt .sk-tickets, .pt .sk-kits, .pt .sk-how__list, .pt .sk-steps, .pt .sk-stages { padding-left: 0; }
+
+.sk-back { margin: 2rem 0 0; font-weight: 700; }
+.sk-back a { color: var(--pt-ink-2); text-decoration: none; }
+.sk-back a:hover { color: var(--pt-ink); text-decoration: underline; }
+
+.sk-hero__ico {
+  display: grid;
+  place-items: center;
+  width: 9rem;
+  height: 9rem;
+  margin: 0 auto;
+  border-radius: 28px;
+  background: var(--pt-school-bg);
+  border: 2px solid var(--pt-school-line);
+  color: var(--pt-school);
+}
+
+.sk-hero__ico svg { width: 4.2rem; height: 4.2rem; }
+
+@media (max-width: 640px) {
+  .sk-hero__ico { display: none; }
+}
+
+.pt .sk-facts { margin: 0.6rem 0 0; font-weight: 700; color: var(--pt-ink-2); }
+.sk-print { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.1rem; }
+.pt .sk-print__hint { margin: 0.6rem 0 0; font-size: 0.9rem; color: var(--pt-ink-2); }
+.sk-print:not([hidden]) + .sk-print__hint { display: none; }
+
+/* l'idea e gli obiettivi */
+.sk-idea {
+  margin: 0 0 1.6rem;
+  padding: 1.1rem 1.3rem;
+  border-radius: var(--pt-radius);
+  background: var(--pt-school-bg);
+  border-left: 6px solid var(--pt-school);
+}
+
+.pt .sk-idea h2 { margin: 0 0 0.4rem; font-size: 1rem; text-transform: none; color: var(--pt-school); }
+.pt .sk-idea p { margin: 0; font-size: 1.15rem; font-weight: 650; }
+
+.pt .sk-list { padding-left: 1.3rem; }
+.pt .sk-list li + li { margin-top: 0.35rem; }
+
+.sk-stages { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 1.6rem; }
+.pt .sk-stages li { margin: 0; }
+.sk-stages a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--pt-line);
+  background: var(--pt-card);
+  color: var(--pt-ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.sk-stages a:hover { border-color: var(--pt-school); color: var(--pt-school); }
+
+.sk-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+
+@media (max-width: 760px) {
+  .sk-cols { grid-template-columns: none; }
+}
+
+/* la lezione, minuto per minuto */
+.sk-steps { list-style: none; padding: 0; margin: 0 0 2rem; }
+.pt .sk-steps > li + li { margin-top: 0; }
+
+.sk-step {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--pt-line);
+}
+
+.pt .sk-step__time { margin: 0.15rem 0 0; font-weight: 800; color: var(--pt-school); font-variant-numeric: tabular-nums; }
+.pt .sk-step h3 { margin: 0 0 0.3rem; font-size: 1.1rem; }
+.pt .sk-step p { margin: 0.3rem 0 0; }
+
+.pt .sk-say {
+  padding: 0.6rem 0.85rem;
+  border-radius: 12px;
+  background: var(--pt-sunken);
+  font-style: italic;
+}
+
+.pt .sk-say strong { font-style: normal; }
+
+@media (max-width: 560px) {
+  .sk-step { grid-template-columns: none; gap: 0.2rem; }
+}
+
+.pt .sk-answers, .pt .sk-discussion { padding-left: 1.2rem; }
+.pt .sk-answers li + li, .pt .sk-discussion li + li { margin-top: 0.6rem; }
+.sk-answer { font-weight: 800; }
+.sk-answer--mine, .sk-answer--scam { color: var(--pt-warn); }
+.sk-answer--share, .sk-answer--ok { color: var(--pt-safe); }
+.pt .sk-q { margin: 0; font-weight: 750; }
+.pt .sk-a { margin: 0.25rem 0 0; }
+.sk-care { margin-top: 1.8rem; }
+
+.sk-adapt { margin: 0 0 1.6rem; }
+.sk-adapt dt { font-weight: 800; margin-top: 0.7rem; }
+.sk-adapt dd { margin: 0.2rem 0 0; }
+
+.pt .sk-sources { padding-left: 1.2rem; font-size: 0.95rem; }
+.pt .sk-sources__note { font-size: 0.9rem; color: var(--pt-ink-2); }
+
+/* ---------------------------------------------------------------- fogli da stampare */
+.sk-sheet {
+  margin: 1.2rem 0 2rem;
+  padding: 1.2rem;
+  border-radius: var(--pt-radius);
+  background: var(--pt-card);
+  border: 1px solid var(--pt-line);
+}
+
+.pt .sk-sheet__k { margin: 0 0 0.9rem; font-weight: 800; color: var(--pt-ink-2); }
+
+.sk-cuts, .sk-tickets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+
+.pt .sk-cuts > li + li, .pt .sk-tickets > li + li { margin-top: 0; }
+
+.pt .sk-cut {
+  display: grid;
+  place-items: center;
+  min-height: 6.5rem;
+  margin: 0;
+  padding: 0.8rem 1rem;
+  border: 1.5px dashed #9aa3b5;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.pt .sk-cut--head { font-size: 1.3rem; font-weight: 850; background: var(--pt-sunken); }
+.pt .sk-cut--mine, .pt .sk-cut--scam { color: var(--pt-warn); }
+.pt .sk-cut--share, .pt .sk-cut--ok { color: var(--pt-safe); }
+
+.pt .sk-ticket { margin: 0; padding: 1rem 1.1rem; border: 1.5px dashed #9aa3b5; }
+.pt .sk-ticket__k { margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--pt-school); }
+.pt .sk-ticket__name { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--pt-ink-2); border-bottom: 1px solid #c7ccd6; padding-bottom: 1.1rem; }
+.pt .sk-ticket__lines { margin: 0.6rem 0 0; padding-left: 1.1rem; font-size: 0.95rem; }
+.pt .sk-ticket__lines li { padding-bottom: 1.9rem; border-bottom: 1px solid #c7ccd6; }
+.pt .sk-ticket__lines li + li { margin-top: 0.6rem; }
+
+@media (max-width: 560px) {
+  .sk-cuts, .sk-tickets { grid-template-columns: none; }
+}
+
+/* ---------------------------------------------------------------- pagina dei kit */
+.sk-how__list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+.pt .sk-how__list > li + li { margin-top: 0; }
+.sk-how__item { position: relative; margin: 0; padding: 1.1rem 1.1rem 1.1rem 3.6rem; border-radius: var(--pt-radius); background: var(--pt-card); border: 1px solid var(--pt-line); }
+.sk-how__n { position: absolute; left: 1rem; top: 1rem; display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 50%; background: var(--pt-school); color: #fff; font-weight: 850; }
+.pt .sk-how__item p { margin: 0; }
+
+.sk-cycle { margin-top: 1.8rem; }
+.pt .sk-cycle h3 { margin: 0 0 0.8rem; color: var(--pt-school); }
+.sk-kits { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+.pt .sk-kits > li + li { margin-top: 0; }
+
+.sk-kit {
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  border-radius: var(--pt-radius);
+  background: var(--pt-card);
+  border: 1px solid var(--pt-line);
+  border-top: 5px solid var(--pt-school);
+  box-shadow: var(--pt-shadow);
+}
+
+.pt .sk-kit__k { margin: 0; font-size: 0.9rem; font-weight: 750; color: var(--pt-ink-2); }
+.pt .sk-kit__t { margin: 0.3rem 0 0.4rem; font-size: 1.25rem; }
+.sk-kit__t a { color: var(--pt-ink); }
+.pt .sk-kit p:last-child { margin-bottom: 0; }
+.sk-kit--planned { border-top-color: var(--pt-line); box-shadow: none; background: var(--pt-sunken); }
+.sk-kit__soon { color: var(--pt-school); }
+
+/* ---------------------------------------------------------------- stampa */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  .evil-help-fab, .sk-print, .sk-print__hint, .sk-back, .sk-hero__ico, .sk-stages, .pt-hero__art { display: none !important; }
+  .pt a[href^='http']::after { content: none; }
+  .pt-section { padding: 0.4rem 0 !important; }
+  .sk-step, .sk-discussion li, .sk-answers li { break-inside: avoid; }
+  .sk h2, .sk h3 { break-after: avoid; }
+  .sk-sheets > .pt__wrap > h2 { display: none; }
+  .sk-sheet { break-before: page; margin: 0; padding: 0; border: 0; }
+  .sk-cut { min-height: 34mm; }
+  .sk-ticket { min-height: 62mm; }
+  body[data-sk-print='guide'] .sk-sheets { display: none !important; }
+  body[data-sk-print='sheets'] .sk-guide { display: none !important; }
+  body[data-sk-print='sheets'] .sk-sheet:first-child { break-before: auto; }
+}

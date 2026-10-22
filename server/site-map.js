@@ -4,6 +4,8 @@
 
 // Primi passi: il percorso e le sue 10 tappe vengono dal modulo dei contenuti
 const { sitePages: primiPassiPages } = require('./lib/primi-passi-content');
+// EVIL Scuola: la pagina dei kit e i kit vengono dal loro modulo dei contenuti
+const { sitePages: scuolaPages } = require('./lib/scuola-content');
 
 const AREAS = [
   {
@@ -62,6 +64,7 @@ const AREAS = [
 const PAGES = [
   // ------------------------------------------------------------------ Per tutti
   ...primiPassiPages(),
+  ...scuolaPages(),
   {
     file: 'aiuto.html', area: 'per-tutti', icon: 'lifebuoy', nav: true, sitemap: 0.9,
     title: { it: 'Aiuto subito', en: 'Get help now' },

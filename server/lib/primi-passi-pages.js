@@ -500,7 +500,7 @@ ${who}
           <span class="pt-callout__icon" aria-hidden="true">${svgIcon('book')}</span>
           <p class="pt-callout__title">${x(L(O.teachersTitle, lang))}</p>
           <div class="pt-callout__body">
-            <p>${x(L(O.teachers, lang))}</p>
+            <p>${L(O.teachers, lang)}</p>
           </div>
         </div>
       </div>

@@ -4,13 +4,13 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**Fase 3, EVIL Scuola — 3.1 pagina Scuola e sei kit da 50 minuti** (due per ciclo, stampabili,
-collegati alle linee guida di educazione civica e alle fonti ufficiali), poi modalità classe alla
-LIM, kit per le famiglie e per il referente cyberbullismo.
+**Fase 3, EVIL Scuola — 3.1b–c: i kit 2, 3, 5 e 6** nel formato dei kit 1 e 4
+(`server/lib/scuola-content.js`), con le fonti verificate da Gemini in [fonti/FASE3.md](fonti/FASE3.md).
+I kit 2, 3 e 6 sono su temi delicati: restano "da rivedere" (D3). Poi 3.2 modalità classe alla LIM,
+3.3 kit per le famiglie, 3.4 kit per il referente cyberbullismo.
 
 In parallelo, quando Alessandro può: la **prova di Primi passi con 5–10 persone** (controllo di fine
-fase 2) con la scheda [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md); le correzioni che ne escono
-diventano un passo dedicato.
+fase 2) con la scheda [PROVA-PRIMI-PASSI.md](PROVA-PRIMI-PASSI.md).
 
 ## Fatto
 
@@ -28,7 +28,9 @@ diventano un passo dedicato.
 | 1.8 | Sorprese di Lù: password famose nella ricerca, "luce" accende la torcia con consigli nascosti, Lù toccata 5 volte racconta una curiosità vera con la fonte, premio finto nel footer → `trappola-finta.html`, pagina 404 vera (IT/EN, header, "password su un post-it"), messaggio in console, avvisi e badge segreto Esploratore (`js/sorprese.js`), badge segreti nella pagina di Primi passi; mai nella pagina Aiuto; test e `scripts/e2e/sorprese.js` | `b116814` |
 | 2.13 | Scene delle storie: tre quadri per tappa (30 disegni SVG originali in `server/lib/primi-passi-scenes.js`, didascalie IT/EN nel campo `scene`), un quadro alla volta con pausa e frecce, partenza solo quando la scena è sullo schermo, oggetti che entrano uno dopo l'altro; striscia a fumetti con il movimento ridotto o senza JavaScript; chi fa del male non ha mai un volto, protagonisti con carnagioni e capelli diversi; corretto "la preside" nella tappa 9; regole in `PRIMI-PASSI.md` e `STILE.md`; test e prova nel browser | `74da170` |
 | fine fase 2 | Scheda per la prova con 5–10 persone (`PROVA-PRIMI-PASSI.md`): chi, regole di tutela e privacy, preparazione in locale e da telefono, compiti, domande, cosa osservare, criteri di superamento, foglio di annotazione | `bc67c79` |
-| organizzazione | Lavoro in due con Gemini: `GEMINI.md` (regole), `LAVORO-IN-DUE.md` (chi fa cosa, rami, compiti G1 e G2 con i prompt pronti, lista di controllo), `REVISIONI.md` (registro delle revisioni incrociate) | questo commit |
+| organizzazione | Lavoro in due con Gemini: `GEMINI.md` (regole), `LAVORO-IN-DUE.md` (chi fa cosa, rami, compiti G1 e G2 con i prompt pronti, lista di controllo), `REVISIONI.md` (registro delle revisioni incrociate) | `e6f371c` |
+| G1, G2 | Gemini: fonti della fase 3 verificate (`fonti/FASE3.md`); revisione dei passi 1.8, 2.13 e della scheda di prova, quattro problemi corretti (404 vera anche per `/404.html`, pulsanti da 44 px, torcia con le frecce, controllo della pagina Aiuto) | `7ccffd1` |
+| 3.1a | EVIL Scuola: generatore comune `scripts/lib/generated-pages.js` (usato anche da Primi passi), `scripts/build-scuola.js`, contenuti in `server/lib/scuola-content.js`, pagine in `server/lib/scuola-pages.js`, `css/scuola.css`, `js/scuola.js` (stampa della guida o delle carte); pagina `scuola.html` (come funziona, kit per ciclo, temi delicati con i numeri di aiuto, curricolo, risorse) e kit 1 «Le chiavi di casa» (primaria) e 4 «Trappole nel telefono» (secondaria di primo grado), con lezione minuto per minuto, risposte, discussione, carte e biglietti da stampare; stampa sistemata per tutte le pagine «Per tutti»; home e Primi passi portano ai kit; test `tests/scuola.test.js` | questo commit |
 
 ## Note per chi riprende
 

@@ -38,9 +38,7 @@
   "Si comincia dalle truffe via SMS e telefono, poi si fanno le altre tappe insieme ai ragazzi. Se è già successo qualcosa, <a href=\"/aiuto.html#genitori\">ecco cosa fare</a>.": "Start with scam texts and calls, then do the other stages together with the kids. If something has already happened, <a href=\"/aiuto.html#genitori\">here’s what to do</a>.",
   "Riconoscere le truffe →": "Spotting scams →",
   "Docenti": "Teachers",
-  "<a href=\"/primi-passi.html\">Insegno</a>": "<a href=\"/primi-passi.html\">I teach</a>",
-  "Primi passi si proietta alla LIM: la storia si discute, il gioco si fa insieme. Se succede qualcosa in classe, <a href=\"/aiuto.html#docenti\">ecco cosa fare</a>. I kit di EVIL Scuola sono in preparazione.": "First steps works on a classroom screen: discuss the story, play the game together. If something happens in class, <a href=\"/aiuto.html#docenti\">here’s what to do</a>. EVIL for Schools kits are in the works.",
-  "Primi passi in classe →": "First steps in class →",
+  "<a href=\"/scuola.html\">Insegno</a>": "<a href=\"/scuola.html\">I teach</a>",
   "Chi studia informatica": "Computer science students",
   "<a href=\"/learning-paths.html\">Voglio capire come funzionano gli attacchi</a>": "<a href=\"/learning-paths.html\">I want to understand how attacks work</a>",
   "Tre corsi con laboratori ed esame, dai fondamenti al lavoro di chi difende.": "Three courses with labs and an exam, from the basics to a defender’s job.",
@@ -191,5 +189,7 @@
   "Terminale segreto": "Secret terminal",
   "<i></i><i></i><i></i><span>root@evil:~ (finto, tranquillo)</span>": "<i></i><i></i><i></i><span>root@evil:~ (fake, relax)</span>",
   "root@evil:~#": "root@evil:~#",
-  "Comando": "Command"
+  "Comando": "Command",
+  "Lezioni pronte da 50 minuti, dalla primaria alle superiori: si stampano e si proiettano, senza telefoni. Se succede qualcosa in classe, <a href=\"/aiuto.html#docenti\">ecco cosa fare</a>.": "Ready-made 50-minute lessons, from primary to secondary school: print them and project them, no phones. If something happens in class, <a href=\"/aiuto.html#docenti\">here’s what to do</a>.",
+  "I kit di EVIL Scuola →": "EVIL for Schools kits →"
 }

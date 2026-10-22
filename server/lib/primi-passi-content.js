@@ -146,8 +146,8 @@ const OVERVIEW = {
   resetDone: T('Progressi cancellati: si riparte dalla tappa 1.', 'Progress erased: back to stage 1.'),
   teachersTitle: T('Sei un docente?', 'Are you a teacher?'),
   teachers: T(
-    'Ogni tappa funziona anche proiettata alla LIM: la storia si discute in classe, il gioco si fa insieme. I kit completi di EVIL Scuola sono in preparazione.',
-    'Each stage also works on a classroom screen: discuss the story together and play the game as a class. Full EVIL for Schools kits are in the works.'
+    'Ogni tappa funziona anche proiettata alla LIM: la storia si discute in classe, il gioco si fa insieme. Per lezioni complete da 50 minuti, con carte da stampare, c’è <a href="/scuola.html">EVIL Scuola</a>.',
+    'Each stage also works on a classroom screen: discuss the story together and play the game as a class. For complete 50-minute lessons with printable cards, there’s <a href="/scuola.html">EVIL for Schools</a>.'
   ),
 };
 

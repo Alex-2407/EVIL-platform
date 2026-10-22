@@ -43,6 +43,7 @@ npm run check:encoding
 
 Le pagine di Primi passi (`html/primi-passi.html`, `html/pp-*.html`) e i loro dizionari inglesi sono
 generati: i testi stanno in `server/lib/primi-passi-content.js`, poi `node scripts/build-primi-passi.js`.
+Lo stesso per EVIL Scuola: testi in `server/lib/scuola-content.js`, poi `node scripts/build-scuola.js`.
 
 ## Come consegni
 

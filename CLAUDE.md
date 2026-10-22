@@ -37,4 +37,6 @@ npm run check:encoding                 # codifica dei file
 - `server/lib/course-*.js`: corsi tecnici, laboratori, esami, diplomi.
 - `server/lib/primi-passi-content.js`: testi di Primi passi (IT/EN). Le pagine `html/primi-passi.html`,
   `html/pp-*.html` e i loro dizionari sono generati: dopo ogni modifica `node scripts/build-primi-passi.js`.
+- `server/lib/scuola-content.js`: kit di EVIL Scuola (IT/EN). `html/scuola.html`, `html/scuola-*.html` e i
+  dizionari sono generati: dopo ogni modifica `node scripts/build-scuola.js`.
 - `tests/`: test con `node:test` e `supertest`; prove nel browser in `scripts/e2e/` (con Playwright).
