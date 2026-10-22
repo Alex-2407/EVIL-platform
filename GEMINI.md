@@ -46,7 +46,9 @@ generati: i testi stanno in `server/lib/primi-passi-content.js`, poi `node scrip
 
 ## Come consegni
 
-1. Controlli verdi (se hai toccato codice o pagine), poi commit sul tuo ramo.
+1. Controlli verdi (se hai toccato codice o pagine), poi commit sul tuo ramo. Aggiungi solo i
+   file del compito, per nome (`git add docs/...`): mai `git add .` o `git add -A`. Sul PC di
+   Alessandro ci sono file locali da non caricare, per esempio `.github/workflows/fly-deploy.yml`.
 2. `git push -u origin gemini/<compito>`.
 3. In chat, ad Alessandro: il nome del ramo, cosa hai fatto, cosa non sei riuscito a verificare,
    le domande aperte. Lui lo passa a Claude, che rivede, unisce e aggiorna lo stato.
