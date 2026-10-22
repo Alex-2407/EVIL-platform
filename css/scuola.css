@@ -103,8 +103,8 @@
 .pt .sk-answers, .pt .sk-discussion { padding-left: 1.2rem; }
 .pt .sk-answers li + li, .pt .sk-discussion li + li { margin-top: 0.6rem; }
 .sk-answer { font-weight: 800; }
-.sk-answer--mine, .sk-answer--scam { color: var(--pt-warn); }
-.sk-answer--share, .sk-answer--ok { color: var(--pt-safe); }
+.sk-answer--mine, .sk-answer--scam, .sk-answer--check { color: var(--pt-warn); }
+.sk-answer--share, .sk-answer--ok, .sk-answer--trust { color: var(--pt-safe); }
 .pt .sk-q { margin: 0; font-weight: 750; }
 .pt .sk-a { margin: 0.25rem 0 0; }
 .sk-care { margin-top: 1.8rem; }
@@ -152,8 +152,8 @@
 }
 
 .pt .sk-cut--head { font-size: 1.3rem; font-weight: 850; background: var(--pt-sunken); }
-.pt .sk-cut--mine, .pt .sk-cut--scam { color: var(--pt-warn); }
-.pt .sk-cut--share, .pt .sk-cut--ok { color: var(--pt-safe); }
+.pt .sk-cut--mine, .pt .sk-cut--scam, .pt .sk-cut--check { color: var(--pt-warn); }
+.pt .sk-cut--share, .pt .sk-cut--ok, .pt .sk-cut--trust { color: var(--pt-safe); }
 
 .pt .sk-ticket { margin: 0; padding: 1rem 1.1rem; border: 1.5px dashed #9aa3b5; }
 .pt .sk-ticket__k { margin: 0; font-size: 0.85rem; font-weight: 800; color: var(--pt-school); }

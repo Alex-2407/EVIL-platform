@@ -4,7 +4,7 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-**Fase 3, EVIL Scuola — 3.1b–c: i kit 2, 3, 5 e 6** nel formato dei kit 1 e 4
+**Fase 3, EVIL Scuola — 3.1b–c: i kit 2, 3 e 6** (il 5 è fatto) nel formato dei kit 1 e 4
 (`server/lib/scuola-content.js`), con le fonti verificate da Gemini in [fonti/FASE3.md](fonti/FASE3.md).
 I kit 2, 3 e 6 sono su temi delicati: restano "da rivedere" (D3). Poi 3.2 modalità classe alla LIM,
 3.3 kit per le famiglie, 3.4 kit per il referente cyberbullismo.

@@ -503,7 +503,7 @@ const KITS = [
         from: 5,
         to: 15,
         title: T('Il video della preside e la prova della fonte', 'The head teacher’s video and the source test'),
-        text: T('Proietta la tappa 9 di Primi passi: guardate la scena animata, leggi la storia del video della preside e fai votare la classe per alzata di mano prima di aprire le tre scelte. Poi scorrete insieme i punti di «Fai subito».', 'Project stage 9 of First steps: watch the animated scene, read the story about the head teacher’s video and take a show-of-hands vote before opening the three choices. Then go through “Do this now” together.'),
+        text: T('Proietta la tappa 9 di Primi passi: guardate la scena animata, leggi la storia del video della preside e fai votare la classe per alzata di mano prima di aprire le tre scelte. Poi scorrete insieme i punti di «Fai subito».', 'Project stage 9 of First steps: watch the animated scene, read the story about the head teacher’s video and take a show-of-hands vote before opening the three choices. Then go through “Do it now” together.'),
         say: T('«Oggi l’intelligenza artificiale può imitare un volto e una voce in modo molto realistico: “si vede che è lei” non è più una prova. La prova è il canale ufficiale.»', '“Today artificial intelligence can imitate a face and a voice very realistically: ‘you can see it’s her’ is no longer proof. The official channel is the proof.”'),
       },
       {
