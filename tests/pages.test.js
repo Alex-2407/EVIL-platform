@@ -124,6 +124,9 @@ test('pagina inesistente: 404 vera per chi naviga (anche in inglese), JSON per l
   assert.equal(en.status, 404);
   assert.match(en.text, /<html lang="en"/);
   assert.match(en.text, /like a password on a sticky note/);
+  // anche aprendo direttamente l'indirizzo della pagina 404 (per esempio dal cambio di lingua)
+  assert.equal((await request(app).get('/404.html')).status, 404);
+  assert.equal((await request(app).get('/en/404.html')).status, 404);
   const api = await request(app).get('/api/non-esiste').set('Accept', 'application/json');
   assert.equal(api.status, 404);
   assert.equal(api.body.code, 'NOT_FOUND');

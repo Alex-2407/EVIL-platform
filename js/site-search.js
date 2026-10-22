@@ -81,7 +81,7 @@
       .slice(0, 12)
       .map((x) => x.p);
     // nella pagina Aiuto niente sorprese: lì si cerca aiuto, non si gioca
-    if (WEAK.has(q.replace(/\s+/g, '')) && !/(^|\/)aiuto\.html$/.test(window.location.pathname)) {
+    if (WEAK.has(q.replace(/\s+/g, '')) && !/(^|\/)aiuto\.html$/.test(window.location.pathname) && !document.body.classList.contains('pt-help-page')) {
       items = [EGG, ...items.filter((p) => p.file !== EGG.file)];
       if (window.EvilEggs) window.EvilEggs.found('search');
     }

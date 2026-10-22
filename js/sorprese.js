@@ -13,7 +13,7 @@
   const ALL = ['search', 'light', 'lu', 'prize', 'lost'];
   const I = window.EVIL_I18N || { lang: 'it', t: (s) => s, url: (p) => p };
   const { t } = I;
-  const onHelpPage = /(^|\/)aiuto\.html$/.test(window.location.pathname);
+  const onHelpPage = /(^|\/)aiuto\.html$/.test(window.location.pathname) || Boolean(document.body && document.body.classList.contains('pt-help-page'));
   const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   const NAMES = {

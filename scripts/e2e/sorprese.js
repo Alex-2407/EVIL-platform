@@ -66,6 +66,10 @@ const ok = (cond, msg) => {
   ok((await p.$$('.pt-torch__tip')).length === 3, 'torcia: tre consigli nascosti nel buio');
   await p.mouse.move(700, 450);
   ok((await p.$eval('.pt-torch', (e) => e.style.getPropertyValue('--x'))) === '700px', 'torcia: la luce segue il puntatore');
+  const beforeX = parseFloat(await p.$eval('.pt-torch', (e) => e.style.getPropertyValue('--x')));
+  await p.keyboard.press('ArrowRight');
+  const afterX = parseFloat(await p.$eval('.pt-torch', (e) => e.style.getPropertyValue('--x')));
+  ok(afterX > beforeX, 'torcia: da tastiera la luce si sposta con le frecce');
   await p.screenshot({ path: `${OUT}/egg-torch.png` });
   await p.keyboard.press('Escape');
   ok(!(await p.$('.pt-torch')), 'torcia: Esc la spegne');

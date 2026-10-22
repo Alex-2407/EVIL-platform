@@ -307,21 +307,31 @@
       const off = el('button', 'pt-torch__off', t('Spegni la torcia'));
       off.type = 'button';
       off.addEventListener('click', () => toggle(false));
-      bar.append(el('p', 'pt-torch__hint', t('Muovi la luce: qualche consiglio è nascosto nel buio.')), off);
+      bar.append(el('p', 'pt-torch__hint', t('Muovi la luce con il mouse, il dito o le frecce: qualche consiglio è nascosto nel buio.')), off);
       wrap.append(tips, el('div', 'pt-torch__dark'), bar);
       return wrap;
     }
 
-    function move(e) {
-      if (!layer) return;
-      layer.style.setProperty('--x', `${e.clientX}px`);
-      layer.style.setProperty('--y', `${e.clientY}px`);
+    // posizione del fascio, in pixel: la muovono il puntatore e, da tastiera, le frecce
+    let pos = { x: 0, y: 0 };
+
+    function place(x, y) {
+      pos = { x: Math.min(Math.max(x, 0), window.innerWidth), y: Math.min(Math.max(y, 0), window.innerHeight) };
+      layer.style.setProperty('--x', `${pos.x}px`);
+      layer.style.setProperty('--y', `${pos.y}px`);
     }
+
+    function move(e) {
+      if (layer) place(e.clientX, e.clientY);
+    }
+
+    const STEP = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
 
     function toggle(on) {
       if (on && !layer) {
         layer = build();
         document.body.appendChild(layer);
+        place(window.innerWidth * 0.5, window.innerHeight * 0.45);
         root.classList.add('pt-torch-on');
         window.addEventListener('pointermove', move, { passive: true });
         layer.querySelector('.pt-torch__off').focus();
@@ -337,6 +347,12 @@
     document.addEventListener('keydown', (e) => {
       if (layer && e.key === 'Escape') {
         toggle(false);
+        return;
+      }
+      if (layer && STEP[e.key]) {
+        e.preventDefault();
+        const d = Math.max(32, Math.round(Math.min(window.innerWidth, window.innerHeight) * 0.06));
+        place(pos.x + STEP[e.key][0] * d, pos.y + STEP[e.key][1] * d);
         return;
       }
       if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1) return;

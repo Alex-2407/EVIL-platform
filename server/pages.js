@@ -630,6 +630,8 @@ function mountStatic(app) {
     const rel = req.path.replace(/^\//, '');
     if (!rel || rel.includes('/') || rel.startsWith('html/')) return next();
     if (rel === 'home.html') return res.redirect(301, '/');
+    // la pagina 404 resta una 404 anche se qualcuno apre il suo indirizzo
+    if (rel === '404.html') res.status(404);
     if (!sendInjectedHtml(res, rel)) return next();
   });
 
@@ -643,6 +645,7 @@ function mountStatic(app) {
     app.get(new RegExp(`^/${lang}/([a-z0-9-]+\\.html)$`, 'i'), (req, res, next) => {
       const rel = req.params[0];
       if (rel === 'home.html') return res.redirect(301, `/${lang}/`);
+      if (rel === '404.html') res.status(404);
       if (!sendInjectedHtml(res, rel, undefined, lang)) return next();
     });
   }
