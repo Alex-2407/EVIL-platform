@@ -41,7 +41,7 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 | G3 | Revisione del passo 3.1a (EVIL Scuola) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
 | G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | fatto il 22 ottobre (unito, rivisto da Claude) |
 | C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | fatto il 22 ottobre |
-| G5 | Revisione dei kit 2, 3 e 6 (temi delicati) | Gemini | da fare |
+| G5 | Revisione dei kit 2, 3 e 6 (temi delicati) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
 
 ## Prompt da incollare in Gemini
 

@@ -146,6 +146,7 @@ const UI = {
   cardsSheet: T('Carte del gioco · una copia per gruppo · ritaglia lungo le linee', 'Game cards · one copy per group · cut along the lines'),
   ticketSheet: T('Biglietto d’uscita · uno per studente', 'Exit ticket · one per student'),
   nameLine: T('Nome (facoltativo)', 'Name (optional)'),
+  anonymous: T('Biglietto anonimo: niente nome', 'Anonymous ticket: no name'),
   review: T('Da rivedere', 'Under review'),
   reviewNote: T(
     'Questo kit tratta un tema delicato ed è in attesa della revisione di esperti di ascolto e tutela dei minori. Usalo dopo averne parlato con il referente della scuola.',

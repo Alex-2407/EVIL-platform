@@ -12,6 +12,8 @@
 module.exports = function delicateKits(T, SRC, PP) {
   const codiceRosso = { label: T('Legge 69/2019 (art. 612-ter c.p.), Gazzetta Ufficiale', 'Law 69/2019 (Article 612-ter of the Criminal Code), Official Journal (Italian)'), url: 'https://www.gazzettaufficiale.it/eli/id/2019/07/25/19G00076/sg' };
 
+  const postale = { label: T('Polizia Postale, commissariato di PS online', 'Polizia Postale, online police station (Italian)'), url: 'https://www.commissariatodips.it/' };
+
   return [
     // ------------------------------------------------------------------ kit 2
     {
@@ -45,12 +47,12 @@ module.exports = function delicateKits(T, SRC, PP) {
         [
           'LIM o proiettore con la tappa 7 di Primi passi, livello «Per i più piccoli».',
           'Una copia delle carte del gioco per ogni gruppo, ritagliata.',
-          'Un biglietto d’uscita per ogni studente: sul retro si disegna la «mano della fiducia».',
+          'Un biglietto d’uscita per ogni studente e un foglio bianco per la «mano della fiducia».',
         ],
         [
           'A classroom screen or projector showing stage 7 of First steps, “For little ones” level.',
           'One set of game cards per group, cut out.',
-          'One exit ticket per student: the “trust hand” is drawn on the back.',
+          'One exit ticket per student and a blank sheet for the “trust hand”.',
         ]
       ),
       before: T(
@@ -91,7 +93,7 @@ module.exports = function delicateKits(T, SRC, PP) {
           from: 30,
           to: 42,
           title: T('La mano della fiducia', 'The trust hand'),
-          text: T('Distribuisci i biglietti. Sul retro ognuno ricalca la propria mano e scrive su ogni dito un adulto di cui si fida: a casa, a scuola, fuori. Nel palmo scrive la frase per chiedere aiuto. Ricorda che va bene scegliere anche adulti della scuola e che c’è un numero gratuito per i ragazzi, il 1.96.96.', 'Hand out the tickets. On the back everyone traces their hand and writes on each finger an adult they trust: at home, at school, elsewhere. In the palm they write the words for asking help. Remind them that school adults count too and that there is a free number for young people.'),
+          text: T('Distribuisci i fogli bianchi e i biglietti. Sul foglio ognuno ricalca la propria mano e scrive su ogni dito un adulto di cui si fida: a casa, a scuola, fuori. Nel palmo scrive la frase per chiedere aiuto. Ricorda che va bene scegliere anche adulti della scuola e che c’è un numero gratuito per i ragazzi, il 1.96.96.', 'Hand out the blank sheets and the tickets. On the sheet everyone traces their hand and writes on each finger an adult they trust: at home, at school, elsewhere. In the palm they write the words for asking help. Remind them that school adults count too and that in Italy there is a free number for young people, 1.96.96.'),
           say: T('«La frase è: “Mi è successa una cosa online e voglio parlartene.” Basta questa: al resto pensa l’adulto.»', '“The words are: ‘Something happened online and I want to talk to you about it.’ That’s all you need: the grown-up does the rest.”'),
         },
         {
@@ -139,8 +141,8 @@ module.exports = function delicateKits(T, SRC, PP) {
         },
       ],
       ticket: T(
-        ['Una sorpresa è diversa da un segreto che pesa perché:', 'Se qualcosa online mi fa stare male, lo dico a:', 'Sul retro: la mia mano della fiducia'],
-        ['A surprise is different from a heavy secret because:', 'If something online makes me feel bad, I tell:', 'On the back: my trust hand']
+        ['Una sorpresa è diversa da un segreto che pesa perché:', 'Se qualcosa online mi fa stare male, lo dico a:', 'La frase per chiedere aiuto:'],
+        ['A surprise is different from a heavy secret because:', 'If something online makes me feel bad, I tell:', 'The words for asking for help:']
       ),
       adapt: {
         easier: T('In terza usa sei carte e leggile tu; la mano della fiducia si può disegnare senza scrivere.', 'With younger children use six cards and read them yourself; the trust hand can be drawn without writing.'),
@@ -306,6 +308,7 @@ module.exports = function delicateKits(T, SRC, PP) {
       cycle: 'superiori',
       icon: 'shield',
       sensitive: true,
+      anonymousTicket: true,
       classes: T('Secondaria di secondo grado, classi 1ª–5ª', 'Upper secondary, ages 14–19'),
       stages: ['persone-online', 'condividere'],
       title: T('Le mie foto, i miei diritti', 'My photos, my rights'),
@@ -376,7 +379,7 @@ module.exports = function delicateKits(T, SRC, PP) {
           from: 30,
           to: 40,
           title: T('I diritti e gli strumenti', 'Rights and tools'),
-          text: T('Proietta il livello «Per approfondire» della tappa 7 e presenta gli strumenti: la segnalazione alla Polizia Postale, la segnalazione preventiva al Garante privacy (anche da soli dai 14 anni) e Take It Down per le immagini di quando si era minorenni, che invia solo un’impronta del file. Ricorda la legge: diffondere immagini intime senza consenso è reato anche per chi le ha solo ricevute.', 'Project the “Go deeper” level of stage 7 and present the tools: reporting to the police, the preventive report to the Italian Data Protection Authority (on your own from 14) and Take It Down for images taken when under 18, which sends only a fingerprint of the file. Recall the law: sharing intimate images without consent is a crime even for those who only received them.'),
+          text: T('Proietta il livello «Per approfondire» della tappa 7 e presenta gli strumenti: la segnalazione alla Polizia Postale, la segnalazione preventiva al Garante privacy (anche da soli dai 14 anni) e Take It Down per le immagini di quando si era minorenni, che invia solo un’impronta del file. Ricorda la legge: diffondere immagini intime senza consenso è reato anche per chi le ha solo ricevute. E una regola ferma: una foto intima di un minorenne non si salva e non si inoltra mai, nemmeno come prova; si salvano le schermate dei messaggi e delle minacce, il nome del profilo e il link. Distribuisci i biglietti anonimi.', 'Project the “Go deeper” level of stage 7 and present the tools: reporting to the Polizia Postale (the Italian police’s online crime unit), the preventive report to the Italian Data Protection Authority (on your own from 14) and Take It Down for images taken when under 18, which sends only a fingerprint of the file. Recall the law: sharing intimate images without consent is a crime even for those who only received them. And one firm rule: an intimate photo of a minor is never saved or forwarded, not even as evidence; save screenshots of the messages and threats, the profile name and the link. Hand out the anonymous tickets.'),
           say: T('«Il file resta sul vostro telefono: a Take It Down arriva solo una specie di impronta digitale, che serve alle piattaforme per riconoscere e togliere la foto.»', '“The file stays on your phone: Take It Down only receives a kind of fingerprint, which platforms use to recognise and remove the photo.”'),
         },
         {
@@ -389,7 +392,7 @@ module.exports = function delicateKits(T, SRC, PP) {
           from: 47,
           to: 50,
           title: T('Chiusura', 'Wrap-up'),
-          text: T('Ognuno scrive sul biglietto anonimo una cosa imparata e, se vuole, una domanda che non ha fatto in classe; i biglietti vanno nella scatola. Mostra di nuovo i numeri di aiuto.', 'Everyone writes on the anonymous ticket one thing they learned and, if they like, a question they didn’t ask in class; the tickets go in the box. Show the help numbers again.'),
+          text: T('Ognuno completa il biglietto anonimo: una cosa imparata e, se vuole, una domanda che non ha fatto in classe; i biglietti vanno nella scatola. Mostra di nuovo i numeri di aiuto.', 'Everyone writes on the anonymous ticket one thing they learned and, if they like, a question they didn’t ask in class; the tickets go in the box. Show the help numbers again.'),
           say: T('«Le quattro mosse: non pagare, salva le prove, blocca e segnala, parlane. Non siete mai soli.»', '“The four moves: don’t pay, keep the evidence, block and report, talk to someone. You’re never alone.”'),
         },
       ],
@@ -402,7 +405,7 @@ module.exports = function delicateKits(T, SRC, PP) {
           { cat: 'harm', text: T('Inoltrare a un amico la foto intima di una compagna arrivata nel gruppo', 'Forwarding a classmate’s intimate photo that arrived in the group to a friend'), why: T('Diffonderla senza consenso è reato anche per chi l’ha solo ricevuta (art. 612-ter c.p.), e moltiplica il danno.', 'Sharing it without consent is a crime even for those who only received it (Italian Criminal Code, art. 612-ter), and multiplies the harm.') },
           { cat: 'help', text: T('Non inoltrarla, segnalarla alla piattaforma e avvisare un adulto', 'Not forwarding it, reporting it to the platform and telling an adult'), why: T('Ferma la diffusione e mette in moto chi può farla togliere.', 'It stops the spread and brings in people who can get it removed.') },
           { cat: 'harm', text: T('Pagare chi ricatta perché smetta', 'Paying the blackmailer to make it stop'), why: T('Di solito non smette: chi ottiene soldi chiede ancora.', 'It usually doesn’t stop: blackmailers who get money ask for more.') },
-          { cat: 'help', text: T('Salvare le prove (chat, profilo, minacce) prima di bloccare', 'Saving the evidence (chat, profile, threats) before blocking'), why: T('Servono alla Polizia Postale e per far togliere i contenuti.', 'The police need it, and it helps get content removed.') },
+          { cat: 'help', text: T('Salvare le prove (chat, profilo, minacce) prima di bloccare', 'Saving the evidence (chat, profile, threats) before blocking'), why: T('Servono alla Polizia Postale e per far togliere i contenuti. Si salvano messaggi, minacce, profilo e link: mai la foto intima di un minorenne, nemmeno come prova.', 'The police (in Italy the Polizia Postale) need it, and it helps get content removed. Save messages, threats, profile and links: never an intimate photo of a minor, not even as evidence.') },
           { cat: 'harm', text: T('Cancellare tutto e non dirlo a nessuno', 'Deleting everything and telling nobody'), why: T('Si perdono le prove e si resta soli con il problema.', 'The evidence is lost and you’re left alone with the problem.') },
           { cat: 'help', text: T('Usare Take It Down per una foto di quando avevi meno di 18 anni', 'Using Take It Down for a photo taken when you were under 18'), why: T('Il file resta sul telefono; le piattaforme che aderiscono usano l’impronta per toglierlo.', 'The file stays on your phone; participating platforms use the fingerprint to remove it.') },
           { cat: 'harm', text: T('Commentare «se l’è cercata»', 'Commenting “they asked for it”'), why: T('Sposta la colpa su chi subisce: la responsabilità è di chi ricatta e di chi diffonde.', 'It shifts the blame onto the victim: the responsibility lies with whoever blackmails and whoever shares.') },
@@ -438,7 +441,7 @@ module.exports = function delicateKits(T, SRC, PP) {
       ),
       civica: T('Competenza n. 12 (secondo ciclo): gestire l’identità digitale e i dati della rete, salvaguardando la propria e altrui sicurezza ed evitando minacce al benessere fisico e psicologico.', 'Competence 12 (upper secondary): managing digital identity and online data, keeping oneself and others safe and avoiding threats to physical and psychological wellbeing.'),
       digcomp: T('2.6 Gestire l’identità digitale · 4.2 Proteggere i dati personali e la privacy · 4.3 Proteggere la salute e il benessere', '2.6 Managing digital identity · 4.2 Protecting personal data and privacy · 4.3 Protecting health and well-being'),
-      sources: [SRC.lineeGuida, codiceRosso, PP.SRC.garanteRp, PP.SRC.takeitdown, PP.SRC.sextortion, PP.SRC.postale2025, SRC.orientamento],
+      sources: [SRC.lineeGuida, codiceRosso, PP.SRC.garanteRp, PP.SRC.takeitdown, postale, PP.SRC.sextortion, PP.SRC.postale2025, SRC.orientamento],
     },
   ];
 };

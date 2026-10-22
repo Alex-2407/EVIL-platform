@@ -89,7 +89,7 @@ function renderKit(k, lang) {
   const ticketLines = L(k.ticket, lang).map((line) => `                <li>${x(line)}</li>`).join('\n');
   const ticket = `            <li class="sk-ticket">
               <p class="sk-ticket__k">${x(L(S.PAGE.navTitle, lang))} · ${x(title)}</p>
-              <p class="sk-ticket__name">${x(L(U.nameLine, lang))}</p>
+              <p class="sk-ticket__name">${x(L(k.anonymousTicket ? U.anonymous : U.nameLine, lang))}</p>
               <ol class="sk-ticket__lines">
 ${ticketLines}
               </ol>

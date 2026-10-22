@@ -21,7 +21,7 @@
   "Cosa serve": "What you need",
   "LIM o proiettore con la tappa 7 di Primi passi, livello «Per i più piccoli».": "A classroom screen or projector showing stage 7 of First steps, “For little ones” level.",
   "Una copia delle carte del gioco per ogni gruppo, ritagliata.": "One set of game cards per group, cut out.",
-  "Un biglietto d’uscita per ogni studente: sul retro si disegna la «mano della fiducia».": "One exit ticket per student: the “trust hand” is drawn on the back.",
+  "Un biglietto d’uscita per ogni studente e un foglio bianco per la «mano della fiducia».": "One exit ticket per student and a blank sheet for the “trust hand”.",
   "Prima della lezione": "Before the lesson",
   "Parlane prima con il referente per il bullismo e il cyberbullismo della scuola e, se lo ritieni utile, avvisa le famiglie.": "Talk to the school’s bullying and cyberbullying contact person first and, if useful, let families know.",
   "Pensa se in classe c’è chi sta vivendo una situazione simile: in quel caso concorda la lezione con il referente.": "Consider whether anyone in the class is going through something similar: if so, plan the lesson with the contact person.",
@@ -41,7 +41,7 @@
   "<strong>Puoi dire:</strong> «Se un messaggio ti fa stare male, non è uno scherzo. E se hai un dubbio, puoi sempre chiedere a un adulto: è a questo che servono gli adulti.»": "<strong>You can say:</strong> “If a message makes you feel bad, it isn’t a joke. And if you’re not sure, you can always ask a grown-up: that’s what grown-ups are for.”",
   "30–42 min": "30–42 min",
   "La mano della fiducia": "The trust hand",
-  "Distribuisci i biglietti. Sul retro ognuno ricalca la propria mano e scrive su ogni dito un adulto di cui si fida: a casa, a scuola, fuori. Nel palmo scrive la frase per chiedere aiuto. Ricorda che va bene scegliere anche adulti della scuola e che c’è un numero gratuito per i ragazzi, il 1.96.96.": "Hand out the tickets. On the back everyone traces their hand and writes on each finger an adult they trust: at home, at school, elsewhere. In the palm they write the words for asking help. Remind them that school adults count too and that there is a free number for young people.",
+  "Distribuisci i fogli bianchi e i biglietti. Sul foglio ognuno ricalca la propria mano e scrive su ogni dito un adulto di cui si fida: a casa, a scuola, fuori. Nel palmo scrive la frase per chiedere aiuto. Ricorda che va bene scegliere anche adulti della scuola e che c’è un numero gratuito per i ragazzi, il 1.96.96.": "Hand out the blank sheets and the tickets. On the sheet everyone traces their hand and writes on each finger an adult they trust: at home, at school, elsewhere. In the palm they write the words for asking help. Remind them that school adults count too and that in Italy there is a free number for young people, 1.96.96.",
   "<strong>Puoi dire:</strong> «La frase è: “Mi è successa una cosa online e voglio parlartene.” Basta questa: al resto pensa l’adulto.»": "<strong>You can say:</strong> “The words are: ‘Something happened online and I want to talk to you about it.’ That’s all you need: the grown-up does the rest.”",
   "42–48 min": "42–48 min",
   "Discussione": "Discussion",
@@ -105,6 +105,6 @@
   "Nome (facoltativo)": "Name (optional)",
   "Una sorpresa è diversa da un segreto che pesa perché:": "A surprise is different from a heavy secret because:",
   "Se qualcosa online mi fa stare male, lo dico a:": "If something online makes me feel bad, I tell:",
-  "Sul retro: la mia mano della fiducia": "On the back: my trust hand",
+  "La frase per chiedere aiuto:": "The words for asking for help:",
   "_note": "Generato da scripts/build-scuola.js: modifica i testi in server/lib/scuola-content.js e rigenera."
 }
