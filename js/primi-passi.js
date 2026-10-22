@@ -156,8 +156,13 @@
       i = Math.max(0, Math.min(steps.length - 1, n));
       steps.forEach((sec, k) => sec.classList.toggle('is-class-current', k === i));
       label.textContent = S('classStep', { n: i + 1, total: steps.length, title: title(steps[i]) });
-      bar.querySelector('[data-pp-class-prev]').disabled = i === 0;
-      bar.querySelector('[data-pp-class-next]').disabled = i === steps.length - 1;
+      const prev = bar.querySelector('[data-pp-class-prev]');
+      const next = bar.querySelector('[data-pp-class-next]');
+      prev.disabled = i === 0;
+      next.disabled = i === steps.length - 1;
+      // il fuoco non cade sul pulsante appena disattivato
+      if (document.activeElement === prev && prev.disabled) next.focus();
+      if (document.activeElement === next && next.disabled) prev.focus();
       window.scrollTo(0, 0);
       if (steps[i].id === 'story') document.dispatchEvent(new CustomEvent('pp:story'));
     }
@@ -167,6 +172,14 @@
       document.body.classList.toggle('pp-class', v);
       document.documentElement.classList.toggle('pp-class-root', v);
       bar.hidden = !v;
+      // la tappa dopo si apre anch'essa in modalità classe
+      const nextLink = document.querySelector('[data-pp-next]');
+      if (nextLink) {
+        const url = new URL(nextLink.href, window.location.href);
+        if (v) url.searchParams.set('classe', '1');
+        else url.searchParams.delete('classe');
+        nextLink.href = url.pathname + url.search + url.hash;
+      }
       if (v) go(i);
       else {
         steps.forEach((sec) => sec.classList.remove('is-class-current'));

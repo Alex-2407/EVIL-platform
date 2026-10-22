@@ -1495,18 +1495,6 @@ html:not(.pt-js) .pp-secret__count { display: none; }
 
 /* ---------------------------------------------------------------- modalità classe alla LIM (passo 3.2) */
 .pt .pp-classmode { margin: 0.8rem 0 0; }
-.pp-choice__letter {
-  display: inline-grid;
-  place-items: center;
-  width: 1.7em;
-  height: 1.7em;
-  margin-right: 0.35rem;
-  border-radius: 8px;
-  background: var(--pt-ink);
-  color: #fff;
-  font-weight: 850;
-  font-size: 0.85em;
-}
 
 .pp-classbar {
   position: fixed;

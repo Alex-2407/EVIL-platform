@@ -232,8 +232,8 @@ function renderStage(t, lang) {
   const metaTitle = fmt(L(U.metaTitle, lang), { title, n: t.n });
 
   const storyText = L(t.story.text, lang).map((p) => `          <p>${x(p)}</p>`).join('\n');
-  const choices = t.story.choices.map((ch, i) => `          <details class="pp-choice"${ch.good ? ' data-good="1"' : ''}>
-            <summary><span class="pp-choice__letter" aria-hidden="true">${'ABCD'[i]}</span> ${x(L(ch.text, lang))}</summary>
+  const choices = t.story.choices.map((ch) => `          <details class="pp-choice"${ch.good ? ' data-good="1"' : ''}>
+            <summary>${x(L(ch.text, lang))}</summary>
             <div class="pp-choice__out">
               <p class="pp-verdict pp-verdict--${ch.good ? 'good' : 'bad'}">${x(L(ch.good ? U.verdictGood : U.verdictBad, lang))}</p>
               <p>${x(L(ch.outcome, lang))}</p>

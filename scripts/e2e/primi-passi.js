@@ -241,7 +241,7 @@ const ok = (cond, msg) => {
   ok(JSON.stringify(await visible()) === '["do-now"]', 'classe: il telecomando (Pagina giù) va avanti');
   await lp2.keyboard.press('Escape');
   ok(!(await lp2.$eval('body', (e) => e.classList.contains('pp-class'))) && (await visible()).length >= 5, 'classe: Esc torna alla pagina intera');
-  ok((await lp2.$$eval('.pp-choice__letter', (els) => els.map((e) => e.textContent).join(''))) === 'ABC', 'classe: risposte con le lettere per i cartellini');
+  ok((await lp2.getAttribute('[data-pp-next]', 'href')).endsWith('.html'), 'classe: uscendo, il link alla tappa dopo torna normale');
   await lim.close();
 
   // ---------------------------------------------------- 7. telefono
