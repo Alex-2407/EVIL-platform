@@ -42,7 +42,7 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 | G4 | Bozza del kit 5 «Vero o falso nell’era dell’IA» | Gemini | fatto il 22 ottobre (unito, rivisto da Claude) |
 | C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | fatto il 22 ottobre |
 | G5 | Revisione dei kit 2, 3 e 6 (temi delicati) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
-| G6 | Revisione del passo 3.2 (modalità classe alla LIM) | Gemini | fatto il 22 ottobre: 3 problemi, 2 risolti, 1 aperto (impaginazione a 1366×768) |
+| G6 | Revisione del passo 3.2 (modalità classe alla LIM) | Gemini | fatto il 22 ottobre: 3 problemi, tutti risolti |
 
 ## Prompt da incollare in Gemini
 

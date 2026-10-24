@@ -1536,6 +1536,7 @@ body.pp-class .pp > .pt__wrap,
 body.pp-class .pp-side,
 body.pp-class .pp-more,
 body.pp-class .evil-help-fab,
+body.pp-class .evil-lang-hint,
 body.pp-class header[role='banner'],
 body.pp-class footer.evil-site-foot { display: none !important; }
 body.pp-class .pp > .pt-section:not(.is-class-current) { display: none; }
@@ -1544,6 +1545,24 @@ body.pp-class .pt__narrow { max-width: 60rem; }
 body.pp-class .pp h2 { font-size: 2.2rem; }
 body.pp-class .pp-anim.is-show { max-width: 34rem; }
 body.pp-class .pp-classbar { left: auto; right: 1rem; transform: none; }
+
+/* le sezioni compaiono subito, senza la dissolvenza di quando si scorre */
+body.pp-class .pt-will-reveal { opacity: 1; transform: none; transition: none; }
+
+/* schermi larghi: la storia in due colonne, scena a sinistra e testo con le scelte a destra */
+@media (min-width: 1100px) {
+  body.pp-class #story .pt__narrow {
+    display: grid;
+    grid-template-columns: minmax(0, 30rem) minmax(0, 1fr);
+    column-gap: 2.5rem;
+    align-items: start;
+    max-width: 88rem;
+  }
+  body.pp-class #story .pt__narrow > * { grid-column: 2; }
+  body.pp-class #story .pt__narrow > h2 { grid-column: 1 / -1; }
+  body.pp-class #story .pt__narrow > .pp-anim { grid-column: 1; grid-row: 2 / span 6; margin-top: 0; }
+  body.pp-class #story .pp-scene { margin-top: 0; }
+}
 
 @media (max-width: 640px) {
   .pt .pp-classbar__step { display: none; }

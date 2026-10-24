@@ -4,7 +4,7 @@ Ramo: `feat/evil-per-tutti` · piano: [PIANO.md](PIANO.md)
 
 ## Prossimo passo
 
-Prima, due ritocchi aperti in REVISIONI.md (modalità classe a 1366×768: scena e testo affiancati; dissolvenza al primo ingresso). Poi **3.3 Kit per le famiglie** (lettera ai genitori e patto del primo telefono, stampabili, IT/EN),
+**3.3 Kit per le famiglie** (lettera ai genitori e patto del primo telefono, stampabili, IT/EN),
 poi 3.4 kit per il referente cyberbullismo, 3.5 account docente (ruolo) e 3.6 pilota.
 
 In parallelo, quando Alessandro può: la **prova di Primi passi con 5–10 persone** (controllo di fine
