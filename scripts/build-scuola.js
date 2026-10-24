@@ -11,7 +11,7 @@
 'use strict';
 
 const S = require('../server/lib/scuola-content');
-const { renderKit, renderLanding } = require('../server/lib/scuola-pages');
+const { renderKit, renderLanding, renderFamily } = require('../server/lib/scuola-pages');
 const { createGenerator } = require('./lib/generated-pages');
 
 const gen = createGenerator({
@@ -21,6 +21,7 @@ const gen = createGenerator({
   owns: /^scuola-[a-z0-9-]+\.html$/,
   pages: () => [
     { file: S.PAGE.file, render: (lang) => renderLanding(lang) },
+    { file: S.FAMILY.file, render: (lang) => renderFamily(lang) },
     ...S.KITS.map((k) => ({ file: k.file, render: (lang) => renderKit(k, lang) })),
   ],
 });

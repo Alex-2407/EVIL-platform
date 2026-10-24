@@ -92,6 +92,9 @@ const PAGE = {
       'If a student tells you something: listen calmly, thank them, don’t promise to keep it secret and follow your school’s procedure.',
     ]
   ),
+  familyTitle: T('Per le famiglie', 'For families'),
+  family: T('Dopo la lezione, a casa: una lettera da consegnare e il patto del primo telefono da compilare insieme.', 'After the lesson, at home: a letter to hand out and a first-phone agreement to fill in together.'),
+  familyGo: T('Lettera e patto del primo telefono', 'Letter and first-phone agreement'),
   careMore: T('Altri consigli per i docenti nella pagina <a href="/aiuto.html#docenti">Aiuto subito</a>.', 'More advice for teachers on the <a href="/aiuto.html#docenti">Get help now</a> page.'),
   resourcesTitle: T('Risorse ufficiali', 'Official resources'),
   privacyTitle: T('Privacy', 'Privacy'),
@@ -600,9 +603,12 @@ KITS.sort((a, b) => a.n - b.n);
 for (const k of KITS) k.file = `scuola-${k.slug}.html`;
 
 /** Voci per server/site-map.js */
+const FAMILY = require('./scuola-famiglie');
+
 function sitePages() {
   return [
     { file: PAGE.file, area: 'per-tutti', icon: 'book', nav: true, sitemap: 0.8, title: PAGE.navTitle, desc: PAGE.navDesc },
+    { file: FAMILY.file, area: 'per-tutti', icon: 'heart', nav: false, sitemap: 0.6, title: FAMILY.navTitle, desc: FAMILY.desc },
     ...KITS.map((k) => ({
       file: k.file, area: 'per-tutti', icon: k.icon, nav: false, sitemap: 0.6,
       title: T(`Kit ${k.n}: ${k.title.it}`, `Kit ${k.n}: ${k.title.en}`),
@@ -611,4 +617,4 @@ function sitePages() {
   ];
 }
 
-module.exports = { T, SRC, PAGE, CYCLES, UI, KITS, PLANNED, sitePages };
+module.exports = { T, SRC, PAGE, CYCLES, UI, KITS, PLANNED, FAMILY, sitePages };

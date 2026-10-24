@@ -310,6 +310,19 @@ ${cycles}
       </div>
     </section>
 
+    <section class="pt-section" aria-labelledby="family-title">
+      <div class="pt__wrap pt__narrow">
+        <div class="pt-callout pt-callout--school">
+          <span class="pt-callout__icon" aria-hidden="true">${svgIcon('heart')}</span>
+          <h2 class="pt-callout__title" id="family-title">${x(L(P.familyTitle, lang))}</h2>
+          <div class="pt-callout__body">
+            <p>${x(L(P.family, lang))}</p>
+            <p><a class="pt-btn pt-btn--primary" href="/${S.FAMILY.file}">${x(L(P.familyGo, lang))}</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="pt-section" aria-labelledby="care-title">
       <div class="pt__wrap pt__narrow">
         <div class="pt-callout pt-callout--help">
@@ -350,4 +363,82 @@ ${sourceList(resources, lang)}
 `;
 }
 
-module.exports = { renderKit, renderLanding };
+// ------------------------------------------------------------------ kit per le famiglie (3.3)
+
+function renderFamily(lang) {
+  const F = S.FAMILY;
+  const teach = L(F.forTeachers, lang).map((t) => `            <li>${x(t)}</li>`).join('\n');
+  const letter = L(F.letter, lang).map((p) => `            <p>${x(p)}</p>`).join('\n');
+  const pact = F.pactSections.map((sec) => `            <section class="sk-pact__sec">
+              <h3>${x(L(sec.title, lang))}</h3>
+              <ul>
+${L(sec.lines, lang).map((l) => `                <li>${x(l)}</li>`).join('\n')}
+              </ul>
+            </section>`).join('\n');
+  return `${head(`${L(F.navTitle, lang)} - EVIL`, L(F.desc, lang))}
+<body class="evil-theme pt-page sk-page sk-family">
+  ${GENERATED}
+  <div id="fade-overlay"></div>
+  <canvas id="matrix-canvas"></canvas>
+
+  <!--evil:header-->
+
+  <main id="scuola" class="pt sk">
+    <div class="sk-guide">
+      <div class="pt__wrap">
+        <p class="sk-back"><a href="/${S.PAGE.file}">← ${x(L(S.UI.back, lang))}</a></p>
+        <section class="pt-hero sk-hero" aria-labelledby="sk-title">
+          <div>
+            <p class="pt-kicker">${x(L(F.kicker, lang))}</p>
+            <h1 id="sk-title">${x(L(F.h1, lang))}</h1>
+            <p class="pt-hero__lead">${x(L(F.lead, lang))}</p>
+            <div class="sk-print" data-sk-print-bar hidden>
+              <button class="pt-btn pt-btn--primary" type="button" data-sk-print="letter">${x(L(F.printLetter, lang))}</button>
+              <button class="pt-btn pt-btn--ghost" type="button" data-sk-print="pact">${x(L(F.printPact, lang))}</button>
+            </div>
+            <p class="sk-print__hint" data-sk-print-hint>${x(L(S.UI.printHint, lang))}</p>
+          </div>
+          <div class="sk-hero__ico" aria-hidden="true">${svgIcon('heart')}</div>
+        </section>
+      </div>
+      <section class="pt-section" aria-labelledby="teach-title">
+        <div class="pt__wrap pt__narrow">
+          <h2 id="teach-title">${x(L(F.forTeachersTitle, lang))}</h2>
+          <ul class="sk-list">
+${teach}
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <section class="pt-section sk-sheets" aria-labelledby="letter-title">
+      <div class="pt__wrap pt__narrow">
+        <article class="sk-sheet sk-sheet--letter">
+          <h2 id="letter-title">${x(L(F.letterTitle, lang))}</h2>
+          <p class="sk-letter__head">${x(L(F.letterHead, lang))}</p>
+          <div class="sk-letter">
+${letter}
+            <p class="sk-letter__sign">${x(L(F.signature, lang))}</p>
+          </div>
+        </article>
+        <article class="sk-sheet sk-sheet--pact" aria-labelledby="pact-title">
+          <h2 id="pact-title">${x(L(F.pactTitle, lang))}</h2>
+          <p class="sk-pact__lead">${x(L(F.pactLead, lang))}</p>
+          <div class="sk-pact">
+${pact}
+          </div>
+          <p class="sk-pact__sign">${x(L(F.pactSign, lang))}</p>
+          <p class="sk-pact__sign">${x(L(F.pactNext, lang))}</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <!--evil:footer-->
+  <script src="/js/matrixrain.js" defer></script>
+</body>
+</html>
+`;
+}
+
+module.exports = { renderKit, renderLanding, renderFamily };

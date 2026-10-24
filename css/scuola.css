@@ -176,6 +176,21 @@
 .pt .sk-votes > li:nth-child(3) { color: #8a4b00; }
 .pt .sk-votes > li:nth-child(4) { color: #5b3796; }
 
+/* kit per le famiglie: lettera e patto */
+.pt .sk-letter__head { font-weight: 700; color: var(--pt-ink-2); }
+.pt .sk-letter p { max-width: none; }
+.pt .sk-letter__sign { margin-top: 1.6rem; text-align: right; }
+.pt .sk-pact__lead { color: var(--pt-ink-2); }
+.sk-pact { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.6rem; }
+.pt .sk-pact__sec h3 { margin: 0 0 0.4rem; color: var(--pt-school); font-size: 1.1rem; }
+.pt .sk-pact__sec ul { padding-left: 1.1rem; margin: 0; }
+.pt .sk-pact__sec li + li { margin-top: 0.5rem; }
+.pt .sk-pact__sign { margin: 1.2rem 0 0; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .sk-pact { grid-template-columns: none; }
+}
+
 /* ---------------------------------------------------------------- pagina dei kit */
 .sk-how__list { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
 .pt .sk-how__list > li + li { margin-top: 0; }
@@ -233,5 +248,10 @@
   body[data-sk-print='votes'] .sk-guide, body[data-sk-print='votes'] .sk-sheet:not(.sk-sheet--votes) { display: none !important; }
   body[data-sk-print='votes'] .sk-sheet--votes { break-before: auto; }
   .sk-votes > li { min-height: 125mm; font-size: 90mm; }
+  .sk-family .sk-sheet--letter { break-before: auto; }
+  body[data-sk-print='letter'] .sk-guide, body[data-sk-print='letter'] .sk-sheet--pact { display: none !important; }
+  body[data-sk-print='pact'] .sk-guide, body[data-sk-print='pact'] .sk-sheet--letter { display: none !important; }
+  body[data-sk-print='pact'] .sk-sheet--pact { break-before: auto; }
+  .sk-pact__sec { break-inside: avoid; }
   body[data-sk-print='sheets'] .sk-sheet:first-child { break-before: auto; }
 }

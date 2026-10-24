@@ -67,9 +67,9 @@ test('EVIL Scuola: kit completi, da 50 minuti, con tappe e fonti vere', () => {
 
 test('EVIL Scuola: pagina nel menu, kit nella sitemap, serviti in italiano e in inglese', async () => {
   const sk = PAGES.filter((p) => p.file === 'scuola.html' || p.file.startsWith('scuola-'));
-  assert.equal(sk.length, 1 + S.KITS.length);
+  assert.equal(sk.length, 2 + S.KITS.length);
   assert.equal(sk.filter((p) => p.nav).length, 1, 'solo la pagina dei kit nel menu');
-  for (const file of [S.PAGE.file, ...S.KITS.map((k) => k.file)]) {
+  for (const file of [S.PAGE.file, S.FAMILY.file, ...S.KITS.map((k) => k.file)]) {
     const src = fs.readFileSync(path.join(root, 'html', file), 'utf8');
     assert.deepEqual(i18n.translateHtml(src, 'en', file).missing, [], `${file}: testi senza traduzione`);
     const it = await request(app).get(`/${file}`).expect(200);

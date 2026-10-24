@@ -43,6 +43,7 @@ Regole di Gemini: [GEMINI.md](../../GEMINI.md). Regole di Claude: [CLAUDE.md](..
 | C2 | 3.1b–c: gli altri quattro kit, con le fonti di G1 | Claude | fatto il 22 ottobre |
 | G5 | Revisione dei kit 2, 3 e 6 (temi delicati) | Gemini | fatto il 22 ottobre: 4 problemi, tutti risolti |
 | G6 | Revisione del passo 3.2 (modalità classe alla LIM) | Gemini | fatto il 22 ottobre: 3 problemi, tutti risolti |
+| G7 | Revisione del passo 3.3 (kit per le famiglie) | Gemini | da fare |
 
 ## Prompt da incollare in Gemini
 
@@ -169,6 +170,18 @@ Prova in locale alcune tappe con ?classe=1 (per esempio /pp-truffe.html?classe=1
 1920×1080, da tastiera (Tab, Invio, Pagina giù/su, Esc) e con i giochi: si vede tutto, niente è
 coperto, i giochi funzionano in modalità classe? Prova la stampa dei cartellini da un kit.
 Scrivi i problemi in fondo a REVISIONI.md, senza correggere il codice. Commit, push, riassunto.
+```
+
+### G7 — Revisione del kit per le famiglie
+
+```text
+Compito G7 (leggi prima GEMINI.md). Ramo: gemini/revisione-5.
+Rivedi il passo 3.3: server/lib/scuola-famiglie.js e la pagina /scuola-famiglie.html (anche
+/en/scuola-famiglie.html), con la stampa della lettera e del patto. Guarda con attenzione: il tono
+verso i genitori (rassicura, non spaventa, non giudica); il patto non impone numeri o regole non
+fondate e vale anche per gli adulti; la frase sul «nessuno viene punito per averlo raccontato» è
+chiara; l'inglese è naturale. Scrivi i problemi in fondo a REVISIONI.md, senza correggere i testi.
+Commit, push, riassunto.
 ```
 
 ## Lista di controllo per le revisioni
