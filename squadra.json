@@ -1,0 +1,21 @@
+{
+  "regole": "docs/REGOLE-IA.md",
+  "base": "main",
+  "controlli": [
+    "npm test",
+    "npm run lint",
+    "npm run check:encoding"
+  ],
+  "delicati": [
+    "server/lib/",
+    "server/routes/auth",
+    "middleware/",
+    "utils/",
+    "server/app.js",
+    "Dockerfile",
+    "fly.toml",
+    ".github/",
+    ".env.example"
+  ],
+  "locale": "AAAPRIMI PER INIZIARE/start-local.bat"
+}
