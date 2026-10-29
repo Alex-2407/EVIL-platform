@@ -1,5 +1,10 @@
 # Lavoro in due: Claude e Gemini
 
+> **Superato dal 29 ottobre 2026.** Il progetto ora si porta avanti con la squadra AI (comando EVIL SQUADRA):
+> regole e ruoli in [docs/REGOLE-IA.md](../REGOLE-IA.md), passaggi tra le IA in [docs/LAVAGNA.md](../LAVAGNA.md).
+> Questo file resta come storia dei compiti G1–G7 e del loro esito. Il compito G7 non è stato fatto: la revisione del
+> kit per le famiglie passa alla squadra.
+
 Dal 22 ottobre 2026 EVIL si costruisce con due assistenti: **Claude** progetta, scrive il codice e
 integra; **Gemini** verifica le fonti, prepara bozze e controlla il lavoro di Claude. Non si parlano:
 si passano il lavoro attraverso il repository. Decide Alessandro.
